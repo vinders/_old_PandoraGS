@@ -72,7 +72,7 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
     if (hasFrameInfo)
     {
         if (g_pConfig->getCurrentProfile()->sync_hasFixAutoLimit)
-            s_isInterlaced = g_pMemory->m_PSXDisplay.Interlaced;
+            s_isInterlaced = g_pMemory->sync_isInterlaced;
         else
             s_isInterlaced = g_pMemory->getStatus(GPUSTATUS_INTERLACED);
     }

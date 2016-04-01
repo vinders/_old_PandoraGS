@@ -98,6 +98,7 @@ long CALLBACK GPUopen_PARAM_
     ConfigIO::loadFrameLimitConfig(g_pConfig); 
     // load associated profile (if not already loaded)
     g_pConfig->useProfile(ConfigIO::getGameAssociation(g_pConfig->gen_gameId));
+    g_pMemory->ps_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
 
     // hide emulator window, create rendering window and shaders
     #ifdef _WINDOWS
@@ -156,6 +157,7 @@ void CALLBACK GPUupdateLace()
     if (InputManager::m_isProfileChangePending)
     {
         g_pConfig->useProfile(InputManager::m_menuIndex); // set profile
+        g_pMemory->ps_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
         InputManager::m_isProfileChangePending = false;
 
         g_pDisplayManager->changeQuery(); // reload renderer

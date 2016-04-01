@@ -33,6 +33,8 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     scl_spriteUpscale = copy.scl_spriteUpscale;
     scl_screenSmooth = copy.scl_screenSmooth;
     scl_isMdec = copy.scl_isMdec;
+    scl_isGpuTxScaling = copy.scl_isGpuTxScaling;
+    scl_isGpu2dScaling = copy.scl_isGpu2dScaling;
 
     shd_antiAliasing = copy.shd_antiAliasing;
     //...
@@ -40,11 +42,14 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     dsp_internalResX = copy.dsp_internalResX;
     dsp_internalResY = copy.dsp_internalResY;
     dsp_screenStretch = copy.dsp_screenStretch;
-    //...
-
     dsp_isExtraRender = copy.dsp_isExtraRender;
     dsp_isScreenMirror = copy.dsp_isScreenMirror;
     dsp_borderSize = copy.dsp_borderSize;
+    //...
+
+    sync_hasFixAutoLimit = copy.sync_hasFixAutoLimit;
+    sync_hasFixInterlace = copy.sync_hasFixInterlace;
+    dsp_hasFixExpandScreen = copy.dsp_hasFixExpandScreen;
     //...
 }
 
@@ -148,5 +153,6 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
     //...
     sync_hasFixAutoLimit = false;
     sync_hasFixInterlace = false;
+    dsp_hasFixExpandScreen = false;
     //...
 }

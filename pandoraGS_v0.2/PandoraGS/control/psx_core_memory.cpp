@@ -23,6 +23,18 @@ PsxCoreMemory::PsxCoreMemory()
     sync_localize = LocalizationMode_Ntsc;
     sync_isInterlaced = false;
     mem_vramImage.pData = NULL;
+
+    // native display widths
+    ps_displayWidths[0] = 256;
+    ps_displayWidths[1] = 320;
+    ps_displayWidths[2] = 512;
+    ps_displayWidths[3] = 640;
+    ps_displayWidths[4] = 368;
+    ps_displayWidths[5] = 384;
+    ps_displayWidths[6] = 512;
+    ps_displayWidths[7] = 640;
+    // data transaction init
+    mem_gpuDataTransaction = GPUDATA_INIT;
 }
 
 /// <summary>Destroy memory instance</summary>

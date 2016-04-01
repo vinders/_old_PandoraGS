@@ -55,6 +55,7 @@ public:
     // custom fixes
     bool         sync_hasFixAutoLimit;  // fix - use theoretical FPS limit (25 or 30, doubled if interlaced)
     bool         sync_hasFixInterlace;  // chronocross fix - switch during status read instead of update lace
+    bool         dsp_hasFixExpandScreen;// capcom fix - fix screen width to show full area
 
 
 public:

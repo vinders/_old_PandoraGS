@@ -101,8 +101,10 @@ inline void readRegString(std::string* pDest, HKEY* pRegKey, LPCWSTR valName, DW
         *pDest = ncharBuffer;
     }
 }
+#endif
 
 
+#ifdef _WINDOWS
 // -- WINDOWS - CONFIG IO -- ---------------------------------------------------
 
 /// <summary>Load config values from registry/file</summary>
@@ -308,12 +310,13 @@ ConfigProfile* ConfigIO::loadConfigProfile(unsigned int id)
         readRegBool(&(pProfile->dsp_isExtraRender), &profileKey, L"ExtraRender", &type, &size);
         readRegBool(&(pProfile->dsp_isScreenMirror), &profileKey, L"Mirror", &type, &size);
         readRegDword<unsigned int>(&(pProfile->dsp_borderSize), &profileKey, L"BorderSize", &type, &size);
-   
+        
         //...
 
         // custom fixes
         readRegBool(&(pProfile->sync_hasFixAutoLimit), &profileKey, L"FixAutoLimit", &type, &size);
         readRegBool(&(pProfile->sync_hasFixInterlace), &profileKey, L"FixInterlace", &type, &size);
+        readRegBool(&(pProfile->dsp_hasFixExpandScreen), &profileKey, L"FixExpandScn", &type, &size);
         //...
 
         RegCloseKey(profileKey); // close
@@ -381,6 +384,8 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         RegSetValueEx(profileKey, L"FixAutoLimit", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pProfile->sync_hasFixInterlace) ? 1uL : 0uL;
         RegSetValueEx(profileKey, L"FixInterlace", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = (pProfile->dsp_hasFixExpandScreen) ? 1uL : 0uL;
+        RegSetValueEx(profileKey, L"FixExpandScn", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         //...
 
         RegCloseKey(profileKey); // close

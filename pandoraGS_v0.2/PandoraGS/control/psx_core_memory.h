@@ -81,9 +81,6 @@ typedef struct VRAM_LOADTAG
 #define TRI_BYTE_MASK         0xFFFFFF
 #define PSXVRAM_MASK          0x1FFFFC // 2097148
 
-// transfer modes
-#define DR_NORMAL                   0
-#define DR_VRAMTRANSFER             1
 // status bits masks
 #define GPUSTATUS_INIT              0x14802000 // initial values
 #define GPUSTATUS_ODDLINES          0x80000000
@@ -101,6 +98,16 @@ typedef struct VRAM_LOADTAG
 #define GPUSTATUS_MASKDRAWN         0x00000800
 #define GPUSTATUS_DRAWINGALLOWED    0x00000400
 #define GPUSTATUS_DITHER            0x00000200
+// data transfer modes
+#define DR_NORMAL               0
+#define DR_VRAMTRANSFER         1
+// data transaction codes
+#define GPUDATA_INIT            0x400
+#define GPUDATA_BIOSADDR        0xBFC03720
+#define GPUINFO_TW              0
+#define GPUINFO_DRAWSTART       1
+#define GPUINFO_DRAWEND         2
+#define GPUINFO_DRAWOFF         3
 
 
 // -- PSX CORE MEMORY CLASS -- -------------------------------------------------
@@ -128,6 +135,33 @@ public:
     long          st_statusReg;           // GPU status register
     unsigned long st_pStatusControl[STATUSCTRL_SIZE]; // GPU status control
     unsigned long st_pGpuDrawInfo[DRAWINFO_SIZE];     // GPU draw information
+
+    // possible psx display widths
+    short         ps_displayWidths[8];
+
+
+    /*          unsigned char  *psxVSecure; //mem_vramImage
+    unsigned char  *psxVub;
+    signed   char  *psxVsb;
+    unsigned short *psxVuw;
+    unsigned short *psxVuw_eom;
+    signed   short *psxVsw;
+    unsigned long  *psxVul;
+    signed   long  *psxVsl;
+
+    unsigned long   ulStatusControl[256]; //mem_pStatusControl
+    static long     GPUdataRet;     //mem_gpuDataTransaction
+    long            lGPUstatusRet;  //mem_statusReg
+    char            szDispBuf[64];  //inutile, ne servait qu'à stocker les FPS sous forme de chaine
+    static unsigned long gpuDataM[256]; // uniquement dans 1 seule fonction -> utiliser var statique
+    static unsigned char gpuCommand = 0;// idem
+    static long          gpuDataC = 0;  // idem
+    static long          gpuDataP = 0;  // idem
+    VRAMLoad_t      VRAMWrite;      //mem_vramWrite
+    VRAMLoad_t      VRAMRead;       //mem_vramRead
+    int             iDataWriteMode; //mem_vramWriteMode
+    int             iDataReadMode;  //mem_vramReadMode 
+    PSXDisplay: PAL->sync_localize ; Interlaced->sync_isInterlaced */
 
 
 public:
@@ -163,82 +197,6 @@ public:
     {
         return (st_statusReg & statusBits);
     }
-
-
-    /*
-    ////////////////////////////////////////////////////////////////////////
-    // memory image of the PSX vram
-    ////////////////////////////////////////////////////////////////////////
-
-                unsigned char  *psxVSecure; //mem_vramImage
-                unsigned char  *psxVub;
-                signed   char  *psxVsb;
-                unsigned short *psxVuw;
-                unsigned short *psxVuw_eom;
-                signed   short *psxVsw;
-                unsigned long  *psxVul;
-                signed   long  *psxVsl;
-
-    //GLfloat         gl_z = 0.0f;
-    BOOL            bNeedInterlaceUpdate = FALSE;
-    BOOL            bNeedRGB24Update = FALSE;
-    BOOL            bChangeWinMode = FALSE;
-
-    #ifdef _WINDOWS
-    //extern HGLRC    GLCONTEXT;
-    #endif
-
-                unsigned long   ulStatusControl[256]; //mem_pStatusControl
-
-    ////////////////////////////////////////////////////////////////////////
-    // global GPU vars
-    ////////////////////////////////////////////////////////////////////////
-
-                static long     GPUdataRet;     //mem_gpuDataTransaction
-                long            lGPUstatusRet;  //mem_statusReg
-            char            szDispBuf[64];  //inutile, ne servait qu'à stocker les FPS sous forme de chaine
-
-            static unsigned long gpuDataM[256]; // uniquement dans 1 seule fonction -> utiliser var statique
-            static unsigned char gpuCommand = 0;// idem
-            static long          gpuDataC = 0;  // idem
-            static long          gpuDataP = 0;  // idem
-
-                VRAMLoad_t      VRAMWrite;      //mem_vramWrite
-                VRAMLoad_t      VRAMRead;       //mem_vramRead
-                int             iDataWriteMode; //mem_vramWriteMode
-                int             iDataReadMode;  //mem_vramReadMode
-
-    long            lClearOnSwap;
-    long            lClearOnSwapColor;
-    BOOL            bSkipNextFrame = FALSE;
-    int             iColDepth;
-    BOOL            bChangeRes;
-            BOOL            bWindowMode; // fait double emploi avec isFullscreen de la config
-    int             iWinSize;
-
-    // possible psx display widths
-    short dispWidths[8] = { 256, 320, 512, 640, 368, 384, 512, 640 };
-
-    PSXDisplay_t    PSXDisplay;
-    PSXDisplay_t    PreviousPSXDisplay;
-    TWin_t          TWin;
-    short           imageX0, imageX1;
-    short           imageY0, imageY1;
-    BOOL            bDisplayNotSet = TRUE;
-    GLuint          uiScanLine = 0;
-    int             iUseScanLines = 0;
-    long            lSelectedSlot = 0;
-    unsigned char * pGfxCardScreen = 0;
-    int             iBlurBuffer = 0;
-    int             iScanBlend = 0;
-    int             iRenderFVR = 0;
-    int             iNoScreenSaver = 0;
-                unsigned long   ulGPUInfoVals[16];
-    int             iFakePrimBusy = 0;
-    int             iRumbleVal = 0;
-    int             iRumbleTime = 0;
-    */
-
 };
 
 
@@ -267,11 +225,6 @@ public:
 #define SAVESTATE_SET           0
 #define SAVESTATE_GET           1
 #define SAVESTATE_INFO          2
-// request replies
-#define GPUBIOSADDR             0xBFC03720
-#define INFO_TW                 0
-#define INFO_DRAWSTART          1
-#define INFO_DRAWEND            2
-#define INFO_DRAWOFF            3
+
 
 #endif
