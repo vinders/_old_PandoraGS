@@ -140,7 +140,7 @@ public:
     short         ps_displayWidths[8];
 
 
-    /*          unsigned char  *psxVSecure; //mem_vramImage
+    /* unsigned char  *psxVSecure; //mem_vramImage
     unsigned char  *psxVub;
     signed   char  *psxVsb;
     unsigned short *psxVuw;
@@ -152,16 +152,16 @@ public:
     unsigned long   ulStatusControl[256]; //mem_pStatusControl
     static long     GPUdataRet;     //mem_gpuDataTransaction
     long            lGPUstatusRet;  //mem_statusReg
-    char            szDispBuf[64];  //inutile, ne servait qu'à stocker les FPS sous forme de chaine
-    static unsigned long gpuDataM[256]; // uniquement dans 1 seule fonction -> utiliser var statique
-    static unsigned char gpuCommand = 0;// idem
-    static long          gpuDataC = 0;  // idem
-    static long          gpuDataP = 0;  // idem
+        char            szDispBuf[64];  //inutile, ne servait qu'à stocker les FPS sous forme de chaine
+        static unsigned long gpuDataM[256]; // uniquement dans 1 seule fonction -> utiliser var statique
+        static unsigned char gpuCommand = 0;// idem
+        static long          gpuDataC = 0;  // idem
+        static long          gpuDataP = 0;  // idem
     VRAMLoad_t      VRAMWrite;      //mem_vramWrite
     VRAMLoad_t      VRAMRead;       //mem_vramRead
     int             iDataWriteMode; //mem_vramWriteMode
     int             iDataReadMode;  //mem_vramReadMode 
-    PSXDisplay: PAL->sync_localize ; Interlaced->sync_isInterlaced */
+    PSXDisplay: PAL-> sync_localize ; Interlaced-> sync_isInterlaced */
 
 
 public:
