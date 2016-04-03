@@ -35,6 +35,12 @@ public:
     static void initListener();
     /// <summary>Stop keyboard listener</summary>
     static void stopListener();
+
+    #ifdef _WINDOWS
+    /// <summary>Enable or disable screen saver</summary>
+    /// <param name="isEnabled">Enabled/disabled</param>
+    static void setScreensaver(bool isEnabled);
+    #endif
 };
 
 #ifdef _WINDOWS

@@ -35,6 +35,7 @@ public:
     /// <param name="pConfig">Existing config container to fill</param>
     /// <param name="hasProfileArray">Alloc an empty array with the appropriate size</param>
     /// <param name="hasProfileValues">Fill the array with profile containers</param>
+    /// <exception cref="std::exception">Null config container</exception>
     static void loadConfig(Config* pConfig, bool hasProfileArray, bool hasProfileValues);
     /// <summary>Save config values to registry/file</summary>
     /// <param name="pConfig">Config container with values</param>
@@ -49,6 +50,7 @@ public:
     /// <summary>Load specific profile values from registry/file</summary>
     /// <param name="id">Profile identifier</param>
     /// <returns>Allocated config profile container (with loaded values)</returns>
+    /// <exception cref="std::exception">Memory allocation failure</exception>
     static ConfigProfile* loadConfigProfile(unsigned int id);
     /// <summary>Save profile values to registry/file</summary>
     /// <param name="pProfile">Config profile container with values</param>

@@ -84,6 +84,30 @@ void InputManager::stopListener()
 }
 
 #ifdef _WINDOWS
+/// <summary>Enable or disable screen saver</summary>
+/// <param name="isEnabled">Enabled/disabled</param>
+void InputManager::setScreensaver(bool isEnabled)
+{
+    // dynamic thread state system call
+    EXECUTION_STATE(WINAPI *D_SetThreadExecutionState)(EXECUTION_STATE esFlags);
+    HINSTANCE hKernel32 = NULL;
+
+    // load the kernel32.dll library
+    hKernel32 = LoadLibrary(L"kernel32.dll");
+    if (hKernel32 != NULL)
+    {
+        D_SetThreadExecutionState = (EXECUTION_STATE(WINAPI *)(EXECUTION_STATE))GetProcAddress(hKernel32, "SetThreadExecutionState");
+        if (D_SetThreadExecutionState != NULL)
+        {
+            if (isEnabled)
+                D_SetThreadExecutionState(ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED); // enabled
+            else
+                D_SetThreadExecutionState(ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED | ES_CONTINUOUS); // disabled
+        }
+        FreeLibrary(hKernel32);
+    }
+}
+
 /// <summary>Handle keyboard in Linux</summary>
 /// <param name="hWindow">Window handler</param>
 /// <param name="eventType">Event type</param>
@@ -226,36 +250,8 @@ void GPUkeypressed(int keycode)
 {
     switch (keycode)
     {
-        case VK_F5:
-            bSnapShot = 1;
+        default: //...
             break;
-
-        case VK_INSERT:
-            ulKeybits |= KEY_RESETTEXSTORE;
-            if (iBlurBuffer) iBlurBuffer = 0;
-            else            iBlurBuffer = 1;
-            break;
-
-        case VK_DEL:
-            if (ulKeybits&KEY_SHOWFPS)
-            {
-                ulKeybits &= ~KEY_SHOWFPS;
-                HideText();
-                DestroyPic();
-            }
-            else
-            {
-                ulKeybits |= KEY_SHOWFPS;
-                szDispBuf[0] = 0;
-                BuildDispMenu(0);
-
-            }
-            break;
-
-        case VK_PRIOR: BuildDispMenu(-1); break;
-        case VK_NEXT:  BuildDispMenu(1);  break;
-        case VK_END:   SwitchDispMenu(1); break;
-        case VK_HOME:  SwitchDispMenu(-1); break;
     }
 }
 #endif

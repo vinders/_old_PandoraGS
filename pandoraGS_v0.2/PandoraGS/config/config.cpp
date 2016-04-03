@@ -59,7 +59,7 @@ void Config::setDefaultValues()
     sync_isVerticalSync = true;
     sync_timeMode = TimingMode_HighResCounter;
 
-    misc_isScreensaverDisabled = true;
+    misc_isScreensaverDisabled = false;
 
     //...
 
@@ -208,6 +208,7 @@ void Config::useDefaultProfile()
 
 /// <summary>Set specific profile as current (if available)</summary>
 /// <param name="index">Profile index (0 based)</param>
+/// <exception cref="std::exception">Memory allocation failure</exception>
 void Config::useProfile(unsigned int index)
 {
     // change profile

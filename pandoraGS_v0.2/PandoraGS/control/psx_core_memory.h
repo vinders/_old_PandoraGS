@@ -171,6 +171,7 @@ public:
     ~PsxCoreMemory();
 
     /// <summary>Initialize memory instance values</summary>
+    /// <exception cref="std::exception">Memory allocation failure</exception>
     void initMemory();
 
     /// <summary>Activate specific status bit(s) in status register</summary>

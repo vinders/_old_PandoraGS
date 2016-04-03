@@ -111,9 +111,12 @@ inline void readRegString(std::string* pDest, HKEY* pRegKey, LPCWSTR valName, DW
 /// <param name="pConfig">Existing config container to fill</param>
 /// <param name="hasProfileArray">Alloc an empty array with the appropriate size</param>
 /// <param name="hasProfileValues">Fill the array with profile containers</param>
+/// <exception cref="std::exception">Null config container</exception>
 void ConfigIO::loadConfig(Config* pConfig, bool hasProfileArray, bool hasProfileValues)
 {
     unsigned int profilesNb = 1;
+    if (pConfig == NULL)
+        throw new std::exception("Null config container");
 
     // read saved data in registry (if available)
     HKEY configKey;
@@ -275,9 +278,12 @@ void ConfigIO::loadFrameLimitConfig(Config* pConfig)
 /// <summary>Load specific profile values from registry/file</summary>
 /// <param name="id">Profile identifier</param>
 /// <returns>Allocated config profile container (with loaded values)</returns>
+/// <exception cref="std::exception">Memory allocation failure</exception>
 ConfigProfile* ConfigIO::loadConfigProfile(unsigned int id)
 {
     ConfigProfile* pProfile = new ConfigProfile(id, "<default>");
+    if (pProfile == NULL)
+        throw new std::exception("Profile allocation failure");
     pProfile->setPresetValues(ProfilePreset_Standard);
 
     // read saved profile (if available)

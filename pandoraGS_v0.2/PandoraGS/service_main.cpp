@@ -59,9 +59,8 @@ long CALLBACK GPUinit()
     }
     catch (std::exception& exc) // init failure
     {
-        try { LogUtility::getInstance()->writeErrorEntry("GPUinit",exc.what()); } 
-        catch(...) {}
-
+        try { LogUtility::getInstance()->writeErrorEntry("GPUinit",exc.what()); } catch(...) {}
+        
         GPUshutdown();
         return PSE_INIT_ERR_NOHARDWARE;
     }
@@ -94,24 +93,34 @@ long CALLBACK GPUshutdown()
 /// <returns>Success indicator</returns>
 long CALLBACK GPUopen_PARAM_
 {
-    // reload framerate values (may have changed in previous session)
-    ConfigIO::loadFrameLimitConfig(g_pConfig); 
-    // load associated profile (if not already loaded)
-    g_pConfig->useProfile(ConfigIO::getGameAssociation(g_pConfig->gen_gameId));
-    g_pMemory->ps_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
+    try
+    {
+        // reload framerate values (may have changed in previous session)
+        ConfigIO::loadFrameLimitConfig(g_pConfig);
+        // load associated profile (if not already loaded)
+        g_pConfig->useProfile(ConfigIO::getGameAssociation(g_pConfig->gen_gameId));
+        g_pMemory->ps_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
 
-    // hide emulator window, create rendering window and shaders
-    #ifdef _WINDOWS
-    g_pMemory->gen_hWindow = hWindow;
-    #endif
-    g_pDisplayManager->changeQuery();
+        #ifdef _WINDOWS
+        // disable screensaver (if possible)
+        if (g_pConfig->misc_isScreensaverDisabled)
+            InputManager::setScreensaver(false);
+        // hide emulator window, create rendering window and shaders
+        g_pMemory->gen_hWindow = hWindow;
+        #endif
+        g_pDisplayManager->changeQuery();
 
-    // configure framerate manager (default)
-    FramerateManager::initFramerate();
-    FramerateManager::setFramerate(false);
-    // start user input tracker
-    InputManager::initListener();
-
+        // configure framerate manager (default)
+        FramerateManager::initFramerate();
+        FramerateManager::setFramerate(false);
+        // start user input tracker
+        InputManager::initListener();
+    }
+    catch (std::exception& exc) // allocation failure
+    {
+        try { LogUtility::getInstance()->writeErrorEntry("GPUopen", exc.what()); } catch (...) {}
+        return PSE_ERR_FATAL;
+    }
     return PSE_SUCCESS;
 }
 
@@ -124,6 +133,9 @@ long CALLBACK GPUclose()
 
     // wait until current frame complete and close window
     g_pDisplayManager->pauseQuery();
+    // enable screensaver (if disabled)
+    if (g_pConfig->misc_isScreensaverDisabled)
+        InputManager::setScreensaver(true);
 
     // save current game/profile association
     ConfigIO::setGameAssocation(g_pConfig->getCurrentProfileId(), g_pConfig->gen_gameId);
@@ -156,13 +168,21 @@ void CALLBACK GPUupdateLace()
     // change config profile (if requested)
     if (InputManager::m_isProfileChangePending)
     {
-        g_pConfig->useProfile(InputManager::m_menuIndex); // set profile
-        g_pMemory->ps_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
-        InputManager::m_isProfileChangePending = false;
+        try
+        {
+            g_pConfig->useProfile(InputManager::m_menuIndex); // set profile
+            g_pMemory->ps_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
+            InputManager::m_isProfileChangePending = false;
 
-        g_pDisplayManager->changeQuery(); // reload renderer
-        FramerateManager::resetFrameSkipping();
-        return;
+            g_pDisplayManager->changeQuery(); // reload renderer
+            FramerateManager::resetFrameSkipping();
+            return;
+        }
+        catch (std::exception& exc) 
+        {
+            try { LogUtility::getInstance()->writeErrorEntry("GPUupdateLace", exc.what()); } catch (...) {}
+            InputManager::m_isProfileChangePending = false;
+        }
     }
     // fast forward -> skip 2 frames out of 3
     if (InputManager::m_isFastForward)

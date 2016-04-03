@@ -145,6 +145,7 @@ public:
     void useDefaultProfile();
     /// <summary>Set specific profile as current (if available)</summary>
     /// <param name="index">Profile index (0 based)</param>
+    /// <exception cref="std::exception">Memory allocation failure</exception>
     void useProfile(unsigned int index);
 };
 
