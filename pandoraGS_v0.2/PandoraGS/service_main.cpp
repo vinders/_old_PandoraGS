@@ -99,7 +99,7 @@ long CALLBACK GPUopen_PARAM_
         ConfigIO::loadFrameLimitConfig(g_pConfig);
         // load associated profile (if not already loaded)
         g_pConfig->useProfile(ConfigIO::getGameAssociation(g_pConfig->gen_gameId));
-        g_pMemory->ps_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
+        g_pMemory->dsp_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
 
         #ifdef _WINDOWS
         // disable screensaver (if possible)
@@ -149,7 +149,7 @@ long CALLBACK GPUclose()
 /// <summary>Activity update (called every vsync)</summary>
 void CALLBACK GPUupdateLace()
 {
-    // interlacing
+    // interlacing (if CC game fix, done in GPUreadStatus)
     if (g_pConfig->getCurrentProfile()->sync_hasFixInterlace == false)
         g_pMemory->mem_vramImage.oddFrame ^= 1;
 
@@ -171,7 +171,7 @@ void CALLBACK GPUupdateLace()
         try
         {
             g_pConfig->useProfile(InputManager::m_menuIndex); // set profile
-            g_pMemory->ps_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
+            g_pMemory->dsp_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
             InputManager::m_isProfileChangePending = false;
 
             g_pDisplayManager->changeQuery(); // reload renderer
@@ -339,21 +339,24 @@ long CALLBACK GPUgetMode()
 /// <param name="gdataMode">Image transfer mode</param>
 void CALLBACK GPUsetMode(unsigned long gdataMode)
 {
-    // g_pMemory->mem_vramWriteMode = (gdata&1) ? DR_VRAMTRANSFER : DR_NORMAL;
-    // g_pMemory->mem_vramReadMode  = (gdata&2) ? DR_VRAMTRANSFER : DR_NORMAL;
+    // g_pMemory->mem_vramWriteMode = (gdataMode&0x1) ? DR_VRAMTRANSFER : DR_NORMAL;
+    // g_pMemory->mem_vramReadMode  = (gdataMode&0x2) ? DR_VRAMTRANSFER : DR_NORMAL;
 }
 
 /// <summary>Set special display flags</summary>
 /// <param name="dwFlags">Display flags</param>
 void CALLBACK GPUdisplayFlags(unsigned long dwFlags)
 {
+    // display flags for GPU menu
+    g_pMemory->dsp_displayFlags = dwFlags; // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
 }
 
 /// <summary>Set custom fixes from emulator</summary>
 /// <param name="fixBits">Fixes (bits)</param>
 void CALLBACK GPUsetfix(unsigned long fixBits)
 {
-    //emuFixes = fixBits;
+    // 'GPU busy' emulation hack
+    g_pMemory->st_hasFixBusyEmu = ((fixBits&0x0001) != 0 || (fixBits&0x20000) != 0);
 }
 
 
@@ -366,7 +369,33 @@ void CALLBACK GPUsetfix(unsigned long fixBits)
 /// <returns>GPU status register data</returns>
 unsigned long CALLBACK GPUreadStatus()
 { 
-    return 0; 
+    // interlacing CC game fix
+    if (g_pConfig->getCurrentProfile()->sync_hasFixInterlace)
+    {
+        static int readCount = 0;
+        if (++readCount >= 2) // interlace bit toggle - every second read
+        {
+            readCount = 0;
+            g_pMemory->mem_vramImage.oddFrame ^= 1;
+        }
+    }
+
+    // fake busy status fix -> busy/idle sequence (while drawing)
+    if (g_pMemory->st_fixBusyEmuSequence)
+    {
+        g_pMemory->st_fixBusyEmuSequence--;
+        if (g_pMemory->st_fixBusyEmuSequence & 1) // busy
+        {
+            g_pMemory->unsetStatus(GPUSTATUS_IDLE);
+            g_pMemory->unsetStatus(GPUSTATUS_READYFORCOMMANDS);
+        }
+        else // idle
+        {
+            g_pMemory->setStatus(GPUSTATUS_IDLE);
+            g_pMemory->setStatus(GPUSTATUS_READYFORCOMMANDS);
+        }
+    }
+    return g_pMemory->st_statusReg;
 }
 
 /// <summary>Process data sent to GPU status register</summary>
@@ -404,6 +433,13 @@ void CALLBACK GPUwriteData(unsigned long gdata)
 /// <param name="size">Memory chunk size</param>
 void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
 {
+    //...
+
+    // 'GPU busy' emulation hack
+    if (g_pMemory->st_hasFixBusyEmu)
+        g_pMemory->st_fixBusyEmuSequence = 4;
+
+    //...
 }
 
 /// <summary>Give a direct core memory access chain to GPU driver</summary>

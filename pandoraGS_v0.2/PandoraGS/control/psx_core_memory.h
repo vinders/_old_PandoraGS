@@ -135,9 +135,12 @@ public:
     long          st_statusReg;           // GPU status register
     unsigned long st_pStatusControl[STATUSCTRL_SIZE]; // GPU status control
     unsigned long st_pGpuDrawInfo[DRAWINFO_SIZE];     // GPU draw information
+    bool          st_hasFixBusyEmu;       // 'GPU busy' emulation hack on/off
+    int           st_fixBusyEmuSequence;  // 'GPU busy' emulation hack - sequence value
 
-    // possible psx display widths
-    short         ps_displayWidths[8];
+    // display settings
+    short         dsp_displayWidths[8];   // possible psx display widths
+    unsigned long dsp_displayFlags;       // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
 
 
     /* unsigned char  *psxVSecure; //mem_vramImage
