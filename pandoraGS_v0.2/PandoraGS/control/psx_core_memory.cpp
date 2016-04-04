@@ -35,6 +35,10 @@ PsxCoreMemory::PsxCoreMemory()
     dsp_displayWidths[7] = 640;
     // data transaction init
     mem_gpuDataTransaction = GPUDATA_INIT;
+
+    dsp_displayFlags = 0;
+    st_hasFixBusyEmu = false;
+    st_fixBusyEmuSequence = 0;
 }
 
 /// <summary>Destroy memory instance</summary>
