@@ -411,7 +411,9 @@ void CALLBACK GPUwriteStatus(unsigned long gdata)
 /// <returns>Raw GPU data</returns>
 unsigned long CALLBACK GPUreadData()
 { 
-    return 0; 
+    unsigned long gdata;
+    GPUreadDataMem(&gdata, 1);
+    return g_pMemory->mem_gpuDataTransaction;
 }
 
 /// <summary>Read entire chunk of data from video memory (vram)</summary>
@@ -426,6 +428,7 @@ void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
 /// <param name="gdata">Written data</param>
 void CALLBACK GPUwriteData(unsigned long gdata)
 {
+    GPUwriteDataMem(&gdata, 1);
 }
 
 /// <summary>Process and send chunk of data to video data register</summary>
