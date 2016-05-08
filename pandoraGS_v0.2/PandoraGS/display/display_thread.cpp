@@ -392,6 +392,7 @@ void* DisplayThread::DisplayLoop(void* arg)
         if (threadManager->m_isPausePending)
         {
             // close window and stop rendering
+            InputManager::setDisplayListener(false);
             //... fermer fenetre
             hasWindow = false;
             //... effacer shaders

@@ -28,6 +28,8 @@ static char* s_pLibName = PLUGIN_NAME;
 #ifndef _WINDOWS
 static char* s_pLibInfo = PLUGIN_INFO;
 #endif
+extern bool          g_isZincEmu;
+extern unsigned long zincGPUVersion;
 
 // global data
 Config* g_pConfig = NULL;        // main configuration reference
@@ -370,7 +372,7 @@ void CALLBACK GPUsetfix(unsigned long fixBits)
 unsigned long CALLBACK GPUreadStatus()
 { 
     // interlacing CC game fix
-    if (g_pConfig->getCurrentProfile()->sync_hasFixInterlace)
+    if (g_pConfig->isProfileSet() && g_pConfig->getCurrentProfile()->sync_hasFixInterlace)
     {
         static int readCount = 0;
         if (++readCount >= 2) // interlace bit toggle - every second read
@@ -398,10 +400,64 @@ unsigned long CALLBACK GPUreadStatus()
     return g_pMemory->st_statusReg;
 }
 
+
 /// <summary>Process data sent to GPU status register</summary>
 /// <param name="gdata">Status register command</param>
 void CALLBACK GPUwriteStatus(unsigned long gdata)
 {
+    // get command indicator
+    unsigned long command = getGpuCommand(gdata);
+    g_pMemory->st_pStatusControl[command] = gdata; // store command (for save-states)
+
+    switch (command)
+    {
+        // set VRAM transfer mode
+        case CMD_SETTRANSFERMODE: 
+        {
+            gdata &= 0x3; // extract last 2 bits (LSB+1, LSB)
+            g_pMemory->mem_vramWriteMode = (gdata == 0x2) ? DR_VRAMTRANSFER : DR_NORMAL;
+            g_pMemory->mem_vramReadMode = (gdata == 0x3) ? DR_VRAMTRANSFER : DR_NORMAL;
+            // set DMA bits
+            g_pMemory->unsetStatus(GPUSTATUS_DMABITS); // clear current settings
+            g_pMemory->setStatus(gdata << 29); // set based on received data (MSB-1, MSB-2)
+            return;
+        }
+
+        // check GPU information (version, draw info, ...)
+        case CMD_GPUREQUESTINFO: 
+        {
+            gdata &= 0x0FF; // extract request bits (last 8 bits)
+            switch (gdata)
+            {
+                case REQ_TW:          g_pMemory->mem_gpuDataTransaction = g_pMemory->st_pGpuDrawInfo[INFO_TW]; return;
+                case REQ_DRAWSTART:   g_pMemory->mem_gpuDataTransaction = g_pMemory->st_pGpuDrawInfo[INFO_DRAWSTART]; return;
+                case REQ_DRAWEND:     g_pMemory->mem_gpuDataTransaction = g_pMemory->st_pGpuDrawInfo[INFO_DRAWEND]; return;
+                case REQ_DRAWOFFSET1:
+                case REQ_DRAWOFFSET2: g_pMemory->mem_gpuDataTransaction = g_pMemory->st_pGpuDrawInfo[INFO_DRAWOFF]; return;
+                case REQ_GPUTYPE:     g_pMemory->mem_gpuDataTransaction = (zincGPUVersion == 2) ? 0x1 : 0x2; return;
+                case REQ_BIOSADDR1:
+                case REQ_BIOSADDR2:   g_pMemory->mem_gpuDataTransaction = INFO_GPUBIOSADDR; return;
+            }
+            return;
+        }
+
+        // enable/disable display
+        case CMD_TOGGLEDISPLAY: g_pMemory->cmdSetDisplay((gdata&0x1)!=0); return;
+        // reset GPU info
+        case CMD_RESETGPU:      g_pMemory->cmdReset(); return;
+        // set display
+        case CMD_SETDISPLAYPOSITION: 
+        {
+            if (g_isZincEmu && zincGPUVersion == 2)
+                g_pMemory->cmdSetDisplayPosition((short)(gdata&0x3FF), (short)((gdata>>12)&0x3FF));
+            else
+                g_pMemory->cmdSetDisplayPosition((short)(gdata&0x3FF), (short)((gdata>>10)&0x3FF));
+            return;
+        }
+        case CMD_SETDISPLAYWIDTH:  g_pMemory->cmdSetWidth((short)(gdata&0x7FF), (short)((gdata>>12)&0x0FFF)); return;
+        case CMD_SETDISPLAYHEIGHT: g_pMemory->cmdSetHeight((short)(gdata&0x3FF), (short)((gdata>>10)&0x3FF)); return;
+        case CMD_SETDISPLAYINFO:   g_pMemory->cmdSetDisplayInfo(gdata); return;
+    }
 }
 
 

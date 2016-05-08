@@ -125,6 +125,12 @@ public:
     {
         return m_pProfiles[m_currentProfile];
     }
+    /// <summary>Check if profile is initialized</summary>
+    /// <returns>Profile status (true = set)</returns>
+    bool isProfileSet()
+    {
+        return m_isReady;
+    }
 
     /// <summary>Get current profile ID</summary>
     /// <returns>Current profile ID</returns>

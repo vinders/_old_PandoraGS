@@ -109,6 +109,36 @@ typedef struct VRAM_LOADTAG
 #define GPUINFO_DRAWEND         2
 #define GPUINFO_DRAWOFF         3
 
+// packet information access (read commands)
+#define getGpuCommand(DATA)    ((DATA>>24)&0x0FF) // get only bits 25 and 26
+// commands
+#define CMD_RESETGPU            0x00
+#define CMD_TOGGLEDISPLAY       0x03
+#define CMD_SETTRANSFERMODE     0x04
+#define CMD_SETDISPLAYPOSITION  0x05
+#define CMD_SETDISPLAYWIDTH     0x06
+#define CMD_SETDISPLAYHEIGHT    0x07
+#define CMD_SETDISPLAYINFO      0x08
+#define CMD_GPUREQUESTINFO      0x10
+// info request codes
+#define REQ_TW                  0x02
+#define REQ_DRAWSTART           0x03
+#define REQ_DRAWEND             0x04
+#define REQ_DRAWOFFSET1         0x05
+#define REQ_DRAWOFFSET2         0x06
+#define REQ_GPUTYPE             0x07
+#define REQ_BIOSADDR1           0x08
+#define REQ_BIOSADDR2           0x0F
+#define SAVESTATE_SET           0
+#define SAVESTATE_GET           1
+#define SAVESTATE_INFO          2
+// info request replies
+#define INFO_GPUBIOSADDR        0xBFC03720 // BIOS - virtual hardware address (last bits after memory)
+#define INFO_TW                 0 // draw info - array index
+#define INFO_DRAWSTART          1
+#define INFO_DRAWEND            2
+#define INFO_DRAWOFF            3
+
 
 // -- PSX CORE MEMORY CLASS -- -------------------------------------------------
 
@@ -125,6 +155,7 @@ public:
     bool             sync_isInterlaced;   // interlacing (on/off)
 
     // psx emulated memory
+    int           mem_gpuVramSize;
     PsxVram_t     mem_vramImage;          // PSX VRAM memory image
     VramLoad_t    mem_vramRead;           // PSX VRAM frame reader
     int           mem_vramReadMode;       // read transfer mode
@@ -202,34 +233,27 @@ public:
     {
         return (st_statusReg & statusBits);
     }
+
+    /// <summary>Reset GPU info</summary>
+    void cmdReset();
+    /// <summary>Enable/disable display</summary>
+    /// <param name="isDisabled">Display status</param>
+    void cmdSetDisplay(bool isDisabled);
+    /// <summary>Set display position</summary>
+    /// <param name="x">Horizontal position</param>
+    /// <param name="y">Vertical position</param>
+    void cmdSetDisplayPosition(short x, short y);
+    /// <summary>Set display width</summary>
+    /// <param name="x0">X start range</param>
+    /// <param name="x1">X end range</param>
+    void cmdSetWidth(short x0, short x1);
+    /// <summary>Set display height</summary>
+    /// <param name="y0">Y start range</param>
+    /// <param name="y1">Y end range</param>
+    void cmdSetHeight(short y0, short y1);
+    /// <summary>Set display informations</summary>
+    /// <param name="gdata">Status register command</param>
+    void cmdSetDisplayInfo(unsigned long gdata);
 };
-
-
-
-
-// packet information access (read commands)
-#define getGpuCommand(DATA)    ((DATA>>24)&0x0FF) // get only bits 25 and 26
-// commands
-#define CMD_RESETGPU            0x00
-#define CMD_TOGGLEDISPLAY       0x03
-#define CMD_SETTRANSFERMODE     0x04
-#define CMD_SETDISPLAYPOSITION  0x05
-#define CMD_SETDISPLAYWIDTH     0x06
-#define CMD_SETDISPLAYHEIGHT    0x07
-#define CMD_SETDISPLAYINFO      0x08
-#define CMD_GPUREQUEST          0x10
-// request codes
-#define REQ_TW                  0x02
-#define REQ_DRAWSTART           0x03
-#define REQ_DRAWEND             0x04
-#define REQ_DRAWOFFSET1         0x05
-#define REQ_DRAWOFFSET2         0x06
-#define REQ_GPUTYPE             0x07
-#define REQ_BIOSADDR1           0x08
-#define REQ_BIOSADDR2           0x0F
-#define SAVESTATE_SET           0
-#define SAVESTATE_GET           1
-#define SAVESTATE_INFO          2
-
 
 #endif
