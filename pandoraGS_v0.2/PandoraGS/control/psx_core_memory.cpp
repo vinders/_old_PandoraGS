@@ -19,6 +19,7 @@ PsxCoreMemory::PsxCoreMemory()
 {
     #ifdef _WINDOWS
     gen_hWindow = NULL;
+    gen_hDisplayWindow = NULL;
     #endif
     sync_localize = LocalizationMode_Ntsc;
     sync_isInterlaced = false;

@@ -19,7 +19,8 @@ Description : user input manager
 class InputManager
 {
 private:
-    static bool m_isListening; // state indicator
+    static bool m_isListening; // state indicator (main)
+    static bool m_isListeningDisplay; // state indicator (display)
 public:
     static bool m_isShowingMenu;
     static int  m_menuIndex;
@@ -27,12 +28,16 @@ public:
 
     static bool m_isFastForward;
     static bool m_isSlowMotion;
+    static bool m_isSizeChangePending;
     static bool m_isStretchingChangePending;
     static bool m_isWindowModeChangePending;
 
 public:
     /// <summary>Start keyboard listener</summary>
     static void initListener();
+    /// <summary>Set display window listener</summary>
+    /// <param name="isEnabled">Enabled/disabled</param>
+    static void setDisplayListener(bool isEnabled);
     /// <summary>Stop keyboard listener</summary>
     static void stopListener();
 
@@ -44,12 +49,18 @@ public:
 };
 
 #ifdef _WINDOWS
-/// <summary>Handle keyboard in Linux</summary>
+/// <summary>Handle keyboard in Windows</summary>
 /// <param name="hWindow">Window handler</param>
 /// <param name="eventType">Event type</param>
 /// <param name="wpCode">Command code</param>
 /// <param name="lpInfo">Additional information</param>
 LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM lpInfo);
+/// <summary>Handle window size in Windows</summary>
+/// <param name="hWindow">Window handler</param>
+/// <param name="eventType">Event type</param>
+/// <param name="wpCode">Command code</param>
+/// <param name="lpInfo">Additional information</param>
+LRESULT CALLBACK sizeHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM lpInfo);
 #else
 /// <summary>Handle keyboard in Linux</summary>
 /// <param name="keycode">Pressed key code</param>

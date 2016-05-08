@@ -117,7 +117,8 @@ class PsxCoreMemory
 {
 public:
     #ifdef _WINDOWS
-    HWND gen_hWindow; // main window handle
+    HWND gen_hWindow;        // main emulator window handle
+    HWND gen_hDisplayWindow; // psx display window handle
     #endif
     // frame sync config
     LocalizationMode sync_localize;       // localization (NTSC/PAL)

@@ -420,10 +420,26 @@ void* DisplayThread::DisplayLoop(void* arg)
             {
                 if (InputManager::m_isStretchingChangePending) // stretching mode
                 {
-                    //... changer ratio
+                    if (threadManager->m_pConfig->dsp_isFullscreen == false // window resized
+                    && InputManager::m_isSizeChangePending)
+                    {
+                        #ifdef _WINDOWS
+                        //... récupérer taille courante de la fenêtre (- marge de sécurité 40px, ou bien inner size)
+                        //!!!vérif min/max -> doit être entre 4:3 et 16:9 -> changer taille en Y si plus/moins
+                        //!!!si fenetre plus petite que taille native -> prendre taille native
+                            //SetWindowPos(g_pMemory->gen_hDisplayWindow, HWND_NOTOPMOST, x, y, cx, cy, SWP_NOSENDCHANGING);
+                        #endif
+                    }
+                    //... changer étirement/ratio
+                    //->si natif, centrer
+                    //->sinon
+                        //->si garder aspect ou pixel, faire même multiple en y qu'en x (centrer par rapport à fenetre)
+                        //->sinon étirer/couper selon le mode
+                    InputManager::m_isSizeChangePending = false;
                 }
                 else // window mode
                 {
+                    InputManager::setDisplayListener(false);
                     //... fermer fenetre
                     hasWindow = false;
                 }
@@ -434,6 +450,9 @@ void* DisplayThread::DisplayLoop(void* arg)
             if (hasWindow == false)
             {
                 //... créer fenetre
+
+                if (threadManager->m_pConfig->dsp_isFullscreen == false)
+                    InputManager::setDisplayListener(true);
             }
             
             // profile change -> recreate rendering pipeline (shaders)

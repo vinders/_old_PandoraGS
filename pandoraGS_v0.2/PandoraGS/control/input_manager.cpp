@@ -22,9 +22,11 @@ extern Config* g_pConfig;        // main configuration reference
 extern PsxCoreMemory* g_pMemory; // main console emulated memory
 #ifdef _WINDOWS
 static WNDPROC  pEmulatorWindowHandler = 0;
+static WNDPROC  pDisplayWindowHandler = 0;
 #endif
 
-bool InputManager::m_isListening = false; // state indicator
+bool InputManager::m_isListening = false; // state indicator (main)
+bool InputManager::m_isListeningDisplay = false; // state indicator (display)
 
 bool InputManager::m_isShowingMenu = false;
 int  InputManager::m_menuIndex = 0;
@@ -32,6 +34,7 @@ bool InputManager::m_isProfileChangePending = false;
 
 bool InputManager::m_isFastForward = false;
 bool InputManager::m_isSlowMotion = false;
+bool InputManager::m_isSizeChangePending = false;
 bool InputManager::m_isStretchingChangePending = false;
 bool InputManager::m_isWindowModeChangePending = false;
 
@@ -60,6 +63,36 @@ void InputManager::initListener()
     m_isListening = true;
 }
 
+/// <summary>Set display window listener</summary>
+/// <param name="isEnabled">Enabled/disabled</param>
+void InputManager::setDisplayListener(bool isEnabled)
+{
+    #ifdef _WINDOWS
+    if (isEnabled) // activer écoute
+    {
+        if (m_isListeningDisplay == false)
+        {
+            // save original listener
+            if (!pDisplayWindowHandler)
+                pDisplayWindowHandler = (WNDPROC)GetWindowLong(g_pMemory->gen_hDisplayWindow, GWL_WNDPROC);
+        }
+        SetWindowLong(g_pMemory->gen_hDisplayWindow, GWL_WNDPROC, (long)sizeHandler);
+        m_isListeningDisplay = true;
+    }
+    else // retirer écoute
+    {
+        if (m_isListeningDisplay)
+        {
+            // restore original display listener
+            if (pDisplayWindowHandler)
+                SetWindowLong(g_pMemory->gen_hDisplayWindow, GWL_WNDPROC, (long)pDisplayWindowHandler);
+            pDisplayWindowHandler = 0;
+            m_isListeningDisplay = false;
+        }
+    }
+    #endif
+}
+
 /// <summary>Stop keyboard listener</summary>
 void InputManager::stopListener()
 {
@@ -73,6 +106,17 @@ void InputManager::stopListener()
         #endif
         m_isListening = false;
     }
+
+    #ifdef _WINDOWS
+    if (m_isListeningDisplay)
+    {
+        // restore original display listener
+        if (pDisplayWindowHandler)
+            SetWindowLong(g_pMemory->gen_hDisplayWindow, GWL_WNDPROC, (long)pDisplayWindowHandler);
+        pDisplayWindowHandler = 0;
+        m_isListeningDisplay = false;
+    }
+    #endif
 
     // default values
     m_isShowingMenu = false;
@@ -108,7 +152,7 @@ void InputManager::setScreensaver(bool isEnabled)
     }
 }
 
-/// <summary>Handle keyboard in Linux</summary>
+/// <summary>Handle keyboard in Windows</summary>
 /// <param name="hWindow">Window handler</param>
 /// <param name="eventType">Event type</param>
 /// <param name="wpCode">Command code</param>
@@ -134,7 +178,8 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
 
         // key released
         case WM_SYSKEYUP:
-            if (wpCode == VK_RETURN) // window mode
+            if (wpCode == VK_RETURN // window mode
+            && InputManager::m_isWindowModeChangePending == false) // not busy
                 InputManager::m_isWindowModeChangePending = true;
             break;
         case WM_KEYUP:
@@ -233,6 +278,54 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
     }
     // transmit event to emulator
     return pEmulatorWindowHandler(hWindow, eventType, wpCode, lpInfo);
+}
+
+/// <summary>Handle window size in Windows</summary>
+/// <param name="hWindow">Window handler</param>
+/// <param name="eventType">Event type</param>
+/// <param name="wpCode">Command code</param>
+/// <param name="lpInfo">Additional information</param>
+LRESULT CALLBACK sizeHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM lpInfo)
+{
+    switch (eventType)
+    {
+        // window position/size/state changed
+        case WM_WINDOWPOSCHANGED:
+        {
+            // only in window mode (and no change pending)
+            if (InputManager::m_isWindowModeChangePending == false && g_pConfig->dsp_isFullscreen == false)
+            {
+                if (wpCode == SIZE_MAXIMIZED || wpCode == SIZE_RESTORED) // not minimized
+                {
+                    static WPARAM prevState = wpCode;
+                    if (prevState != wpCode) // different window state
+                    {
+                        prevState = wpCode;
+                        InputManager::m_isStretchingChangePending = true;
+                        InputManager::m_isWindowModeChangePending = true;
+                        return 0L;
+                    }
+                    else // window resized
+                    {
+                        WINDOWPOS* winpos = (WINDOWPOS*)lpInfo;
+                        static int prevCx = winpos->cx;
+                        static int prevCy = winpos->cy;
+                        if (prevCx != winpos->cx || prevCy != winpos->cy) // different size
+                        {
+                            prevCx = winpos->cx;
+                            prevCy = winpos->cy;
+                            InputManager::m_isSizeChangePending = true;
+                            InputManager::m_isStretchingChangePending = true;
+                            InputManager::m_isWindowModeChangePending = true;
+                            return 0L;
+                        }
+                    }
+                }
+            }
+            break;
+        }
+    }
+    return pDisplayWindowHandler(hWindow, eventType, wpCode, lpInfo);
 }
 
 #else
