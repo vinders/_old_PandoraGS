@@ -65,6 +65,7 @@ public:
     unsigned int gen_langCode;        // language identifier
     unsigned int rnd_renderApiCode;   // graphic API identifier
     bool         rnd_isFloatAccuracy; // anti-jitter GTE accuracy
+    bool         rnd_hasPsxPrimitives;// support for more PSX GPU primitives
     DebugMode    rnd_debugMode;       // debug mode (or 0)
     bool         rnd_isFpsDisplayed;  // show FPS (on/off)
 

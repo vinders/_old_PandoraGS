@@ -43,6 +43,7 @@ void Config::setDefaultValues()
 {
     rnd_renderApiCode = RENDERAPI_DEFAULT;
     rnd_isFloatAccuracy = false;
+    rnd_hasPsxPrimitives = false;
     rnd_debugMode = DebugMode_None;
     rnd_isFpsDisplayed = false;
 

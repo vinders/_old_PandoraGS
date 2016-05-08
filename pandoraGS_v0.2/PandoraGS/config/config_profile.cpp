@@ -45,6 +45,7 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     dsp_isExtraRender = copy.dsp_isExtraRender;
     dsp_isScreenMirror = copy.dsp_isScreenMirror;
     dsp_borderSize = copy.dsp_borderSize;
+    dsp_screenCurved = copy.dsp_screenCurved;
     //...
 
     sync_hasFixAutoLimit = copy.sync_hasFixAutoLimit;
@@ -112,13 +113,13 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             scl_screenSmooth = CfgScreenSmooth_Blur4xBRZ;
             scl_isMdec = true;
             scl_isGpuTxScaling = true;
-            scl_isGpu2dScaling = false;
+            scl_isGpu2dScaling = true;
 
             shd_antiAliasing = CfgAntiAliasing_NFAA;
             //...
 
-            dsp_internalResX = 4;
-            dsp_internalResY = 4;
+            dsp_internalResX = 1;
+            dsp_internalResY = 1;
             dsp_screenStretch = CfgStretching_AspectRatio;
             //...
             break;
@@ -150,6 +151,7 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
     dsp_isExtraRender = false;
     dsp_isScreenMirror = false;
     dsp_borderSize = 0;
+    dsp_screenCurved = 0;
     //...
     sync_hasFixAutoLimit = false;
     sync_hasFixInterlace = false;

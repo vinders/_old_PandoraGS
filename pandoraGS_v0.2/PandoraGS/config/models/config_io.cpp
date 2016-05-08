@@ -130,6 +130,7 @@ void ConfigIO::loadConfig(Config* pConfig, bool hasProfileArray, bool hasProfile
         readRegDword<unsigned int>(&(pConfig->gen_langCode), &configKey, L"Lang", &type, &size);
         readRegDword<unsigned int>(&(pConfig->rnd_renderApiCode), &configKey, L"RenderApi", &type, &size);
         readRegBool(&(pConfig->rnd_isFloatAccuracy), &configKey, L"FloatAcc", &type, &size);
+        readRegBool(&(pConfig->rnd_hasPsxPrimitives), &configKey, L"PsxPrim", &type, &size);
         readRegDword<DebugMode>(&(pConfig->rnd_debugMode), &configKey, L"Debug", &type, &size);
         readRegBool(&(pConfig->rnd_isFpsDisplayed), &configKey, L"ShowFps", &type, &size);
 
@@ -199,6 +200,8 @@ void ConfigIO::saveConfig(Config* pConfig, bool hasProfiles)
         RegSetValueEx(configKey, L"RenderApi", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pConfig->rnd_isFloatAccuracy) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"FloatAcc", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = (pConfig->rnd_hasPsxPrimitives) ? 1uL : 0uL;
+        RegSetValueEx(configKey, L"PsxPrim", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (DWORD)(pConfig->rnd_debugMode);
         RegSetValueEx(configKey, L"Debug", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pConfig->rnd_isFpsDisplayed) ? 1uL : 0uL;
@@ -316,6 +319,7 @@ ConfigProfile* ConfigIO::loadConfigProfile(unsigned int id)
         readRegBool(&(pProfile->dsp_isExtraRender), &profileKey, L"ExtraRender", &type, &size);
         readRegBool(&(pProfile->dsp_isScreenMirror), &profileKey, L"Mirror", &type, &size);
         readRegDword<unsigned int>(&(pProfile->dsp_borderSize), &profileKey, L"BorderSize", &type, &size);
+        readRegDword<unsigned int>(&(pProfile->dsp_screenCurved), &profileKey, L"CrtCurved", &type, &size);
         
         //...
 
@@ -382,6 +386,8 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         RegSetValueEx(profileKey, L"Mirror", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->dsp_borderSize;
         RegSetValueEx(profileKey, L"BorderSize", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = pProfile->dsp_screenCurved;
+        RegSetValueEx(profileKey, L"CrtCurved", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
         //...
 

@@ -40,9 +40,18 @@ public:
     bool         scl_isMdec;            // MDEC video filter
     bool         scl_isGpuTxScaling;    // scaling textures with GPU shaders (true) or software
     bool         scl_isGpu2dScaling;    // scaling sprites/screen with GPU shaders (true) or software
+    //ajout bruit aux textures (pour les rendre plus précises) -> taux : 0 - 10
+    //...
     
     // shading
     unsigned int shd_antiAliasing;      // anti-aliasing
+    //bump mapping
+    //motion blur
+    //HDR bloom
+    //HDR lumasharpen
+    //renforcement (masque laplacien, unsharp masking) + param force (1 - 10)
+    //effets (cel-shading V1 à 4, kirsch-négatif, verre brisé, storybook, ...)
+    //...
 
     // screen adjustment
     unsigned int dsp_internalResX;      // internal resolution [x]
@@ -51,11 +60,22 @@ public:
     bool         dsp_isExtraRender;     // extra rendering instead of black bars
     bool         dsp_isScreenMirror;    // screen mirror (mirrored/normal)
     unsigned int dsp_borderSize;        // add black borders (0 = none)
+    unsigned int dsp_screenCurved;      // emulate curved CRT screen (0 to 2 ; 0 = none)
+
+    // color filters
+    //couleurs -> natural vision, couleurs daltoniens
+    //inscrustations -> couleur, type incrustation, transparence
+    //scanlines -> plusieurs sortes (noir, ligne dédoublée en plus foncé, quadrillage)
+    //scanlines -> choix intensité et transparence
+    //corrections -> gamma (+ presets PAL, NTSC, neutre), contraste
+    //...
 
     // custom fixes
     bool         sync_hasFixAutoLimit;  // fix - use theoretical FPS limit (25 or 30, doubled if interlaced)
     bool         sync_hasFixInterlace;  // chronocross fix - switch during status read instead of update lace
     bool         dsp_hasFixExpandScreen;// capcom fix - fix screen width to show full area
+    //alpha/maskbit/... -> voir Peops + vérif utilité (pq supprimés dans OGL2 ?)
+    //framebuffer/...
 
 
 public:
@@ -100,14 +120,13 @@ enum CfgUpscaling
 enum CfgScreenSmooth
 {
     CfgScreenSmooth_None = 0,
-    CfgScreenSmooth_Blur = 1,
-    CfgScreenSmooth_HQ3x = 2,
-    CfgScreenSmooth_HQ4x = 3,
-    CfgScreenSmooth_3xBRZ = 4,
-    CfgScreenSmooth_4xBRZ = 5,
-    CfgScreenSmooth_5xBRZ = 6,
-    CfgScreenSmooth_Blur3xBRZ = 7,
-    CfgScreenSmooth_Blur4xBRZ = 8
+    CfgScreenSmooth_Blur = 1, // blur
+    CfgScreenSmooth_3xBRZ = 2,
+    CfgScreenSmooth_4xBRZ = 3,
+    CfgScreenSmooth_5xBRZ = 4,
+    CfgScreenSmooth_Blur3xBRZ = 2, // filter + bilinear scaling, then blur
+    CfgScreenSmooth_Blur4xBRZ = 3,
+    CfgScreenSmooth_Blur5xBRZ = 4
 };
 // screen stretching
 enum CfgStretching
