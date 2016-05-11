@@ -17,7 +17,6 @@ using namespace std;
 #include "psx_core_memory.h"
 #include "display_thread.h"
 
-#define SEMAPHORE_RETRY_NB 5
 extern PsxCoreMemory* g_pMemory; // main console emulated memory
 
 // private prototypes
@@ -39,17 +38,11 @@ DisplayThread::DisplayThread()
     m_threadStatus = THREAD_STATUS_STOPPED;
     #ifdef _WINDOWS
     m_hDisplayThread = NULL;
-    #if _THREADSYNC == THREADSYNC_SEMAPHORE
-    m_semUpdate = NULL;
-    m_semReport = NULL;
-    #endif
     #endif
 
     m_isChangePending = false;
-    #if _THREADSYNC != THREADSYNC_SEMAPHORE
     m_isQueryWaiting = false;
     m_isQueryReply = false;
-    #endif
 }
 
 /// <summary>Close display thread</summary>
@@ -59,11 +52,7 @@ DisplayThread::~DisplayThread()
     {
         // request thread end
         m_threadStatus = THREAD_STATUS_STOPPED;
-        #if _THREADSYNC == THREADSYNC_SEMAPHORE
-        for (int sig = 0; signalUpdate() == false && sig < SEMAPHORE_RETRY_NB; sig++);
-        #else
         m_isQueryWaiting = true;
-        #endif
 
         // wait for ending
         #ifdef _WINDOWS
@@ -78,19 +67,6 @@ DisplayThread::~DisplayThread()
     if (m_poolIndex < THREADS_POOL_SIZE && s_pInstances[m_poolIndex] == this)
         s_pInstances[m_poolIndex] = NULL;
     m_pConfig = NULL;
-
-    // destroy semaphores
-    #if _THREADSYNC == THREADSYNC_SEMAPHORE
-    #ifdef _WINDOWS
-    if (m_semUpdate != NULL)
-        CloseHandle(m_semUpdate);
-    if (m_semReport != NULL)
-        CloseHandle(m_semReport);
-    #else
-    sem_destroy(&m_semUpdate);
-    sem_destroy(&m_semReport);
-    #endif
-    #endif
 }
 
 /// <summary>Initialize display thread (called from main thread only)</summary>
@@ -107,12 +83,8 @@ void DisplayThread::initThread(Config* pConfig)
     startThread();
     
     // wait for thread answer (after API init)
-    #if _THREADSYNC == THREADSYNC_SEMAPHORE
-    waitReport();
-    #else
     while (m_isQueryReply == false);
     m_isQueryReply = false;
-    #endif
 
     if (isThreadStarted() == false) // init failure
     {
@@ -164,24 +136,8 @@ void DisplayThread::insertInstance()
 /// <exception cref="std::exception">Sync init failure</exception>
 void DisplayThread::initSync()
 {
-    #if _THREADSYNC == THREADSYNC_SEMAPHORE
-    // create sync semaphores
-    unsigned int semaInitVal = 0;
-    #ifdef _WINDOWS
-    if ((m_semUpdate = CreateSemaphore(NULL, semaInitVal, 65535, NULL)) == NULL
-        || (m_semReport = CreateSemaphore(NULL, semaInitVal, 65535, NULL)) == NULL)
-    #else
-    if (sem_init(&m_semUpdate, 0, semaInitVal) == -1
-        || sem_init(&m_semReport, 0, semaInitVal) == -1)
-    #endif
-    {
-        throw new std::exception("DisplayThread::InitThread(): Semaphores init failure");
-    }
-
-    #else
     m_isQueryWaiting = false;
     m_isQueryReply = false;
-    #endif
 }
 
 /// <summary>Start and initialize new rendering thread</summary>
@@ -244,39 +200,19 @@ void DisplayThread::changeQuery()
 {
     // send change signal
     m_isChangePending = true;
-    #if _THREADSYNC == THREADSYNC_SEMAPHORE
-    m_isPaused = false;
-    int sig = 0;
-    for (sig = 0; sig < SEMAPHORE_RETRY_NB && signalUpdate() == false; sig++)
-    {
-        try { LogUtility::getInstance()->writeEntry("updateQuery", "signal", "Update sync signal failure"); }
-        catch (...) {}
-    }
-    #else
     m_isQueryWaiting = true;
     m_isPaused = false;
-    #endif
 
     // wait for reply
-    #if _THREADSYNC == THREADSYNC_SEMAPHORE
-    if (sig < SEMAPHORE_RETRY_NB) // prevent deadlock
-        waitReport();
-    #else
     while (m_isQueryReply == false);
     m_isQueryReply = false;
-    #endif
 }
 
 /// <summary>Send draw update signal</summary>
 void DisplayThread::drawQuery()
 {
     // send update signal
-    #if _THREADSYNC == THREADSYNC_SEMAPHORE
-    static int sig;
-    for (sig = 0; signalUpdate() == false && sig < SEMAPHORE_RETRY_NB; sig++);
-    #else
     m_isQueryWaiting = true;
-    #endif
 }
 
 /// <summary>Request thread pause (UI closed) and wait for reply</summary>
@@ -284,25 +220,11 @@ void DisplayThread::pauseQuery()
 {
     // send pause signal
     m_isPausePending = true;
-    #if _THREADSYNC == THREADSYNC_SEMAPHORE
-    int sig = 0;
-    for (sig = 0; sig < SEMAPHORE_RETRY_NB && signalUpdate() == false; sig++)
-    {
-        try { LogUtility::getInstance()->writeEntry("pauseQuery", "signal", "Update sync signal failure"); }
-        catch (...) {}
-    }
-    #else
     m_isQueryWaiting = true;
-    #endif
 
     // wait for reply (frame complete and window closed)
-    #if _THREADSYNC == THREADSYNC_SEMAPHORE
-    if (sig < SEMAPHORE_RETRY_NB) // prevent deadlock
-        waitReport(8000uL); //8s timeout
-    #else
     while (m_isQueryReply == false);
     m_isQueryReply = false;
-    #endif
 }
 
 
@@ -334,32 +256,16 @@ void* DisplayThread::DisplayLoop(void* arg)
         // start rendering pipeline
         render = Render::createInstance(threadManager->m_pConfig);
         render->initApi();
-
-        // reply to thread manager
-        #if _THREADSYNC == THREADSYNC_SEMAPHORE
-        for (int sig = 0; threadManager->signalReport() == false && sig < SEMAPHORE_RETRY_NB; sig++)
-        {
-            try { LogUtility::getInstance()->writeEntry("displayLoop", "signal", "Report sync signal failure"); }
-            catch (...) {}
-        }
-        #else
-        threadManager->m_isQueryReply = true;
-        #endif
+        threadManager->m_isQueryReply = true; // reply to thread manager
     }
     catch (std::exception exc) // failure -> stop
     {
         threadManager->setThreadStop();
         if (render != NULL)
             delete render;
-
-        #if _THREADSYNC == THREADSYNC_SEMAPHORE
-        for (int sig = 0; threadManager->signalReport() == false && sig < SEMAPHORE_RETRY_NB; sig++);
-        #else
         threadManager->m_isQueryReply = true;
-        #endif
 
-        try { LogUtility::getInstance()->writeEntry("displayLoop", "GL API", exc.what()); }
-        catch (...) {}
+        try { LogUtility::getInstance()->writeEntry("displayLoop", "GL API", exc.what()); } catch (...) {}
         pthread_exit(1); return THREAD_RETURN;
     }
 
@@ -372,15 +278,9 @@ void* DisplayThread::DisplayLoop(void* arg)
     do
     {
         // wait for sync signal
-        #if _THREADSYNC == THREADSYNC_SEMAPHORE
-        do {
-            threadManager->waitUpdate();
-        } while (threadManager->m_isPaused && threadManager->isThreadStarted()); // pause loop
-        #else
         while ((threadManager->m_isQueryWaiting == false || threadManager->m_isPaused) 
             && threadManager->isThreadStarted());
         threadManager->m_isQueryWaiting = false;
-        #endif
 
         // thread exit signal
         if (threadManager->isThreadStarted() == false) 
@@ -401,15 +301,7 @@ void* DisplayThread::DisplayLoop(void* arg)
             // reply to thread manager (changes done)
             threadManager->m_isPaused = true;
             threadManager->m_isChangePending = false;
-            #if _THREADSYNC == THREADSYNC_SEMAPHORE
-            for (int sig = 0; threadManager->signalReport() == false && sig < SEMAPHORE_RETRY_NB; sig++)
-            {
-                try { LogUtility::getInstance()->writeEntry("displayLoop", "signal", "Report sync signal failure"); }
-                catch (...) {}
-            }
-            #else
             threadManager->m_isQueryReply = true;
-            #endif
         }
 
         // - change query (profile change, window change, stretching change) -
@@ -465,15 +357,7 @@ void* DisplayThread::DisplayLoop(void* arg)
 
             // reply to thread manager (changes done)
             threadManager->m_isChangePending = false;
-            #if _THREADSYNC == THREADSYNC_SEMAPHORE
-            for (int sig = 0; threadManager->signalReport() == false && sig < SEMAPHORE_RETRY_NB; sig++)
-            {
-                try { LogUtility::getInstance()->writeEntry("displayLoop", "signal", "Report sync signal failure"); }
-                catch (...) {}
-            }
-            #else
             threadManager->m_isQueryReply = true;
-            #endif
         }
 
         // - update display -
@@ -496,17 +380,11 @@ void* DisplayThread::DisplayLoop(void* arg)
     } 
     while (1);
 
-
     // stop renderer
     if (render != NULL)
         delete render;
-
     // fail-safe exit
-    #if _THREADSYNC == THREADSYNC_SEMAPHORE
-    threadManager->signalReport();
-    #else
     threadManager->m_isQueryReply = true;
-    #endif
     pthread_exit(1);
     return THREAD_RETURN;
 }

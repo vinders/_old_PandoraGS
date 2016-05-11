@@ -30,10 +30,6 @@ Description : global constants and definitions + PSEmu Pro specification
 #define DIALOGAPI_QT // cross-platform
 #endif
 
-#define THREADSYNC_POLLING   0
-#define THREADSYNC_SEMAPHORE 1
-#define _THREADSYNC THREADSYNC_POLLING
-
 
 // -- PSEMU SPECIFICATION -- ---------------------------------------------------
 /*  PSEmu Plugin Developer Kit Header definition - (C)1998 Vision Thing

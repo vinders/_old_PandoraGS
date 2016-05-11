@@ -422,25 +422,12 @@ void CALLBACK GPUwriteStatus(unsigned long gdata)
             g_pMemory->setStatus(gdata << 29); // set based on received data (MSB-1, MSB-2)
             return;
         }
-
         // check GPU information (version, draw info, ...)
         case CMD_GPUREQUESTINFO: 
         {
             gdata &= 0x0FF; // extract request bits (last 8 bits)
-            switch (gdata)
-            {
-                case REQ_TW:          g_pMemory->mem_gpuDataTransaction = g_pMemory->st_pGpuDrawInfo[INFO_TW]; return;
-                case REQ_DRAWSTART:   g_pMemory->mem_gpuDataTransaction = g_pMemory->st_pGpuDrawInfo[INFO_DRAWSTART]; return;
-                case REQ_DRAWEND:     g_pMemory->mem_gpuDataTransaction = g_pMemory->st_pGpuDrawInfo[INFO_DRAWEND]; return;
-                case REQ_DRAWOFFSET1:
-                case REQ_DRAWOFFSET2: g_pMemory->mem_gpuDataTransaction = g_pMemory->st_pGpuDrawInfo[INFO_DRAWOFF]; return;
-                case REQ_GPUTYPE:     g_pMemory->mem_gpuDataTransaction = (zincGPUVersion == 2) ? 0x1 : 0x2; return;
-                case REQ_BIOSADDR1:
-                case REQ_BIOSADDR2:   g_pMemory->mem_gpuDataTransaction = INFO_GPUBIOSADDR; return;
-            }
-            return;
+            g_pMemory->cmdGpuQuery(gdata, (zincGPUVersion==2)); return;
         }
-
         // enable/disable display
         case CMD_TOGGLEDISPLAY: g_pMemory->cmdSetDisplay((gdata&0x1)!=0); return;
         // reset GPU info
@@ -477,6 +464,9 @@ unsigned long CALLBACK GPUreadData()
 /// <param name="size">Memory chunk size</param>
 void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
 {
+    if (g_pMemory->mem_vramReadMode != DR_VRAMTRANSFER) // check read mode
+        return;
+    g_pMemory->readDataMem(pDwMem, size);
 }
 
 
@@ -492,13 +482,7 @@ void CALLBACK GPUwriteData(unsigned long gdata)
 /// <param name="size">Memory chunk size</param>
 void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
 {
-    //...
-
-    // 'GPU busy' emulation hack
-    if (g_pMemory->st_hasFixBusyEmu)
-        g_pMemory->st_fixBusyEmuSequence = 4;
-
-    //...
+    g_pMemory->writeDataMem(pDwMem, size);
 }
 
 /// <summary>Give a direct core memory access chain to GPU driver</summary>
@@ -507,7 +491,35 @@ void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
 /// <returns>Success indicator</returns>
 long CALLBACK GPUdmaChain(unsigned long* pDwBaseAddress, unsigned long offset)
 { 
-    return PSE_GPU_SUCCESS; 
+    unsigned char* pByteBaseAddress = (unsigned char*)pDwBaseAddress;
+    unsigned int dmaCommandCounter = 0;
+    unsigned long dmaOffset;
+    short currentCount;
+
+    g_pMemory->unsetStatus(GPUSTATUS_IDLE); // busy
+
+    // direct memory access loop
+    g_pMemory->resetDmaCheck();
+    do
+    {
+        // prevent out of range memory access
+        if (g_isZincEmu == false)
+            offset &= PSXVRAM_MASK;
+        if (dmaCommandCounter++ > PSXVRAM_THRESHOLD || g_pMemory->checkDmaEndlessChain(offset))
+            break;
+
+        // read and process data (if not empty)
+        currentCount = pByteBaseAddress[(sizeof(offset) - 1) + offset];
+        dmaOffset = offset / sizeof(offset); // convert address to dword array index
+        if (currentCount > 0)
+            GPUwriteDataMem(&pDwBaseAddress[1uL + dmaOffset], currentCount);
+
+        offset = pDwBaseAddress[dmaOffset] & THREEBYTES_MASK; // follow chain
+    } 
+    while (offset != THREEBYTES_MASK);
+
+    g_pMemory->setStatus(GPUSTATUS_IDLE); // idle
+    return PSE_GPU_SUCCESS;
 }
 
 
@@ -516,14 +528,63 @@ long CALLBACK GPUdmaChain(unsigned long* pDwBaseAddress, unsigned long offset)
 
 // -- SAVE-STATES - SNAPSHOTS -- -----------------------------------------------
 
-/// <summary>Set custom fixes from emulator</summary>
+/// <summary>Save/load current state</summary>
 /// <param name="dataMode">Transaction type (0 = setter / 1 = getter / 2 = slot selection)</param>
 /// <param name="pMem">Save-state structure pointer (to read or write)</param>
 /// <returns>Success/compatibility indicator</returns>
 long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem)
 { 
-    //...
-    return GPUFREEZE_SUCCESS; 
+    // process save-state request
+    switch (dataMode)
+    {
+        // selected save slot (for display)
+        case SAVESTATE_INFO:
+        {
+            long slotNumber = *((long *)pMem);
+            if (slotNumber < 0 || slotNumber > 8)
+                return GPUFREEZE_ERR;
+
+            g_pMemory->st_selectedSlot = slotNumber + 1;
+            return GPUFREEZE_SUCCESS;
+        }
+        // save data
+        case SAVESTATE_SAVE:
+        {
+            if (pMem == NULL || pMem->freezeVersion != 1) // check version
+                return GPUFREEZE_ERR;
+
+            // copy data into destination memory
+            pMem->status = g_pMemory->st_statusReg;
+            memcpy(pMem->pControlReg, g_pMemory->st_pStatusControl, STATUSCTRL_SIZE*sizeof(unsigned long));
+            memcpy(pMem->pPsxVram, g_pMemory->mem_vramImage.pByte, g_pMemory->mem_vramImage.bufferSize * 2);
+            return GPUFREEZE_SUCCESS;
+        }
+        // load data
+        case SAVESTATE_LOAD:
+        {
+            if (pMem == NULL || pMem->freezeVersion != 1) // check version
+                return GPUFREEZE_ERR;
+            
+            // read data from source memory
+            g_pMemory->st_statusReg = pMem->status;
+            memcpy(g_pMemory->st_pStatusControl, pMem->pControlReg, STATUSCTRL_SIZE*sizeof(unsigned long));
+            memcpy(g_pMemory->mem_vramImage.pByte, pMem->pPsxVram, g_pMemory->mem_vramImage.bufferSize * 2);
+
+            //ResetTextureArea(TRUE);//opengl
+
+            GPUwriteStatus(g_pMemory->st_pStatusControl[0]);
+            GPUwriteStatus(g_pMemory->st_pStatusControl[1]);
+            GPUwriteStatus(g_pMemory->st_pStatusControl[2]);
+            GPUwriteStatus(g_pMemory->st_pStatusControl[3]);
+            GPUwriteStatus(g_pMemory->st_pStatusControl[8]);
+            GPUwriteStatus(g_pMemory->st_pStatusControl[6]);
+            GPUwriteStatus(g_pMemory->st_pStatusControl[7]);
+            GPUwriteStatus(g_pMemory->st_pStatusControl[5]);
+            GPUwriteStatus(g_pMemory->st_pStatusControl[4]);
+            return GPUFREEZE_SUCCESS;
+        }
+        default: return GPUFREEZE_ERR;
+    }
 }
 
 
