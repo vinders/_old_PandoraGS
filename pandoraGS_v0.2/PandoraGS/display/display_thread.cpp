@@ -136,6 +136,7 @@ void DisplayThread::insertInstance()
 /// <exception cref="std::exception">Sync init failure</exception>
 void DisplayThread::initSync()
 {
+    m_isChangePending = false;
     m_isQueryWaiting = false;
     m_isQueryReply = false;
 }
