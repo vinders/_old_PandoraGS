@@ -135,9 +135,11 @@ long CALLBACK GPUclose()
 
     // wait until current frame complete and close window
     g_pDisplayManager->pauseQuery();
+    #ifdef _WINDOWS
     // enable screensaver (if disabled)
     if (g_pConfig->misc_isScreensaverDisabled)
         InputManager::setScreensaver(true);
+    #endif
 
     // save current game/profile association
     ConfigIO::setGameAssocation(g_pConfig->getCurrentProfileId(), g_pConfig->gen_gameId);

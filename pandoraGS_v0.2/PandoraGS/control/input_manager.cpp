@@ -194,7 +194,7 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
             if (wpCode == (WPARAM)(g_pConfig->misc_gpuKeys[(int)GpuKeys_SlowMotion]))
             {
                 InputManager::m_isFastForward = false;
-                InputManager::m_isSlowMotion = (InputManager::m_isSlowMotion == false);
+                InputManager::m_isSlowMotion = !(InputManager::m_isSlowMotion);
                 break;
             }
 
@@ -253,7 +253,7 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
             {
                 if (g_pConfig->rnd_debugMode == DebugMode_None) // not debugging -> toggle FPS display
                 {
-                    g_pConfig->rnd_isFpsDisplayed = (g_pConfig->rnd_isFpsDisplayed == false);
+                    g_pConfig->rnd_isFpsDisplayed = !(g_pConfig->rnd_isFpsDisplayed);
                 }
                 else // debug mode -> next mode
                 {
