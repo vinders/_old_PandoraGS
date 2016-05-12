@@ -311,7 +311,7 @@ public:
             }
         }
 
-        // if no columns remaining (transfer didn't end because of mem chunk size)
+        // if no columns remaining (transfer <= mem chunk size)
         if (i < size)
         {
             // reset transfer mode and values
@@ -330,17 +330,18 @@ public:
     /// <param name="size">Memory chunk size</param>
     void writeDataMem(unsigned long* pDwMem, int size)
     {
+        unsetStatus(GPUSTATUS_IDLE); // busy
+        unsetStatus(GPUSTATUS_READYFORCOMMANDS); // not ready
+
         unsigned long gdata = 0;
         bool bitLevel;
         int i = 0;
 
-        unsetStatus(GPUSTATUS_IDLE); // busy
-        unsetStatus(GPUSTATUS_READYFORCOMMANDS); // not ready
         //...
 
-        // 'GPU busy' emulation hack
-        if (st_hasFixBusyEmu)
-            st_fixBusyEmuSequence = 4;
+            // 'GPU busy' emulation hack
+            if (st_hasFixBusyEmu)
+                st_fixBusyEmuSequence = 4;
 
         //...
 

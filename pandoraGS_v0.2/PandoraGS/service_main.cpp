@@ -425,7 +425,7 @@ void CALLBACK GPUwriteStatus(unsigned long gdata)
         // check GPU information (version, draw info, ...)
         case CMD_GPUREQUESTINFO: 
         {
-            gdata &= 0x0FF; // extract request bits (last 8 bits)
+            gdata &= 0x0FF; // extract last 8 bits
             g_pMemory->cmdGpuQuery(gdata, (zincGPUVersion==2)); return;
         }
         // enable/disable display
@@ -485,7 +485,7 @@ void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
     g_pMemory->writeDataMem(pDwMem, size);
 }
 
-/// <summary>Give a direct core memory access chain to GPU driver</summary>
+/// <summary>Direct memory access chain</summary>
 /// <param name="pDwBaseAddress">Pointer to memory chain</param>
 /// <param name="offset">Memory offset</param>
 /// <returns>Success indicator</returns>
@@ -537,7 +537,7 @@ long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem)
     // process save-state request
     switch (dataMode)
     {
-        // selected save slot (for display)
+        // select save slot (for display)
         case SAVESTATE_INFO:
         {
             long slotNumber = *((long *)pMem);
@@ -570,8 +570,9 @@ long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem)
             memcpy(g_pMemory->st_pStatusControl, pMem->pControlReg, STATUSCTRL_SIZE*sizeof(unsigned long));
             memcpy(g_pMemory->mem_vramImage.pByte, pMem->pPsxVram, g_pMemory->mem_vramImage.bufferSize * 2);
 
-            //ResetTextureArea(TRUE);//opengl
+            /*! ResetTextureArea(true);//opengl */
 
+            // set status register, based on new status control
             GPUwriteStatus(g_pMemory->st_pStatusControl[0]);
             GPUwriteStatus(g_pMemory->st_pStatusControl[1]);
             GPUwriteStatus(g_pMemory->st_pStatusControl[2]);
