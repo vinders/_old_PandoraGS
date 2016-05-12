@@ -159,7 +159,7 @@ void CALLBACK GPUupdateLace()
     if (InputManager::m_isWindowModeChangePending)
     {
         if (InputManager::m_isStretchingChangePending == false) // window change
-            g_pConfig->dsp_isFullscreen = (g_pConfig->dsp_isFullscreen == false);
+            g_pConfig->dsp_isFullscreen = !g_pConfig->dsp_isFullscreen;
 
         InputManager::stopListener();
         g_pDisplayManager->changeQuery(); // reload renderer
@@ -186,12 +186,13 @@ void CALLBACK GPUupdateLace()
             InputManager::m_isProfileChangePending = false;
         }
     }
-    // fast forward -> skip 2 frames out of 3
+    // fast forward -> skip 2 frames out of 4
     if (InputManager::m_isFastForward)
     {
         static int ffCount = 0;
         if (++ffCount < 3) return;
-        else ffCount = 0;
+        else if (ffCount == 4)
+            ffCount = 0;
     }
 
     // display current frame (if not skipped)
