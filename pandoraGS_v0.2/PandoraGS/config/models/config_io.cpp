@@ -305,7 +305,6 @@ ConfigProfile* ConfigIO::loadConfigProfile(unsigned int id)
         readRegDword<unsigned int>(&(pProfile->scl_spriteUpscale), &profileKey, L"SprUpscale", &type, &size);
         readRegDword<unsigned int>(&(pProfile->scl_screenSmooth), &profileKey, L"ScnSmooth", &type, &size);
         readRegBool(&(pProfile->scl_isMdec), &profileKey, L"Mdec", &type, &size);
-        readRegBool(&(pProfile->scl_isGpuTxScaling), &profileKey, L"GpuTxScale", &type, &size);
         readRegBool(&(pProfile->scl_isGpu2dScaling), &profileKey, L"Gpu2DScale", &type, &size);
 
         // shading
@@ -316,7 +315,6 @@ ConfigProfile* ConfigIO::loadConfigProfile(unsigned int id)
         readRegDword<unsigned int>(&(pProfile->dsp_internalResX), &profileKey, L"IntResX", &type, &size);
         readRegDword<unsigned int>(&(pProfile->dsp_internalResY), &profileKey, L"IntResY", &type, &size);
         readRegDword<unsigned int>(&(pProfile->dsp_screenStretch), &profileKey, L"Stretch", &type, &size);
-        readRegBool(&(pProfile->dsp_isExtraRender), &profileKey, L"ExtraRender", &type, &size);
         readRegBool(&(pProfile->dsp_isScreenMirror), &profileKey, L"Mirror", &type, &size);
         readRegDword<unsigned int>(&(pProfile->dsp_borderSize), &profileKey, L"BorderSize", &type, &size);
         readRegDword<unsigned int>(&(pProfile->dsp_screenCurved), &profileKey, L"CrtCurved", &type, &size);
@@ -363,8 +361,6 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         RegSetValueEx(profileKey, L"ScnSmooth", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pProfile->scl_isMdec) ? 1uL : 0uL;
         RegSetValueEx(profileKey, L"Mdec", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pProfile->scl_isGpuTxScaling) ? 1uL : 0uL;
-        RegSetValueEx(profileKey, L"GpuTxScale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pProfile->scl_isGpu2dScaling) ? 1uL : 0uL;
         RegSetValueEx(profileKey, L"Gpu2dScale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
@@ -380,8 +376,6 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         RegSetValueEx(profileKey, L"IntResY", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->dsp_screenStretch;
         RegSetValueEx(profileKey, L"Stretch", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pProfile->dsp_isExtraRender) ? 1uL : 0uL;
-        RegSetValueEx(profileKey, L"ExtraRender", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pProfile->dsp_isScreenMirror) ? 1uL : 0uL;
         RegSetValueEx(profileKey, L"Mirror", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->dsp_borderSize;

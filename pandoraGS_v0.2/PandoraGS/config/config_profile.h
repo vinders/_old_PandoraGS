@@ -38,7 +38,6 @@ public:
     unsigned int scl_spriteUpscale;     // sprites hi-res upscaling
     unsigned int scl_screenSmooth;      // global screen smoothing
     bool         scl_isMdec;            // MDEC video filter
-    bool         scl_isGpuTxScaling;    // scaling textures with GPU shaders (true) or software
     bool         scl_isGpu2dScaling;    // scaling sprites/screen with GPU shaders (true) or software
     //ajout bruit aux textures (pour les rendre plus précises) -> taux : 0 - 10
     //...
@@ -57,7 +56,6 @@ public:
     unsigned int dsp_internalResX;      // internal resolution [x]
     unsigned int dsp_internalResY;      // internal resolution [y]
     unsigned int dsp_screenStretch;     // screen stretching mode
-    bool         dsp_isExtraRender;     // extra rendering instead of black bars
     bool         dsp_isScreenMirror;    // screen mirror (mirrored/normal)
     unsigned int dsp_borderSize;        // add black borders (0 = none)
     unsigned int dsp_screenCurved;      // emulate curved CRT screen (0 to 2 ; 0 = none)
@@ -127,6 +125,9 @@ enum CfgScreenSmooth
     CfgScreenSmooth_Blur3xBRZ = 2, // filter + bilinear scaling, then blur
     CfgScreenSmooth_Blur4xBRZ = 3,
     CfgScreenSmooth_Blur5xBRZ = 4
+    //...
+    //xBR-Lv2-3D
+    //...
 };
 // screen stretching
 enum CfgStretching

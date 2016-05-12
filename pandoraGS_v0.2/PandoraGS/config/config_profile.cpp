@@ -33,7 +33,6 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     scl_spriteUpscale = copy.scl_spriteUpscale;
     scl_screenSmooth = copy.scl_screenSmooth;
     scl_isMdec = copy.scl_isMdec;
-    scl_isGpuTxScaling = copy.scl_isGpuTxScaling;
     scl_isGpu2dScaling = copy.scl_isGpu2dScaling;
 
     shd_antiAliasing = copy.shd_antiAliasing;
@@ -42,7 +41,6 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     dsp_internalResX = copy.dsp_internalResX;
     dsp_internalResY = copy.dsp_internalResY;
     dsp_screenStretch = copy.dsp_screenStretch;
-    dsp_isExtraRender = copy.dsp_isExtraRender;
     dsp_isScreenMirror = copy.dsp_isScreenMirror;
     dsp_borderSize = copy.dsp_borderSize;
     dsp_screenCurved = copy.dsp_screenCurved;
@@ -70,7 +68,6 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             scl_spriteUpscale = CfgUpscaling_2xSaI;
             scl_screenSmooth = CfgScreenSmooth_None;
             scl_isMdec = false;
-            scl_isGpuTxScaling = true;
             scl_isGpu2dScaling = true;
 
             shd_antiAliasing = CfgAntiAliasing_FXAA;
@@ -91,7 +88,6 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             scl_spriteUpscale = CfgUpscaling_Native;
             scl_screenSmooth = CfgScreenSmooth_None;
             scl_isMdec = false;
-            scl_isGpuTxScaling = true;
             scl_isGpu2dScaling = true;
 
             shd_antiAliasing = CfgAntiAliasing_None;
@@ -112,8 +108,7 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             scl_spriteUpscale = CfgUpscaling_Native;
             scl_screenSmooth = CfgScreenSmooth_Blur4xBRZ;
             scl_isMdec = true;
-            scl_isGpuTxScaling = true;
-            scl_isGpu2dScaling = true;
+            scl_isGpu2dScaling = false;
 
             shd_antiAliasing = CfgAntiAliasing_NFAA;
             //...
@@ -133,7 +128,6 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             scl_spriteUpscale = CfgUpscaling_3xBRZ;
             scl_screenSmooth = CfgScreenSmooth_None;
             scl_isMdec = true;
-            scl_isGpuTxScaling = true;
             scl_isGpu2dScaling = true;
 
             shd_antiAliasing = CfgAntiAliasing_SMAA4;
@@ -148,7 +142,6 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
     }
 
     // common values
-    dsp_isExtraRender = false;
     dsp_isScreenMirror = false;
     dsp_borderSize = 0;
     dsp_screenCurved = 0;

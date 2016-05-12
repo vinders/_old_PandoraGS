@@ -592,7 +592,7 @@ long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem)
 }
 
 
-/// <summary>Request snapshot (on next display)</summary>
+/// <summary>Snapshot request (on next display)</summary>
 void CALLBACK GPUmakeSnapshot()
 {
 }
