@@ -159,7 +159,7 @@ void CALLBACK GPUupdateLace()
     if (InputManager::m_isWindowModeChangePending)
     {
         if (InputManager::m_isStretchingChangePending == false) // window change
-            g_pConfig->dsp_isFullscreen = !g_pConfig->dsp_isFullscreen;
+            g_pConfig->dsp_isFullscreen = !(g_pConfig->dsp_isFullscreen);
 
         InputManager::stopListener();
         g_pDisplayManager->changeQuery(); // reload renderer
