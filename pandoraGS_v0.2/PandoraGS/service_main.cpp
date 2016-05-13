@@ -202,6 +202,7 @@ void CALLBACK GPUupdateLace()
         #ifdef _WINDOWS
         Sleep(16);
         #endif
+        FramerateManager::resetFrameSkipping();
     }
 
     // display current frame (if not skipped)
