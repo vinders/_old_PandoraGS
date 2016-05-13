@@ -21,9 +21,12 @@ PsxCoreMemory::PsxCoreMemory()
     gen_hWindow = NULL;
     gen_hDisplayWindow = NULL;
     #endif
-    sync_localize = LocalizationMode_Ntsc;
-    sync_isInterlaced = false;
     mem_vramImage.pData = NULL;
+
+    dsp_displayState.init();
+    dsp_displayFlags = 0;
+    st_hasFixBusyEmu = false;
+    st_fixBusyEmuSequence = 0;
 
     // native display widths
     dsp_displayWidths[0] = 256;
@@ -36,10 +39,6 @@ PsxCoreMemory::PsxCoreMemory()
     dsp_displayWidths[7] = 640;
     // data transaction init
     mem_gpuDataTransaction = GPUDATA_INIT;
-
-    dsp_displayFlags = 0;
-    st_hasFixBusyEmu = false;
-    st_fixBusyEmuSequence = 0;
 }
 
 /// <summary>Destroy memory instance</summary>

@@ -60,9 +60,6 @@
     <ClCompile Include="control\input_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="display\screen.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="display\shader\shader_directx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -76,9 +73,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="display\display_thread.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="display\texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="control\psx_core_memory.cpp">
@@ -120,9 +114,6 @@
     <ClCompile Include="config\views\config_pprofile_winview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="display\color.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="control\framerate_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -136,6 +127,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="display\render\render_software.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="control\display_state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -188,9 +182,6 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="display\screen.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="display\shader\shader_directx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -204,9 +195,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="display\display_thread.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="display\texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="control\psx_core_memory.h">
@@ -248,9 +236,6 @@
     <ClInclude Include="config\views\config_pprofile_winview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="display\color.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="control\framerate_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -264,6 +249,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="display\render\render_software.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="control\display_state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

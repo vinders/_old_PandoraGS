@@ -72,7 +72,7 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
     if (hasFrameInfo)
     {
         if (g_pConfig->getCurrentProfile()->sync_hasFixAutoLimit)
-            s_isInterlaced = g_pMemory->sync_isInterlaced;
+            s_isInterlaced = g_pMemory->dsp_displayState.isInterlaced;
         else
             s_isInterlaced = g_pMemory->getStatus(GPUSTATUS_INTERLACED);
     }
@@ -89,14 +89,14 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
         // use theoretical standard values
         if (g_pConfig->getCurrentProfile()->sync_hasFixAutoLimit)
         {
-            if (g_pMemory->sync_localize == LocalizationMode_Pal)
+            if (g_pMemory->dsp_displayState.localize == LocalizationMode_Pal)
                 g_framerateHz = (s_isInterlaced) ? 50.0f : 25.0f;
             else 
                 g_framerateHz = (s_isInterlaced) ? 60.0f : 30.0f;
         }
         else // emulation values
         {
-            if (g_pMemory->sync_localize == LocalizationMode_Pal)
+            if (g_pMemory->dsp_displayState.localize == LocalizationMode_Pal)
             {
                 if (s_isInterlaced)
                     g_framerateHz = 33868800.0f / 677343.75f; // 50.00238

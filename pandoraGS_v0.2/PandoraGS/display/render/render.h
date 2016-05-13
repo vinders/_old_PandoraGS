@@ -46,8 +46,6 @@ protected:
     BOOL            bWindowMode;
     int             iWinSize;
 
-    PSXDisplay_t    PSXDisplay;
-    PSXDisplay_t    PreviousPSXDisplay;
     TWin_t          TWin;
     short           imageX0, imageX1;
     short           imageY0, imageY1;
