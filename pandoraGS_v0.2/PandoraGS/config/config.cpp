@@ -80,6 +80,7 @@ void Config::setDefaultKeyBindings()
     misc_gpuKeys[(int)GpuKeys_SlowMotion] = VK_NOKEY;
     misc_gpuKeys[(int)GpuKeys_Stretching] = VK_F11;
     misc_gpuKeys[(int)GpuKeys_Debug] = VK_F12;
+    misc_gpuKeys[(int)GpuKeys_Pause] = VK_NOKEY;
 }
 
 /// <summary>Set the whole profile array</summary>

@@ -26,6 +26,7 @@ public:
     static int  m_menuIndex;
     static bool m_isProfileChangePending;
 
+    static bool m_isPaused;
     static bool m_isFastForward;
     static bool m_isSlowMotion;
     static bool m_isSizeChangePending;

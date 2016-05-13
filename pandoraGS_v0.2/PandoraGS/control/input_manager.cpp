@@ -32,6 +32,7 @@ bool InputManager::m_isShowingMenu = false;
 int  InputManager::m_menuIndex = 0;
 bool InputManager::m_isProfileChangePending = false;
 
+bool InputManager::m_isPaused = false;
 bool InputManager::m_isFastForward = false;
 bool InputManager::m_isSlowMotion = false;
 bool InputManager::m_isSizeChangePending = false;
@@ -46,8 +47,10 @@ void InputManager::initListener()
         return;
     // default values
     m_isShowingMenu = false;
+    m_isPaused = false;
     m_isFastForward = false;
     m_isSlowMotion = false;
+    m_isSizeChangePending = false;
     m_isStretchingChangePending = false;
     m_isWindowModeChangePending = false;
     m_isProfileChangePending = false;
@@ -119,6 +122,7 @@ void InputManager::stopListener()
     #endif
 
     // default values
+    m_isPaused = false;
     m_isShowingMenu = false;
     m_isFastForward = false;
     m_isSlowMotion = false;
@@ -197,10 +201,16 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
                 InputManager::m_isSlowMotion = !(InputManager::m_isSlowMotion);
                 break;
             }
+            if (wpCode == (WPARAM)(g_pConfig->misc_gpuKeys[(int)GpuKeys_Pause]))
+            {
+                InputManager::m_isPaused = !(InputManager::m_isPaused);
+                break;
+            }
 
             // profile management
             if (wpCode == (WPARAM)(g_pConfig->misc_gpuKeys[(int)GpuKeys_ProfileMenu])) // show/hide menu
             {
+                if (InputManager::m_isPaused) break;
                 if (InputManager::m_isShowingMenu == false)
                 {
                     InputManager::m_menuIndex = g_pConfig->getCurrentProfileId();
@@ -222,7 +232,7 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
             }
             if (wpCode == (WPARAM)(g_pConfig->misc_gpuKeys[(int)GpuKeys_ProfileDefault]))
             {
-                if (InputManager::m_isShowingMenu)
+                if (InputManager::m_isShowingMenu && InputManager::m_isPaused == false)
                 {
                     g_pConfig->getPrevProfileId(1uL);
                     InputManager::m_menuIndex = 0;
@@ -231,7 +241,7 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
             }
             if (wpCode == (WPARAM)(g_pConfig->misc_gpuKeys[(int)GpuKeys_ProfilePrev]))
             {
-                if (InputManager::m_isShowingMenu)
+                if (InputManager::m_isShowingMenu && InputManager::m_isPaused == false)
                 {
                     unsigned int newId = g_pConfig->getPrevProfileId(InputManager::m_menuIndex);
                     InputManager::m_menuIndex = newId;
@@ -240,7 +250,7 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
             }
             if (wpCode == (WPARAM)(g_pConfig->misc_gpuKeys[(int)GpuKeys_ProfileNext]))
             {
-                if (InputManager::m_isShowingMenu)
+                if (InputManager::m_isShowingMenu && InputManager::m_isPaused == false)
                 {
                     unsigned int newId = g_pConfig->getNextProfileId(InputManager::m_menuIndex);
                     InputManager::m_menuIndex = newId;
@@ -257,15 +267,16 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
                 }
                 else // debug mode -> next mode
                 {
-                    if (g_pConfig->rnd_debugMode < DebugMode_TextureWith2DMode)
+                    if (g_pConfig->rnd_debugMode < DebugMode_TexturedMode)
                         g_pConfig->rnd_debugMode = (DebugMode)((int)g_pConfig->rnd_debugMode + 1);
                     else
-                        g_pConfig->rnd_debugMode = DebugMode_LineMode;
+                        g_pConfig->rnd_debugMode = DebugMode_BaseMode;
                 }
                 break;
             }
             if (wpCode == (WPARAM)(g_pConfig->misc_gpuKeys[(int)GpuKeys_Stretching])) // screen stretching mode
             {
+                if (InputManager::m_isPaused) break;
                 if (g_pConfig->getCurrentProfile()->dsp_screenStretch < CFGSTRETCHING_LAST)
                     g_pConfig->getCurrentProfile()->dsp_screenStretch++;
                 else

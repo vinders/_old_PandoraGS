@@ -19,7 +19,7 @@ Description : configuration container
 #define FRAMELIMIT_Auto 0.0f
 
 // plugin key bindings
-#define GPUKEYS_LENGTH 10           // 9 + NULL ending
+#define GPUKEYS_LENGTH 11           // 10 + NULL ending
 #define VK_NOKEY 0x07
 enum GpuKeys
 {
@@ -31,16 +31,15 @@ enum GpuKeys
     GpuKeys_Stretching = 5,         // next streching mode
     GpuKeys_FastForward = 6,        // faster while pressed
     GpuKeys_SlowMotion = 7,         // slow mode on/off
-    GpuKeys_Debug = 8               // FPS display / next debug mode
+    GpuKeys_Debug = 8,              // FPS display / next debug mode
+    GpuKeys_Pause = 9               // pause on/off
 };
 // debug modes
 enum DebugMode
 {
     DebugMode_None = 0,
-    DebugMode_LineMode = 1,
-    DebugMode_PolyMode = 2,
-    DebugMode_TextureMode = 3,
-    DebugMode_TextureWith2DMode = 4
+    DebugMode_BaseMode = 1,
+    DebugMode_TexturedMode = 2
 };
 // timing mode
 enum TimingMode

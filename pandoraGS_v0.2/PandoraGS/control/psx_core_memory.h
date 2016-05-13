@@ -130,7 +130,7 @@ public:
     VramLoad_t    mem_vramWrite;          // PSX VRAM frame writer
     int           mem_vramWriteMode;      // write transfer mode
     long          mem_gpuDataTransaction; // GPU data read/written by emulator
-    unsigned long mem_gpuDmaAddresses[3];
+    unsigned long mem_gpuDmaAddresses[3]; // DMA address check
 
     // gpu emulated status and information
     long          st_statusReg;           // GPU status register
@@ -144,21 +144,6 @@ public:
     DisplayState  dsp_displayState;       // display information
     short         dsp_displayWidths[8];   // possible psx display widths
     unsigned long dsp_displayFlags;       // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
-
-
-    /* unsigned char  *psxVSecure; //mem_vramImage
-    unsigned long   ulStatusControl[256]; //mem_pStatusControl
-    static long     GPUdataRet;     //mem_gpuDataTransaction
-    long            lGPUstatusRet;  //mem_statusReg
-        char            szDispBuf[64];  //inutile, ne servait qu'à stocker les FPS sous forme de chaine
-        static unsigned long gpuDataM[256]; // uniquement dans 1 seule fonction -> utiliser var statique
-        static unsigned char gpuCommand = 0;// idem
-        static long          gpuDataC = 0;  // idem
-        static long          gpuDataP = 0;  // idem
-    VRAMLoad_t      VRAMWrite;      //mem_vramWrite
-    VRAMLoad_t      VRAMRead;       //mem_vramRead
-    int             iDataWriteMode; //mem_vramWriteMode
-    int             iDataReadMode;  //mem_vramReadMode */
 
 
 public:
@@ -196,13 +181,13 @@ public:
         return (st_statusReg & statusBits);
     }
 
-    
+public:
     // -- MEMORY IO -- -------------------------------------------------------------
 
     /// <summary>Read entire chunk of data from video memory (vram)</summary>
     /// <param name="pDwMem">Pointer to chunk of data (destination)</param>
     /// <param name="size">Memory chunk size</param>
-    inline void PsxCoreMemory::readDataMem(unsigned long* pDwMem, int size);
+    inline void readDataMem(unsigned long* pDwMem, int size);
     /// <summary>Process and send chunk of data to video data register</summary>
     /// <param name="pDwMem">Pointer to chunk of data (source)</param>
     /// <param name="size">Memory chunk size</param>
@@ -229,7 +214,6 @@ public:
         mem_gpuDmaAddresses[0] = addr;
         return false;
     }
-
 
     // -- STATUS COMMANDS -- -------------------------------------------------------
 
@@ -652,8 +636,8 @@ void PsxCoreMemory::cmdSetHeight(short y0, short y1)
 
     dsp_displayState.current.range.y0 = y0;
     dsp_displayState.current.range.y1 = y1;
-    dsp_displayState.current.height = dsp_displayState.current.range.y1 - dsp_displayState.current.range.y0 
-                                      + dsp_displayState.previousHeightOffset;
+    dsp_displayState.current.height = dsp_displayState.current.range.y1 - dsp_displayState.current.range.y0
+                                    + dsp_displayState.previousHeightOffset;
 
     /*if (dsp_displayState.previous.height != dsp_displayState.current.height)
     {

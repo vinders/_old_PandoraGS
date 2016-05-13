@@ -196,6 +196,13 @@ void CALLBACK GPUupdateLace()
         else if (ffCount == 4)
             ffCount = 0;
     }
+    // pause -> wait
+    while (InputManager::m_isPaused)
+    {
+        #ifdef _WINDOWS
+        Sleep(16);
+        #endif
+    }
 
     // display current frame (if not skipped)
     if (FramerateManager::isFrameSkipped(g_pMemory->mem_vramImage.oddFrame != 0) == false)
