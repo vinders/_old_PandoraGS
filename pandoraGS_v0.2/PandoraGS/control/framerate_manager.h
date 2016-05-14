@@ -33,6 +33,7 @@ private:
     static unsigned long s_maxFrameWait; // max wait time before skipping (7/8 frame time)
     #endif
     static bool s_isInterlaced;          // interlaced frames
+    static bool s_isSkipped;             // skip current frame
     static bool s_isReset;               // init indicator
 
     // frame skipping
@@ -63,15 +64,15 @@ public:
     // -- FRAMERATE MANAGEMENT -- ----------------------------------------------
 
     /// <summary>Framerate limiter/sync</summary>
-    /// <param name="isSlowedDown">Slow motion mode</param>
-    static void waitFrameTime(bool isSlowedDown);
+    /// <param name="frameSpeed">Speed modifier (normal/slow/fast)</param>
+    static void waitFrameTime(int frameSpeed);
 protected:
     /// <summary>Calculate current frames per second</summary>
     static void checkCurrentFramerate();
 public:
     /// <summary>Get current frames per second</summary>
     /// <returns>Current FPS value</returns>
-    static float getCurrentFramerate()
+    static inline float getCurrentFramerate()
     {
         return s_currentFps;
     }
@@ -80,24 +81,28 @@ public:
     // -- FRAME SKIPPING -- ----------------------------------------------------
 
     /// <summary>Cancel planified frame skips</summary>
-    static void resetFrameSkipping()
+    static inline void resetFrameSkipping()
     {
         s_lateTicks = 0;
         s_isReset = true;
+        s_isSkipped = false;
     }
     /// <summary>Signal that a new frame is being drawn (data has been read)</summary>
-    static void signalFrameDrawing()
+    static inline void signalFrameDrawing()
     {
         s_framesAfterFpsRef++;
         s_isFrameDataWaiting = false;
     }
 
-    /// <summary>Check if current frame should be skipped</summary>
-    /// <param name="isOddLine">Odd line (if interlaced)</param>
+    /// <summary>Check if current frame is skipped</summary>
     /// <returns>Skip indicator (boolean)</returns>
-    static bool isFrameSkipped(bool isOddLine);
-    /// <summary>Wait until current frame data is read</summary>
-    static void checkFrameStarted();
+    static inline bool isFrameSkipped()
+    {
+        return s_isSkipped;
+    }
+    /// <summary>Wait frame read and set next frame skipping</summary>
+    /// <param name="isOddLine">Odd line (if interlaced)</param>
+    static void checkFrameStart(bool isOddLine);
 };
 
 #endif

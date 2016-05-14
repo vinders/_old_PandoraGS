@@ -10,6 +10,7 @@ Description : framerate and sync management toolbox
 using namespace std;
 #include "framerate_manager.h"
 #include "psx_core_memory.h"
+#include "input_manager.h"
 
 #define MAX_LACE_NUMBER 16
 #define MAX_SUCCESSIVE_SKIPPING 4
@@ -28,6 +29,7 @@ unsigned long FramerateManager::s_frameDuration;    // ticks per frame
 unsigned long FramerateManager::s_maxFrameWait;     // max wait time before skipping (7/8 frame time)
 #endif
 bool FramerateManager::s_isInterlaced = false;      // interlaced frames
+bool FramerateManager::s_isSkipped = false;
 bool FramerateManager::s_isReset = true;            // init indicator
 
 // frame skipping
@@ -51,6 +53,7 @@ unsigned int FramerateManager::s_framesAfterFpsRef = 0; // number of frames disp
 void FramerateManager::initFramerate()
 {
     s_isInterlaced = false;
+    s_isSkipped = false;
 
     #ifdef _WINDOWS
     if (g_pConfig->sync_timeMode == TimingMode_HighResCounter
@@ -69,6 +72,7 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
 {
     // check interlacing
     s_isInterlaced = false;
+    s_isSkipped = false;
     if (hasFrameInfo)
     {
         if (g_pConfig->getCurrentProfile()->sync_hasFixAutoLimit)
@@ -149,8 +153,25 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
 
 /// <summary>Framerate limiter/sync</summary>
 /// <param name="isSlowedDown">Slow motion mode</param>
-void FramerateManager::waitFrameTime(bool isSlowedDown)
+void FramerateManager::waitFrameTime(int frameSpeed)
 {
+    -;//...ADAPTER FONCTION
+
+    // au lieu de lire ici le temps de retard, le lire dans l'autre fonction après l'attente
+
+    // prendre en compte le FASTFORWARD -> n'attendre qu'une fois sur 4 si FF
+    /*
+    // fast forward -> skip 2 frames out of 4
+    if (InputManager::m_isFastForward)
+    {
+        static int ffCount = 0;
+        if (++ffCount < 3) return;
+        else if (ffCount == 4)
+            ffCount = 0;
+    }
+    */
+
+
     // set FPS indicator
     static unsigned int laceCount = MAX_LACE_NUMBER;
     if (++laceCount >= MAX_LACE_NUMBER)
@@ -291,7 +312,7 @@ void FramerateManager::waitFrameTime(bool isSlowedDown)
     }
 
     // slow motion mode -> wait more
-    if (isSlowedDown)
+    if (frameSpeed == FrameSpeed_SlowMotion)
     {
         // set time ref
         #ifdef _WINDOWS
@@ -373,12 +394,27 @@ void FramerateManager::checkCurrentFramerate()
 
 // -- FRAME SKIPPING -- --------------------------------------------------------
 
-/// <summary>Check if current frame should be skipped</summary>
-/// <param name="isOddLine">Odd frame (if interlaced)</param>
-/// <returns>Skip indicator (boolean)</returns>
-bool FramerateManager::isFrameSkipped(bool isOddLine)
+/// <summary>Wait frame read and set next frame skipping</summary>
+/// <param name="isOddLine">Odd line (if interlaced)</param>
+void FramerateManager::checkFrameStart(bool isOddLine)
 {
-    if (g_pConfig->sync_isFrameSkip)
+    // wait for frame data to be read
+    static unsigned int cnt;
+    cnt = 0;
+    while (s_isFrameDataWaiting)
+        cnt++;
+
+    // no skipping + waiting = delay
+    if (g_pConfig->sync_isFrameSkip == false && cnt > 200uL)
+        s_isDelayedFrame = true;
+
+
+    -;//... REMPLACER CETTE FONCTION
+
+    // SI FAST FORWARD, passer 2 frames sur 4
+
+    // CHECK TEMPS -> si trop grand, skip prochaine frame
+    /*if (g_pConfig->sync_isFrameSkip)
     {
         static unsigned int skippedNumber = 0;
 
@@ -393,10 +429,10 @@ bool FramerateManager::isFrameSkipped(bool isOddLine)
                 return true;
             }
             // skip only 'even' frames first
-            else if (isOddLine == false) 
+            else if (isOddLine == false)
             {
                 if (s_lateTicks > s_maxFrameWait               // more than 7/8th frame time too late
-                 && ++skippedNumber < MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
+                    && ++skippedNumber < MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
                 {
                     s_isPrevSkippedOdd = false; // next 'odd' frame will be skipped too
                     s_lateTicks = 0;
@@ -408,7 +444,7 @@ bool FramerateManager::isFrameSkipped(bool isOddLine)
         else // not interlaced
         {
             if (s_lateTicks > s_maxFrameWait               // more than 7/8th frame time too late
-             && ++skippedNumber < MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
+                && ++skippedNumber < MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
             {
                 s_lateTicks = 0;
                 return true;
@@ -419,21 +455,8 @@ bool FramerateManager::isFrameSkipped(bool isOddLine)
     }
 
     s_isFrameDataWaiting = true; // new frame to draw
-    return false;
-}
+    return false;*/
 
-/// <summary>Wait until current frame data is read</summary>
-void FramerateManager::checkFrameStarted()
-{
-    // wait for frame data to be read
-    static unsigned int cnt;
-    cnt = 0;
-    while (s_isFrameDataWaiting)
-        cnt++;
-
-    // no skipping + waiting = delay
-    if (g_pConfig->sync_isFrameSkip == false && cnt > 200uL)
-        s_isDelayedFrame = true;
 }
 
 

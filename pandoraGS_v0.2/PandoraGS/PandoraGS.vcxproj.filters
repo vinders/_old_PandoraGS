@@ -60,15 +60,6 @@
     <ClCompile Include="control\input_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="display\shader\shader_directx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="display\shader\shader_opengl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="display\shader\shader_software.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="display\shader\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -180,15 +171,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="display\shader\shader_directx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="display\shader\shader_opengl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="display\shader\shader_software.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="display\shader\shader.h">

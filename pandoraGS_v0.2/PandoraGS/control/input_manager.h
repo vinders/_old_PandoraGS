@@ -14,6 +14,14 @@ Description : user input manager
 #include <map>
 #include "config.h"
 
+// speed modifiers
+enum FrameSpeed
+{
+    FrameSpeed_SlowMotion = -1,
+    FrameSpeed_Normal = 0,
+    FrameSpeed_FastForward = 1
+};
+
 
 // User input manager
 class InputManager
@@ -27,8 +35,7 @@ public:
     static bool m_isProfileChangePending;
 
     static bool m_isPaused;
-    static bool m_isFastForward;
-    static bool m_isSlowMotion;
+    static int  m_frameSpeed;
     static bool m_isSizeChangePending;
     static bool m_isStretchingChangePending;
     static bool m_isWindowModeChangePending;

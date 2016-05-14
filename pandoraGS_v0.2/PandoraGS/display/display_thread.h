@@ -85,7 +85,7 @@ public:
 
     /// <summary>Check if thread is started</summary>
     /// <returns>Thread start indicator</returns>
-    bool isThreadStarted()
+    inline bool isThreadStarted()
     {
         return (m_threadStatus != THREAD_STATUS_STOPPED);
     }

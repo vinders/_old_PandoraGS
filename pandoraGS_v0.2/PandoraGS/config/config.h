@@ -120,20 +120,20 @@ public:
     ConfigProfile* getProfile(unsigned int index);
     /// <summary>Get current profile</summary>
     /// <returns>Current profile</returns>
-    ConfigProfile* getCurrentProfile()
+    inline ConfigProfile* getCurrentProfile()
     {
         return m_pProfiles[m_currentProfile];
     }
     /// <summary>Check if profile is initialized</summary>
     /// <returns>Profile status (true = set)</returns>
-    bool isProfileSet()
+    inline bool isProfileSet()
     {
         return m_isReady;
     }
 
     /// <summary>Get current profile ID</summary>
     /// <returns>Current profile ID</returns>
-    unsigned long getCurrentProfileId()
+    inline unsigned long getCurrentProfileId()
     {
         return m_currentProfile;
     }

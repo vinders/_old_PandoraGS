@@ -10,6 +10,8 @@ Description : API rendering pipeline - abstract factory
 #ifndef _RENDER_H
 #define _RENDER_H
 #include "globals.h"
+#include "config.h"
+#include "shader.h"
 
 // graphic API identifiers
 enum RenderApi
@@ -19,8 +21,6 @@ enum RenderApi
     RenderApi_DirectX = 2
 };
 #define RENDERAPI_DEFAULT RenderApi_OpenGL
-
-#include "config.h"
 
 
 // Rendering pipeline - abstract factory

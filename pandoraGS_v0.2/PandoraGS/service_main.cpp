@@ -188,14 +188,6 @@ void CALLBACK GPUupdateLace()
             InputManager::m_isProfileChangePending = false;
         }
     }
-    // fast forward -> skip 2 frames out of 4
-    if (InputManager::m_isFastForward)
-    {
-        static int ffCount = 0;
-        if (++ffCount < 3) return;
-        else if (ffCount == 4)
-            ffCount = 0;
-    }
     // pause -> wait
     while (InputManager::m_isPaused)
     {
@@ -206,11 +198,12 @@ void CALLBACK GPUupdateLace()
     }
 
     // display current frame (if not skipped)
-    if (FramerateManager::isFrameSkipped(g_pMemory->mem_vramImage.oddFrame != 0) == false)
+    if (FramerateManager::isFrameSkipped() == false)
         g_pDisplayManager->drawQuery();
+    FramerateManager::waitFrameTime(InputManager::m_frameSpeed); // frame sync
 
-    FramerateManager::waitFrameTime(InputManager::m_isSlowMotion); // frame sync
-    FramerateManager::checkFrameStarted(); // wait until frame data is read
+    // wait frame start + set frame skipping
+    FramerateManager::checkFrameStart(g_pMemory->mem_vramImage.oddFrame != 0); 
 }
 
 
@@ -470,30 +463,11 @@ unsigned long CALLBACK GPUreadData()
     return g_pMemory->mem_gpuDataTransaction;
 }
 
-/// <summary>Read entire chunk of data from video memory (vram)</summary>
-/// <param name="pDwMem">Pointer to chunk of data (destination)</param>
-/// <param name="size">Memory chunk size</param>
-void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
-{
-    if (g_pMemory->mem_vramReadMode != DR_VRAMTRANSFER) // check read mode
-        return;
-    g_pMemory->readDataMem(pDwMem, size);
-}
-
-
 /// <summary>Process and send data to video data register</summary>
 /// <param name="gdata">Written data</param>
 void CALLBACK GPUwriteData(unsigned long gdata)
 {
     GPUwriteDataMem(&gdata, 1);
-}
-
-/// <summary>Process and send chunk of data to video data register</summary>
-/// <param name="pDwMem">Pointer to chunk of data (source)</param>
-/// <param name="size">Memory chunk size</param>
-void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
-{
-    g_pMemory->writeDataMem(pDwMem, size);
 }
 
 /// <summary>Direct memory access chain</summary>

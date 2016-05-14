@@ -33,8 +33,7 @@ int  InputManager::m_menuIndex = 0;
 bool InputManager::m_isProfileChangePending = false;
 
 bool InputManager::m_isPaused = false;
-bool InputManager::m_isFastForward = false;
-bool InputManager::m_isSlowMotion = false;
+int  InputManager::m_frameSpeed = 0;
 bool InputManager::m_isSizeChangePending = false;
 bool InputManager::m_isStretchingChangePending = false;
 bool InputManager::m_isWindowModeChangePending = false;
@@ -48,8 +47,7 @@ void InputManager::initListener()
     // default values
     m_isShowingMenu = false;
     m_isPaused = false;
-    m_isFastForward = false;
-    m_isSlowMotion = false;
+    m_frameSpeed = 0;
     m_isSizeChangePending = false;
     m_isStretchingChangePending = false;
     m_isWindowModeChangePending = false;
@@ -124,8 +122,7 @@ void InputManager::stopListener()
     // default values
     m_isPaused = false;
     m_isShowingMenu = false;
-    m_isFastForward = false;
-    m_isSlowMotion = false;
+    m_frameSpeed = 0;
     m_isStretchingChangePending = false;
     m_isWindowModeChangePending = false;
     m_isProfileChangePending = false;
@@ -175,8 +172,7 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
         case WM_KEYDOWN:
             if (wpCode == (WPARAM)(g_pConfig->misc_gpuKeys[(int)GpuKeys_FastForward])) // fast-forward
             {
-                InputManager::m_isSlowMotion = false;
-                InputManager::m_isFastForward = true;
+                InputManager::m_frameSpeed = FrameSpeed_FastForward;
             }
             break;
 
@@ -191,14 +187,15 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
             // speed modifications
             if (wpCode == (WPARAM)(g_pConfig->misc_gpuKeys[(int)GpuKeys_FastForward]))
             {
-                InputManager::m_isFastForward = false;
-                InputManager::m_isSlowMotion = false;
+                InputManager::m_frameSpeed = FrameSpeed_Normal;
                 break;
             }
             if (wpCode == (WPARAM)(g_pConfig->misc_gpuKeys[(int)GpuKeys_SlowMotion]))
             {
-                InputManager::m_isFastForward = false;
-                InputManager::m_isSlowMotion = !(InputManager::m_isSlowMotion);
+                if (InputManager::m_frameSpeed != FrameSpeed_Normal)
+                    InputManager::m_frameSpeed = FrameSpeed_Normal;
+                else
+                    InputManager::m_frameSpeed = FrameSpeed_SlowMotion;
                 break;
             }
             if (wpCode == (WPARAM)(g_pConfig->misc_gpuKeys[(int)GpuKeys_Pause]))

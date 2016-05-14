@@ -101,18 +101,10 @@ void CALLBACK GPUwriteStatus(unsigned long gdata);
 /// <summary>Read data from video memory (vram)</summary>
 /// <returns>Raw GPU data</returns>
 unsigned long CALLBACK GPUreadData();
-/// <summary>Read entire chunk of data from video memory (vram)</summary>
-/// <param name="pDwMem">Pointer to chunk of data (destination)</param>
-/// <param name="size">Memory chunk size</param>
-void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size);
-
 /// <summary>Process and send data to video data register</summary>
 /// <param name="gdata">Written data</param>
 void CALLBACK GPUwriteData(unsigned long gdata);
-/// <summary>Process and send chunk of data to video data register</summary>
-/// <param name="pDwMem">Pointer to chunk of data (source)</param>
-/// <param name="size">Memory chunk size</param>
-void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size);
+
 /// <summary>Give a direct core memory access chain to GPU driver</summary>
 /// <param name="pDwBaseAddress">Pointer to memory chain</param>
 /// <param name="offset">Memory offset</param>
