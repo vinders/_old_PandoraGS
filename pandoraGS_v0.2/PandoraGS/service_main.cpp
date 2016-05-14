@@ -188,22 +188,12 @@ void CALLBACK GPUupdateLace()
             InputManager::m_isProfileChangePending = false;
         }
     }
-    // pause -> wait
-    while (InputManager::m_isPaused)
-    {
-        #ifdef _WINDOWS
-        Sleep(16);
-        #endif
-        FramerateManager::resetFrameSkipping();
-    }
 
     // display current frame (if not skipped)
     if (FramerateManager::isFrameSkipped() == false)
         g_pDisplayManager->drawQuery();
-    FramerateManager::waitFrameTime(InputManager::m_frameSpeed); // frame sync
-
-    // wait frame start + set frame skipping
-    FramerateManager::checkFrameStart(g_pMemory->mem_vramImage.oddFrame != 0); 
+    // frame sync + check frame skipping
+    FramerateManager::waitFrameTime(InputManager::m_frameSpeed, g_pMemory->mem_vramImage.oddFrame != 0);
 }
 
 

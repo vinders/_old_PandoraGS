@@ -63,9 +63,10 @@ public:
 
     // -- FRAMERATE MANAGEMENT -- ----------------------------------------------
 
-    /// <summary>Framerate limiter/sync</summary>
+    /// <summary>Frame rate limiter/sync + check frame skipping</summary>
     /// <param name="frameSpeed">Speed modifier (normal/slow/fast)</param>
-    static void waitFrameTime(int frameSpeed);
+    /// <param name="isOddFrame">Odd line (if interlaced)</param>
+    static void waitFrameTime(int frameSpeed, bool isOddFrame);
 protected:
     /// <summary>Calculate current frames per second</summary>
     static void checkCurrentFramerate();
@@ -100,9 +101,6 @@ public:
     {
         return s_isSkipped;
     }
-    /// <summary>Wait frame read and set next frame skipping</summary>
-    /// <param name="isOddLine">Odd line (if interlaced)</param>
-    static void checkFrameStart(bool isOddLine);
 };
 
 #endif

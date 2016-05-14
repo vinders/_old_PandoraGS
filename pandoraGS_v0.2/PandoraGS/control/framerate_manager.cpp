@@ -151,13 +151,14 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
 
 // -- FRAMERATE MANAGEMENT -- --------------------------------------------------
 
-/// <summary>Framerate limiter/sync</summary>
+/// <summary>Frame rate limiter/sync + check frame skipping</summary>
 /// <param name="isSlowedDown">Slow motion mode</param>
-void FramerateManager::waitFrameTime(int frameSpeed)
+/// <param name="isOddFrame">Odd line (if interlaced)</param>
+void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
 {
     -;//...ADAPTER FONCTION
 
-    // au lieu de lire ici le temps de retard, le lire dans l'autre fonction après l'attente
+    // s'assurer que temps de retard soit valable si skip de prochaine frame au lieu de précédente
 
     // prendre en compte le FASTFORWARD -> n'attendre qu'une fois sur 4 si FF
     /*
@@ -332,6 +333,70 @@ void FramerateManager::waitFrameTime(int frameSpeed)
         while (currentTime < targetTime && currentTime > timeToWait);
         s_lateTicks = 0;
     }
+
+
+
+
+    // wait for frame data to be read
+    static unsigned int cnt;
+    cnt = 0;
+    while (s_isFrameDataWaiting)
+        cnt++;
+
+    // no skipping + waiting = delay
+    if (g_pConfig->sync_isFrameSkip == false && cnt > 200uL)
+        s_isDelayedFrame = true;
+
+
+    -;//... REMPLACER CETTE FONCTION
+
+    // SI FAST FORWARD, passer 2 frames sur 4
+
+    // ajout de temps d'attente ici à s_lateTicks
+
+    // CHECK TEMPS -> si trop grand, skip prochaine frame
+    /*if (g_pConfig->sync_isFrameSkip)
+    {
+    static unsigned int skippedNumber = 0;
+
+    if (s_isInterlaced) // interlacing -> show/skip by groups of 2 frames
+    {
+    // previous 'even' frame was skipped -> skip 'odd' frame too
+    if (s_isPrevSkippedOdd == false)
+    {
+    s_isPrevSkippedOdd = true;
+    ++skippedNumber;
+    s_lateTicks = 0;
+    return true;
+    }
+    // skip only 'even' frames first
+    else if (isOddLine == false)
+    {
+    if (s_lateTicks > s_maxFrameWait               // more than 7/8th frame time too late
+    && ++skippedNumber < MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
+    {
+    s_isPrevSkippedOdd = false; // next 'odd' frame will be skipped too
+    s_lateTicks = 0;
+    return true;
+    }
+    }
+    }
+
+    else // not interlaced
+    {
+    if (s_lateTicks > s_maxFrameWait               // more than 7/8th frame time too late
+    && ++skippedNumber < MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
+    {
+    s_lateTicks = 0;
+    return true;
+    }
+    }
+
+    skippedNumber = 0; // not skipped -> reset counter
+    }
+
+    s_isFrameDataWaiting = true; // new frame to draw
+    return false;*/
 }
 
 
@@ -389,74 +454,6 @@ void FramerateManager::checkCurrentFramerate()
     if (g_pConfig->sync_isFrameLimit && framerateTmp > g_framerateHz) // avoid flickering
         framerateTmp = g_framerateHz;
     s_currentFps = framerateTmp;
-}
-
-
-// -- FRAME SKIPPING -- --------------------------------------------------------
-
-/// <summary>Wait frame read and set next frame skipping</summary>
-/// <param name="isOddLine">Odd line (if interlaced)</param>
-void FramerateManager::checkFrameStart(bool isOddLine)
-{
-    // wait for frame data to be read
-    static unsigned int cnt;
-    cnt = 0;
-    while (s_isFrameDataWaiting)
-        cnt++;
-
-    // no skipping + waiting = delay
-    if (g_pConfig->sync_isFrameSkip == false && cnt > 200uL)
-        s_isDelayedFrame = true;
-
-
-    -;//... REMPLACER CETTE FONCTION
-
-    // SI FAST FORWARD, passer 2 frames sur 4
-
-    // CHECK TEMPS -> si trop grand, skip prochaine frame
-    /*if (g_pConfig->sync_isFrameSkip)
-    {
-        static unsigned int skippedNumber = 0;
-
-        if (s_isInterlaced) // interlacing -> show/skip by groups of 2 frames
-        {
-            // previous 'even' frame was skipped -> skip 'odd' frame too
-            if (s_isPrevSkippedOdd == false)
-            {
-                s_isPrevSkippedOdd = true;
-                ++skippedNumber;
-                s_lateTicks = 0;
-                return true;
-            }
-            // skip only 'even' frames first
-            else if (isOddLine == false)
-            {
-                if (s_lateTicks > s_maxFrameWait               // more than 7/8th frame time too late
-                    && ++skippedNumber < MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
-                {
-                    s_isPrevSkippedOdd = false; // next 'odd' frame will be skipped too
-                    s_lateTicks = 0;
-                    return true;
-                }
-            }
-        }
-
-        else // not interlaced
-        {
-            if (s_lateTicks > s_maxFrameWait               // more than 7/8th frame time too late
-                && ++skippedNumber < MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
-            {
-                s_lateTicks = 0;
-                return true;
-            }
-        }
-
-        skippedNumber = 0; // not skipped -> reset counter
-    }
-
-    s_isFrameDataWaiting = true; // new frame to draw
-    return false;*/
-
 }
 
 

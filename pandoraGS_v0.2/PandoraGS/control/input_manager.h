@@ -34,7 +34,6 @@ public:
     static int  m_menuIndex;
     static bool m_isProfileChangePending;
 
-    static bool m_isPaused;
     static int  m_frameSpeed;
     static bool m_isSizeChangePending;
     static bool m_isStretchingChangePending;
