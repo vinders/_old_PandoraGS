@@ -33,8 +33,8 @@ private:
     static unsigned long s_maxFrameWait; // max wait time before skipping (7/8 frame time)
     #endif
     static bool s_isInterlaced;          // interlaced frames
-    static bool s_isSkipped;             // skip current frame
     static bool s_isReset;               // init indicator
+    static int  s_framesToSkip;          // number of frames to skip
 
     // frame skipping
     static bool s_isDelayedFrame;        // delay next frame sync
@@ -61,7 +61,7 @@ public:
     static void setFramerate(bool hasFrameInfo);
 
 
-    // -- FRAMERATE MANAGEMENT -- ----------------------------------------------
+    // -- FRAME RATE MANAGEMENT -- ---------------------------------------------
 
     /// <summary>Frame rate limiter/sync + check frame skipping</summary>
     /// <param name="frameSpeed">Speed modifier (normal/slow/fast)</param>
@@ -78,15 +78,15 @@ public:
         return s_currentFps;
     }
 
-
-    // -- FRAME SKIPPING -- ----------------------------------------------------
-
-    /// <summary>Cancel planified frame skips</summary>
-    static inline void resetFrameSkipping()
+    /// <summary>Reset time reference and frame skipping</summary>
+    static inline void resetFrameTime()
     {
+        if (s_framesToSkip > 0 && s_isInterlaced)
+            s_framesToSkip--;
+        else
+            s_framesToSkip = (s_isInterlaced) ? 1 : 0;
         s_lateTicks = 0;
         s_isReset = true;
-        s_isSkipped = false;
     }
     /// <summary>Signal that a new frame is being drawn (data has been read)</summary>
     static inline void signalFrameDrawing()
@@ -99,7 +99,7 @@ public:
     /// <returns>Skip indicator (boolean)</returns>
     static inline bool isFrameSkipped()
     {
-        return s_isSkipped;
+        return (s_framesToSkip > 0);
     }
 };
 

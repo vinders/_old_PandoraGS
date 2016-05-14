@@ -29,8 +29,8 @@ unsigned long FramerateManager::s_frameDuration;    // ticks per frame
 unsigned long FramerateManager::s_maxFrameWait;     // max wait time before skipping (7/8 frame time)
 #endif
 bool FramerateManager::s_isInterlaced = false;      // interlaced frames
-bool FramerateManager::s_isSkipped = false;
 bool FramerateManager::s_isReset = true;            // init indicator
+int  FramerateManager::s_framesToSkip = 0;          // number of frames to skip
 
 // frame skipping
 bool FramerateManager::s_isDelayedFrame = false;    // delay next frame sync
@@ -53,7 +53,7 @@ unsigned int FramerateManager::s_framesAfterFpsRef = 0; // number of frames disp
 void FramerateManager::initFramerate()
 {
     s_isInterlaced = false;
-    s_isSkipped = false;
+    s_framesToSkip = 0;
 
     #ifdef _WINDOWS
     if (g_pConfig->sync_timeMode == TimingMode_HighResCounter
@@ -72,7 +72,7 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
 {
     // check interlacing
     s_isInterlaced = false;
-    s_isSkipped = false;
+    s_framesToSkip = 0;
     if (hasFrameInfo)
     {
         if (g_pConfig->getCurrentProfile()->sync_hasFixAutoLimit)
@@ -354,7 +354,10 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
 
     // ajout de temps d'attente ici à s_lateTicks
 
+
     // CHECK TEMPS -> si trop grand, skip prochaine frame
+    //si interlacing, skip de 2 frames
+
     /*if (g_pConfig->sync_isFrameSkip)
     {
     static unsigned int skippedNumber = 0;

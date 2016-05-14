@@ -165,7 +165,7 @@ void CALLBACK GPUupdateLace()
 
         InputManager::stopListener();
         g_pDisplayManager->changeQuery(); // reload renderer
-        FramerateManager::resetFrameSkipping();
+        FramerateManager::resetFrameTime();
         InputManager::initListener();
         return;
     }
@@ -179,7 +179,7 @@ void CALLBACK GPUupdateLace()
             InputManager::m_isProfileChangePending = false;
 
             g_pDisplayManager->changeQuery(); // reload renderer
-            FramerateManager::resetFrameSkipping();
+            FramerateManager::resetFrameTime();
             return;
         }
         catch (std::exception& exc) 
