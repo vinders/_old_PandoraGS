@@ -325,7 +325,6 @@ ConfigProfile* ConfigIO::loadConfigProfile(unsigned int id)
         readRegBool(&(pProfile->sync_hasFixAutoLimit), &profileKey, L"FixAutoLimit", &type, &size);
         readRegBool(&(pProfile->sync_hasFixInterlace), &profileKey, L"FixInterlace", &type, &size);
         readRegBool(&(pProfile->dsp_hasFixExpandScreen), &profileKey, L"FixExpandScn", &type, &size);
-        readRegDword<unsigned int>(&(pProfile->dsp_fixWidescreenSides), &profileKey, L"FixWideSides", &type, &size);
         //...
 
         RegCloseKey(profileKey); // close
@@ -393,8 +392,6 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         RegSetValueEx(profileKey, L"FixInterlace", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pProfile->dsp_hasFixExpandScreen) ? 1uL : 0uL;
         RegSetValueEx(profileKey, L"FixExpandScn", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pProfile->dsp_fixWidescreenSides;
-        RegSetValueEx(profileKey, L"FixWideSides", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         //...
 
         RegCloseKey(profileKey); // close

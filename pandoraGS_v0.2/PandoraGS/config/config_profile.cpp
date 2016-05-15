@@ -49,7 +49,6 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     sync_hasFixAutoLimit = copy.sync_hasFixAutoLimit;
     sync_hasFixInterlace = copy.sync_hasFixInterlace;
     dsp_hasFixExpandScreen = copy.dsp_hasFixExpandScreen;
-    dsp_fixWidescreenSides = copy.dsp_fixWidescreenSides;
     //...
 }
 
@@ -150,6 +149,5 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
     sync_hasFixAutoLimit = false;
     sync_hasFixInterlace = false;
     dsp_hasFixExpandScreen = false;
-    dsp_fixWidescreenSides = CfgFixWidescreenSides_None;
     //...
 }
