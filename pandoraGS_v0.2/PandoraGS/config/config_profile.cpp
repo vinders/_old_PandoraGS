@@ -49,6 +49,7 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     sync_hasFixAutoLimit = copy.sync_hasFixAutoLimit;
     sync_hasFixInterlace = copy.sync_hasFixInterlace;
     dsp_hasFixExpandScreen = copy.dsp_hasFixExpandScreen;
+    dsp_fixWidescreenSides = copy.dsp_fixWidescreenSides;
     //...
 }
 
@@ -75,7 +76,7 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
 
             dsp_internalResX = 2;
             dsp_internalResY = 4;
-            dsp_screenStretch = CfgStretching_AspectSlight;
+            dsp_screenStretch = CfgStretching_AspectHalfCut;
             //...
             break;
         }
@@ -95,7 +96,7 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
 
             dsp_internalResX = 1;
             dsp_internalResY = 1;
-            dsp_screenStretch = CfgStretching_FullWindow;
+            dsp_screenStretch = CfgStretching_Stretch;
             //...
             break;
         }
@@ -115,7 +116,7 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
 
             dsp_internalResX = 1;
             dsp_internalResY = 1;
-            dsp_screenStretch = CfgStretching_AspectRatio;
+            dsp_screenStretch = CfgStretching_Aspect;
             //...
             break;
         }
@@ -135,7 +136,7 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
 
             dsp_internalResX = 4;
             dsp_internalResY = 8;
-            dsp_screenStretch = CfgStretching_AspectSlight;
+            dsp_screenStretch = CfgStretching_SemiAspectCut;
             //...
             break;
         }
@@ -149,5 +150,6 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
     sync_hasFixAutoLimit = false;
     sync_hasFixInterlace = false;
     dsp_hasFixExpandScreen = false;
+    dsp_fixWidescreenSides = CfgFixWidescreenSides_None;
     //...
 }

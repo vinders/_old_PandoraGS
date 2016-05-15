@@ -72,6 +72,7 @@ public:
     bool         sync_hasFixAutoLimit;  // fix - use theoretical FPS limit (25 or 30, doubled if interlaced)
     bool         sync_hasFixInterlace;  // chronocross fix - switch during status read instead of update lace
     bool         dsp_hasFixExpandScreen;// capcom fix - fix screen width to show full area
+    unsigned int dsp_fixWidescreenSides;// hide screen sides (with emulator widescreen hack, to avoid it with certain games)
     //alpha/maskbit/...
     //framebuffer/...
 
@@ -132,13 +133,14 @@ enum CfgScreenSmooth
 // screen stretching
 enum CfgStretching
 {
-    CfgStretching_Native = 0,
-    CfgStretching_FullWindow = 1,
-    CfgStretching_PixelRatio = 2,
-    CfgStretching_AspectRatio = 3,
-    CfgStretching_AspectRatioCut = 4,
-    CfgStretching_AspectSlight = 5,
-    CfgStretching_AspectSlightCut = 6
+    CfgStretching_Stretch = 0,
+    CfgStretching_Pixel = 1,
+    CfgStretching_PixelCut = 2,
+    CfgStretching_Aspect = 3,
+    CfgStretching_AspectCut = 4,
+    CfgStretching_AspectHalfCut = 5,
+    CfgStretching_SemiAspect = 6,
+    CfgStretching_SemiAspectCut = 7
 };
 #define CFGSTRETCHING_LAST CfgStretching_AspectSlightCut
 // anti-aliasing
@@ -151,6 +153,13 @@ enum CfgAntiAliasing
     CfgAntiAliasing_MSAA8 = 4,
     CfgAntiAliasing_SMAA4 = 5,
     CfgAntiAliasing_SMAA8 = 6
+};
+// emulator widescreen hack fix
+enum CfgFixWidescreenSides
+{
+    CfgFixWidescreenSides_None = 0,
+    CfgFixWidescreenSides_4_3 = 1,
+    CfgFixWidescreenSides_16_10 = 2
 };
 
 
