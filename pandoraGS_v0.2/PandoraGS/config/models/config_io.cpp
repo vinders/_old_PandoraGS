@@ -145,6 +145,7 @@ void ConfigIO::loadConfig(Config* pConfig, bool hasProfileArray, bool hasProfile
         // framerate
         readRegBool(&(pConfig->sync_isVerticalSync), &configKey, L"Vsync", &type, &size);
         readRegBool(&(pConfig->sync_isFrameSkip), &configKey, L"FrameSkip", &type, &size);
+        readRegBool(&(pConfig->sync_isFrameSkipFixed), &configKey, L"FrameSkipFixed", &type, &size);
         readRegBool(&(pConfig->sync_isFrameLimit), &configKey, L"FrameLimit", &type, &size);
         readRegFloat(&(pConfig->sync_framerateLimit), &configKey, L"Framerate", &type, &size);
         readRegDword<TimingMode>(&(pConfig->sync_timeMode), &configKey, L"TimeMode", &type, &size);
@@ -226,6 +227,8 @@ void ConfigIO::saveConfig(Config* pConfig, bool hasProfiles)
         RegSetValueEx(configKey, L"Vsync", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pConfig->sync_isFrameSkip) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"FrameSkip", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = (pConfig->sync_isFrameSkipFixed) ? 1uL : 0uL;
+        RegSetValueEx(configKey, L"FrameSkipFixed", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pConfig->sync_isFrameLimit) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"FrameLimit", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         setRegFloat(pConfig->sync_framerateLimit, &configKey, L"Framerate");

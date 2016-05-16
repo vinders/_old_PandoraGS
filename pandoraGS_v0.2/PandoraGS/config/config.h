@@ -78,6 +78,7 @@ public:
     // framerate
     bool         sync_isVerticalSync;  // vsync (on/off)
     bool         sync_isFrameSkip;     // frame skipping mode (on/off)
+    bool         sync_isFrameSkipFixed;// skip 50% of frames (true) or auto-skip if too slow (false)
     bool         sync_isFrameLimit;    // frame limit mode (on/off)
     float        sync_framerateLimit;  // framerate limit (0=auto / value=fixed)
     TimingMode   sync_timeMode;        // type of timer
