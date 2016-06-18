@@ -66,9 +66,8 @@ typedef struct DISPLAYSTEP
 // -- DISPLAY STATE CLASS -- ---------------------------------------------------
 
 // Playstation virtual display state
-class DisplayState
+typedef struct DISPLAYSTATE
 {
-public:
     // display states
     Point_t       displaySize; // main display size
     DisplayStep_t  current;    // current operation status
@@ -83,7 +82,7 @@ public:
 
     // pending changes
     Point_t displaySizePending; // display size change
-    long rgbModePending;        // RGB mode change
+    long rgbModePending;        // latest RGB mode change
     bool isInterlacedPending;   // interlace mode change
     bool hasEnabledInterlacing; // interlace mode enabled during change
     long previousHeightOffset;  // previous display position Y offset
@@ -97,10 +96,48 @@ public:
     Point_t  GDrawOffset; // opengl
     Point_t  CumulOffset; // opengl
     */
+} DisplayState_t;
 
-public:
-    /// <summary>Initialize display state values</summary>
-    void init();
-};
+/// <summary>Initialize display state values</summary>
+void initDisplayState(DisplayState_t data)
+{
+    data.localize = LocalizationMode_Ntsc;
+    data.current.rgbMode = RgbMode_15;
+    data.previous.rgbMode = RgbMode_15;
+    data.rgbModePending = 0;
+
+    data.isInterlaced = false;
+    data.isInterlacedPending = false;
+    data.hasEnabledInterlacing = false;
+    data.dualInterlaceCheck = 0;
+
+    data.displaySize.x = 320;
+    data.displaySize.y = 240;
+    data.heightMultiplier = 1;
+    data.current.drawArea.x1 = 320;
+    data.current.drawArea.y1 = 240;
+    data.current.drawArea.x0 = data.current.drawArea.y0 = 0;
+    data.current.drawOffset.x = data.current.drawOffset.y = 0;
+    data.current.height = 0;
+    data.current.displayPosition.x = data.current.displayPosition.y = 1;
+    data.current.displayEnd.x = data.current.displayEnd.y = 0;
+    data.current.range.x0 = data.current.range.x1 = 0;
+    data.current.range.y0 = data.current.range.y1 = 0;
+    data.current.isDisabled = false;
+
+    data.previous.drawArea.x0 = data.previous.drawArea.y0 = 0;
+    data.previous.drawArea.x1 = data.previous.drawArea.y1 = 0;
+    data.previous.drawOffset.x = data.previous.drawOffset.y = 0;
+    data.previous.height = 0;
+    data.previous.displayPosition.x = data.previous.displayPosition.y = 1;
+    data.previous.displayEnd.x = data.previous.displayEnd.y = 0;
+    data.previous.range.x0 = data.previous.range.x1 = 0;
+    data.previous.range.y0 = data.previous.range.y1 = 0;
+    data.previous.isDisabled = false;
+
+    data.displaySizePending.x = 0;
+    data.displaySizePending.y = 0;
+    data.previousHeightOffset = 0;
+}
 
 #endif

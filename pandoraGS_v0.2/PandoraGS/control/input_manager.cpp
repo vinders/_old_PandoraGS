@@ -62,36 +62,6 @@ void InputManager::initListener()
     m_isListening = true;
 }
 
-/// <summary>Set display window listener</summary>
-/// <param name="isEnabled">Enabled/disabled</param>
-void InputManager::setDisplayListener(bool isEnabled)
-{
-    #ifdef _WINDOWS
-    if (isEnabled) // activer écoute
-    {
-        if (m_isListeningDisplay == false)
-        {
-            // save original listener
-            if (!pDisplayWindowHandler)
-                pDisplayWindowHandler = (WNDPROC)GetWindowLong(g_pMemory->gen_hDisplayWindow, GWL_WNDPROC);
-        }
-        SetWindowLong(g_pMemory->gen_hDisplayWindow, GWL_WNDPROC, (long)sizeHandler);
-        m_isListeningDisplay = true;
-    }
-    else // retirer écoute
-    {
-        if (m_isListeningDisplay)
-        {
-            // restore original display listener
-            if (pDisplayWindowHandler)
-                SetWindowLong(g_pMemory->gen_hDisplayWindow, GWL_WNDPROC, (long)pDisplayWindowHandler);
-            pDisplayWindowHandler = 0;
-            m_isListeningDisplay = false;
-        }
-    }
-    #endif
-}
-
 /// <summary>Stop keyboard listener</summary>
 void InputManager::stopListener()
 {
@@ -105,17 +75,7 @@ void InputManager::stopListener()
         #endif
         m_isListening = false;
     }
-
-    #ifdef _WINDOWS
-    if (m_isListeningDisplay)
-    {
-        // restore original display listener
-        if (pDisplayWindowHandler)
-            SetWindowLong(g_pMemory->gen_hDisplayWindow, GWL_WNDPROC, (long)pDisplayWindowHandler);
-        pDisplayWindowHandler = 0;
-        m_isListeningDisplay = false;
-    }
-    #endif
+    m_isListeningDisplay = false;
 
     // default values
     m_isShowingMenu = false;
@@ -273,25 +233,12 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
                 break;
             }
         }
-    }
-    // transmit event to emulator
-    return pEmulatorWindowHandler(hWindow, eventType, wpCode, lpInfo);
-}
-
-/// <summary>Handle window size in Windows</summary>
-/// <param name="hWindow">Window handler</param>
-/// <param name="eventType">Event type</param>
-/// <param name="wpCode">Command code</param>
-/// <param name="lpInfo">Additional information</param>
-LRESULT CALLBACK sizeHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM lpInfo)
-{
-    switch (eventType)
-    {
         // window position/size/state changed
         case WM_WINDOWPOSCHANGED:
         {
             // only in window mode (and no change pending)
-            if (InputManager::m_isWindowModeChangePending == false && g_pConfig->dsp_isFullscreen == false)
+            if (InputManager::m_isListeningDisplay &&
+                InputManager::m_isWindowModeChangePending == false && g_pConfig->dsp_isFullscreen == false)
             {
                 if (wpCode == SIZE_MAXIMIZED || wpCode == SIZE_RESTORED) // not minimized
                 {
@@ -323,8 +270,10 @@ LRESULT CALLBACK sizeHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM
             break;
         }
     }
-    return pDisplayWindowHandler(hWindow, eventType, wpCode, lpInfo);
+    // transmit event to emulator
+    return pEmulatorWindowHandler(hWindow, eventType, wpCode, lpInfo);
 }
+
 
 #else
 #define VK_INSERT      65379

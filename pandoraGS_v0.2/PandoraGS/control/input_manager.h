@@ -28,8 +28,8 @@ class InputManager
 {
 private:
     static bool m_isListening; // state indicator (main)
-    static bool m_isListeningDisplay; // state indicator (display)
 public:
+    static bool m_isListeningDisplay; // state indicator (display)
     static bool m_isShowingMenu;
     static int  m_menuIndex;
     static bool m_isProfileChangePending;
@@ -44,7 +44,10 @@ public:
     static void initListener();
     /// <summary>Set display window listener</summary>
     /// <param name="isEnabled">Enabled/disabled</param>
-    static void setDisplayListener(bool isEnabled);
+    static void setDisplayListener(bool isEnabled)
+    {
+        m_isListeningDisplay = isEnabled;
+    }
     /// <summary>Stop keyboard listener</summary>
     static void stopListener();
 
@@ -62,12 +65,6 @@ public:
 /// <param name="wpCode">Command code</param>
 /// <param name="lpInfo">Additional information</param>
 LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM lpInfo);
-/// <summary>Handle window size in Windows</summary>
-/// <param name="hWindow">Window handler</param>
-/// <param name="eventType">Event type</param>
-/// <param name="wpCode">Command code</param>
-/// <param name="lpInfo">Additional information</param>
-LRESULT CALLBACK sizeHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM lpInfo);
 #else
 /// <summary>Handle keyboard in Linux</summary>
 /// <param name="keycode">Pressed key code</param>

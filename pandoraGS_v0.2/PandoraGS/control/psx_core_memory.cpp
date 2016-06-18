@@ -9,9 +9,11 @@ Description : playstation virtual video memory unit
 *******************************************************************************/
 #include <string>
 using namespace std;
+#include "config.h"
 #include "psx_core_memory.h"
 
 extern bool g_isZincEmu; // zinc interface emulation
+extern Config* g_pConfig;
 extern PsxCoreMemory* g_pMemory;
 
 
@@ -20,11 +22,10 @@ PsxCoreMemory::PsxCoreMemory()
 {
     #ifdef _WINDOWS
     gen_hWindow = NULL;
-    gen_hDisplayWindow = NULL;
     #endif
     mem_vramImage.pData = NULL;
 
-    dsp_displayState.init();
+    initDisplayState(dsp_displayState);
     dsp_displayFlags = 0;
     st_hasFixBusyEmu = false;
     st_fixBusyEmuSequence = 0;
@@ -393,55 +394,69 @@ void PsxCoreMemory::cmdSetDisplayPosition(short x, short y)
 /// <param name="gdata">Status register command</param>
 void PsxCoreMemory::cmdSetDisplayInfo(unsigned long gdata)
 {
-    /*PSXDisplay.DisplayModeNew.x = dispWidths[(gdata & 0x03) | ((gdata & 0x40) >> 4)];
+    // set display width
+    dsp_displayState.displaySizePending.x = dsp_displayWidths[(gdata & 0x03) | ((gdata & 0x40) >> 4)];
+    // set height multiplier
+    if (gdata & 0x04)
+        dsp_displayState.heightMultiplier = 2;
+    else
+        dsp_displayState.heightMultiplier = 1;
+    dsp_displayState.displaySizePending.y = dsp_displayState.current.height * dsp_displayState.heightMultiplier;
 
-    if (gdata & 0x04) PSXDisplay.Double = 2;
-    else            PSXDisplay.Double = 1;
-    PSXDisplay.DisplayModeNew.y = PSXDisplay.Height*PSXDisplay.Double;
+    /*! ChangeDispOffsetsY(); */
 
-    ChangeDispOffsetsY();
+    // set status width bits
+    unsetStatus(GPUSTATUS_WIDTHBITS);
+    setStatus( (((gdata & 0x03) << 17) | ((gdata & 0x40) << 10)) );
 
-    PSXDisplay.PAL = (gdata & 0x08) ? TRUE : FALSE; // if 1 - PAL mode, else NTSC
-    PSXDisplay.RGB24New = (gdata & 0x10) ? TRUE : FALSE; // if 1 - TrueColor
-    PSXDisplay.InterlacedNew = (gdata & 0x20) ? TRUE : FALSE; // if 1 - Interlace
-
-    unsetStatus(GPUSTATUS_WIDTHBITS);                   // clear the width bits
-    setStatus(  (((gdata & 0x03) << 17) |
-    ((gdata & 0x40) << 10))  );                // set the width bits
-
-    PreviousPSXDisplay.InterlacedNew = FALSE;
-    if (PSXDisplay.InterlacedNew)
+    // interlacing 
+    dsp_displayState.hasEnabledInterlacing = false;
+    if (gdata & 0x20)
     {
-    if (!PSXDisplay.Interlaced)
+        dsp_displayState.isInterlacedPending = true;
+        if (dsp_displayState.isInterlaced == false)
+        {
+            dsp_displayState.dualInterlaceCheck = 2;
+            dsp_displayState.previous.displayPosition.x = dsp_displayState.current.displayPosition.x;
+            dsp_displayState.previous.displayPosition.y = dsp_displayState.current.displayPosition.y;
+            dsp_displayState.hasEnabledInterlacing = true;
+        }
+        setStatus(GPUSTATUS_INTERLACED);
+    }
+    else
     {
-    PSXDisplay.InterlacedTest = 2;
-    PreviousPSXDisplay.DisplayPosition.x = PSXDisplay.DisplayPosition.x;
-    PreviousPSXDisplay.DisplayPosition.y = PSXDisplay.DisplayPosition.y;
-    PreviousPSXDisplay.InterlacedNew = TRUE;
+        dsp_displayState.isInterlacedPending = false;
+        dsp_displayState.dualInterlaceCheck = 0;
+        unsetStatus(GPUSTATUS_INTERLACED);
     }
 
-    setStatus(GPUSTATUS_INTERLACED);
+    // game localization
+    if (gdata & 0x08)
+    {
+        dsp_displayState.localize = LocalizationMode_Pal;
+        setStatus(GPUSTATUS_PAL);
     }
     else
     {
-    PSXDisplay.InterlacedTest = 0;
-    unsetStatus(GPUSTATUS_INTERLACED);
+        dsp_displayState.localize == LocalizationMode_Ntsc;
+        unsetStatus(GPUSTATUS_PAL);
     }
 
-    if (PSXDisplay.PAL)
-    setStatus(GPUSTATUS_PAL);
+    // color depth
+    if (gdata & 0x10)
+    {
+        dsp_displayState.rgbModePending = true;
+        setStatus(GPUSTATUS_RGB24);
+    }
     else
-    unsetStatus(GPUSTATUS_PAL);
+    {
+        dsp_displayState.rgbModePending = false;
+        unsetStatus(GPUSTATUS_RGB24);
+    }
 
-    if (PSXDisplay.Double == 2)
-    setStatus(GPUSTATUS_DOUBLEHEIGHT);
+    // height multiplier status
+    if (dsp_displayState.heightMultiplier == 2)
+        setStatus(GPUSTATUS_DOUBLEHEIGHT);
     else
-    unsetStatus(GPUSTATUS_DOUBLEHEIGHT);
-
-    if (PSXDisplay.RGB24New)
-    setStatus(GPUSTATUS_RGB24);
-    else
-    unsetStatus(GPUSTATUS_RGB24);
-
-    updateDisplayIfChanged();*/
+        unsetStatus(GPUSTATUS_DOUBLEHEIGHT);
 }

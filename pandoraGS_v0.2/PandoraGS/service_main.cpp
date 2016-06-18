@@ -440,7 +440,14 @@ void CALLBACK GPUwriteStatus(unsigned long gdata)
         }
         case CMD_SETDISPLAYWIDTH:  g_pMemory->cmdSetWidth((short)(gdata&0x7FF), (short)((gdata>>12)&0x0FFF)); return;
         case CMD_SETDISPLAYHEIGHT: g_pMemory->cmdSetHeight((short)(gdata&0x3FF), (short)((gdata>>10)&0x3FF)); return;
-        case CMD_SETDISPLAYINFO:   g_pMemory->cmdSetDisplayInfo(gdata); return;
+        case CMD_SETDISPLAYINFO:
+        {
+            g_pMemory->cmdSetDisplayInfo(gdata);
+            if (g_pConfig->sync_framerateLimit <= 0.05f) // 0.0 (float error offset) = auto-detect
+                FramerateManager::setFramerate(true);
+            /*! updateDisplayIfChanged();*/
+            return;
+        }
     }
 }
 

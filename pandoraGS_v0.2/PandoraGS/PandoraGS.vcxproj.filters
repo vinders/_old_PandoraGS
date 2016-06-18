@@ -120,9 +120,6 @@
     <ClCompile Include="display\render\render_software.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="control\display_state.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="service_main.h">

@@ -301,6 +301,7 @@ void* DisplayThread::DisplayLoop(void* arg)
 
             // reply to thread manager (changes done)
             threadManager->m_isPaused = true;
+            threadManager->m_isPausePending = false;
             threadManager->m_isChangePending = false;
             threadManager->m_isQueryReply = true;
         }

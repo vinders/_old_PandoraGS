@@ -354,7 +354,7 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
             {
                 if (isOddFrame == false) // always skip 'even' frame first
                 {
-                    s_framesToSkip = lateFramesNumber;
+                    s_framesToSkip = (int)lateFramesNumber;
                     if (s_framesToSkip > MAX_SUCCESSIVE_SKIPPING) // display at least 2 frames out of 6
                         s_framesToSkip = MAX_SUCCESSIVE_SKIPPING;
                     else if (s_framesToSkip%2 != 0) // skip by groups of 2 frames
@@ -364,7 +364,7 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
             else // not interlaced
             {
                 lateFramesNumber += 0.15f;
-                s_framesToSkip = lateFramesNumber;
+                s_framesToSkip = (int)lateFramesNumber;
                 if (s_framesToSkip >= MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
                     s_framesToSkip = MAX_SUCCESSIVE_SKIPPING - 1;
             }

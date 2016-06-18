@@ -128,7 +128,6 @@ class PsxCoreMemory
 public:
     #ifdef _WINDOWS
     HWND gen_hWindow;        // main emulator window handle
-    HWND gen_hDisplayWindow; // psx display window handle
     #endif
 
     // psx emulated memory
@@ -150,7 +149,7 @@ public:
     int           st_fixBusyEmuSequence;  // 'GPU busy' emulation hack - sequence value
 
     // display settings
-    DisplayState  dsp_displayState;       // display information
+    DisplayState_t dsp_displayState;      // display information
     short         dsp_displayWidths[8];   // possible psx display widths
     unsigned long dsp_displayFlags;       // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
 
