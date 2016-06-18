@@ -32,13 +32,11 @@ private:
     static unsigned long s_frameDuration;// ticks per frame
     static unsigned long s_maxFrameWait; // max wait time before skipping (7/8 frame time)
     #endif
+    static int  s_framesToSkip;          // number of frames to skip
     static bool s_isInterlaced;          // interlaced frames
     static bool s_isReset;               // init indicator
-    static int  s_framesToSkip;          // number of frames to skip
 
     // frame skipping
-    static bool s_isDelayedFrame;        // delay next frame sync
-    static bool s_isPrevSkippedOdd;      // last skipped frame with odd lines (interlacing)
     static bool s_isFrameDataWaiting;    // frame data not read
     #ifdef _WINDOWS
     static DWORD s_lateTicks;            // time spent waiting (in addition to normal frame time)
@@ -83,10 +81,15 @@ public:
     {
         if (s_framesToSkip > 0 && s_isInterlaced)
             s_framesToSkip--;
-        else
+        else // current frame is skipped -> if interlaced, skip next too
             s_framesToSkip = (s_isInterlaced) ? 1 : 0;
         s_lateTicks = 0;
         s_isReset = true;
+    }
+    /// <summary>A new frame needs to be drawn (data ready)</summary>
+    static inline void requestFrameDrawing()
+    {
+        s_isFrameDataWaiting = true;
     }
     /// <summary>Signal that a new frame is being drawn (data has been read)</summary>
     static inline void signalFrameDrawing()

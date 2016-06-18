@@ -33,8 +33,6 @@ bool FramerateManager::s_isReset = true;            // init indicator
 int  FramerateManager::s_framesToSkip = 0;          // number of frames to skip
 
 // frame skipping
-bool FramerateManager::s_isDelayedFrame = false;    // delay next frame sync
-bool FramerateManager::s_isPrevSkippedOdd = true;   // last skipped frame with odd lines (interlacing)
 bool FramerateManager::s_isFrameDataWaiting = false;// frame data not read
 #ifdef _WINDOWS
 DWORD FramerateManager::s_lateTicks;                // time spent waiting (in addition to normal frame time)
@@ -72,7 +70,6 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
 {
     // check interlacing
     s_isInterlaced = false;
-    s_framesToSkip = 0;
     if (hasFrameInfo)
     {
         if (g_pConfig->getCurrentProfile()->sync_hasFixAutoLimit)
@@ -135,12 +132,13 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
     if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
         s_maxFrameWait = ((7 * s_frameDurationHiRes) >> 3);
     else
-    #endif
         s_maxFrameWait = ((7 * s_frameDuration) >> 3);
+    #else
+    s_maxFrameWait = ((7 * s_frameDuration) >> 3);
+    #endif
 
     // reset frame skipping
-    s_isPrevSkippedOdd = true;
-    s_isDelayedFrame = false;
+    s_framesToSkip = 0;
     s_lateTicks = 0;
     // reset frame management values
     s_currentFps = 0.0f;
@@ -156,21 +154,26 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
 /// <param name="isOddFrame">Odd line (if interlaced)</param>
 void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
 {
-    -;//...ADAPTER FONCTION
+    #ifdef _WINDOWS
+    static DWORD lastTicks, currentTicks, elapsedTicks, ticksToWait = 0;
+    static LARGE_INTEGER lastTimeRef, currentTimeRef;
+    #else
+    static unsigned long lastTicks, currentTicks, elapsedTicks, ticksToWait = 0;
+    #endif
 
-    // s'assurer que temps de retard soit valable si skip de prochaine frame au lieu de précédente
-
-    // prendre en compte le FASTFORWARD -> n'attendre qu'une fois sur 4 si FF
-    /*
-    // fast forward -> skip 2 frames out of 4
-    if (InputManager::m_isFastForward)
+    // initialize first time reference
+    if (s_isReset)
     {
-        static int ffCount = 0;
-        if (++ffCount < 3) return;
-        else if (ffCount == 4)
-            ffCount = 0;
+        s_isReset = false;
+        #ifdef _WINDOWS
+        if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
+            QueryPerformanceCounter(&lastTimeRef);
+        #endif
+        lastTicks = timeGetTime();
+        ticksToWait = 0;
+        s_lateTicks = 0;
+        return;
     }
-    */
 
 
     // set FPS indicator
@@ -181,42 +184,63 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
             checkCurrentFramerate();
         laceCount = 0;
     }
+    // speed modifiers
+    if (frameSpeed) 
+    {
+        // fast forward
+        if (frameSpeed == FrameSpeed_FastForward) 
+        {
+            int nextFramesToSkip = 0;
+
+            // skip 3 frames out of 4
+            static int fastIterations = 0;
+            if (++fastIterations < 4)
+                nextFramesToSkip = 1;
+            else
+                fastIterations = 0;
+
+            // set frame skipping
+            if (s_framesToSkip > 0) // current was skipped -> no wait
+            {
+                s_framesToSkip = nextFramesToSkip;
+                return;
+            }
+            s_framesToSkip = 1 + nextFramesToSkip; // will be decremented at the end of the function
+        }
+        // slow motion
+        else 
+        {
+            // double frame time
+            #ifdef _WINDOWS
+            if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
+                ticksToWait += s_frameDurationHiRes;
+            else
+                ticksToWait += s_frameDuration;
+            #else
+            ticksToWait += s_frameDuration;
+            #endif
+            s_framesToSkip = 1; // bypass frame skipping (will be decremented at the end of the function)
+        }
+    }
+
+
+    // wait for current frame data to be read
+    while (s_isFrameDataWaiting) 
+    {
+        // timeout (prevent dead lock)
+        currentTicks = timeGetTime();
+        elapsedTicks = currentTicks - lastTicks;
+        if (elapsedTicks > 1000uL && currentTicks > lastTicks) // max 1 sec
+            break;
+    }
 
     // apply framerate limit
     if (g_pConfig->sync_isFrameLimit)
     {
         #ifdef _WINDOWS
-        static DWORD lastTicks, currentTicks, elapsedTicks, ticksToWait = 0;
-        static LARGE_INTEGER lastTimeRef, currentTimeRef;
-        #else
-        static unsigned long lastTicks, currentTicks, ticksToWait = 0;
-        #endif
-
-        // initialize first time reference
-        if (s_isReset)
-        {
-            s_isReset = false;
-            #ifdef _WINDOWS
-            if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
-                QueryPerformanceCounter(&lastTimeRef);
-            #endif
-            lastTicks = timeGetTime();
-            ticksToWait = 0;
-            s_lateTicks = 0;
-            return;
-        }
-
-        #ifdef _WINDOWS
         // high resolution time sync (qpc)
         if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
         {
-            // too slow + no frame skipping -> slow down to achieve steady framerate
-            if (s_isDelayedFrame)
-            {
-                s_isDelayedFrame = false;
-                ticksToWait += (s_frameDurationHiRes >> 4); // 1.0625x frame time -> fps: 60->56.4 / 50->47.1
-            }
-
             // wait for frame duration
             static unsigned long waitLoopCount;
             waitLoopCount = 0uL;
@@ -268,13 +292,6 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
         else
         {
             #endif
-            // too slow + no frame skipping -> slow down to achieve steady framerate
-            if (s_isDelayedFrame)
-            {
-                s_isDelayedFrame = false;
-                ticksToWait += (s_frameDuration >> 4); // 1.0625x frame time -> fps: 60->56.4 / 50->47.1
-            }
-
             // wait for frame duration
             static unsigned long waitCount;
             waitCount = 0uL;
@@ -284,7 +301,8 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
                 currentTicks = timeGetTime();
                 elapsedTicks = currentTicks - lastTicks;
                 waitCount++;
-            } while (elapsedTicks <= ticksToWait && currentTicks >= lastTicks);
+            } 
+            while (elapsedTicks <= ticksToWait && currentTicks >= lastTicks);
 
             // set next frame duration
             if (waitCount == 1uL) // time elapsed > frame time
@@ -312,94 +330,46 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
         #endif
     }
 
-    // slow motion mode -> wait more
-    if (frameSpeed == FrameSpeed_SlowMotion)
+
+    // frame skipping
+    if (s_framesToSkip > 0) // if current was skipped, don't check time
+        s_framesToSkip--;
+    else if (g_pConfig->sync_isFrameSkip)
     {
-        // set time ref
+        // count number of frames missed
+        static float lateFramesNumber = 0.0f;
         #ifdef _WINDOWS
-        DWORD timeToWait;
+        if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
+            lateFramesNumber = (float)s_lateTicks / (float)s_frameDurationHiRes;
+        else
+            lateFramesNumber = (float)s_lateTicks / (float)s_frameDuration;
         #else
-        unsigned long timeToWait;
+        lateFramesNumber = (float)s_lateTicks / (float)s_frameDuration;
         #endif
-        timeToWait = 2 * s_frameDuration;
-
-        // wait
-        DWORD currentTime = timeGetTime();
-        DWORD targetTime = currentTime + timeToWait;
-        do
-        {
-            currentTime = timeGetTime();
-        }
-        while (currentTime < targetTime && currentTime > timeToWait);
         s_lateTicks = 0;
+
+        if (lateFramesNumber > 0.85f)
+        {
+            if (s_isInterlaced) // interlacing
+            {
+                if (isOddFrame == false) // always skip 'even' frame first
+                {
+                    s_framesToSkip = lateFramesNumber;
+                    if (s_framesToSkip > MAX_SUCCESSIVE_SKIPPING) // display at least 2 frames out of 6
+                        s_framesToSkip = MAX_SUCCESSIVE_SKIPPING;
+                    else if (s_framesToSkip%2 != 0) // skip by groups of 2 frames
+                        s_framesToSkip++;
+                }
+            }
+            else // not interlaced
+            {
+                lateFramesNumber += 0.15f;
+                s_framesToSkip = lateFramesNumber;
+                if (s_framesToSkip >= MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
+                    s_framesToSkip = MAX_SUCCESSIVE_SKIPPING - 1;
+            }
+        }
     }
-
-
-
-
-    // wait for frame data to be read
-    static unsigned int cnt;
-    cnt = 0;
-    while (s_isFrameDataWaiting)
-        cnt++;
-
-    // no skipping + waiting = delay
-    if (g_pConfig->sync_isFrameSkip == false && cnt > 200uL)
-        s_isDelayedFrame = true;
-
-
-    -;//... REMPLACER CETTE FONCTION
-
-    // SI FAST FORWARD, passer 2 frames sur 4
-
-    // ajout de temps d'attente ici à s_lateTicks
-
-
-    // CHECK TEMPS -> si trop grand, skip prochaine frame
-    //si interlacing, skip de 2 frames
-
-    /*if (g_pConfig->sync_isFrameSkip)
-    {
-    static unsigned int skippedNumber = 0;
-
-    if (s_isInterlaced) // interlacing -> show/skip by groups of 2 frames
-    {
-    // previous 'even' frame was skipped -> skip 'odd' frame too
-    if (s_isPrevSkippedOdd == false)
-    {
-    s_isPrevSkippedOdd = true;
-    ++skippedNumber;
-    s_lateTicks = 0;
-    return true;
-    }
-    // skip only 'even' frames first
-    else if (isOddLine == false)
-    {
-    if (s_lateTicks > s_maxFrameWait               // more than 7/8th frame time too late
-    && ++skippedNumber < MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
-    {
-    s_isPrevSkippedOdd = false; // next 'odd' frame will be skipped too
-    s_lateTicks = 0;
-    return true;
-    }
-    }
-    }
-
-    else // not interlaced
-    {
-    if (s_lateTicks > s_maxFrameWait               // more than 7/8th frame time too late
-    && ++skippedNumber < MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
-    {
-    s_lateTicks = 0;
-    return true;
-    }
-    }
-
-    skippedNumber = 0; // not skipped -> reset counter
-    }
-
-    s_isFrameDataWaiting = true; // new frame to draw
-    return false;*/
 }
 
 

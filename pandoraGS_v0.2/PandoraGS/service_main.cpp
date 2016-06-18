@@ -191,7 +191,10 @@ void CALLBACK GPUupdateLace()
 
     // display current frame (if not skipped)
     if (FramerateManager::isFrameSkipped() == false)
+    {
+        FramerateManager::requestFrameDrawing();
         g_pDisplayManager->drawQuery();
+    }
     // frame sync + check frame skipping
     FramerateManager::waitFrameTime(InputManager::m_frameSpeed, g_pMemory->mem_vramImage.oddFrame != 0);
 }

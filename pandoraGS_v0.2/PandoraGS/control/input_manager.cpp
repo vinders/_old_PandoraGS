@@ -267,7 +267,7 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
                 if (g_pConfig->getCurrentProfile()->dsp_screenStretch < CFGSTRETCHING_LAST)
                     g_pConfig->getCurrentProfile()->dsp_screenStretch++;
                 else
-                    g_pConfig->getCurrentProfile()->dsp_screenStretch = CfgStretching_Native;
+                    g_pConfig->getCurrentProfile()->dsp_screenStretch = CfgStretching_Stretch;
                 InputManager::m_isStretchingChangePending = true;
                 InputManager::m_isWindowModeChangePending = true;
                 break;

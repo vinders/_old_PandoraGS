@@ -141,7 +141,7 @@ enum CfgStretching
     CfgStretching_SemiAspect = 6,
     CfgStretching_SemiAspectCut = 7
 };
-#define CFGSTRETCHING_LAST CfgStretching_AspectSlightCut
+#define CFGSTRETCHING_LAST CfgStretching_SemiAspectCut
 // anti-aliasing
 enum CfgAntiAliasing
 {

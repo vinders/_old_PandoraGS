@@ -27,7 +27,7 @@ Description : global constants and definitions + PSEmu Pro specification
 #ifdef _WINDOWS
 #define _DIALOGAPI DIALOGAPI_WIN32
 #else
-#define DIALOGAPI_QT // cross-platform
+#define _DIALOGAPI DIALOGAPI_QT // cross-platform
 #endif
 
 
