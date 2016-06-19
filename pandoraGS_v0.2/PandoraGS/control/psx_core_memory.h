@@ -11,6 +11,7 @@ Description : playstation virtual video memory unit
 #define _PSX_CORE_MEMORY_H
 #include "globals.h"
 #include "display_state.h"
+#include "lang.h"
 
 // -- PSX MEMORY DATA -- -------------------------------------------------------
 
@@ -128,6 +129,8 @@ class PsxCoreMemory
 public:
     #ifdef _WINDOWS
     static HWND gen_hWindow;        // main emulator window handle
+    static HMENU gen_hMenu;         // emulator menu handle
+    static DWORD gen_origStyle;     // original window style
     #endif
 
     // psx emulated memory

@@ -73,6 +73,7 @@ public:
     unsigned int dsp_fullscnResY;     // fullscreen display resolution [y]
     unsigned int dsp_windowResX;      // window display resolution [x]
     unsigned int dsp_windowResY;      // window display resolution [y]
+    bool         dsp_isWindowResizable; // resizable window mode
     bool         dsp_isColorDepth32;  // color depth mode (32/16-bit)
 
     // framerate

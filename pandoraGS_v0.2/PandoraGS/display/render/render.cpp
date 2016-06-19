@@ -7,8 +7,10 @@ License :     GPLv2
 File name :   render.cpp
 Description : API rendering pipeline - abstract factory
 *******************************************************************************/
+#include <Windows.h>
 using namespace std;
 #include "input_manager.h"
+#include "psx_core_memory.h"
 #include "render.h"
 #include "render_software.h"
 #include "render_opengl.h"
@@ -57,7 +59,35 @@ void Render::setWindow(bool isOpened)
     // open display window
     if (isOpened)
     {
-        //...
+        #ifdef _WINDOWS
+        // save style backup to restore it
+        DWORD dwStyle = GetWindowLong(PsxCoreMemory::gen_hWindow, GWL_STYLE);
+        PsxCoreMemory::gen_origStyle = dwStyle;
+
+        // set new window style
+        if (m_pConfig->dsp_isFullscreen) // fullscreen mode
+        {
+            if (m_pConfig->rnd_renderApiCode != RenderApi_SoftwareWarp)
+                dwStyle = CS_OWNDC;
+            else
+                dwStyle &= ~(WS_THICKFRAME | WS_BORDER | WS_CAPTION);
+        }
+        else // window mode
+        {
+            if (m_pConfig->dsp_isWindowResizable == false)
+                dwStyle &= ~WS_THICKFRAME;
+            if (m_pConfig->rnd_renderApiCode != RenderApi_SoftwareWarp)
+                dwStyle |= (WS_BORDER | WS_CAPTION | CS_OWNDC);
+            else
+                dwStyle |= (WS_BORDER | WS_CAPTION);
+        }
+        SetWindowLong(PsxCoreMemory::gen_hWindow, GWL_STYLE, dwStyle);
+
+        // hide emulator menu
+        PsxCoreMemory::gen_hMenu = GetMenu(PsxCoreMemory::gen_hWindow);
+        if (PsxCoreMemory::gen_hMenu)
+            SetMenu(PsxCoreMemory::gen_hWindow, NULL);
+        #endif
     }
 
     // close display window
@@ -65,9 +95,15 @@ void Render::setWindow(bool isOpened)
     {
         closeApi();
 
-        //...
+        #ifdef _WINDOWS
+        // restore window style
+        SetWindowLong(PsxCoreMemory::gen_hWindow, GWL_STYLE, PsxCoreMemory::gen_origStyle);
+        // restore emulator menu
+        if (PsxCoreMemory::gen_hMenu)
+            SetMenu(PsxCoreMemory::gen_hWindow, PsxCoreMemory::gen_hMenu);
+        PsxCoreMemory::gen_hMenu = NULL;
+        #endif
     }
-
     _initialized = false;
 }
 

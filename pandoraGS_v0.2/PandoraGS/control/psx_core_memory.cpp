@@ -17,7 +17,9 @@ extern Config* g_pConfig;
 
 
 #ifdef _WINDOWS
-HWND PsxCoreMemory::gen_hWindow = NULL;        // main emulator window handle
+HWND  PsxCoreMemory::gen_hWindow = NULL;        // main emulator window handle
+HMENU PsxCoreMemory::gen_hMenu = NULL;          // emulator menu handle
+DWORD PsxCoreMemory::gen_origStyle = 0uL;       // original window style
 #endif
 
 // psx emulated memory
@@ -34,7 +36,7 @@ unsigned long PsxCoreMemory::mem_gpuDmaAddresses[3]; // DMA address check
 long          PsxCoreMemory::st_statusReg;               // GPU status register
 unsigned long PsxCoreMemory::st_pStatusControl[STATUSCTRL_SIZE]; // GPU status control
 unsigned long PsxCoreMemory::st_pGpuDrawInfo[DRAWINFO_SIZE];     // GPU draw information
-long          PsxCoreMemory::st_selectedSlot;            // save-state selected slot
+long          PsxCoreMemory::st_selectedSlot = 0L;            // save-state selected slot
 bool          PsxCoreMemory::st_hasFixBusyEmu = false;   // 'GPU busy' emulation hack on/off
 int           PsxCoreMemory::st_fixBusyEmuSequence = 0;  // 'GPU busy' emulation hack - sequence value
 

@@ -100,13 +100,13 @@ long CALLBACK GPUopen_PARAM_
         PsxCoreMemory::dsp_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
 
         #ifdef _WINDOWS
-        // disable screensaver (if possible)
-        if (g_pConfig->misc_isScreensaverDisabled)
-            InputManager::setScreensaver(false);
-        // hide emulator window, create rendering window and shaders
+        // create rendering window
         PsxCoreMemory::gen_hWindow = hWindow;
         #endif
         g_pRender->setWindow(true);
+        // disable screensaver (if possible)
+        if (g_pConfig->misc_isScreensaverDisabled)
+            InputManager::setScreensaver(false);
 
         // configure framerate manager (default)
         FramerateManager::initFramerate();

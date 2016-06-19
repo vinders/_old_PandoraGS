@@ -52,6 +52,7 @@ void Config::setDefaultValues()
     dsp_fullscnResY = RESOLUTION_AUTODETECT;
     dsp_windowResX = 800;
     dsp_windowResY = 600;
+    dsp_isWindowResizable = false;
     dsp_isColorDepth32 = true;
 
     sync_isFrameSkip = true;

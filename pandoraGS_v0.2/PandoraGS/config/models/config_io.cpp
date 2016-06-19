@@ -140,7 +140,34 @@ void ConfigIO::loadConfig(Config* pConfig, bool hasProfileArray, bool hasProfile
         readRegDword<unsigned int>(&(pConfig->dsp_fullscnResY), &configKey, L"FullResY", &type, &size);
         readRegDword<unsigned int>(&(pConfig->dsp_windowResX), &configKey, L"WinResX", &type, &size);
         readRegDword<unsigned int>(&(pConfig->dsp_windowResY), &configKey, L"WinResY", &type, &size);
+        readRegBool(&(pConfig->dsp_isWindowResizable), &configKey, L"WinResize", &type, &size);
         readRegBool(&(pConfig->dsp_isColorDepth32), &configKey, L"Color32", &type, &size);
+        // auto-detect fullscreen resolution
+        if (pConfig->dsp_fullscnResX == 0)
+        {
+            #ifdef _WINDOWS
+            pConfig->dsp_fullscnResX = GetSystemMetrics(SM_CXSCREEN);
+            if (pConfig->dsp_fullscnResX < 640)
+                pConfig->dsp_fullscnResX = 800;
+            #else
+            m_pConfig->dsp_fullscnResX = 800;
+            #endif
+        }
+        if (pConfig->dsp_fullscnResY == 0)
+        {
+            #ifdef _WINDOWS
+            pConfig->dsp_fullscnResY = GetSystemMetrics(SM_CYSCREEN);
+            if (pConfig->dsp_fullscnResY < 480)
+                pConfig->dsp_fullscnResY = 600;
+            #else
+            globalConfig->fullResY = 600;
+            #endif
+        }
+        // check min window resolution
+        if (pConfig->dsp_windowResX < 320)
+            pConfig->dsp_windowResX = 640;
+        if (pConfig->dsp_windowResY < 240)
+            pConfig->dsp_windowResY = 480;
 
         // framerate
         readRegBool(&(pConfig->sync_isVerticalSync), &configKey, L"Vsync", &type, &size);
@@ -219,6 +246,8 @@ void ConfigIO::saveConfig(Config* pConfig, bool hasProfiles)
         RegSetValueEx(configKey, L"WinResX", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pConfig->dsp_windowResY;
         RegSetValueEx(configKey, L"WinResY", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = (pConfig->dsp_isWindowResizable) ? 1uL : 0uL;
+        RegSetValueEx(configKey, L"WinResize", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pConfig->dsp_isColorDepth32) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"Color32", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
