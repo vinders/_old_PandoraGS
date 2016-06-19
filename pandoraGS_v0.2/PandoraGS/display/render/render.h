@@ -98,6 +98,9 @@ public:
     void setWindow(bool isOpened);
     /// <summary>Change window mode, depending on current settings</summary>
     void changeWindowMode();
+    /// <summary>Change window size or set stretching mode</summary>
+    /// <param name="isWindowResized">Check new window size</param>
+    void setDrawingSize(bool isWindowResized);
 };
 
 #endif

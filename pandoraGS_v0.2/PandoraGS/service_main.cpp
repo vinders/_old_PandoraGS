@@ -156,11 +156,19 @@ void CALLBACK GPUupdateLace()
     // change window or stretching mode
     if (InputManager::m_isWindowModeChangePending)
     {
-        if (InputManager::m_isStretchingChangePending == false) // window change
-            g_pConfig->dsp_isFullscreen = !(g_pConfig->dsp_isFullscreen);
-
+        InputManager::m_isWindowModeChangePending = false;
         InputManager::stopListener();
-        g_pRender->changeWindowMode(); // toggle window mode or stretching mode
+        if (InputManager::m_isStretchingChangePending == false) // toggle window mode
+        {
+            g_pConfig->dsp_isFullscreen = !(g_pConfig->dsp_isFullscreen);
+            g_pRender->changeWindowMode();
+        }
+        else // toggle stretching mode
+        {
+            InputManager::m_isStretchingChangePending = false;
+            g_pRender->setDrawingSize(InputManager::m_isSizeChangePending);
+            InputManager::m_isSizeChangePending = false;
+        }
         FramerateManager::resetFrameTime();
         InputManager::initListener();
         return;
@@ -168,6 +176,7 @@ void CALLBACK GPUupdateLace()
     // change config profile (if requested)
     if (InputManager::m_isProfileChangePending)
     {
+        InputManager::m_isProfileChangePending = false;
         try
         {
             g_pConfig->useProfile(InputManager::m_menuIndex); // set profile

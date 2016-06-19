@@ -9,7 +9,6 @@ Description : API rendering pipeline - abstract factory
 *******************************************************************************/
 #include <Windows.h>
 using namespace std;
-#include "input_manager.h"
 #include "psx_core_memory.h"
 #include "render.h"
 #include "render_software.h"
@@ -110,8 +109,14 @@ void Render::setWindow(bool isOpened)
 /// <summary>Change window mode, depending on current settings</summary>
 void Render::changeWindowMode()
 {
-    closeApi();
-    //...
-    //...
+    setWindow(false);
+    setWindow(true);
     initApi();
+}
+
+/// <summary>Change window size or set stretching mode</summary>
+/// <param name="isWindowResized">Check new window size</param>
+void setDrawingSize(bool isWindowResized)
+{
+    //...
 }
