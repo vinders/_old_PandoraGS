@@ -8,6 +8,7 @@ File name :   render.cpp
 Description : API rendering pipeline - abstract factory
 *******************************************************************************/
 using namespace std;
+#include "input_manager.h"
 #include "render.h"
 #include "render_software.h"
 #include "render_opengl.h"
@@ -47,4 +48,34 @@ Render* Render::createInstance(Config* pConfig)
     if (renderer == NULL)
         throw new std::exception("createInstance: Rendering instance creation error");
     return renderer;
+}
+
+/// <summary>Shutdown rendering API</summary>
+/// <param name="isOpened">Open or close window</param>
+void Render::setWindow(bool isOpened)
+{
+    // open display window
+    if (isOpened)
+    {
+        //...
+    }
+
+    // close display window
+    else 
+    {
+        closeApi();
+
+        //...
+    }
+
+    _initialized = false;
+}
+
+/// <summary>Change window mode, depending on current settings</summary>
+void Render::changeWindowMode()
+{
+    closeApi();
+    //...
+    //...
+    initApi();
 }

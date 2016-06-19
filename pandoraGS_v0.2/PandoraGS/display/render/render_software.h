@@ -34,7 +34,11 @@ public:
     /// <summary>Cleanup and shutdown WARP API</summary>
     virtual void closeApi();
 
-    //...
+    /// <summary>Reload rendering pipeline</summary>
+    virtual void reloadApi();
+
+    /// <summary>Draw current frame to the screen</summary>
+    virtual void drawFrame();
 };
 
 #endif

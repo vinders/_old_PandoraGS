@@ -14,46 +14,46 @@ using namespace std;
 
 extern bool g_isZincEmu; // zinc interface emulation
 extern Config* g_pConfig;
-extern PsxCoreMemory* g_pMemory;
 
 
-/// <summary>Create empty instance</summary>
-PsxCoreMemory::PsxCoreMemory()
-{
-    #ifdef _WINDOWS
-    gen_hWindow = NULL;
-    #endif
-    mem_vramImage.pData = NULL;
+#ifdef _WINDOWS
+HWND PsxCoreMemory::gen_hWindow = NULL;        // main emulator window handle
+#endif
 
-    initDisplayState(dsp_displayState);
-    dsp_displayFlags = 0;
-    st_hasFixBusyEmu = false;
-    st_fixBusyEmuSequence = 0;
+// psx emulated memory
+int           PsxCoreMemory::mem_gpuVramSize = PSXVRAM_SIZE;
+PsxVram_t     PsxCoreMemory::mem_vramImage = { 0,0,0,0,0,0,0,0 };   // PSX VRAM memory image
+VramLoad_t    PsxCoreMemory::mem_vramRead;                          // PSX VRAM frame reader
+int           PsxCoreMemory::mem_vramReadMode = DR_NORMAL;          // read transfer mode
+VramLoad_t    PsxCoreMemory::mem_vramWrite;                         // PSX VRAM frame writer
+int           PsxCoreMemory::mem_vramWriteMode = DR_NORMAL;         // write transfer mode
+long          PsxCoreMemory::mem_gpuDataTransaction = GPUDATA_INIT; // GPU data read/written by emulator
+unsigned long PsxCoreMemory::mem_gpuDmaAddresses[3]; // DMA address check
 
-    // native display widths
-    dsp_displayWidths[0] = 256;
-    dsp_displayWidths[1] = 320;
-    dsp_displayWidths[2] = 512;
-    dsp_displayWidths[3] = 640;
-    dsp_displayWidths[4] = 368;
-    dsp_displayWidths[5] = 384;
-    dsp_displayWidths[6] = 512;
-    dsp_displayWidths[7] = 640;
-    // data transaction init
-    mem_gpuDataTransaction = GPUDATA_INIT;
-}
+// gpu emulated status and information
+long          PsxCoreMemory::st_statusReg;               // GPU status register
+unsigned long PsxCoreMemory::st_pStatusControl[STATUSCTRL_SIZE]; // GPU status control
+unsigned long PsxCoreMemory::st_pGpuDrawInfo[DRAWINFO_SIZE];     // GPU draw information
+long          PsxCoreMemory::st_selectedSlot;            // save-state selected slot
+bool          PsxCoreMemory::st_hasFixBusyEmu = false;   // 'GPU busy' emulation hack on/off
+int           PsxCoreMemory::st_fixBusyEmuSequence = 0;  // 'GPU busy' emulation hack - sequence value
 
-/// <summary>Destroy memory instance</summary>
-PsxCoreMemory::~PsxCoreMemory()
-{
-    if (mem_vramImage.pData != NULL)
-        free(mem_vramImage.pData);
-}
+// display settings
+DisplayState_t PsxCoreMemory::dsp_displayState;          // display information
+short PsxCoreMemory::dsp_displayWidths[8] = { 256, 320, 512, 640, 368, 384, 512, 640 }; // native display widths
+unsigned long PsxCoreMemory::dsp_displayFlags = 0;       // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
+
 
 /// <summary>Initialize memory instance values</summary>
 /// <exception cref="std::exception">Memory allocation failure</exception>
 void PsxCoreMemory::initMemory()
 {
+    // data transaction init
+    mem_vramImage.pData = NULL;
+    mem_gpuDataTransaction = GPUDATA_INIT;
+    initDisplayState(dsp_displayState);
+    resetDmaCheck();
+
     // define VRAM size (standard or zinc emu)
     mem_gpuVramSize = (g_isZincEmu) ? ZINCVRAM_SIZE : PSXVRAM_SIZE;
     mem_vramImage.bufferSize = mem_gpuVramSize * 1024;
@@ -84,6 +84,13 @@ void PsxCoreMemory::initMemory()
     setStatus(GPUSTATUS_READYFORCOMMANDS);
 }
 
+/// <summary>Close memory objects</summary>
+void PsxCoreMemory::closeMemory()
+{
+    if (mem_vramImage.pData != NULL)
+        free(mem_vramImage.pData);
+}
+
 
 // -- MEMORY IO -- -------------------------------------------------------------
 
@@ -92,13 +99,13 @@ void PsxCoreMemory::initMemory()
 /// <param name="size">Memory chunk size</param>
 void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
 {
-    g_pMemory->unsetStatus(GPUSTATUS_IDLE); // busy
+    PsxCoreMemory::unsetStatus(GPUSTATUS_IDLE); // busy
 
     // check/adjust vram reader position
-    while (g_pMemory->mem_vramRead.pVramImage >= g_pMemory->mem_vramImage.pEOM) // max position
-        g_pMemory->mem_vramRead.pVramImage -= g_pMemory->mem_vramImage.bufferSize;
-    while (g_pMemory->mem_vramRead.pVramImage < g_pMemory->mem_vramImage.pWord) // min position
-        g_pMemory->mem_vramRead.pVramImage += g_pMemory->mem_vramImage.bufferSize;
+    while (PsxCoreMemory::mem_vramRead.pVramImage >= PsxCoreMemory::mem_vramImage.pEOM) // max position
+        PsxCoreMemory::mem_vramRead.pVramImage -= PsxCoreMemory::mem_vramImage.bufferSize;
+    while (PsxCoreMemory::mem_vramRead.pVramImage < PsxCoreMemory::mem_vramImage.pWord) // min position
+        PsxCoreMemory::mem_vramRead.pVramImage += PsxCoreMemory::mem_vramImage.bufferSize;
 
     /*! //opengl
     if((iFrameReadType&1 && iSize>1) &&
@@ -115,43 +122,43 @@ void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
     // read memory chunk of data
     int i = 0;
     bool bitLevel = false;
-    if (g_pMemory->mem_vramRead.colsRemaining > 0 && g_pMemory->mem_vramRead.rowsRemaining > 0)
+    if (PsxCoreMemory::mem_vramRead.colsRemaining > 0 && PsxCoreMemory::mem_vramRead.rowsRemaining > 0)
     {
         while (i < size) // check if end of memory chunk
         {
             // 2 separate 16 bits reads (compatibility: wrap issues)
             if (bitLevel == false) // read lower 16 bits
             {
-                g_pMemory->mem_gpuDataTransaction = (unsigned long)(*(g_pMemory->mem_vramRead.pVramImage));
+                PsxCoreMemory::mem_gpuDataTransaction = (unsigned long)(*(PsxCoreMemory::mem_vramRead.pVramImage));
             }
             else // read higher 16 bits
             {
-                g_pMemory->mem_gpuDataTransaction |= (unsigned long)(*(g_pMemory->mem_vramRead.pVramImage)) << 16;
+                PsxCoreMemory::mem_gpuDataTransaction |= (unsigned long)(*(PsxCoreMemory::mem_vramRead.pVramImage)) << 16;
                 // update pointed memory
-                *pDwMem = g_pMemory->mem_gpuDataTransaction;
+                *pDwMem = PsxCoreMemory::mem_gpuDataTransaction;
                 pDwMem++; // increment memory location
 
-                if (g_pMemory->mem_vramRead.colsRemaining <= 0) // check last column
+                if (PsxCoreMemory::mem_vramRead.colsRemaining <= 0) // check last column
                     break;
                 i++;
             }
 
             // update cursor to higher bits position
-            g_pMemory->mem_vramRead.pVramImage++;
-            if (g_pMemory->mem_vramRead.pVramImage >= g_pMemory->mem_vramImage.pEOM) // check max position
-                g_pMemory->mem_vramRead.pVramImage -= g_pMemory->mem_vramImage.bufferSize;
-            g_pMemory->mem_vramRead.rowsRemaining--;
+            PsxCoreMemory::mem_vramRead.pVramImage++;
+            if (PsxCoreMemory::mem_vramRead.pVramImage >= PsxCoreMemory::mem_vramImage.pEOM) // check max position
+                PsxCoreMemory::mem_vramRead.pVramImage -= PsxCoreMemory::mem_vramImage.bufferSize;
+            PsxCoreMemory::mem_vramRead.rowsRemaining--;
 
             // if column is empty, check next column
-            if (g_pMemory->mem_vramRead.rowsRemaining <= 0)
+            if (PsxCoreMemory::mem_vramRead.rowsRemaining <= 0)
             {
-                g_pMemory->mem_vramRead.rowsRemaining = g_pMemory->mem_vramRead.width; // reset rows
-                g_pMemory->mem_vramRead.pVramImage += (1024 - g_pMemory->mem_vramRead.width);
-                if (g_pMemory->mem_vramRead.pVramImage >= g_pMemory->mem_vramImage.pEOM) // check max position
-                    g_pMemory->mem_vramRead.pVramImage -= g_pMemory->mem_vramImage.bufferSize;
+                PsxCoreMemory::mem_vramRead.rowsRemaining = PsxCoreMemory::mem_vramRead.width; // reset rows
+                PsxCoreMemory::mem_vramRead.pVramImage += (1024 - PsxCoreMemory::mem_vramRead.width);
+                if (PsxCoreMemory::mem_vramRead.pVramImage >= PsxCoreMemory::mem_vramImage.pEOM) // check max position
+                    PsxCoreMemory::mem_vramRead.pVramImage -= PsxCoreMemory::mem_vramImage.bufferSize;
 
-                g_pMemory->mem_vramRead.colsRemaining--;
-                if (bitLevel && g_pMemory->mem_vramRead.colsRemaining <= 0) // check last column
+                PsxCoreMemory::mem_vramRead.colsRemaining--;
+                if (bitLevel && PsxCoreMemory::mem_vramRead.colsRemaining <= 0) // check last column
                     break;
             }
 
@@ -163,14 +170,14 @@ void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
     if (i < size)
     {
         // reset transfer mode and values
-        g_pMemory->mem_vramReadMode = DR_NORMAL;
-        g_pMemory->mem_vramRead.x = g_pMemory->mem_vramRead.y = 0;
-        g_pMemory->mem_vramRead.width = g_pMemory->mem_vramRead.height = 0;
-        g_pMemory->mem_vramRead.rowsRemaining = g_pMemory->mem_vramRead.colsRemaining = 0;
+        PsxCoreMemory::mem_vramReadMode = DR_NORMAL;
+        PsxCoreMemory::mem_vramRead.x = PsxCoreMemory::mem_vramRead.y = 0;
+        PsxCoreMemory::mem_vramRead.width = PsxCoreMemory::mem_vramRead.height = 0;
+        PsxCoreMemory::mem_vramRead.rowsRemaining = PsxCoreMemory::mem_vramRead.colsRemaining = 0;
         // signal VRAM transfer end
-        g_pMemory->unsetStatus(GPUSTATUS_READYFORVRAM); // no longer ready
+        PsxCoreMemory::unsetStatus(GPUSTATUS_READYFORVRAM); // no longer ready
     }
-    g_pMemory->setStatus(GPUSTATUS_IDLE); // idle
+    PsxCoreMemory::setStatus(GPUSTATUS_IDLE); // idle
 }
 
 /// <summary>Process and send chunk of data to video data register</summary>
@@ -178,8 +185,8 @@ void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
 /// <param name="size">Memory chunk size</param>
 void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
 {
-    g_pMemory->unsetStatus(GPUSTATUS_IDLE); // busy
-    g_pMemory->unsetStatus(GPUSTATUS_READYFORCOMMANDS); // not ready
+    PsxCoreMemory::unsetStatus(GPUSTATUS_IDLE); // busy
+    PsxCoreMemory::unsetStatus(GPUSTATUS_READYFORCOMMANDS); // not ready
 
     unsigned long gdata = 0;
     bool bitLevel;
@@ -188,13 +195,13 @@ void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
     //...
 
     // 'GPU busy' emulation hack
-    if (g_pMemory->st_hasFixBusyEmu)
-        g_pMemory->st_fixBusyEmuSequence = 4;
+    if (PsxCoreMemory::st_hasFixBusyEmu)
+        PsxCoreMemory::st_fixBusyEmuSequence = 4;
 
     //...
 
-    g_pMemory->setStatus(GPUSTATUS_READYFORCOMMANDS); // ready
-    g_pMemory->setStatus(GPUSTATUS_IDLE); // idle
+    PsxCoreMemory::setStatus(GPUSTATUS_READYFORCOMMANDS); // ready
+    PsxCoreMemory::setStatus(GPUSTATUS_IDLE); // idle
 
 
 
@@ -438,7 +445,7 @@ void PsxCoreMemory::cmdSetDisplayInfo(unsigned long gdata)
     }
     else
     {
-        dsp_displayState.localize == LocalizationMode_Ntsc;
+        dsp_displayState.localize = LocalizationMode_Ntsc;
         unsetStatus(GPUSTATUS_PAL);
     }
 

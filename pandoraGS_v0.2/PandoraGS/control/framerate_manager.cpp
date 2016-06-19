@@ -15,7 +15,6 @@ using namespace std;
 #define MAX_LACE_NUMBER 16
 #define MAX_SUCCESSIVE_SKIPPING 4
 extern Config* g_pConfig;
-extern PsxCoreMemory* g_pMemory;
 float g_framerateHz = 59.94f;
 
 // framerate mode
@@ -33,7 +32,6 @@ bool FramerateManager::s_isReset = true;            // init indicator
 int  FramerateManager::s_framesToSkip = 0;          // number of frames to skip
 
 // frame skipping
-bool FramerateManager::s_isFrameDataWaiting = false;// frame data not read
 #ifdef _WINDOWS
 DWORD FramerateManager::s_lateTicks;                // time spent waiting (in addition to normal frame time)
 #else
@@ -73,9 +71,9 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
     if (hasFrameInfo)
     {
         if (g_pConfig->getCurrentProfile()->sync_hasFixAutoLimit)
-            s_isInterlaced = g_pMemory->dsp_displayState.isInterlaced;
+            s_isInterlaced = PsxCoreMemory::dsp_displayState.isInterlaced;
         else
-            s_isInterlaced = g_pMemory->getStatus(GPUSTATUS_INTERLACED);
+            s_isInterlaced = PsxCoreMemory::getStatus(GPUSTATUS_INTERLACED);
     }
     
     // set fixed framerate limit
@@ -90,14 +88,14 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
         // use theoretical standard values
         if (g_pConfig->getCurrentProfile()->sync_hasFixAutoLimit)
         {
-            if (g_pMemory->dsp_displayState.localize == LocalizationMode_Pal)
+            if (PsxCoreMemory::dsp_displayState.localize == LocalizationMode_Pal)
                 g_framerateHz = (s_isInterlaced) ? 50.0f : 25.0f;
             else 
                 g_framerateHz = (s_isInterlaced) ? 60.0f : 30.0f;
         }
         else // emulation values
         {
-            if (g_pMemory->dsp_displayState.localize == LocalizationMode_Pal)
+            if (PsxCoreMemory::dsp_displayState.localize == LocalizationMode_Pal)
             {
                 if (s_isInterlaced)
                     g_framerateHz = 33868800.0f / 677343.75f; // 50.00238
@@ -175,7 +173,6 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
         return;
     }
 
-
     // set FPS indicator
     static unsigned int laceCount = MAX_LACE_NUMBER;
     if (++laceCount >= MAX_LACE_NUMBER)
@@ -184,6 +181,8 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
             checkCurrentFramerate();
         laceCount = 0;
     }
+    s_framesAfterFpsRef++;
+
     // speed modifiers
     if (frameSpeed) 
     {
@@ -221,17 +220,6 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
             #endif
             s_framesToSkip = 1; // bypass frame skipping (will be decremented at the end of the function)
         }
-    }
-
-
-    // wait for current frame data to be read
-    while (s_isFrameDataWaiting) 
-    {
-        // timeout (prevent dead lock)
-        currentTicks = timeGetTime();
-        elapsedTicks = currentTicks - lastTicks;
-        if (elapsedTicks > 1000uL && currentTicks > lastTicks) // max 1 sec
-            break;
     }
 
     // apply framerate limit

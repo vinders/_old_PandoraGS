@@ -42,14 +42,10 @@ public:
 public:
     /// <summary>Start keyboard listener</summary>
     static void initListener();
-    /// <summary>Set display window listener</summary>
-    /// <param name="isEnabled">Enabled/disabled</param>
-    static void setDisplayListener(bool isEnabled)
-    {
-        m_isListeningDisplay = isEnabled;
-    }
     /// <summary>Stop keyboard listener</summary>
     static void stopListener();
+    /// <summary>Update keyboard listener, based on settings</summary>
+    static void updateListener();
 
     #ifdef _WINDOWS
     /// <summary>Enable or disable screen saver</summary>

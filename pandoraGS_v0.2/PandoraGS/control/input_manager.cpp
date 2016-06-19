@@ -19,7 +19,6 @@ using namespace std;
 
 // global data
 extern Config* g_pConfig;        // main configuration reference
-extern PsxCoreMemory* g_pMemory; // main console emulated memory
 #ifdef _WINDOWS
 static WNDPROC  pEmulatorWindowHandler = 0;
 static WNDPROC  pDisplayWindowHandler = 0;
@@ -55,11 +54,12 @@ void InputManager::initListener()
     // start event listener + save original listener
     if (!pEmulatorWindowHandler)
     {
-        pEmulatorWindowHandler = (WNDPROC)GetWindowLong(g_pMemory->gen_hWindow, GWL_WNDPROC);
-        SetWindowLong(g_pMemory->gen_hWindow, GWL_WNDPROC, (long)keyHandler);
+        pEmulatorWindowHandler = (WNDPROC)GetWindowLong(PsxCoreMemory::gen_hWindow, GWL_WNDPROC);
+        SetWindowLong(PsxCoreMemory::gen_hWindow, GWL_WNDPROC, (long)keyHandler);
     }
     #endif
     m_isListening = true;
+    m_isListeningDisplay = (g_pConfig->dsp_isFullscreen == false);
 }
 
 /// <summary>Stop keyboard listener</summary>
@@ -70,7 +70,7 @@ void InputManager::stopListener()
         #ifdef _WINDOWS
         // restore original event listener
         if (pEmulatorWindowHandler)
-            SetWindowLong(g_pMemory->gen_hWindow, GWL_WNDPROC, (long)pEmulatorWindowHandler);
+            SetWindowLong(PsxCoreMemory::gen_hWindow, GWL_WNDPROC, (long)pEmulatorWindowHandler);
         pEmulatorWindowHandler = 0;
         #endif
         m_isListening = false;
@@ -83,6 +83,12 @@ void InputManager::stopListener()
     m_isStretchingChangePending = false;
     m_isWindowModeChangePending = false;
     m_isProfileChangePending = false;
+}
+
+/// <summary>Update keyboard listener, based on settings</summary>
+void InputManager::updateListener()
+{
+    m_isListeningDisplay = (g_pConfig->dsp_isFullscreen == false);
 }
 
 #ifdef _WINDOWS
@@ -240,6 +246,7 @@ LRESULT CALLBACK keyHandler(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM 
             if (InputManager::m_isListeningDisplay &&
                 InputManager::m_isWindowModeChangePending == false && g_pConfig->dsp_isFullscreen == false)
             {
+                InputManager::m_isListeningDisplay = false;
                 if (wpCode == SIZE_MAXIMIZED || wpCode == SIZE_RESTORED) // not minimized
                 {
                     static WPARAM prevState = wpCode;

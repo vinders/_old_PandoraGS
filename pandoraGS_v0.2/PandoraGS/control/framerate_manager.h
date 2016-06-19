@@ -37,7 +37,6 @@ private:
     static bool s_isReset;               // init indicator
 
     // frame skipping
-    static bool s_isFrameDataWaiting;    // frame data not read
     #ifdef _WINDOWS
     static DWORD s_lateTicks;            // time spent waiting (in addition to normal frame time)
     #else
@@ -85,17 +84,6 @@ public:
             s_framesToSkip = (s_isInterlaced) ? 1 : 0;
         s_lateTicks = 0;
         s_isReset = true;
-    }
-    /// <summary>A new frame needs to be drawn (data ready)</summary>
-    static inline void requestFrameDrawing()
-    {
-        s_isFrameDataWaiting = true;
-    }
-    /// <summary>Signal that a new frame is being drawn (data has been read)</summary>
-    static inline void signalFrameDrawing()
-    {
-        s_framesAfterFpsRef++;
-        s_isFrameDataWaiting = false;
     }
 
     /// <summary>Check if current frame is skipped</summary>

@@ -11,7 +11,6 @@ Description : zinc specification interface
 using namespace std;
 #include "config.h"
 #include "input_manager.h"
-#include "display_thread.h"
 #include "psx_core_memory.h"
 #include "service_main.h"
 
@@ -28,8 +27,6 @@ typedef struct GPUOTAG
 
 // global data
 extern Config* g_pConfig;        // main configuration reference
-extern PsxCoreMemory* g_pMemory; // main console emulated memory
-extern DisplayThread* g_pDisplayManager; // display thread manager
 unsigned long zincGPUVersion = 0;
 bool          g_isZincEmu = false; // zinc interface emulation
 int           zincTileFix = 0;

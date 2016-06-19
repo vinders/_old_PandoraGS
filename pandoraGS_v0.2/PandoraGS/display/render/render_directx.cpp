@@ -41,6 +41,16 @@ void RenderDirectX::closeApi()
 
 }
 
-//...
+/// <summary>Reload rendering pipeline</summary>
+void RenderDirectX::reloadApi()
+{
+
+}
+
+/// <summary>Draw current frame to the screen</summary>
+void RenderDirectX::drawFrame()
+{
+
+}
 
 #endif

@@ -63,9 +63,6 @@
     <ClCompile Include="display\shader\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="display\display_thread.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="control\psx_core_memory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,6 +117,9 @@
     <ClCompile Include="display\render\render_software.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="control\display_state.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="service_main.h">
@@ -171,9 +171,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="display\shader\shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="display\display_thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="control\psx_core_memory.h">

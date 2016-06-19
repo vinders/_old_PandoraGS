@@ -127,64 +127,61 @@ class PsxCoreMemory
 {
 public:
     #ifdef _WINDOWS
-    HWND gen_hWindow;        // main emulator window handle
+    static HWND gen_hWindow;        // main emulator window handle
     #endif
 
     // psx emulated memory
-    int           mem_gpuVramSize;
-    PsxVram_t     mem_vramImage;          // PSX VRAM memory image
-    VramLoad_t    mem_vramRead;           // PSX VRAM frame reader
-    int           mem_vramReadMode;       // read transfer mode
-    VramLoad_t    mem_vramWrite;          // PSX VRAM frame writer
-    int           mem_vramWriteMode;      // write transfer mode
-    long          mem_gpuDataTransaction; // GPU data read/written by emulator
-    unsigned long mem_gpuDmaAddresses[3]; // DMA address check
+    static int           mem_gpuVramSize;
+    static PsxVram_t     mem_vramImage;          // PSX VRAM memory image
+    static VramLoad_t    mem_vramRead;           // PSX VRAM frame reader
+    static int           mem_vramReadMode;       // read transfer mode
+    static VramLoad_t    mem_vramWrite;          // PSX VRAM frame writer
+    static int           mem_vramWriteMode;      // write transfer mode
+    static long          mem_gpuDataTransaction; // GPU data read/written by emulator
+    static unsigned long mem_gpuDmaAddresses[3]; // DMA address check
 
     // gpu emulated status and information
-    long          st_statusReg;           // GPU status register
-    unsigned long st_pStatusControl[STATUSCTRL_SIZE]; // GPU status control
-    unsigned long st_pGpuDrawInfo[DRAWINFO_SIZE];     // GPU draw information
-    long          st_selectedSlot;        // save-state selected slot
-    bool          st_hasFixBusyEmu;       // 'GPU busy' emulation hack on/off
-    int           st_fixBusyEmuSequence;  // 'GPU busy' emulation hack - sequence value
+    static long          st_statusReg;           // GPU status register
+    static unsigned long st_pStatusControl[STATUSCTRL_SIZE]; // GPU status control
+    static unsigned long st_pGpuDrawInfo[DRAWINFO_SIZE];     // GPU draw information
+    static long          st_selectedSlot;        // save-state selected slot
+    static bool          st_hasFixBusyEmu;       // 'GPU busy' emulation hack on/off
+    static int           st_fixBusyEmuSequence;  // 'GPU busy' emulation hack - sequence value
 
     // display settings
-    DisplayState_t dsp_displayState;      // display information
-    short         dsp_displayWidths[8];   // possible psx display widths
-    unsigned long dsp_displayFlags;       // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
+    static DisplayState_t dsp_displayState;      // display information
+    static short         dsp_displayWidths[8];   // possible psx display widths
+    static unsigned long dsp_displayFlags;       // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
 
 
 public:
-    /// <summary>Create empty instance</summary>
-    PsxCoreMemory();
-    /// <summary>Destroy memory instance</summary>
-    ~PsxCoreMemory();
-
-    /// <summary>Initialize memory instance values</summary>
+    /// <summary>Initialize memory values</summary>
     /// <exception cref="std::exception">Memory allocation failure</exception>
-    void initMemory();
+    static void initMemory();
+    /// <summary>Close memory objects</summary>
+    static void closeMemory();
 
     /// <summary>Activate specific status bit(s) in status register</summary>
     /// <param name="statusBits">Bits mask to set</param>
-    inline void setStatus(long statusBits)
+    static inline void setStatus(long statusBits)
     {
         st_statusReg |= statusBits;
     }
     /// <summary>Remove specific status bit(s) in status register</summary>
     /// <param name="statusBits">Bits mask to remove</param>
-    inline void unsetStatus(long statusBits)
+    static inline void unsetStatus(long statusBits)
     {
         st_statusReg &= ~statusBits;
     }
     /// <summary>Check if status bit is active in status register</summary>
     /// <param name="statusBits">Bit(s) mask (will return true if at least one is active)</param>
-    inline bool getStatus(long statusBit)
+    static inline bool getStatus(long statusBit)
     {
         return ((st_statusReg & statusBit) != 0);
     }
     /// <summary>Get specific status bit(s) from status register</summary>
     /// <param name="statusBits">Bits mask</param>
-    inline long getStatusBits(long statusBits)
+    static inline long getStatusBits(long statusBits)
     {
         return (st_statusReg & statusBits);
     }
@@ -193,7 +190,7 @@ public:
     // -- MEMORY IO -- -------------------------------------------------------------
 
     /// <summary>Initialize check values for DMA chains</summary>
-    inline void resetDmaCheck()
+    static inline void resetDmaCheck()
     {
         mem_gpuDmaAddresses[0] = THREEBYTES_MASK;
         mem_gpuDmaAddresses[1] = THREEBYTES_MASK;
@@ -201,7 +198,7 @@ public:
     }
     /// <summary>Check DMA chain for endless loop (Pete's fix)</summary>
     /// <param name="addr">Memory address to check</param>
-    inline bool checkDmaEndlessChain(unsigned long addr)
+    static inline bool checkDmaEndlessChain(unsigned long addr)
     {
         if (addr == mem_gpuDmaAddresses[1] || addr == mem_gpuDmaAddresses[2])
             return true;
@@ -216,7 +213,7 @@ public:
     // -- STATUS COMMANDS -- -------------------------------------------------------
 
     /// <summary>Reset GPU information</summary>
-    inline void cmdReset()
+    static inline void cmdReset()
     {
         // initialize status and information
         memset(st_pGpuDrawInfo, 0x0, DRAWINFO_SIZE * sizeof(unsigned long));
@@ -240,7 +237,7 @@ public:
     /// <summary>Check GPU information (version, draw info, ...)</summary>
     /// <param name="query">Query identifier (8 bits)</param>
     /// <param name="isSpecialGpu">Use special GPU type (for zinc emu)</param>
-    inline void cmdGpuQuery(unsigned long query, bool isSpecialGpu)
+    static inline void cmdGpuQuery(unsigned long query, bool isSpecialGpu)
     {
         switch (query)
         {
@@ -257,7 +254,7 @@ public:
 
     /// <summary>Enable/disable display</summary>
     /// <param name="isDisabled">Display status</param>
-    inline void cmdSetDisplay(bool isDisabled)
+    static inline void cmdSetDisplay(bool isDisabled)
     {
         // enable/disable
         dsp_displayState.previous.isDisabled = dsp_displayState.current.isDisabled; // copy previous
@@ -280,16 +277,16 @@ public:
 
     /// <summary>Set display informations</summary>
     /// <param name="gdata">Status register command</param>
-    void cmdSetDisplayInfo(unsigned long gdata);
+    static void cmdSetDisplayInfo(unsigned long gdata);
     /// <summary>Set display position</summary>
     /// <param name="x">Horizontal position</param>
     /// <param name="y">Vertical position</param>
-    void cmdSetDisplayPosition(short x, short y);
+    static void cmdSetDisplayPosition(short x, short y);
 
     /// <summary>Set display width</summary>
     /// <param name="x0">X start range</param>
     /// <param name="x1">X end range</param>
-    inline void cmdSetWidth(short x0, short x1)
+    static inline void cmdSetWidth(short x0, short x1)
     {
         dsp_displayState.current.range.x0 = x0;
         dsp_displayState.current.range.x1 = x1;
@@ -299,7 +296,7 @@ public:
     /// <summary>Set display height</summary>
     /// <param name="y0">Y start range</param>
     /// <param name="y1">Y end range</param>
-    inline void cmdSetHeight(short y0, short y1)
+    static inline void cmdSetHeight(short y0, short y1)
     {
         // set new height
         dsp_displayState.previous.height = dsp_displayState.current.height; // copy previous height

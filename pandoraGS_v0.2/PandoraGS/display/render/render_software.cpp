@@ -41,6 +41,16 @@ void RenderSoftware::closeApi()
 
 }
 
-//...
+/// <summary>Reload rendering pipeline</summary>
+void RenderSoftware::reloadApi()
+{
+
+}
+
+/// <summary>Draw current frame to the screen</summary>
+void RenderSoftware::drawFrame()
+{
+
+}
 
 #endif

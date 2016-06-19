@@ -28,6 +28,9 @@ class Render
 {
 protected:
     Config* m_pConfig; // config container reference
+    bool _initialized;
+    // initialisé à false
+    // lors de demande d'affichage, si vaut false, appel vers initApi()
 
 
     /*GLfloat         gl_z = 0.0f;
@@ -66,7 +69,7 @@ protected:
 
 protected:
     /// <summary>Common render instance construction</summary>
-    /// <param name="pConfig">Thread configuration reference</param>
+    /// <param name="pConfig">Configuration reference</param>
     Render(Config* pConfig);
 public:
     /// <summary>API shutdown and instance destruction</summary>
@@ -84,8 +87,17 @@ public:
     virtual void initApi() = 0;
     /// <summary>Shutdown rendering API</summary>
     virtual void closeApi() = 0;
+    /// <summary>Reload rendering pipeline</summary>
+    virtual void reloadApi() = 0;
 
-    //...
+    /// <summary>Draw current frame to the screen</summary>
+    virtual void drawFrame() = 0;
+
+    /// <summary>Shutdown rendering API</summary>
+    /// <param name="isOpened">Open or close window</param>
+    void setWindow(bool isOpened);
+    /// <summary>Change window mode, depending on current settings</summary>
+    void changeWindowMode();
 };
 
 #endif

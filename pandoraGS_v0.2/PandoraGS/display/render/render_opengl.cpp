@@ -40,5 +40,15 @@ void RenderOpenGL::closeApi()
 
 }
 
-//...
+/// <summary>Reload rendering pipeline</summary>
+void RenderOpenGL::reloadApi()
+{
+
+}
+
+/// <summary>Draw current frame to the screen</summary>
+void RenderOpenGL::drawFrame()
+{
+
+}
 
