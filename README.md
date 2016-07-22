@@ -6,7 +6,7 @@
     
     Author            : Romain Vinders
     Prog. languages   : C++, GLSL, HLSL
-    Supported systems : currently Windows NT (Vista+) (later Debian/Ubuntu?)
+    Supported systems : currently Windows NT (Vista+)
     License           : GPLv2
 
 #########################################################################
