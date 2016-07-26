@@ -465,7 +465,7 @@ void CALLBACK GPUwriteStatus(unsigned long gdata)
             PsxCoreMemory::cmdSetDisplayInfo(gdata);
             if (g_pConfig->sync_framerateLimit <= 0.05f) // == 0.0 (with float error offset) = auto-detect
                 FramerateManager::setFramerate(true);
-            /*! updateDisplayIfChanged();*/
+            updateDisplayIfChanged(); //!
             return;
         }
     }
@@ -575,7 +575,7 @@ long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem)
             memcpy(PsxCoreMemory::st_pStatusControl, pMem->pControlReg, STATUSCTRL_SIZE*sizeof(unsigned long));
             memcpy(PsxCoreMemory::mem_vramImage.pByte, pMem->pPsxVram, PsxCoreMemory::mem_vramImage.bufferSize * 2);
 
-            /*! ResetTextureArea(true);//opengl */
+            ResetTextureArea(true);//opengl //!
 
             // set status register, based on new status control
             GPUwriteStatus(PsxCoreMemory::st_pStatusControl[0]);

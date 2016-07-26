@@ -143,6 +143,12 @@ public:
     static long          mem_gpuDataTransaction; // GPU data read/written by emulator
     static unsigned long mem_gpuDmaAddresses[3]; // DMA address check
 
+    // gpu data memory
+    static unsigned char gpu_command;
+    static unsigned long gpu_dataM[256];
+    static long          gpu_dataC;
+    static long          gpu_dataP;
+
     // gpu emulated status and information
     static long          st_statusReg;           // GPU status register
     static unsigned long st_pStatusControl[STATUSCTRL_SIZE]; // GPU status control
@@ -213,6 +219,15 @@ public:
         mem_gpuDmaAddresses[0] = addr;
         return false;
     }
+
+    /// <summary>Process and send chunk of data to video data register</summary>
+    /// <param name="pDwMem">Pointer to chunk of data (source)</param>
+    /// <param name="size">Memory chunk size</param>
+    /// <param name="pDest">Destination gdata pointer</param>
+    /// <param name="pI">Counter pointer</param>
+    /// <returns>Indicator if VRAM data to write</returns>
+    static bool writeSimpleData(unsigned long* pDwMem, int size, unsigned long* pDest, int* pI);
+
 
     // -- STATUS COMMANDS -- -------------------------------------------------------
 
