@@ -47,6 +47,10 @@ enum TimingMode
     TimingMode_HighResCounter = 1,  // high res, unstable
 };
 
+// general fixes
+#define GEN_FIX_MIXED_SOFT_FRAMEBUFFER 0x1uL // speed framebuffer access fix for ATI
+#define GEN_FIX_FAKE_SUB_BLENDING      0x2uL // for buggy drivers - fake substractive blending
+
 
 // Driver configuration container
 class Config
@@ -83,9 +87,11 @@ public:
     float        sync_framerateLimit;  // framerate limit (0=auto / value=fixed)
     TimingMode   sync_timeMode;        // type of timer
 
-    // misc
+    // miscellaneous
     bool misc_isScreensaverDisabled;   // disable screensaver
     char misc_gpuKeys[GPUKEYS_LENGTH]; // plugin key bindings
+    unsigned long misc_genFixBits;        // general fixes
+    unsigned long misc_emuFixBits;        // fixes set by emulator
 
 
 public:
@@ -143,6 +149,32 @@ public:
     /// <summary>Get next profile ID</summary>
     /// <param name="start">Checked start index</param>
     unsigned int getNextProfileId(unsigned int start);
+
+
+    /// <summary>Enable fix bits/summary>
+    /// <param name="fixBits">Fix bits mask</param>
+    inline void setGenFix(unsigned long fixBits)
+    {
+        misc_genFixBits |= fixBits;
+    }
+    /// <summary>Disable fix bits</summary>
+    /// <param name="fixBits">Fix bits mask</param>
+    inline void unsetGenFix(unsigned long fixBits)
+    {
+        misc_genFixBits &= ~fixBits;
+    }
+    /// <summary>Check if fix bit is active</summary>
+    /// <param name="fixBits">Bit(s) mask (will return true if all are active)</param>
+    inline bool getGenFix(long fixBits)
+    {
+        return ((misc_genFixBits & fixBits) == fixBits);
+    }
+    /// <summary>Check if fix bit is disabled</summary>
+    /// <param name="fixBits">Bit(s) mask (will return true if all are disabled)</param>
+    inline bool getNotGenFix(long fixBits)
+    {
+        return ((misc_genFixBits & fixBits) == 0);
+    }
 
 
     // -- CURRENT PROFILE CHANGE -- --------------------------------------------

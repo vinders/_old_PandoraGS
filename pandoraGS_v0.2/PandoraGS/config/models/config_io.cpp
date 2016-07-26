@@ -178,6 +178,7 @@ void ConfigIO::loadConfig(Config* pConfig, bool hasProfileArray, bool hasProfile
 
         // misc
         readRegBool(&(pConfig->misc_isScreensaverDisabled), &configKey, L"ScreensaverOff", &type, &size);
+        readRegDword<unsigned long>(&(pConfig->misc_genFixBits), &configKey, L"GenFixBits", &type, &size);
 
         // plugin key bindings
         std::string gpuKeysStr = "";
@@ -264,6 +265,8 @@ void ConfigIO::saveConfig(Config* pConfig, bool hasProfiles)
         // misc
         val = (pConfig->misc_isScreensaverDisabled) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"ScreensaverOff", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = pConfig->misc_genFixBits;
+        RegSetValueEx(configKey, L"GenFixBits", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
         // plugin key bindings
         RegSetValueEx(configKey, L"GpuKeys", 0, REG_BINARY, (LPBYTE)(pConfig->misc_gpuKeys), GPUKEYS_LENGTH - 1);

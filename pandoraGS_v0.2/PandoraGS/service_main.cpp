@@ -107,6 +107,8 @@ long CALLBACK GPUopen_PARAM_
         PsxCoreMemory::gen_hWindow = hWindow;
         #endif
         g_pRender->setWindow(true);
+        PsxCoreMemory::dsp_isDisplaySet = false;
+
         // disable screensaver (if possible)
         if (g_pConfig->misc_isScreensaverDisabled)
             InputManager::setScreensaver(false);
@@ -160,6 +162,7 @@ void CALLBACK GPUupdateLace()
     if (InputManager::m_isWindowModeChangePending)
     {
         InputManager::stopListener();
+        PsxCoreMemory::dsp_isDisplaySet = false;
         if (InputManager::m_isStretchingChangePending == false) // toggle window mode
         {
             g_pConfig->dsp_isFullscreen = !(g_pConfig->dsp_isFullscreen);
@@ -180,6 +183,7 @@ void CALLBACK GPUupdateLace()
     if (InputManager::m_isProfileChangePending)
     {
         InputManager::m_isProfileChangePending = false;
+        PsxCoreMemory::dsp_isDisplaySet = false;
         try
         {
             g_pConfig->useProfile(InputManager::m_menuIndex); // set profile
@@ -201,11 +205,19 @@ void CALLBACK GPUupdateLace()
         }
     }
 
-    // display current frame (if not skipped)
-    if (FramerateManager::isFrameSkipped() == false)
-        g_pRender->drawFrame();
-    // frame sync + check frame skipping
-    FramerateManager::waitFrameTime(InputManager::m_frameSpeed, PsxCoreMemory::mem_vramImage.oddFrame != 0);
+    // frame limiting/skipping + display current frame (if not skipped)
+    if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_REACTIVE_FPSLIMIT)) // reactive display mode -> draw then wait
+    {
+        if (FramerateManager::isFrameSkipped() == false) // drawing starts earlier + skipping is more effective
+            g_pRender->drawFrame();
+        FramerateManager::waitFrameTime(InputManager::m_frameSpeed, PsxCoreMemory::mem_vramImage.oddFrame != 0);
+    }
+    else // steady display mode -> wait then draw
+    {
+        FramerateManager::waitFrameTime(InputManager::m_frameSpeed, PsxCoreMemory::mem_vramImage.oddFrame != 0);
+        if (FramerateManager::isFrameSkipped() == false) // drawing starts at regular intervals
+            g_pRender->drawFrame();
+    }
 }
 
 
@@ -363,8 +375,7 @@ void CALLBACK GPUdisplayFlags(unsigned long dwFlags)
 /// <param name="fixBits">Fixes (bits)</param>
 void CALLBACK GPUsetfix(unsigned long fixBits)
 {
-    // 'GPU busy' emulation hack
-    PsxCoreMemory::st_hasFixBusyEmu = ((fixBits & 0x0001) != 0 || (fixBits & 0x20000) != 0);
+    g_pConfig->misc_emuFixBits = fixBits;
 }
 
 
@@ -452,7 +463,7 @@ void CALLBACK GPUwriteStatus(unsigned long gdata)
         case CMD_SETDISPLAYINFO:
         {
             PsxCoreMemory::cmdSetDisplayInfo(gdata);
-            if (g_pConfig->sync_framerateLimit <= 0.05f) // 0.0 (float error offset) = auto-detect
+            if (g_pConfig->sync_framerateLimit <= 0.05f) // == 0.0 (with float error offset) = auto-detect
                 FramerateManager::setFramerate(true);
             /*! updateDisplayIfChanged();*/
             return;

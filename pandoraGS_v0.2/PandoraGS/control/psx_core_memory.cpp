@@ -30,20 +30,21 @@ int           PsxCoreMemory::mem_vramReadMode = DR_NORMAL;          // read tran
 VramLoad_t    PsxCoreMemory::mem_vramWrite;                         // PSX VRAM frame writer
 int           PsxCoreMemory::mem_vramWriteMode = DR_NORMAL;         // write transfer mode
 long          PsxCoreMemory::mem_gpuDataTransaction = GPUDATA_INIT; // GPU data read/written by emulator
-unsigned long PsxCoreMemory::mem_gpuDmaAddresses[3]; // DMA address check
+unsigned long PsxCoreMemory::mem_gpuDmaAddresses[3];     // DMA address check
 
 // gpu emulated status and information
 long          PsxCoreMemory::st_statusReg;               // GPU status register
-unsigned long PsxCoreMemory::st_pStatusControl[STATUSCTRL_SIZE]; // GPU status control
-unsigned long PsxCoreMemory::st_pGpuDrawInfo[DRAWINFO_SIZE];     // GPU draw information
-long          PsxCoreMemory::st_selectedSlot = 0L;            // save-state selected slot
-bool          PsxCoreMemory::st_hasFixBusyEmu = false;   // 'GPU busy' emulation hack on/off
+unsigned long PsxCoreMemory::st_pStatusControl[STATUSCTRL_SIZE];   // GPU status control
+unsigned long PsxCoreMemory::st_pGpuDrawInfo[DRAWINFO_SIZE];       // GPU draw information
+long          PsxCoreMemory::st_selectedSlot = 0L;                 // save-state selected slot
 int           PsxCoreMemory::st_fixBusyEmuSequence = 0;  // 'GPU busy' emulation hack - sequence value
 
 // display settings
+bool PsxCoreMemory::dsp_isDisplaySet = false;
 DisplayState_t PsxCoreMemory::dsp_displayState;          // display information
 short PsxCoreMemory::dsp_displayWidths[8] = { 256, 320, 512, 640, 368, 384, 512, 640 }; // native display widths
 unsigned long PsxCoreMemory::dsp_displayFlags = 0;       // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
+int PsxCoreMemory::dsp_firstPositionFlag = 2;            // indicates first position drawing after startup
 
 
 /// <summary>Initialize memory instance values</summary>
@@ -193,132 +194,126 @@ void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
     bool bitLevel;
     int i = 0;
 
-    //...
-
-    // 'GPU busy' emulation hack
-    if (PsxCoreMemory::st_hasFixBusyEmu)
-        PsxCoreMemory::st_fixBusyEmuSequence = 4;
-
-    //...
-
-    PsxCoreMemory::setStatus(GPUSTATUS_READYFORCOMMANDS); // ready
-    PsxCoreMemory::setStatus(GPUSTATUS_IDLE); // idle
-
-
-
     /*unsigned char command;
-    unsigned long gdata = 0;
-    int i = 0;
-    GPUIsBusy;
-    GPUIsNotReadyForCommands;
 
     STARTVRAM:
 
     if (iDataWriteMode == DR_VRAMTRANSFER)
     {
-    // make sure we are in vram
-    while (VRAMWrite.ImagePtr >= psxVuw_eom)
-    VRAMWrite.ImagePtr -= iGPUHeight * 1024;
-    while (VRAMWrite.ImagePtr<psxVuw)
-    VRAMWrite.ImagePtr += iGPUHeight * 1024;
+        // make sure we are in vram
+        while (VRAMWrite.ImagePtr >= psxVuw_eom)
+            VRAMWrite.ImagePtr -= iGPUHeight * 1024;
+        while (VRAMWrite.ImagePtr<psxVuw)
+            VRAMWrite.ImagePtr += iGPUHeight * 1024;
 
-    // now do the loop
-    while (VRAMWrite.ColsRemaining>0)
-    {
-    while (VRAMWrite.RowsRemaining>0)
-    {
-    if (i >= iSize) { goto ENDVRAM; }
-    i++;
+        // now do the loop
+        while (VRAMWrite.ColsRemaining>0)
+        {
+            while (VRAMWrite.RowsRemaining>0)
+            {
+                if (i >= iSize) 
+                    goto ENDVRAM;
+                i++;
 
-    gdata = *pMem++;
+                gdata = *pMem++;
 
-    *VRAMWrite.ImagePtr++ = (unsigned short)gdata;
-    if (VRAMWrite.ImagePtr >= psxVuw_eom) VRAMWrite.ImagePtr -= iGPUHeight * 1024;
-    VRAMWrite.RowsRemaining--;
+                *VRAMWrite.ImagePtr++ = (unsigned short)gdata;
+                if (VRAMWrite.ImagePtr >= psxVuw_eom) 
+                    VRAMWrite.ImagePtr -= iGPUHeight * 1024;
+                VRAMWrite.RowsRemaining--;
 
-    if (VRAMWrite.RowsRemaining <= 0)
-    {
-    VRAMWrite.ColsRemaining--;
-    if (VRAMWrite.ColsRemaining <= 0)             // last pixel is odd width
-    {
-    gdata = (gdata & 0xFFFF) | (((unsigned long)(*VRAMWrite.ImagePtr)) << 16);
-    FinishedVRAMWrite();
-    goto ENDVRAM;
-    }
-    VRAMWrite.RowsRemaining = VRAMWrite.Width;
-    VRAMWrite.ImagePtr += 1024 - VRAMWrite.Width;
-    }
+                if (VRAMWrite.RowsRemaining <= 0)
+                {
+                    VRAMWrite.ColsRemaining--;
+                    if (VRAMWrite.ColsRemaining <= 0)             // last pixel is odd width
+                    {
+                        gdata = (gdata & 0xFFFF) | (((unsigned long)(*VRAMWrite.ImagePtr)) << 16);
+                        FinishedVRAMWrite();
+                        goto ENDVRAM;
+                    }
+                    VRAMWrite.RowsRemaining = VRAMWrite.Width;
+                    VRAMWrite.ImagePtr += 1024 - VRAMWrite.Width;
+                }
 
-    *VRAMWrite.ImagePtr++ = (unsigned short)(gdata >> 16);
-    if (VRAMWrite.ImagePtr >= psxVuw_eom) VRAMWrite.ImagePtr -= iGPUHeight * 1024;
-    VRAMWrite.RowsRemaining--;
-    }
+                *VRAMWrite.ImagePtr++ = (unsigned short)(gdata >> 16);
+                if (VRAMWrite.ImagePtr >= psxVuw_eom) 
+                    VRAMWrite.ImagePtr -= iGPUHeight * 1024;
+                VRAMWrite.RowsRemaining--;
+            }
 
-    VRAMWrite.RowsRemaining = VRAMWrite.Width;
-    VRAMWrite.ColsRemaining--;
-    VRAMWrite.ImagePtr += 1024 - VRAMWrite.Width;
-    }
+            VRAMWrite.RowsRemaining = VRAMWrite.Width;
+            VRAMWrite.ColsRemaining--;
+            VRAMWrite.ImagePtr += 1024 - VRAMWrite.Width;
+        }
 
-    FinishedVRAMWrite();
+        FinishedVRAMWrite();
     }
 
     ENDVRAM:
 
+
     if (iDataWriteMode == DR_NORMAL)
     {
-    void(**primFunc)(unsigned char *);
-    if (bSkipNextFrame) primFunc = primTableSkip;
-    else               primFunc = primTableJ;
+        void(**primFunc)(unsigned char *);
+        if (bSkipNextFrame) 
+            primFunc = primTableSkip;
+        else               
+            primFunc = primTableJ;
 
-    for (; i<iSize;)
-    {
-    if (iDataWriteMode == DR_VRAMTRANSFER) goto STARTVRAM;
+        for (; i<iSize;)
+        {
+            if (iDataWriteMode == DR_VRAMTRANSFER) 
+                goto STARTVRAM;
 
-    gdata = *pMem++; i++;
+            gdata = *pMem++; i++;
 
-    if (gpuDataC == 0)
-    {
-    command = (unsigned char)((gdata >> 24) & 0xff);
+            if (gpuDataC == 0)
+            {
+                command = (unsigned char)((gdata >> 24) & 0xff);
 
-    if (primTableCX[command])
-    {
-    gpuDataC = primTableCX[command];
-    gpuCommand = command;
-    gpuDataM[0] = gdata;
-    gpuDataP = 1;
-    }
-    else continue;
-    }
-    else
-    {
-    gpuDataM[gpuDataP] = gdata;
-    if (gpuDataC>128)
-    {
-    if ((gpuDataC == 254 && gpuDataP >= 3) ||
-    (gpuDataC == 255 && gpuDataP >= 4 && !(gpuDataP & 1)))
-    {
-    if ((gpuDataM[gpuDataP] & 0xF000F000) == 0x50005000)
-    gpuDataP = gpuDataC - 1;
-    }
-    }
-    gpuDataP++;
-    }
+                if (primTableCX[command])
+                {
+                    gpuDataC = primTableCX[command];
+                    gpuCommand = command;
+                    gpuDataM[0] = gdata;
+                    gpuDataP = 1;
+                }
+                else 
+                    continue;
+            }
+            else
+            {
+                gpuDataM[gpuDataP] = gdata;
+                if (gpuDataC>128)
+                {
+                    if ((gpuDataC == 254 && gpuDataP >= 3) ||
+                    (gpuDataC == 255 && gpuDataP >= 4 && !(gpuDataP & 1)))
+                    {
+                        if ((gpuDataM[gpuDataP] & 0xF000F000) == 0x50005000)
+                            gpuDataP = gpuDataC - 1;
+                    }
+                }
+                gpuDataP++;
+            }
 
-    if (gpuDataP == gpuDataC)
-    {
-    gpuDataC = gpuDataP = 0;
-    primFunc[gpuCommand]((unsigned char *)gpuDataM);
+            if (gpuDataP == gpuDataC)
+            {
+                gpuDataC = gpuDataP = 0;
+                primFunc[gpuCommand]((unsigned char *)gpuDataM); */
 
-    if (dwEmuFixes & 0x0001 || dwActFixes & 0x20000)     // hack for emulating "gpu busy" in some games
-    iFakePrimBusy = 4;
-    }
-    }
+                // 'GPU busy' emulation hack
+                if (g_pConfig->misc_emuFixBits & 0x0001 || g_pConfig->getCurrentProfile()->getFix(CFG_FIX_FAKE_GPU_BUSY))
+                    PsxCoreMemory::st_fixBusyEmuSequence = 4;
+
+            /*}
+        }
     }
 
     GPUdataRet = gdata;
+    */
 
-    GPUIsReadyForCommands;
-    GPUIsIdle;*/
+    PsxCoreMemory::setStatus(GPUSTATUS_READYFORCOMMANDS); // ready
+    PsxCoreMemory::setStatus(GPUSTATUS_IDLE); // idle
 }
 
 
@@ -329,7 +324,7 @@ void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
 /// <param name="y">Vertical position</param>
 void PsxCoreMemory::cmdSetDisplayPosition(short x, short y)
 {
-    // check limits
+    // check offset limits
     if (y & 0x200)
     {
         y |= 0x0FC00;
@@ -341,11 +336,11 @@ void PsxCoreMemory::cmdSetDisplayPosition(short x, short y)
     if (x > 1000)
         x = 0;
 
-    // store display position
-    if (usFirstPos)
+    // store first time display position
+    if (dsp_firstPositionFlag)
     {
-        usFirstPos--;
-        if (usFirstPos)
+        --dsp_firstPositionFlag;
+        if (dsp_firstPositionFlag) 
         {
             dsp_displayState.previous.displayPosition.x = x;
             dsp_displayState.previous.displayPosition.y = y;
@@ -355,7 +350,7 @@ void PsxCoreMemory::cmdSetDisplayPosition(short x, short y)
     }
 
     // swap front/back detection fix
-    if (dwActFixes & 8)
+    if (g_pConfig->getCurrentProfile()->getFix(8))
     {
         if ((dsp_displayState.isInterlaced == false) &&
           dsp_displayState.previous.displayPosition.x == x && dsp_displayState.previous.displayPosition.y == y)
@@ -385,9 +380,9 @@ void PsxCoreMemory::cmdSetDisplayPosition(short x, short y)
                                              + dsp_displayState.previousHeightOffset;
 
     // update display
-    bDisplayNotSet = TRUE;
+    dsp_isDisplaySet = false;
     if (dsp_displayState.isInterlaced == false)
-        updateDisplay();
+        ;/* updateDisplay();//!*/
     else // interlaced
     {
         if (dsp_displayState.dualInterlaceCheck &&
@@ -410,7 +405,7 @@ void PsxCoreMemory::cmdSetDisplayInfo(unsigned long gdata)
         dsp_displayState.heightMultiplier = 1;
     dsp_displayState.displaySizePending.y = dsp_displayState.current.height * dsp_displayState.heightMultiplier;
 
-    /*! ChangeDispOffsetsY(); */
+    /*ChangeDispOffsetsY();//!*/
 
     // set status width bits
     unsetStatus(GPUSTATUS_WIDTHBITS);
@@ -436,7 +431,6 @@ void PsxCoreMemory::cmdSetDisplayInfo(unsigned long gdata)
         dsp_displayState.dualInterlaceCheck = 0;
         unsetStatus(GPUSTATUS_INTERLACED);
     }
-
     // game localization
     if (gdata & 0x08)
     {
@@ -448,7 +442,6 @@ void PsxCoreMemory::cmdSetDisplayInfo(unsigned long gdata)
         dsp_displayState.localize = LocalizationMode_Ntsc;
         unsetStatus(GPUSTATUS_PAL);
     }
-
     // color depth
     if (gdata & 0x10)
     {
@@ -460,7 +453,6 @@ void PsxCoreMemory::cmdSetDisplayInfo(unsigned long gdata)
         dsp_displayState.rgbModePending = false;
         unsetStatus(GPUSTATUS_RGB24);
     }
-
     // height multiplier status
     if (dsp_displayState.heightMultiplier == 2)
         setStatus(GPUSTATUS_DOUBLEHEIGHT);

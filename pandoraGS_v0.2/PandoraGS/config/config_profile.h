@@ -23,26 +23,26 @@ enum ProfilePreset
 };
 
 // custom fixes
-#define CFG_FIX_1  0x1uL
-#define CFG_FIX_2  0x2uL
-#define CFG_FIX_3  0x4uL
-#define CFG_FIX_4  0x8uL
-#define CFG_FIX_5 0x10uL
-#define CFG_FIX_6 0x20uL
-#define CFG_FIX_7 0x40uL
-#define CFG_FIX_AUTO_FPSLIMIT      0x80uL // FPS fix - use theoretical FPS limit (25 or 30, doubled if interlaced)
-#define CFG_FIX_9  0x100uL
-#define CFG_FIX_10 0x200uL
-#define CFG_FIX_11 0x400uL
-#define CFG_FIX_12 0x800uL
-#define CFG_FIX_STATUS_INTERLACE 0x1000uL // chronocross fix - switch during status read instead of update lace
-#define CFG_FIX_EXPAND_SCREEN    0x2000uL // capcom fix - fix screen width to show full area
-#define CFG_FIX_15  0x4000uL
-#define CFG_FIX_16  0x8000uL
-#define CFG_FIX_17 0x10000uL
-#define CFG_FIX_18 0x20000uL
-#define CFG_FIX_19 0x40000uL
-#define CFG_FIX_20 0x80000uL
+#define CFG_FIX_FRAMEBUFFER_FF7        0x1uL // FF7 battle cursor fix - adjusted framebuffer access
+#define CFG_FIX_FRAMEBUFFER_DIRECT     0x2uL // speed frame upload fix - direct framebuffer updates
+#define CFG_FIX_IGNORE_BLACK           0x4uL // black screens & Lunar fix - ignore black brightness
+#define CFG_FIX_SWAP_FRONTBACK         0x8uL // Speed Freaks & Killer Loop fix - swap front/back detection
+#define CFG_FIX_NO_COORD_CHECK        0x10uL // coord compatibility mode
+#define CFG_FIX_REMOVE_BLUE           0x20uL // Legacy of Dragoon fix - remove blue glitches (needs alpha multipass)
+#define CFG_FIX_REACTIVE_FPSLIMIT     0x40uL // frame displayed before frame time waiting - feels more reactive but less steady
+#define CFG_FIX_AUTO_FPSLIMIT         0x80uL // special FPS limit (theoretical values, no wait if skipped)
+#define CFG_FIX_HALF_SKIPPING        0x100uL // skip one frame out of two
+#define CFG_FIX_POLYGON_CACHE_FF9    0x200uL // FF9 battle rect fix - G4 polygon cache
+#define CFG_FIX_IGNORE_SMALL_MOVE    0x400uL //+ FF7 & 8 smooth fix - ignore small framebuffer moves
+#define CFG_FIX_LAZY_UPLOAD          0x800uL // Dynasty Warriors 7 fix - lazy upload detection
+#define CFG_FIX_STATUS_INTERLACE    0x1000uL // Chronocross fix - switch during status read instead of update lace
+#define CFG_FIX_EXPAND_SCREEN       0x2000uL // Capcom fix - fix screen width to show full area
+#define CFG_FIX_FILTERING_BLACK     0x4000uL // old filtering fix - removes black areas
+#define CFG_FIX_SPECIAL_UPLOAD      0x8000uL // splash screens fix - special upload detection
+#define CFG_FIX_FAKE_LOWCOMP_READ  0x10000uL //+ LOD & RPGmaker fix - fake low compatibility frame read
+#define CFG_FIX_FAKE_GPU_BUSY      0x20000uL // fake busy emulation hack
+#define CFG_FIX_19                 0x40000uL
+#define CFG_FIX_20                 0x80000uL
 
 
 // Driver configuration profile container

@@ -64,6 +64,7 @@ public:
     /// <param name="frameSpeed">Speed modifier (normal/slow/fast)</param>
     /// <param name="isOddFrame">Odd line (if interlaced)</param>
     static void waitFrameTime(int frameSpeed, bool isOddFrame);
+
 protected:
     /// <summary>Calculate current frames per second</summary>
     static void checkCurrentFramerate();

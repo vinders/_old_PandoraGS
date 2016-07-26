@@ -145,5 +145,6 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
     dsp_screenCurved = 0;
     //...
     misc_fixBits = 0uL;
+    setFix(CFG_FIX_REACTIVE_FPSLIMIT);
     //...
 }

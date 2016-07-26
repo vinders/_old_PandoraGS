@@ -148,7 +148,7 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
 // -- FRAMERATE MANAGEMENT -- --------------------------------------------------
 
 /// <summary>Frame rate limiter/sync + check frame skipping</summary>
-/// <param name="isSlowedDown">Slow motion mode</param>
+/// <param name="frameSpeed">Speed modifier (normal/slow/fast)</param>
 /// <param name="isOddFrame">Odd line (if interlaced)</param>
 void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
 {
@@ -336,26 +336,41 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
         #endif
         s_lateTicks = 0;
 
-        if (lateFramesNumber > 0.85f)
+        // standard skipping mode
+        if (g_pConfig->getCurrentProfile()->getNotFix(CFG_FIX_HALF_SKIPPING))
+        {
+            if (lateFramesNumber > 0.85f)
+            {
+                if (s_isInterlaced) // interlacing
+                {
+                    if (isOddFrame == false) // always skip 'even' frame first
+                    {
+                        s_framesToSkip = (int)lateFramesNumber;
+                        if (s_framesToSkip > MAX_SUCCESSIVE_SKIPPING) // display at least 2 frames out of 6
+                            s_framesToSkip = MAX_SUCCESSIVE_SKIPPING;
+                        else if (s_framesToSkip % 2 != 0) // skip by groups of 2 frames
+                            s_framesToSkip++;
+                    }
+                }
+                else // not interlaced
+                {
+                    lateFramesNumber += 0.15f;
+                    s_framesToSkip = (int)lateFramesNumber;
+                    if (s_framesToSkip >= MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
+                        s_framesToSkip = MAX_SUCCESSIVE_SKIPPING - 1;
+                }
+            }
+        }
+        // special skipping mode - one frame out of two
+        else
         {
             if (s_isInterlaced) // interlacing
             {
-                if (isOddFrame == false) // always skip 'even' frame first
-                {
-                    s_framesToSkip = (int)lateFramesNumber;
-                    if (s_framesToSkip > MAX_SUCCESSIVE_SKIPPING) // display at least 2 frames out of 6
-                        s_framesToSkip = MAX_SUCCESSIVE_SKIPPING;
-                    else if (s_framesToSkip%2 != 0) // skip by groups of 2 frames
-                        s_framesToSkip++;
-                }
+                if (lateFramesNumber > 0.10f && isOddFrame == false)
+                    s_framesToSkip = 2; // display 2, skip 2
             }
-            else // not interlaced
-            {
-                lateFramesNumber += 0.15f;
-                s_framesToSkip = (int)lateFramesNumber;
-                if (s_framesToSkip >= MAX_SUCCESSIVE_SKIPPING) // display at least 1 frame out of 4
-                    s_framesToSkip = MAX_SUCCESSIVE_SKIPPING - 1;
-            }
+            else if (lateFramesNumber > 0.05f)
+                s_framesToSkip = 1; // display 1, skip 1
         }
     }
 }

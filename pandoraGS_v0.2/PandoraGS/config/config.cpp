@@ -21,6 +21,7 @@ Config::Config()
     m_currentProfile = 0uL; // default
     m_pProfiles = NULL; // no profile yet
     m_profilesArrayLength = 0uL;
+    misc_emuFixBits = 0uL;
 
     gen_gameId = "";
     gen_langCode = (unsigned int)LANG_DEFAULT;
@@ -62,6 +63,7 @@ void Config::setDefaultValues()
     sync_timeMode = TimingMode_HighResCounter;
 
     misc_isScreensaverDisabled = false;
+    misc_genFixBits = 0uL;
 
     //...
 

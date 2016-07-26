@@ -148,13 +148,14 @@ public:
     static unsigned long st_pStatusControl[STATUSCTRL_SIZE]; // GPU status control
     static unsigned long st_pGpuDrawInfo[DRAWINFO_SIZE];     // GPU draw information
     static long          st_selectedSlot;        // save-state selected slot
-    static bool          st_hasFixBusyEmu;       // 'GPU busy' emulation hack on/off
     static int           st_fixBusyEmuSequence;  // 'GPU busy' emulation hack - sequence value
 
     // display settings
+    static bool          dsp_isDisplaySet;
     static DisplayState_t dsp_displayState;      // display information
     static short         dsp_displayWidths[8];   // possible psx display widths
     static unsigned long dsp_displayFlags;       // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
+    static int           dsp_firstPositionFlag;  // indicates first position drawing after startup
 
 
 public:
