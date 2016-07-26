@@ -70,7 +70,7 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
     s_isInterlaced = false;
     if (hasFrameInfo)
     {
-        if (g_pConfig->getCurrentProfile()->sync_hasFixAutoLimit)
+        if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_AUTO_FPSLIMIT))
             s_isInterlaced = PsxCoreMemory::dsp_displayState.isInterlaced;
         else
             s_isInterlaced = PsxCoreMemory::getStatus(GPUSTATUS_INTERLACED);
@@ -86,7 +86,7 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
     else if (hasFrameInfo)
     {
         // use theoretical standard values
-        if (g_pConfig->getCurrentProfile()->sync_hasFixAutoLimit)
+        if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_AUTO_FPSLIMIT))
         {
             if (PsxCoreMemory::dsp_displayState.localize == LocalizationMode_Pal)
                 g_framerateHz = (s_isInterlaced) ? 50.0f : 25.0f;

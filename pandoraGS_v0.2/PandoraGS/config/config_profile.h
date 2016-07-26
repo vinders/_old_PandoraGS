@@ -22,6 +22,28 @@ enum ProfilePreset
     ProfilePreset_Enhanced3D = 3,
 };
 
+// custom fixes
+#define CFG_FIX_1  0x1uL
+#define CFG_FIX_2  0x2uL
+#define CFG_FIX_3  0x4uL
+#define CFG_FIX_4  0x8uL
+#define CFG_FIX_5 0x10uL
+#define CFG_FIX_6 0x20uL
+#define CFG_FIX_7 0x40uL
+#define CFG_FIX_AUTO_FPSLIMIT      0x80uL // FPS fix - use theoretical FPS limit (25 or 30, doubled if interlaced)
+#define CFG_FIX_9  0x100uL
+#define CFG_FIX_10 0x200uL
+#define CFG_FIX_11 0x400uL
+#define CFG_FIX_12 0x800uL
+#define CFG_FIX_STATUS_INTERLACE 0x1000uL // chronocross fix - switch during status read instead of update lace
+#define CFG_FIX_EXPAND_SCREEN    0x2000uL // capcom fix - fix screen width to show full area
+#define CFG_FIX_15  0x4000uL
+#define CFG_FIX_16  0x8000uL
+#define CFG_FIX_17 0x10000uL
+#define CFG_FIX_18 0x20000uL
+#define CFG_FIX_19 0x40000uL
+#define CFG_FIX_20 0x80000uL
+
 
 // Driver configuration profile container
 class ConfigProfile
@@ -68,11 +90,9 @@ public:
     //corrections -> gamma (+ presets PAL, NTSC, neutre), contraste
     //...
 
-    // custom fixes
-    bool         sync_hasFixAutoLimit;  // fix - use theoretical FPS limit (25 or 30, doubled if interlaced)
-    bool         sync_hasFixInterlace;  // chronocross fix - switch during status read instead of update lace
-    bool         dsp_hasFixExpandScreen;// capcom fix - fix screen width to show full area
-    //alpha/maskbit/...
+    // miscellaneous
+    unsigned long misc_fixBits; // custom fixes
+    //alpha/maskbit/... 
     //framebuffer/...
 
 
@@ -88,6 +108,31 @@ public:
     /// <summary>Set profile preset values</summary>
     /// <param name="preset">Default values to use</param>
     void setPresetValues(const ProfilePreset preset);
+
+    /// <summary>Enable fix bits/summary>
+    /// <param name="fixBits">Fix bits mask</param>
+    inline void setFix(unsigned long fixBits)
+    {
+        misc_fixBits |= fixBits;
+    }
+    /// <summary>Disable fix bits</summary>
+    /// <param name="fixBits">Fix bits mask</param>
+    inline void unsetFix(unsigned long fixBits)
+    {
+        misc_fixBits &= ~fixBits;
+    }
+    /// <summary>Check if fix bit is active</summary>
+    /// <param name="fixBits">Bit(s) mask (will return true if all are active)</param>
+    inline bool getFix(long fixBits)
+    {
+        return ((misc_fixBits & fixBits) == fixBits);
+    }
+    /// <summary>Check if fix bit is disabled</summary>
+    /// <param name="fixBits">Bit(s) mask (will return true if all are disabled)</param>
+    inline bool getNotFix(long fixBits)
+    {
+        return ((misc_fixBits & fixBits) == 0);
+    }
 };
 
 

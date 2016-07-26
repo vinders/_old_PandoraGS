@@ -172,7 +172,6 @@ void ConfigIO::loadConfig(Config* pConfig, bool hasProfileArray, bool hasProfile
         // framerate
         readRegBool(&(pConfig->sync_isVerticalSync), &configKey, L"Vsync", &type, &size);
         readRegBool(&(pConfig->sync_isFrameSkip), &configKey, L"FrameSkip", &type, &size);
-        readRegBool(&(pConfig->sync_isFrameSkipFixed), &configKey, L"FrameSkipFixed", &type, &size);
         readRegBool(&(pConfig->sync_isFrameLimit), &configKey, L"FrameLimit", &type, &size);
         readRegFloat(&(pConfig->sync_framerateLimit), &configKey, L"Framerate", &type, &size);
         readRegDword<TimingMode>(&(pConfig->sync_timeMode), &configKey, L"TimeMode", &type, &size);
@@ -256,8 +255,6 @@ void ConfigIO::saveConfig(Config* pConfig, bool hasProfiles)
         RegSetValueEx(configKey, L"Vsync", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pConfig->sync_isFrameSkip) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"FrameSkip", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pConfig->sync_isFrameSkipFixed) ? 1uL : 0uL;
-        RegSetValueEx(configKey, L"FrameSkipFixed", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pConfig->sync_isFrameLimit) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"FrameLimit", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         setRegFloat(pConfig->sync_framerateLimit, &configKey, L"Framerate");
@@ -354,10 +351,7 @@ ConfigProfile* ConfigIO::loadConfigProfile(unsigned int id)
         //...
 
         // custom fixes
-        readRegBool(&(pProfile->sync_hasFixAutoLimit), &profileKey, L"FixAutoLimit", &type, &size);
-        readRegBool(&(pProfile->sync_hasFixInterlace), &profileKey, L"FixInterlace", &type, &size);
-        readRegBool(&(pProfile->dsp_hasFixExpandScreen), &profileKey, L"FixExpandScn", &type, &size);
-        //...
+        readRegDword<unsigned long>(&(pProfile->misc_fixBits), &profileKey, L"FixBits", &type, &size);
 
         RegCloseKey(profileKey); // close
     }
@@ -418,13 +412,8 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         //...
 
         // custom fixes
-        val = (pProfile->sync_hasFixAutoLimit) ? 1uL : 0uL;
-        RegSetValueEx(profileKey, L"FixAutoLimit", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pProfile->sync_hasFixInterlace) ? 1uL : 0uL;
-        RegSetValueEx(profileKey, L"FixInterlace", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pProfile->dsp_hasFixExpandScreen) ? 1uL : 0uL;
-        RegSetValueEx(profileKey, L"FixExpandScn", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        //...
+        val = pProfile->misc_fixBits;
+        RegSetValueEx(profileKey, L"FixBits", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
         RegCloseKey(profileKey); // close
     }

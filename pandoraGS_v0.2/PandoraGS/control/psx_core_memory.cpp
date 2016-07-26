@@ -163,7 +163,6 @@ void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
                 if (bitLevel && PsxCoreMemory::mem_vramRead.colsRemaining <= 0) // check last column
                     break;
             }
-
             bitLevel = !bitLevel; // toggle low/high bits
         }
     }
@@ -330,73 +329,72 @@ void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
 /// <param name="y">Vertical position</param>
 void PsxCoreMemory::cmdSetDisplayPosition(short x, short y)
 {
-    /*if (sy & 0x200)
+    // check limits
+    if (y & 0x200)
     {
-    sy |= 0xfc00;
-    PreviousPSXDisplay.DisplayModeNew.y = sy / PSXDisplay.Double;
-    sy = 0;
+        y |= 0x0FC00;
+        dsp_displayState.previousHeightOffset = y / dsp_displayState.heightMultiplier;
+        y = 0;
     }
-    else PreviousPSXDisplay.DisplayModeNew.y = 0;
+    else
+        dsp_displayState.previousHeightOffset = 0;
+    if (x > 1000)
+        x = 0;
 
-    if (sx>1000) sx = 0;
-
+    // store display position
     if (usFirstPos)
     {
-    usFirstPos--;
-    if (usFirstPos)
-    {
-    PreviousPSXDisplay.DisplayPosition.x = sx;
-    PreviousPSXDisplay.DisplayPosition.y = sy;
-    PSXDisplay.DisplayPosition.x = sx;
-    PSXDisplay.DisplayPosition.y = sy;
-    }
+        usFirstPos--;
+        if (usFirstPos)
+        {
+            dsp_displayState.previous.displayPosition.x = x;
+            dsp_displayState.previous.displayPosition.y = y;
+            dsp_displayState.current.displayPosition.x = x;
+            dsp_displayState.current.displayPosition.y = y;
+        }
     }
 
+    // swap front/back detection fix
     if (dwActFixes & 8)
     {
-    if ((!PSXDisplay.Interlaced) &&
-    PreviousPSXDisplay.DisplayPosition.x == sx  &&
-    PreviousPSXDisplay.DisplayPosition.y == sy)
-    return;
-
-    PSXDisplay.DisplayPosition.x = PreviousPSXDisplay.DisplayPosition.x;
-    PSXDisplay.DisplayPosition.y = PreviousPSXDisplay.DisplayPosition.y;
-    PreviousPSXDisplay.DisplayPosition.x = sx;
-    PreviousPSXDisplay.DisplayPosition.y = sy;
+        if ((dsp_displayState.isInterlaced == false) &&
+          dsp_displayState.previous.displayPosition.x == x && dsp_displayState.previous.displayPosition.y == y)
+            return;
+        dsp_displayState.current.displayPosition.x = dsp_displayState.previous.displayPosition.x;
+        dsp_displayState.current.displayPosition.y = dsp_displayState.previous.displayPosition.y;
+        dsp_displayState.previous.displayPosition.x = x;
+        dsp_displayState.previous.displayPosition.y = y;
     }
     else
     {
-    if ((!PSXDisplay.Interlaced) &&
-    PSXDisplay.DisplayPosition.x == sx  &&
-    PSXDisplay.DisplayPosition.y == sy)
-    return;
-    PreviousPSXDisplay.DisplayPosition.x = PSXDisplay.DisplayPosition.x;
-    PreviousPSXDisplay.DisplayPosition.y = PSXDisplay.DisplayPosition.y;
-    PSXDisplay.DisplayPosition.x = sx;
-    PSXDisplay.DisplayPosition.y = sy;
+        if ((dsp_displayState.isInterlaced == false) &&
+          dsp_displayState.current.displayPosition.x == x  && dsp_displayState.current.displayPosition.y == y)
+            return;
+        dsp_displayState.previous.displayPosition.x = dsp_displayState.current.displayPosition.x;
+        dsp_displayState.previous.displayPosition.y = dsp_displayState.current.displayPosition.y;
+        dsp_displayState.current.displayPosition.x = x;
+        dsp_displayState.current.displayPosition.y = y;
     }
 
-    PSXDisplay.DisplayEnd.x =
-    PSXDisplay.DisplayPosition.x + PSXDisplay.DisplayMode.x;
-    PSXDisplay.DisplayEnd.y =
-    PSXDisplay.DisplayPosition.y + PSXDisplay.DisplayMode.y + PreviousPSXDisplay.DisplayModeNew.y;
+    // adjust display end positions
+    dsp_displayState.current.displayEnd.x = dsp_displayState.current.displayPosition.x + dsp_displayState.displaySize.x;
+    dsp_displayState.current.displayEnd.y = dsp_displayState.current.displayPosition.y + dsp_displayState.displaySize.y 
+                                            + dsp_displayState.previousHeightOffset;
+    dsp_displayState.previous.displayEnd.x = dsp_displayState.previous.displayPosition.x + dsp_displayState.displaySize.x;
+    dsp_displayState.previous.displayEnd.y = dsp_displayState.previous.displayPosition.y + dsp_displayState.displaySize.y
+                                             + dsp_displayState.previousHeightOffset;
 
-    PreviousPSXDisplay.DisplayEnd.x =
-    PreviousPSXDisplay.DisplayPosition.x + PSXDisplay.DisplayMode.x;
-    PreviousPSXDisplay.DisplayEnd.y =
-    PreviousPSXDisplay.DisplayPosition.y + PSXDisplay.DisplayMode.y + PreviousPSXDisplay.DisplayModeNew.y;
-
+    // update display
     bDisplayNotSet = TRUE;
-
-    if (!(PSXDisplay.Interlaced))
+    if (dsp_displayState.isInterlaced == false)
+        updateDisplay();
+    else // interlaced
     {
-    updateDisplay();
+        if (dsp_displayState.dualInterlaceCheck &&
+         ((dsp_displayState.previous.displayPosition.x != dsp_displayState.current.displayPosition.x) ||
+          (dsp_displayState.previous.displayPosition.y != dsp_displayState.current.displayPosition.y)))
+            dsp_displayState.dualInterlaceCheck--;
     }
-    else
-    if (PSXDisplay.InterlacedTest &&
-    ((PreviousPSXDisplay.DisplayPosition.x != PSXDisplay.DisplayPosition.x) ||
-    (PreviousPSXDisplay.DisplayPosition.y != PSXDisplay.DisplayPosition.y)))
-    PSXDisplay.InterlacedTest--;*/
 }
 
 /// <summary>Set display informations</summary>

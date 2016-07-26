@@ -18,6 +18,7 @@ ConfigProfile::ConfigProfile(unsigned int id, std::string name)
 {
     gen_profileId = id;
     gen_profileName = name;
+    misc_fixBits = 0uL;
 }
 
 /// <summary>Copy profile container</summary>
@@ -46,10 +47,7 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     dsp_screenCurved = copy.dsp_screenCurved;
     //...
 
-    sync_hasFixAutoLimit = copy.sync_hasFixAutoLimit;
-    sync_hasFixInterlace = copy.sync_hasFixInterlace;
-    dsp_hasFixExpandScreen = copy.dsp_hasFixExpandScreen;
-    //...
+    misc_fixBits = copy.misc_fixBits;
 }
 
 
@@ -146,8 +144,6 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
     dsp_borderSize = 0;
     dsp_screenCurved = 0;
     //...
-    sync_hasFixAutoLimit = false;
-    sync_hasFixInterlace = false;
-    dsp_hasFixExpandScreen = false;
+    misc_fixBits = 0uL;
     //...
 }

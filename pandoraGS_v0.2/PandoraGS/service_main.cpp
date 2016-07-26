@@ -97,7 +97,10 @@ long CALLBACK GPUopen_PARAM_
         ConfigIO::loadFrameLimitConfig(g_pConfig);
         // load associated profile (if not already loaded)
         g_pConfig->useProfile(ConfigIO::getGameAssociation(g_pConfig->gen_gameId));
-        PsxCoreMemory::dsp_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
+        if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_EXPAND_SCREEN))
+            PsxCoreMemory::dsp_displayWidths[4] = 384;
+        else
+            PsxCoreMemory::dsp_displayWidths[4] = 368;
 
         #ifdef _WINDOWS
         // create rendering window
@@ -150,13 +153,12 @@ long CALLBACK GPUclose()
 void CALLBACK GPUupdateLace()
 {
     // interlacing (if CC game fix, done in GPUreadStatus)
-    if (g_pConfig->getCurrentProfile()->sync_hasFixInterlace == false)
+    if (g_pConfig->getCurrentProfile()->getNotFix(CFG_FIX_STATUS_INTERLACE))
         PsxCoreMemory::mem_vramImage.oddFrame ^= 1;
 
     // change window or stretching mode
     if (InputManager::m_isWindowModeChangePending)
     {
-        InputManager::m_isWindowModeChangePending = false;
         InputManager::stopListener();
         if (InputManager::m_isStretchingChangePending == false) // toggle window mode
         {
@@ -165,10 +167,11 @@ void CALLBACK GPUupdateLace()
         }
         else // toggle stretching mode
         {
-            InputManager::m_isStretchingChangePending = false;
             g_pRender->setDrawingSize(InputManager::m_isSizeChangePending);
+            InputManager::m_isStretchingChangePending = false;
             InputManager::m_isSizeChangePending = false;
         }
+        InputManager::m_isWindowModeChangePending = false;
         FramerateManager::resetFrameTime();
         InputManager::initListener();
         return;
@@ -180,7 +183,10 @@ void CALLBACK GPUupdateLace()
         try
         {
             g_pConfig->useProfile(InputManager::m_menuIndex); // set profile
-            PsxCoreMemory::dsp_displayWidths[4] = (g_pConfig->getCurrentProfile()->dsp_hasFixExpandScreen) ? 384 : 368;
+            if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_EXPAND_SCREEN))
+                PsxCoreMemory::dsp_displayWidths[4] = 384;
+            else
+                PsxCoreMemory::dsp_displayWidths[4] = 368;
             InputManager::m_isProfileChangePending = false;
 
             g_pRender->reloadApi(); // rebuild rendering pipeline
@@ -372,7 +378,7 @@ void CALLBACK GPUsetfix(unsigned long fixBits)
 unsigned long CALLBACK GPUreadStatus()
 { 
     // interlacing CC game fix
-    if (g_pConfig->isProfileSet() && g_pConfig->getCurrentProfile()->sync_hasFixInterlace)
+    if (g_pConfig->isProfileSet() && g_pConfig->getCurrentProfile()->getFix(CFG_FIX_STATUS_INTERLACE))
     {
         static int readCount = 0;
         if (++readCount >= 2) // interlace bit toggle - every second read
