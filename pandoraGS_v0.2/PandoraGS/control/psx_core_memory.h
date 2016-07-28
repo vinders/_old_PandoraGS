@@ -142,6 +142,7 @@ public:
     static int           mem_vramWriteMode;      // write transfer mode
     static long          mem_gpuDataTransaction; // GPU data read/written by emulator
     static unsigned long mem_gpuDmaAddresses[3]; // DMA address check
+    static bool          mem_isWriteUploadPending; // image needs to be uploaded to VRAM
 
     // gpu data memory
     static unsigned char gpu_command;
@@ -283,15 +284,15 @@ public:
         else
             unsetStatus(GPUSTATUS_DISPLAYDISABLED);
 
-        /*if (iOffscreenDrawing == 4 && dsp_displayState.previous.isDisabled && dsp_displayState.current.isDisabled == false)
+        if (iOffscreenDrawing == 4 && dsp_displayState.previous.isDisabled && dsp_displayState.current.isDisabled == false) //!
         {
             if (dsp_displayState.current.rgbMode == RgbMode_15)
             {
-                PrepareFullScreenUpload(TRUE);
-                UploadScreen(TRUE);
-                updateDisplay();
+                PrepareFullScreenUpload(TRUE); //!
+                UploadScreen(TRUE); //!
+                updateDisplay(); //!
             }
-        }*/
+        }
     }
 
     /// <summary>Set display informations</summary>
@@ -310,7 +311,7 @@ public:
         dsp_displayState.current.range.x0 = x0;
         dsp_displayState.current.range.x1 = x1;
         dsp_displayState.current.range.x1 -= dsp_displayState.current.range.x0;
-        //ChangeDispOffsetsX();
+        ChangeDispOffsetsX(); //!
     }
     /// <summary>Set display height</summary>
     /// <param name="y0">Y start range</param>
@@ -327,8 +328,8 @@ public:
         if (dsp_displayState.previous.height != dsp_displayState.current.height)
         {
             dsp_displayState.displaySizePending.y = dsp_displayState.current.height * dsp_displayState.heightMultiplier;
-            //ChangeDispOffsetsY();
-            //updateDisplayIfChanged();
+            ChangeDispOffsetsY(); //!
+            updateDisplayIfChanged(); //!
         }
     }
 };
