@@ -11,7 +11,6 @@ Description : API rendering pipeline - abstract factory
 using namespace std;
 #include "psx_core_memory.h"
 #include "render.h"
-#include "render_software.h"
 #include "render_opengl.h"
 #include "render_directx.h"
 
@@ -31,19 +30,14 @@ Render* Render::createInstance(Config* pConfig)
     Render* renderer = NULL;
     switch (pConfig->rnd_renderApiCode)
     {
-        case (unsigned int)RenderApi_OpenGL: 
-            renderer = new RenderOpenGL(pConfig);
-            break;
-
         #ifdef _WINDOWS
         case (unsigned int)RenderApi_DirectX: 
             renderer = new RenderDirectX(pConfig);
             break;
-
-        default: // RenderApi_SoftwareWarp
-            renderer = new RenderSoftware(pConfig); 
-            break;
         #endif
+        default: // RenderApi_OpenGL
+            renderer = new RenderOpenGL(pConfig);
+            break;
     }
 
     if (renderer == NULL)
@@ -66,19 +60,17 @@ void Render::setWindow(bool isOpened)
         // set new window style
         if (m_pConfig->dsp_isFullscreen) // fullscreen mode
         {
-            if (m_pConfig->rnd_renderApiCode != RenderApi_SoftwareWarp)
+            //if (m_pConfig->rnd_renderApiCode != RenderApi_SoftwareWarp)
                 dwStyle = CS_OWNDC;
-            else
-                dwStyle &= ~(WS_THICKFRAME | WS_BORDER | WS_CAPTION);
+            //else dwStyle &= ~(WS_THICKFRAME | WS_BORDER | WS_CAPTION);
         }
         else // window mode
         {
             if (m_pConfig->dsp_isWindowResizable == false)
                 dwStyle &= ~WS_THICKFRAME;
-            if (m_pConfig->rnd_renderApiCode != RenderApi_SoftwareWarp)
+            //if (m_pConfig->rnd_renderApiCode != RenderApi_SoftwareWarp)
                 dwStyle |= (WS_BORDER | WS_CAPTION | CS_OWNDC);
-            else
-                dwStyle |= (WS_BORDER | WS_CAPTION);
+            //else dwStyle |= (WS_BORDER | WS_CAPTION);
         }
         SetWindowLong(PsxCoreMemory::gen_hWindow, GWL_STYLE, dwStyle);
 

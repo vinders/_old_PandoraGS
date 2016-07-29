@@ -114,9 +114,6 @@
     <ClCompile Include="display\render\render_opengl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="display\render\render_software.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="control\display_state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -222,9 +219,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="display\render\render_opengl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="display\render\render_software.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="control\display_state.h">

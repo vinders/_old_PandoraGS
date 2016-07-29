@@ -41,8 +41,8 @@ enum ProfilePreset
 #define CFG_FIX_SPECIAL_UPLOAD      0x8000uL // splash screens fix - special upload detection
 #define CFG_FIX_FAKE_LOWCOMP_READ  0x10000uL //+ LOD & RPGmaker fix - fake low compatibility frame read
 #define CFG_FIX_FAKE_GPU_BUSY      0x20000uL // fake busy emulation hack
-#define CFG_FIX_19                 0x40000uL
-#define CFG_FIX_20                 0x80000uL
+//#define CFG_FIX_19                 0x40000uL
+//#define CFG_FIX_20                 0x80000uL
 
 
 // Driver configuration profile container

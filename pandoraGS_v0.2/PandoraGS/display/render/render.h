@@ -16,7 +16,6 @@ Description : API rendering pipeline - abstract factory
 // graphic API identifiers
 enum RenderApi
 {
-    RenderApi_SoftwareWarp = 0,
     RenderApi_OpenGL = 1,
     RenderApi_DirectX = 2
 };
