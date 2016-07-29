@@ -19,7 +19,7 @@ Description : global constants and definitions + PSEmu Pro specification
 #define PLUGIN_AUTHOR      "Romain Vinders"
 #define PLUGIN_DATE        "2016"
 #define PLUGIN_ABOUT_TITLE "About PandoraGS GPU renderer"
-#define PLUGIN_GL_APIS     "Software (warp), OpenGL 4.1, DirectX 11.0"
+#define PLUGIN_GL_APIS     "OpenGL 4.1, DirectX 11.0"
 
 // compilation settings
 #define DIALOGAPI_WIN32    1
