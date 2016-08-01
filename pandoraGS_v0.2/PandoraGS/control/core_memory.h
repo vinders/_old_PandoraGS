@@ -4,8 +4,8 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-File name :   psx_core_memory.h
-Description : playstation virtual video memory unit
+File name :   core_memory.h
+Description : virtual video memory/registers unit
 *******************************************************************************/
 #ifndef _PSX_CORE_MEMORY_H
 #define _PSX_CORE_MEMORY_H
