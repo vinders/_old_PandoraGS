@@ -124,7 +124,7 @@ void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size);
 void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size);
 
 // Playstation virtual video memory unit
-class PsxCoreMemory
+class CoreMemory
 {
 public:
     #ifdef _WINDOWS

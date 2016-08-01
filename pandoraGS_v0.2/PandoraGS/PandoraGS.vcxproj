@@ -116,7 +116,7 @@
     <ClCompile Include="config\views\config_pprofile_winview.cpp" />
     <ClCompile Include="control\display_state.cpp" />
     <ClCompile Include="control\framerate_manager.cpp" />
-    <ClCompile Include="control\psx_core_memory.cpp" />
+    <ClCompile Include="control\core_memory.cpp" />
     <ClCompile Include="control\input_manager.cpp" />
     <ClCompile Include="display\render\render_directx.cpp" />
     <ClCompile Include="display\render\render_opengl.cpp" />
@@ -152,7 +152,7 @@
     <ClInclude Include="config\views\config_pprofile_winview.h" />
     <ClInclude Include="control\display_state.h" />
     <ClInclude Include="control\framerate_manager.h" />
-    <ClInclude Include="control\psx_core_memory.h" />
+    <ClInclude Include="control\core_memory.h" />
     <ClInclude Include="control\input_manager.h" />
     <ClInclude Include="display\render\render_directx.h" />
     <ClInclude Include="display\render\render_opengl.h" />

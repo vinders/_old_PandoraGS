@@ -9,7 +9,7 @@ Description : framerate and sync management toolbox
 *******************************************************************************/
 using namespace std;
 #include "framerate_manager.h"
-#include "psx_core_memory.h"
+#include "core_memory.h"
 #include "input_manager.h"
 
 #define MAX_LACE_NUMBER 16
@@ -71,9 +71,9 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
     if (hasFrameInfo)
     {
         if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_AUTO_FPSLIMIT))
-            s_isInterlaced = PsxCoreMemory::dsp_displayState.isInterlaced;
+            s_isInterlaced = CoreMemory::dsp_displayState.isInterlaced;
         else
-            s_isInterlaced = PsxCoreMemory::getStatus(GPUSTATUS_INTERLACED);
+            s_isInterlaced = CoreMemory::getStatus(GPUSTATUS_INTERLACED);
     }
     
     // set fixed framerate limit
@@ -88,14 +88,14 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
         // use theoretical standard values
         if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_AUTO_FPSLIMIT))
         {
-            if (PsxCoreMemory::dsp_displayState.localize == LocalizationMode_Pal)
+            if (CoreMemory::dsp_displayState.localize == LocalizationMode_Pal)
                 g_framerateHz = (s_isInterlaced) ? 50.0f : 25.0f;
             else 
                 g_framerateHz = (s_isInterlaced) ? 60.0f : 30.0f;
         }
         else // emulation values
         {
-            if (PsxCoreMemory::dsp_displayState.localize == LocalizationMode_Pal)
+            if (CoreMemory::dsp_displayState.localize == LocalizationMode_Pal)
             {
                 if (s_isInterlaced)
                     g_framerateHz = 33868800.0f / 677343.75f; // 50.00238

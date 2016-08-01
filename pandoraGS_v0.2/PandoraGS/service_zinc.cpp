@@ -11,7 +11,6 @@ Description : zinc specification interface
 using namespace std;
 #include "config.h"
 #include "input_manager.h"
-#include "psx_core_memory.h"
 #include "service_main.h"
 
 // zinc configuration structure

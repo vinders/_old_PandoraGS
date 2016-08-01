@@ -14,7 +14,7 @@ using namespace std;
 #include "config.h"
 #include "config_io.h"
 #include "lang.h"
-#include "psx_core_memory.h"
+#include "core_memory.h"
 #include "framerate_manager.h"
 #include "input_manager.h"
 #include "render.h"
@@ -50,7 +50,7 @@ long CALLBACK GPUinit()
         ConfigIO::loadConfig(g_pConfig, true, false); // user config
 
         // initialize memory container
-        PsxCoreMemory::initMemory();
+        CoreMemory::initMemory();
         LanguageGameMenuResource::setLanguage((LangCode)g_pConfig->gen_langCode);
 
         // create render object
@@ -77,7 +77,7 @@ long CALLBACK GPUshutdown()
     LogUtility::closeInstance();
 
     // close memory container
-    PsxCoreMemory::closeMemory();
+    CoreMemory::closeMemory();
     // release config container
     if (g_pConfig != NULL)
         delete g_pConfig;
@@ -98,16 +98,16 @@ long CALLBACK GPUopen_PARAM_
         // load associated profile (if not already loaded)
         g_pConfig->useProfile(ConfigIO::getGameAssociation(g_pConfig->gen_gameId));
         if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_EXPAND_SCREEN))
-            PsxCoreMemory::dsp_displayWidths[4] = 384;
+            CoreMemory::dsp_displayWidths[4] = 384;
         else
-            PsxCoreMemory::dsp_displayWidths[4] = 368;
+            CoreMemory::dsp_displayWidths[4] = 368;
 
         #ifdef _WINDOWS
         // create rendering window
-        PsxCoreMemory::gen_hWindow = hWindow;
+        CoreMemory::gen_hWindow = hWindow;
         #endif
         g_pRender->setWindow(true);
-        PsxCoreMemory::dsp_isDisplaySet = false;
+        CoreMemory::dsp_isDisplaySet = false;
 
         // disable screensaver (if possible)
         if (g_pConfig->misc_isScreensaverDisabled)
@@ -156,13 +156,13 @@ void CALLBACK GPUupdateLace()
 {
     // interlacing (if CC game fix, done in GPUreadStatus)
     if (g_pConfig->getCurrentProfile()->getNotFix(CFG_FIX_STATUS_INTERLACE))
-        PsxCoreMemory::mem_vramImage.oddFrame ^= 1;
+        CoreMemory::mem_vramImage.oddFrame ^= 1;
 
     // change window or stretching mode
     if (InputManager::m_isWindowModeChangePending)
     {
         InputManager::stopListener();
-        PsxCoreMemory::dsp_isDisplaySet = false;
+        CoreMemory::dsp_isDisplaySet = false;
         if (InputManager::m_isStretchingChangePending == false) // toggle window mode
         {
             g_pConfig->dsp_isFullscreen = !(g_pConfig->dsp_isFullscreen);
@@ -183,14 +183,14 @@ void CALLBACK GPUupdateLace()
     if (InputManager::m_isProfileChangePending)
     {
         InputManager::m_isProfileChangePending = false;
-        PsxCoreMemory::dsp_isDisplaySet = false;
+        CoreMemory::dsp_isDisplaySet = false;
         try
         {
             g_pConfig->useProfile(InputManager::m_menuIndex); // set profile
             if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_EXPAND_SCREEN))
-                PsxCoreMemory::dsp_displayWidths[4] = 384;
+                CoreMemory::dsp_displayWidths[4] = 384;
             else
-                PsxCoreMemory::dsp_displayWidths[4] = 368;
+                CoreMemory::dsp_displayWidths[4] = 368;
             InputManager::m_isProfileChangePending = false;
 
             g_pRender->reloadApi(); // rebuild rendering pipeline
@@ -210,11 +210,11 @@ void CALLBACK GPUupdateLace()
     {
         if (FramerateManager::isFrameSkipped() == false) // drawing starts earlier + skipping is more effective
             g_pRender->drawFrame();
-        FramerateManager::waitFrameTime(InputManager::m_frameSpeed, PsxCoreMemory::mem_vramImage.oddFrame != 0);
+        FramerateManager::waitFrameTime(InputManager::m_frameSpeed, CoreMemory::mem_vramImage.oddFrame != 0);
     }
     else // steady display mode -> wait then draw
     {
-        FramerateManager::waitFrameTime(InputManager::m_frameSpeed, PsxCoreMemory::mem_vramImage.oddFrame != 0);
+        FramerateManager::waitFrameTime(InputManager::m_frameSpeed, CoreMemory::mem_vramImage.oddFrame != 0);
         if (FramerateManager::isFrameSkipped() == false) // drawing starts at regular intervals
             g_pRender->drawFrame();
     }
@@ -348,9 +348,9 @@ void CALLBACK GPUsetframelimit(unsigned long option)
 long CALLBACK GPUgetMode()
 { 
     long imageTransfer = 0;
-    if (PsxCoreMemory::mem_vramWriteMode == DR_VRAMTRANSFER)
+    if (CoreMemory::mem_vramWriteMode == DR_VRAMTRANSFER)
         imageTransfer |= 0x1;
-    if (PsxCoreMemory::mem_vramReadMode == DR_VRAMTRANSFER)
+    if (CoreMemory::mem_vramReadMode == DR_VRAMTRANSFER)
         imageTransfer |= 0x2;
     return imageTransfer;
 }
@@ -368,7 +368,7 @@ void CALLBACK GPUsetMode(unsigned long gdataMode)
 void CALLBACK GPUdisplayFlags(unsigned long dwFlags)
 {
     // display flags for GPU menu
-    PsxCoreMemory::dsp_displayFlags = dwFlags; // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
+    CoreMemory::dsp_displayFlags = dwFlags; // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
 }
 
 /// <summary>Set custom fixes from emulator</summary>
@@ -395,26 +395,26 @@ unsigned long CALLBACK GPUreadStatus()
         if (++readCount >= 2) // interlace bit toggle - every second read
         {
             readCount = 0;
-            PsxCoreMemory::mem_vramImage.oddFrame ^= 1;
+            CoreMemory::mem_vramImage.oddFrame ^= 1;
         }
     }
 
     // fake busy status fix -> busy/idle sequence (while drawing)
-    if (PsxCoreMemory::st_fixBusyEmuSequence)
+    if (CoreMemory::st_fixBusyEmuSequence)
     {
-        PsxCoreMemory::st_fixBusyEmuSequence--;
-        if (PsxCoreMemory::st_fixBusyEmuSequence & 1) // busy
+        CoreMemory::st_fixBusyEmuSequence--;
+        if (CoreMemory::st_fixBusyEmuSequence & 1) // busy
         {
-            PsxCoreMemory::unsetStatus(GPUSTATUS_IDLE);
-            PsxCoreMemory::unsetStatus(GPUSTATUS_READYFORCOMMANDS);
+            CoreMemory::unsetStatus(GPUSTATUS_IDLE);
+            CoreMemory::unsetStatus(GPUSTATUS_READYFORCOMMANDS);
         }
         else // idle
         {
-            PsxCoreMemory::setStatus(GPUSTATUS_IDLE);
-            PsxCoreMemory::setStatus(GPUSTATUS_READYFORCOMMANDS);
+            CoreMemory::setStatus(GPUSTATUS_IDLE);
+            CoreMemory::setStatus(GPUSTATUS_READYFORCOMMANDS);
         }
     }
-    return PsxCoreMemory::st_statusReg;
+    return CoreMemory::st_statusReg;
 }
 
 
@@ -424,7 +424,7 @@ void CALLBACK GPUwriteStatus(unsigned long gdata)
 {
     // get command indicator
     unsigned long command = getGpuCommand(gdata);
-    PsxCoreMemory::st_pStatusControl[command] = gdata; // store command (for save-states)
+    CoreMemory::st_pStatusControl[command] = gdata; // store command (for save-states)
 
     switch (command)
     {
@@ -432,37 +432,37 @@ void CALLBACK GPUwriteStatus(unsigned long gdata)
         case CMD_SETTRANSFERMODE: 
         {
             gdata &= 0x3; // extract last 2 bits (LSB+1, LSB)
-            PsxCoreMemory::mem_vramWriteMode = (gdata == 0x2) ? DR_VRAMTRANSFER : DR_NORMAL;
-            PsxCoreMemory::mem_vramReadMode = (gdata == 0x3) ? DR_VRAMTRANSFER : DR_NORMAL;
+            CoreMemory::mem_vramWriteMode = (gdata == 0x2) ? DR_VRAMTRANSFER : DR_NORMAL;
+            CoreMemory::mem_vramReadMode = (gdata == 0x3) ? DR_VRAMTRANSFER : DR_NORMAL;
             // set DMA bits
-            PsxCoreMemory::unsetStatus(GPUSTATUS_DMABITS); // clear current settings
-            PsxCoreMemory::setStatus(gdata << 29); // set based on received data (MSB-1, MSB-2)
+            CoreMemory::unsetStatus(GPUSTATUS_DMABITS); // clear current settings
+            CoreMemory::setStatus(gdata << 29); // set based on received data (MSB-1, MSB-2)
             return;
         }
         // check GPU information (version, draw info, ...)
         case CMD_GPUREQUESTINFO: 
         {
             gdata &= 0x0FF; // extract last 8 bits
-            PsxCoreMemory::cmdGpuQuery(gdata, (zincGPUVersion == 2)); return;
+            CoreMemory::cmdGpuQuery(gdata, (zincGPUVersion == 2)); return;
         }
         // enable/disable display
-        case CMD_TOGGLEDISPLAY: PsxCoreMemory::cmdSetDisplay((gdata & 0x1) != 0); return;
+        case CMD_TOGGLEDISPLAY: CoreMemory::cmdSetDisplay((gdata & 0x1) != 0); return;
         // reset GPU info
-        case CMD_RESETGPU:      PsxCoreMemory::cmdReset(); return;
+        case CMD_RESETGPU:      CoreMemory::cmdReset(); return;
         // set display
         case CMD_SETDISPLAYPOSITION: 
         {
             if (g_isZincEmu && zincGPUVersion == 2)
-                PsxCoreMemory::cmdSetDisplayPosition((short)(gdata & 0x3FF), (short)((gdata >> 12) & 0x3FF));
+                CoreMemory::cmdSetDisplayPosition((short)(gdata & 0x3FF), (short)((gdata >> 12) & 0x3FF));
             else
-                PsxCoreMemory::cmdSetDisplayPosition((short)(gdata & 0x3FF), (short)((gdata >> 10) & 0x3FF));
+                CoreMemory::cmdSetDisplayPosition((short)(gdata & 0x3FF), (short)((gdata >> 10) & 0x3FF));
             return;
         }
-        case CMD_SETDISPLAYWIDTH:  PsxCoreMemory::cmdSetWidth((short)(gdata & 0x7FF), (short)((gdata >> 12) & 0x0FFF)); return;
-        case CMD_SETDISPLAYHEIGHT: PsxCoreMemory::cmdSetHeight((short)(gdata & 0x3FF), (short)((gdata >> 10) & 0x3FF)); return;
+        case CMD_SETDISPLAYWIDTH:  CoreMemory::cmdSetWidth((short)(gdata & 0x7FF), (short)((gdata >> 12) & 0x0FFF)); return;
+        case CMD_SETDISPLAYHEIGHT: CoreMemory::cmdSetHeight((short)(gdata & 0x3FF), (short)((gdata >> 10) & 0x3FF)); return;
         case CMD_SETDISPLAYINFO:
         {
-            PsxCoreMemory::cmdSetDisplayInfo(gdata);
+            CoreMemory::cmdSetDisplayInfo(gdata);
             if (g_pConfig->sync_framerateLimit <= 0.05f) // == 0.0 (with float error offset) = auto-detect
                 FramerateManager::setFramerate(true);
             updateDisplayIfChanged(); //!
@@ -480,7 +480,7 @@ unsigned long CALLBACK GPUreadData()
 { 
     unsigned long gdata;
     GPUreadDataMem(&gdata, 1);
-    return PsxCoreMemory::mem_gpuDataTransaction;
+    return CoreMemory::mem_gpuDataTransaction;
 }
 
 /// <summary>Process and send data to video data register</summary>
@@ -501,16 +501,16 @@ long CALLBACK GPUdmaChain(unsigned long* pDwBaseAddress, unsigned long offset)
     unsigned long dmaOffset;
     short currentCount;
 
-    PsxCoreMemory::unsetStatus(GPUSTATUS_IDLE); // busy
+    CoreMemory::unsetStatus(GPUSTATUS_IDLE); // busy
 
     // direct memory access loop
-    PsxCoreMemory::resetDmaCheck();
+    CoreMemory::resetDmaCheck();
     do
     {
         // prevent out of range memory access
         if (g_isZincEmu == false)
             offset &= PSXVRAM_MASK;
-        if (dmaCommandCounter++ > PSXVRAM_THRESHOLD || PsxCoreMemory::checkDmaEndlessChain(offset))
+        if (dmaCommandCounter++ > PSXVRAM_THRESHOLD || CoreMemory::checkDmaEndlessChain(offset))
             break;
 
         // read and process data (if not empty)
@@ -523,7 +523,7 @@ long CALLBACK GPUdmaChain(unsigned long* pDwBaseAddress, unsigned long offset)
     } 
     while (offset != THREEBYTES_MASK);
 
-    PsxCoreMemory::setStatus(GPUSTATUS_IDLE); // idle
+    CoreMemory::setStatus(GPUSTATUS_IDLE); // idle
     return PSE_GPU_SUCCESS;
 }
 
@@ -549,7 +549,7 @@ long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem)
             if (slotNumber < 0 || slotNumber > 8)
                 return GPUFREEZE_ERR;
 
-            PsxCoreMemory::st_selectedSlot = slotNumber + 1;
+            CoreMemory::st_selectedSlot = slotNumber + 1;
             return GPUFREEZE_SUCCESS;
         }
         // save data
@@ -559,9 +559,9 @@ long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem)
                 return GPUFREEZE_ERR;
 
             // copy data into destination memory
-            pMem->status = PsxCoreMemory::st_statusReg;
-            memcpy(pMem->pControlReg, PsxCoreMemory::st_pStatusControl, STATUSCTRL_SIZE*sizeof(unsigned long));
-            memcpy(pMem->pPsxVram, PsxCoreMemory::mem_vramImage.pByte, PsxCoreMemory::mem_vramImage.bufferSize * 2);
+            pMem->status = CoreMemory::st_statusReg;
+            memcpy(pMem->pControlReg, CoreMemory::st_pStatusControl, STATUSCTRL_SIZE*sizeof(unsigned long));
+            memcpy(pMem->pPsxVram, CoreMemory::mem_vramImage.pByte, CoreMemory::mem_vramImage.bufferSize * 2);
             return GPUFREEZE_SUCCESS;
         }
         // load data
@@ -571,22 +571,22 @@ long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem)
                 return GPUFREEZE_ERR;
             
             // read data from source memory
-            PsxCoreMemory::st_statusReg = pMem->status;
-            memcpy(PsxCoreMemory::st_pStatusControl, pMem->pControlReg, STATUSCTRL_SIZE*sizeof(unsigned long));
-            memcpy(PsxCoreMemory::mem_vramImage.pByte, pMem->pPsxVram, PsxCoreMemory::mem_vramImage.bufferSize * 2);
+            CoreMemory::st_statusReg = pMem->status;
+            memcpy(CoreMemory::st_pStatusControl, pMem->pControlReg, STATUSCTRL_SIZE*sizeof(unsigned long));
+            memcpy(CoreMemory::mem_vramImage.pByte, pMem->pPsxVram, CoreMemory::mem_vramImage.bufferSize * 2);
 
             ResetTextureArea(true);//opengl //!
 
             // set status register, based on new status control
-            GPUwriteStatus(PsxCoreMemory::st_pStatusControl[0]);
-            GPUwriteStatus(PsxCoreMemory::st_pStatusControl[1]);
-            GPUwriteStatus(PsxCoreMemory::st_pStatusControl[2]);
-            GPUwriteStatus(PsxCoreMemory::st_pStatusControl[3]);
-            GPUwriteStatus(PsxCoreMemory::st_pStatusControl[8]);
-            GPUwriteStatus(PsxCoreMemory::st_pStatusControl[6]);
-            GPUwriteStatus(PsxCoreMemory::st_pStatusControl[7]);
-            GPUwriteStatus(PsxCoreMemory::st_pStatusControl[5]);
-            GPUwriteStatus(PsxCoreMemory::st_pStatusControl[4]);
+            GPUwriteStatus(CoreMemory::st_pStatusControl[0]);
+            GPUwriteStatus(CoreMemory::st_pStatusControl[1]);
+            GPUwriteStatus(CoreMemory::st_pStatusControl[2]);
+            GPUwriteStatus(CoreMemory::st_pStatusControl[3]);
+            GPUwriteStatus(CoreMemory::st_pStatusControl[8]);
+            GPUwriteStatus(CoreMemory::st_pStatusControl[6]);
+            GPUwriteStatus(CoreMemory::st_pStatusControl[7]);
+            GPUwriteStatus(CoreMemory::st_pStatusControl[5]);
+            GPUwriteStatus(CoreMemory::st_pStatusControl[4]);
             return GPUFREEZE_SUCCESS;
         }
         default: return GPUFREEZE_ERR;

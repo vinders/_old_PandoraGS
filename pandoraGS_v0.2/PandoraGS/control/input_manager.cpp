@@ -12,7 +12,7 @@ Description : user input manager
 #endif
 using namespace std;
 #include "config.h"
-#include "psx_core_memory.h"
+#include "core_memory.h"
 #include "log_utility.h"
 #include "service_main.h"
 #include "input_manager.h"
@@ -54,8 +54,8 @@ void InputManager::initListener()
     // start event listener + save original listener
     if (!pEmulatorWindowHandler)
     {
-        pEmulatorWindowHandler = (WNDPROC)GetWindowLong(PsxCoreMemory::gen_hWindow, GWL_WNDPROC);
-        SetWindowLong(PsxCoreMemory::gen_hWindow, GWL_WNDPROC, (long)keyHandler);
+        pEmulatorWindowHandler = (WNDPROC)GetWindowLong(CoreMemory::gen_hWindow, GWL_WNDPROC);
+        SetWindowLong(CoreMemory::gen_hWindow, GWL_WNDPROC, (long)keyHandler);
     }
     #endif
     m_isListening = true;
@@ -70,7 +70,7 @@ void InputManager::stopListener()
         #ifdef _WINDOWS
         // restore original event listener
         if (pEmulatorWindowHandler)
-            SetWindowLong(PsxCoreMemory::gen_hWindow, GWL_WNDPROC, (long)pEmulatorWindowHandler);
+            SetWindowLong(CoreMemory::gen_hWindow, GWL_WNDPROC, (long)pEmulatorWindowHandler);
         pEmulatorWindowHandler = 0;
         #endif
         m_isListening = false;
