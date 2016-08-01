@@ -92,13 +92,6 @@ LogUtility::~LogUtility()
 {
     if (m_isReady)
     {
-        // wait until transactions end
-        #ifdef _WINDOWS
-        WaitForSingleObject(m_hMtxInstance, 2000);
-        #else
-        pthread_mutex_lock(&m_hMtxInstance);
-        #endif
-
         // destroy mutex
         #ifdef _WINDOWS
         CloseHandle(m_hMtxInstance);

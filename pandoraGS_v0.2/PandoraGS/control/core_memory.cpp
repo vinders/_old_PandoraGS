@@ -100,6 +100,7 @@ void CoreMemory::closeMemory()
 {
     if (mem_vramImage.pData != NULL)
         free(mem_vramImage.pData);
+    mem_vramImage.pData = NULL;
 }
 
 
