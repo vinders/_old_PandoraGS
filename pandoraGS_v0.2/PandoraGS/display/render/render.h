@@ -31,41 +31,6 @@ protected:
     // initialisé à false
     // lors de demande d'affichage, si vaut false, appel vers initApi()
 
-
-    /*GLfloat         gl_z = 0.0f;
-    BOOL            bNeedInterlaceUpdate = FALSE;
-    BOOL            bNeedRGB24Update = FALSE;
-    BOOL            bChangeWinMode = FALSE;
-    #ifdef _WINDOWS
-    //extern HGLRC    GLCONTEXT;
-    #endif
-
-    long            lClearOnSwap;
-    long            lClearOnSwapColor;
-    BOOL            bSkipNextFrame = FALSE;
-    int             iColDepth;
-    BOOL            bChangeRes;
-    BOOL            bWindowMode;
-    int             iWinSize;
-
-    TWin_t          TWin;
-    short           imageX0, imageX1;
-    short           imageY0, imageY1;
-    BOOL            bDisplayNotSet = TRUE;
-    GLuint          uiScanLine = 0;
-    int             iUseScanLines = 0;
-    long            lSelectedSlot = 0;
-    unsigned char * pGfxCardScreen = 0;
-    int             iBlurBuffer = 0;
-    int             iScanBlend = 0;
-    int             iRenderFVR = 0;
-    int             iNoScreenSaver = 0;
-    unsigned long   ulGPUInfoVals[16];
-    int             iFakePrimBusy = 0;
-    int             iRumbleVal = 0;
-    int             iRumbleTime = 0; */
-
-
 protected:
     /// <summary>Common render instance construction</summary>
     /// <param name="pConfig">Configuration reference</param>

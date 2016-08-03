@@ -86,16 +86,7 @@ typedef struct DISPLAYSTATE
     bool isInterlacedPending;   // interlace mode change
     bool hasEnabledInterlacing; // interlace mode enabled during change
     long previousHeightOffset;  // previous display position Y offset
-        //= PSXDisplay.DisplayModeNew
-        //= PSXDisplay.RGB24New
-        //= PSXDisplay.InterlacedNew
-        //= PreviousPSXDisplay.InterlacedNew
-        //= PreviousPSXDisplay.DisplayModeNew.y
 
-    /*
-    Point_t  GDrawOffset; // opengl
-    Point_t  CumulOffset; // opengl
-    */
 } DisplayState_t;
 
 /// <summary>Initialize display state values</summary>
