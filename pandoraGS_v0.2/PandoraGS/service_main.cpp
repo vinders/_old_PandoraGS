@@ -214,8 +214,10 @@ void CALLBACK GPUupdateLace()
     }
     else // steady display mode -> wait then draw
     {
+        static bool isSkipped;
+        isSkipped = FramerateManager::isFrameSkipped();
         FramerateManager::waitFrameTime(InputManager::m_frameSpeed, CoreMemory::mem_vramImage.oddFrame != 0);
-        if (FramerateManager::isFrameSkipped() == false) // drawing starts at regular intervals
+        if (isSkipped == false) // drawing starts at regular intervals
             g_pRender->drawFrame();
     }
 }
