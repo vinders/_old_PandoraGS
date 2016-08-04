@@ -50,7 +50,7 @@ void LanguageGameMenuResource::setLanguage_German()
 
 }
 
-/// <summary>Read values from file (english in not found)</summary>
+/// <summary>Read values from file (english if not found)</summary>
 void LanguageGameMenuResource::setLanguageFromFile()
 {
 

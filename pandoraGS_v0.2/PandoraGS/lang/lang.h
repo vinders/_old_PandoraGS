@@ -42,7 +42,7 @@ public:
     static void setLanguage_French();
     /// <summary>Set german values</summary>
     static void setLanguage_German();
-    /// <summary>Read values from file (english in not found)</summary>
+    /// <summary>Read values from file (english if not found)</summary>
     static void setLanguageFromFile();
 };
 
