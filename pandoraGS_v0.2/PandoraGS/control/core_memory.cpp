@@ -119,17 +119,7 @@ void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
     while (CoreMemory::mem_vramRead.pVramImage < CoreMemory::mem_vramImage.pWord) // min position
         CoreMemory::mem_vramRead.pVramImage += CoreMemory::mem_vramImage.bufferSize;
 
-    //! //opengl
-    if((iFrameReadType&1 && iSize>1) &&
-        !(iDrawnSomething==2 &&
-        VRAMRead.x      == VRAMWrite.x     &&
-        VRAMRead.y      == VRAMWrite.y     &&
-        VRAMRead.Width  == VRAMWrite.Width &&
-        VRAMRead.Height == VRAMWrite.Height))
-            CheckVRamRead(VRAMRead.x,VRAMRead.y,
-                VRAMRead.x+VRAMRead.RowsRemaining,
-                VRAMRead.y+VRAMRead.ColsRemaining,
-                TRUE);//!
+    //.. vérifs API
 
     // read memory chunk of data
     int i = 0;
@@ -270,7 +260,7 @@ void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
                 if (CoreMemory::mem_isWriteUploadPending)
                 {
                     CoreMemory::mem_isWriteUploadPending = false;
-                    CheckWriteUpdate(); //opengl //!
+                    //... vérif si besoin écriture API
                 }
                 // reset transfer mode to NORMAL operations
                 CoreMemory::mem_vramWriteMode = DR_NORMAL;
@@ -304,9 +294,9 @@ bool CoreMemory::writeSimpleData(unsigned long* pDwMem, int size, unsigned long*
         // set processing type
         void(**primFunc)(unsigned char *);
         if (FramerateManager::isFrameSkipped())
-            primFunc = primTableSkip;//!
+            ;//...primFunc = table avec skip
         else
-            primFunc = primTableJ;//!
+            ;//...primFunc = table normale
 
         // process data
         while (i < size)
@@ -326,9 +316,9 @@ bool CoreMemory::writeSimpleData(unsigned long* pDwMem, int size, unsigned long*
             if (gpu_dataC == 0) // new data set
             {
                 command = (unsigned char)((gdata >> 24) & 0x0FF);
-                if (primTableCX[command])//!
+                if (0)//...table[command]
                 {
-                    gpu_dataC = primTableCX[command];//!
+                    //...gpu_dataC = table[command];
                     gpu_command = command;
                     gpu_dataM[0] = gdata;
                     gpu_dataP = 1;
@@ -352,7 +342,7 @@ bool CoreMemory::writeSimpleData(unsigned long* pDwMem, int size, unsigned long*
             if (gpu_dataP == gpu_dataC) // end of data set
             {
                 gpu_dataC = gpu_dataP = 0;
-                primFunc[gpu_command]((unsigned char *)gpu_dataM); // process data set
+                //primFunc[gpu_command]((unsigned char *)gpu_dataM); // process data set
 
                 // 'GPU busy' emulation hack
                 if (g_pConfig->misc_emuFixBits & 0x0001 || g_pConfig->getCurrentProfile()->getFix(CFG_FIX_FAKE_GPU_BUSY))
@@ -431,7 +421,7 @@ void CoreMemory::cmdSetDisplayPosition(short x, short y)
     // update display
     dsp_isDisplaySet = false;
     if (dsp_displayState.isInterlaced == false)
-        updateDisplay();//!
+        ;//...màj
     else // interlaced
     {
         if (dsp_displayState.dualInterlaceCheck &&
@@ -454,7 +444,7 @@ void CoreMemory::cmdSetDisplayInfo(unsigned long gdata)
         dsp_displayState.heightMultiplier = 1;
     dsp_displayState.displaySizePending.y = dsp_displayState.current.height * dsp_displayState.heightMultiplier;
 
-    ChangeDispOffsetsY();//!
+    //...màj offset Y d'API
 
     // set status width bits
     unsetStatus(GPUSTATUS_WIDTHBITS);
