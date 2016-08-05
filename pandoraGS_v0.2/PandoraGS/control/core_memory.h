@@ -7,8 +7,8 @@ License :     GPLv2
 File name :   core_memory.h
 Description : virtual video memory/registers unit
 *******************************************************************************/
-#ifndef _PSX_CORE_MEMORY_H
-#define _PSX_CORE_MEMORY_H
+#ifndef _CORE_MEMORY_H
+#define _CORE_MEMORY_H
 #include "globals.h"
 #include "display_state.h"
 #include "lang.h"

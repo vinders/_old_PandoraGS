@@ -102,19 +102,22 @@
     <ClCompile Include="control\framerate_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="display\render\render.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="display\render\render_directx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="display\render\render_opengl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="control\display_state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="control\core_memory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="display\render.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="display\render_directx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="display\render_opengl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="control\primitive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -209,19 +212,22 @@
     <ClInclude Include="control\framerate_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="display\render\render.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="display\render\render_directx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="display\render\render_opengl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="control\display_state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="control\core_memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="display\render.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="display\render_directx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="display\render_opengl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="control\primitive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

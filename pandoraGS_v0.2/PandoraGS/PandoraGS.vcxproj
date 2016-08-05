@@ -118,9 +118,10 @@
     <ClCompile Include="control\framerate_manager.cpp" />
     <ClCompile Include="control\core_memory.cpp" />
     <ClCompile Include="control\input_manager.cpp" />
-    <ClCompile Include="display\render\render_directx.cpp" />
-    <ClCompile Include="display\render\render_opengl.cpp" />
-    <ClCompile Include="display\render\render.cpp" />
+    <ClCompile Include="control\primitive.cpp" />
+    <ClCompile Include="display\render.cpp" />
+    <ClCompile Include="display\render_directx.cpp" />
+    <ClCompile Include="display\render_opengl.cpp" />
     <ClCompile Include="display\shader\shader.cpp" />
     <ClCompile Include="lang\lang.cpp" />
     <ClCompile Include="pandoraGS.cpp" />
@@ -154,9 +155,10 @@
     <ClInclude Include="control\framerate_manager.h" />
     <ClInclude Include="control\core_memory.h" />
     <ClInclude Include="control\input_manager.h" />
-    <ClInclude Include="display\render\render_directx.h" />
-    <ClInclude Include="display\render\render_opengl.h" />
-    <ClInclude Include="display\render\render.h" />
+    <ClInclude Include="control\primitive.h" />
+    <ClInclude Include="display\render.h" />
+    <ClInclude Include="display\render_directx.h" />
+    <ClInclude Include="display\render_opengl.h" />
     <ClInclude Include="display\shader\shader.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="lang\lang.h" />
