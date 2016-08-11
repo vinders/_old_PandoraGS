@@ -86,9 +86,6 @@ This file can be used only to develop PSEmu Plugins. Other usage is highly prohi
 // -- SYSTEM COMPATIBILITY -- --------------------------------------------------
 
 #ifdef _WINDOWS
-// Windows inclusions
-#include <Windows.h>
-#include <tchar.h>
 // manifest
 #pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 // exclusions
@@ -102,21 +99,30 @@ This file can be used only to develop PSEmu Plugins. Other usage is highly prohi
 #define _CRT_NONSTDC_NO_DEPRECATE
 #endif
 
-// Minimum required platform: earliest version of Windows with necessary features to run the app.  
-// The macros work by enabling all features available on platform versions up to the one specified.
-// Versions : Windows 7 (0x601), Vista (0x0600), XP (0x501), 98 (0x0410).
-#ifndef WINVER           // minimum required platform.
-#define WINVER 0x0600
-#endif
-#ifndef _WIN32_WINNT     // minimum required NT platform.
-#define _WIN32_WINNT 0x0600    
-#endif
-#ifndef _WIN32_WINDOWS   // minimum required DOS-based platform.
-#define _WIN32_WINDOWS 0x0600  
-#endif
-#ifndef _WIN32_IE        // minimum required IE is Internet Explorer 7.0.
-#define _WIN32_IE 0x0700 
-#endif
+// Including SDKDDKVer.h defines the highest available Windows platform.
+// If you wish to build your application for a previous Windows platform, include WinSDKVer.h and
+// set the _WIN32_WINNT macro to the platform you wish to support before including SDKDDKVer.h.
+ 
+/*// Minimum required platform: earliest version of Windows with necessary features to run the app.  
+    // The macros work by enabling all features available on platform versions up to the one specified.
+    // Versions : Windows 7 (0x601), Vista (0x0600), XP (0x501), 98 (0x0410).
+    #ifndef WINVER           // minimum required platform.
+    #define WINVER 0x0600
+    #endif
+    #ifndef _WIN32_WINNT     // minimum required NT platform.
+    #define _WIN32_WINNT 0x0600    
+    #endif
+    #ifndef _WIN32_WINDOWS   // minimum required DOS-based platform.
+    #define _WIN32_WINDOWS 0x0600  
+    #endif
+    #ifndef _WIN32_IE        // minimum required IE is Internet Explorer 7.0.
+    #define _WIN32_IE 0x0700 
+    #endif*/
+
+// Windows inclusions
+#include <SDKDDKVer.h>
+#include <Windows.h>
+#include <tchar.h>
 
 // functions / macros
 #define snprintf _snprintf
@@ -143,4 +149,11 @@ This file can be used only to develop PSEmu Plugins. Other usage is highly prohi
 #ifndef CALLBACK
 #define CALLBACK __stdcall
 #endif
+
+
+// -- COMMON INCLUSIONS -- -----------------------------------------------------
+
+#include <stdint.h>
+#include <inttypes.h>
+
 #endif
