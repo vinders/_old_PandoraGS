@@ -122,6 +122,9 @@ This file can be used only to develop PSEmu Plugins. Other usage is highly prohi
 #define snprintf _snprintf
 #define pthread_mutex_t HANDLE
 
+// win32 resources identifiers
+#include "resource.h"
+
 #else 
 // LINUX-UNIX
 // types compatibility
