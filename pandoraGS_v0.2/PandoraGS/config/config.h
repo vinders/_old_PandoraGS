@@ -50,6 +50,7 @@ enum TimingMode
 // general fixes
 #define GEN_FIX_MIXED_SOFT_FRAMEBUFFER 0x1uL // speed framebuffer access fix for ATI
 #define GEN_FIX_FAKE_SUB_BLENDING      0x2uL // for buggy drivers - fake substractive blending
+#define GEN_FIX_RELOAD_CFG_AFTER_OPEN  0x4uL // don't keep same profile after disc change
 
 
 // Driver configuration container
@@ -63,7 +64,6 @@ private:
 
 public:
     // general
-    std::string  gen_gameId;          // game executable ID
     unsigned int gen_langCode;        // language identifier
     unsigned int rnd_renderApiCode;   // graphic API identifier
     bool         rnd_isFloatAccuracy; // anti-jitter GTE accuracy

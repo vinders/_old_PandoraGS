@@ -132,6 +132,8 @@ public:
     static HMENU gen_hMenu;         // emulator menu handle
     static DWORD gen_origStyle;     // original window style
     #endif
+    static std::string  gen_gameId; // game executable ID
+    static bool gen_isFirstOpening; // first GPUopen()
 
     // psx emulated memory
     static int           mem_gpuVramSize;

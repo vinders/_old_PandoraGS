@@ -23,7 +23,6 @@ Config::Config()
     m_profilesArrayLength = 0uL;
     misc_emuFixBits = 0uL;
 
-    gen_gameId = "";
     gen_langCode = (unsigned int)LANG_DEFAULT;
     misc_gpuKeys[GPUKEYS_LENGTH - 1] = '\0';
 }

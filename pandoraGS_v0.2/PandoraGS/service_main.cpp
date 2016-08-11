@@ -56,7 +56,7 @@ long CALLBACK GPUinit()
         // create render object
         g_pRender = Render::createInstance(g_pConfig);
     }
-    catch (std::exception& exc) // init failure
+    catch (std::exception exc) // init failure
     {
         try { LogUtility::getInstance()->writeErrorEntry("GPUinit",exc.what()); } catch(...) {}
         
@@ -96,14 +96,19 @@ long CALLBACK GPUopen_PARAM_
         // reload framerate values (may have changed in previous session)
         ConfigIO::loadFrameLimitConfig(g_pConfig);
         // load associated profile (if not already loaded)
-        g_pConfig->useProfile(ConfigIO::getGameAssociation(g_pConfig->gen_gameId));
-        if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_EXPAND_SCREEN))
-            CoreMemory::dsp_displayWidths[4] = 384;
-        else
-            CoreMemory::dsp_displayWidths[4] = 368;
+        if (CoreMemory::gen_isFirstOpening || g_pConfig->getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
+        {
+            g_pConfig->useProfile(ConfigIO::getGameAssociation(CoreMemory::gen_gameId));
+            CoreMemory::gen_isFirstOpening = false;
 
-        #ifdef _WINDOWS
+            if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_EXPAND_SCREEN))
+                CoreMemory::dsp_displayWidths[4] = 384;
+            else
+                CoreMemory::dsp_displayWidths[4] = 368;
+        }
+
         // create rendering window
+        #ifdef _WINDOWS
         CoreMemory::gen_hWindow = hWindow;
         #endif
         g_pRender->setWindow(true);
@@ -119,7 +124,7 @@ long CALLBACK GPUopen_PARAM_
         // start user input tracker
         InputManager::initListener();
     }
-    catch (std::exception& exc) // allocation failure
+    catch (std::exception exc) // allocation failure
     {
         try { LogUtility::getInstance()->writeErrorEntry("GPUopen", exc.what()); } catch (...) {}
         return PSE_ERR_FATAL;
@@ -143,10 +148,11 @@ long CALLBACK GPUclose()
     #endif
 
     // save current game/profile association
-    ConfigIO::setGameAssocation(g_pConfig->getCurrentProfileId(), g_pConfig->gen_gameId);
+    ConfigIO::setGameAssocation(g_pConfig->getCurrentProfileId(), CoreMemory::gen_gameId);
     // restore default config profile for next use
-    g_pConfig->useDefaultProfile();
-    g_pConfig->gen_gameId = "";
+    if (g_pConfig->getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
+        g_pConfig->useDefaultProfile();
+    CoreMemory::gen_gameId = "";
 
     return PSE_SUCCESS;
 }
@@ -198,7 +204,7 @@ void CALLBACK GPUupdateLace()
             FramerateManager::resetFrameTime();
             return;
         }
-        catch (std::exception& exc) 
+        catch (std::exception exc) 
         {
             try { LogUtility::getInstance()->writeErrorEntry("GPUupdateLace", exc.what()); } catch (...) {}
             InputManager::m_isProfileChangePending = false;
@@ -330,10 +336,10 @@ void CALLBACK GPUsetExeName(char* pGameId)
     if (pGameId != NULL)
     {
         std::string copyStr(pGameId);
-        g_pConfig->gen_gameId = copyStr;
+        CoreMemory::gen_gameId = copyStr;
     }
     else
-        g_pConfig->gen_gameId = "";
+        CoreMemory::gen_gameId = "";
 }
 
 /// <summary>Enable/disable frame limit from emulator</summary>
