@@ -22,10 +22,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstanc
     {
         CreateBaseWindow(hInstance, hPrevInstance, lpCmdLine, nCmdShow, &hAccelTable);
     }
-    catch (...)
-    {
-        return -1;
-    }
+    catch (...) { return -1; }
 
     // main message loop
     MSG msg;
@@ -44,6 +41,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstanc
 ///<param name="hWindow">Main window handle</param>
 void ProcessTest(HWND hWindow)
 {
+    // USE BREAKPOINT HERE
+    
     // initialize plugin
     if (GPUinit())
         return;
