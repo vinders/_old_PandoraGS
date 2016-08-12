@@ -1,62 +1,45 @@
-// main.cpp : Defines the entry point for the application.
+// main.cpp : entry point and plugin test
 //
-#include<Windows.h>
-#include<tchar.h>
-#include<string>
-#include "TestFlow.h"
+#include <Windows.h>
+#include <tchar.h>
+#include <string>
+#include "windowManager.h"
 #include "main.h"
-#include "service_main.h"
 
-// Global Variables
-extern HINSTANCE hInst; // current instance
+#include "service_main.h" // plugin interface
 
 
-///<summary>Test app to check plugin execution flow (use with step by step debugging)</summary>
+///<summary>Test app to check plugin execution flow</summary>
 ///<returns>Exit code</returns>
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
                        _In_ LPTSTR    lpCmdLine, _In_ int       nCmdShow)
 {
-    // open new window
-    HACCEL hAccelTable; 
-    try
-    {
-        CreateBaseWindow(hInstance, hPrevInstance, lpCmdLine, nCmdShow, &hAccelTable);
-    }
-    catch (...) { return -1; }
-
-    // main message loop
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-    }
-    return (int)msg.wParam;
+    // open and manage new window
+    return CreateBaseWindow(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }
 
-///<summary>Plugin test function</summary>
+///<summary>Plugin test function (use with step by step debugging)</summary>
 ///<param name="hWindow">Main window handle</param>
 void ProcessTest(HWND hWindow)
 {
-    // USE BREAKPOINT HERE
-    
+    // USE BREAKPOINT HERE (for init/open)
+
     // initialize plugin
     if (GPUinit())
         return;
+
     // start renderer
-    if (GPUopen(hWindow))
+    GPUsetExeName("SCEE_TEST.001");
+    if (GPUopen(hWindow) == 0)
     {
-        GPUshutdown();
-        return;
+        // USE BREAKPOINT HERE
+        // add function(s) you need to test here
+        // ...
+
+        // close renderer
+        GPUclose();
     }
 
-    // add whatever function you need to test here
-    // ...
-
-    // close renderer and plugin
-    GPUclose();
+    // close plugin
     GPUshutdown();
 }

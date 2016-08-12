@@ -1,8 +1,8 @@
-// TestFlow.cpp : Defines the window creation.
+// TestFlow.cpp : window creation and management (generated).
 //
 
 #include<Windows.h>
-#include "TestFlow.h"
+#include "windowManager.h"
 #include <string>
 #include "main.h"
 
@@ -15,7 +15,7 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 
 //  FUNCTION: createWindow()
 //  PURPOSE: creates startup window
-void CreateBaseWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow, HACCEL* phAccel)
+int CreateBaseWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
@@ -26,9 +26,21 @@ void CreateBaseWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmd
 	MyRegisterClass(hInstance);
 
 	// Perform application initialization:
-	if (!InitInstance (hInstance, nCmdShow))
-        throw std::exception();
-    *phAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TESTFLOW));
+    if (!InitInstance(hInstance, nCmdShow))
+        return -1;
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TESTFLOW));
+
+    // Main message loop
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+    return (int)msg.wParam;
 }
 
 //

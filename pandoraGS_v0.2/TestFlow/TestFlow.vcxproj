@@ -89,11 +89,11 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TestFlow.h" />
+    <ClInclude Include="windowManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="TestFlow.cpp" />
+    <ClCompile Include="windowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TestFlow.rc" />
