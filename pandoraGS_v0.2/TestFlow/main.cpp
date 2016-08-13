@@ -1,5 +1,9 @@
-// main.cpp : entry point and plugin test
-//
+/*******************************************************************************
+PANDORAGS project - PS1 GPU driver test app
+------------------------------------------------------------------------
+File name :   main.cpp
+Description : test app - flow/unit tests -- entry point and test function
+*******************************************************************************/
 #include <Windows.h>
 #include <tchar.h>
 #include <string>
