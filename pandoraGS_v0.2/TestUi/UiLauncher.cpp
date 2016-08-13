@@ -1,15 +1,20 @@
-// UiLauncher.cpp : Defines the entry point for the console application.
-//
+/*******************************************************************************
+PANDORAGS project - PS1 GPU driver test app
+------------------------------------------------------------------------
+File name :   UiLauncher.cpp
+Description : test app - plugin dialogs/GUI
+*******************************************************************************/
+#include <Windows.h>
+#include <tchar.h>
 
-#include<Windows.h>
-#include<tchar.h>
-#include "service_main.h"
+#include "service_main.h" // plugin interface
 
-
+///<summary>Test plugin dialogs</summary>
+///<returns>Exit code</returns>
 int _tmain(int argc, _TCHAR* argv[])
 {
     GPUconfigure();
     GPUabout();
-	return 0;
+    return 0;
 }
 
