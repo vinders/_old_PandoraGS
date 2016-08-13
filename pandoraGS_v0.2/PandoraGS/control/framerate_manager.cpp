@@ -223,7 +223,8 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
     }
 
     // apply framerate limit
-    if (g_pConfig->sync_isFrameLimit)
+    if (g_pConfig->sync_isFrameLimit
+        && (s_framesToSkip == 0 || g_pConfig->getCurrentProfile()->getNotFix(CFG_FIX_AUTO_FPSLIMIT)))
     {
         #ifdef _WINDOWS
         // high resolution time sync (qpc)
@@ -317,7 +318,6 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
         }
         #endif
     }
-
 
     // frame skipping
     if (s_framesToSkip > 0) // if current was skipped, don't check time
