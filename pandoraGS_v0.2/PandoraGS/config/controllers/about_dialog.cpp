@@ -31,8 +31,8 @@ void AboutDialog::showDialog()
 {
     try
     {
-        // create "about" dialog with caption
-        m_pView = AboutDialogView::createWindow(PLUGIN_ABOUT_TITLE);
+        // create "about" dialog
+        m_pView = AboutDialogView::createWindow();
 
         // display dialog
         m_pView->setVisible(); // display + event handling loop

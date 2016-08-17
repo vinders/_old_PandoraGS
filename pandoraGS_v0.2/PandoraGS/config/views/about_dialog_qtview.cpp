@@ -24,10 +24,9 @@ AboutDialogView::~AboutDialogView()
 }
 
 /// <summary>Create new dialog</summary>
-/// <param name="caption">Window caption</param>
 /// <returns>Window created</returns>
 /// <exception cref="std::exception">Creation failure</exception>
-AboutDialogView* AboutDialogView::createWindow(std::string caption)
+AboutDialogView* AboutDialogView::createWindow()
 {
 
 }

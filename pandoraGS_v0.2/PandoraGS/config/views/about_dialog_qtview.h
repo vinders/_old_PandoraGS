@@ -23,10 +23,9 @@ public:
     ~AboutDialogView();
 
     /// <summary>Create new dialog</summary>
-    /// <param name="caption">Window caption</param>
     /// <returns>Window created</returns>
     /// <exception cref="std::exception">Creation failure</exception>
-    static AboutDialogView* createWindow(std::string caption);
+    static AboutDialogView* createWindow();
 
     /// <summary>Display window</summary>
     /// <exception cref="std::exception">No window or event exception</exception>
