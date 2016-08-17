@@ -12,23 +12,23 @@ Description : configuration dialog page - view
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_WIN32
 
-class ConfigPageVM;
-
+#ifndef _CONFIG_PAGE_H_END
+class ConfigPage;
+#endif
 
 // Configuration dialog page - view
 class ConfigPageView
 {
 protected:
-    ConfigPageVM* m_pBinding; // viewmodel data binding
+    ConfigPage* m_pBinding; // viewmodel data binding
 
 
 public:
-    ConfigPageView(ConfigPageVM* pBinding);
+    ConfigPageView(ConfigPage* pBinding);
     ~ConfigPageView();
 };
 
-
-#include "config_page_viewmodel.h"
+#include "config_page.h"
 
 #endif
 #endif

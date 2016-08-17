@@ -8,18 +8,30 @@ File name :   config_io.cpp
 Description : configuration IO toolbox (load/save)
 *******************************************************************************/
 #ifdef _WINDOWS
-#define STRING_BUFFER_LENGTH 128
-#include <Windows.h>
-#include <tchar.h>
+#include "globals.h"
 #include <string>
 #include <string.h>
+
+#if _RENDERAPI == RENDERAPI_DIRECTX
+  #define REG_KEY_PATH L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS_D3D"
+  #define REG_KEY_SUBPATH_PROFILE L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS_D3D\\profile"
+  #define REG_KEY_SUBPATH_GAMES L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS_D3D\\games"
+#else
+  #define REG_KEY_PATH L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS"
+  #define REG_KEY_SUBPATH_PROFILE L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\profile"
+  #define REG_KEY_SUBPATH_GAMES L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\games"
 #endif
+#define REG_SUBKEY_NAME_PROFILE L"profile"
+#define REG_SUBKEY_NAME_GAMES L"games"
+#endif
+
 using namespace std;
+#define STRING_BUFFER_LENGTH 128
 #include "config_io.h"
 
 
-#ifdef _WINDOWS
-// -- WINDOWS - REGISTRY -- ----------------------------------------------------
+#ifdef _WINDOWS 
+// -- REGISTRY GETTERS/SETTERS -- ----------------------------------------------
 ///Advapi32.lib
 
 /// <summary>Read DWORD registry value</summary>
@@ -35,9 +47,6 @@ template<typename T> inline void readRegDword(T* pDest,HKEY* pRegKey,LPCWSTR val
 }
 
 /// <summary>Read bool registry value</summary>
-/// <param name="pDest">Destination for read value</param>
-/// <param name="pRegKey">Registry key containing value</param>
-/// <param name="valName">Value identifier</param>
 inline void readRegBool(bool* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pType, DWORD* pSize)
 {
     DWORD val;
@@ -47,9 +56,6 @@ inline void readRegBool(bool* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pTyp
 }
 
 /// <summary>Read float registry value</summary>
-/// <param name="pDest">Destination for read value</param>
-/// <param name="pRegKey">Registry key containing value</param>
-/// <param name="valName">Value identifier</param>
 inline void readRegFloat(float* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pType, DWORD* pSize)
 {
     DWORD val;
@@ -63,11 +69,27 @@ inline void readRegFloat(float* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pT
         legacyName += valName;
         if (RegQueryValueEx(*pRegKey, legacyName.c_str(), 0, pType, (LPBYTE)&val, pSize) == ERROR_SUCCESS)
         {
-            if (val > 5uL && (int)val > 0)
+            if (val > 5uL && (long)val > 0L)
                 *pDest = (float)val / 100.0f;
         }
     }
 }
+
+/// <summary>Read string registry value</summary>
+inline void readRegString(std::string* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pType, DWORD* pSize)
+{
+    WCHAR valBuffer[STRING_BUFFER_LENGTH];
+    *pSize = sizeof(valBuffer);
+    if (RegQueryValueEx(*pRegKey, valName, 0, NULL, (LPBYTE)valBuffer, pSize) == ERROR_SUCCESS)
+    {
+        //convert from wide char to narrow char array
+        char ncharBuffer[STRING_BUFFER_LENGTH];
+        char defChar = ' ';
+        WideCharToMultiByte(CP_ACP, 0, valBuffer, -1, ncharBuffer, STRING_BUFFER_LENGTH, &defChar, NULL);
+        *pDest = ncharBuffer;
+    }
+}
+
 /// <summary>Set float registry value</summary>
 /// <param name="pDest">Source value</param>
 /// <param name="pRegKey">Registry key containing value</param>
@@ -83,24 +105,6 @@ inline void setRegFloat(float source, HKEY* pRegKey, LPCWSTR valName)
     val = (DWORD)conv;
     RegSetValueEx(*pRegKey, legacyName.c_str(), 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 }
-
-/// <summary>Read string registry value</summary>
-/// <param name="pDest">Destination for read value</param>
-/// <param name="pRegKey">Registry key containing value</param>
-/// <param name="valName">Value identifier</param>
-inline void readRegString(std::string* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pType, DWORD* pSize)
-{
-    WCHAR valBuffer[STRING_BUFFER_LENGTH];
-    *pSize = sizeof(valBuffer);
-    if (RegQueryValueEx(*pRegKey, valName, 0, NULL, (LPBYTE)valBuffer, pSize) == ERROR_SUCCESS)
-    {
-        //convert from wide char to narrow char array
-        char ncharBuffer[STRING_BUFFER_LENGTH];
-        char defChar = ' ';
-        WideCharToMultiByte(CP_ACP, 0, valBuffer, -1, ncharBuffer, STRING_BUFFER_LENGTH, &defChar, NULL);
-        *pDest = ncharBuffer;
-    }
-}
 #endif
 
 
@@ -108,83 +112,70 @@ inline void readRegString(std::string* pDest, HKEY* pRegKey, LPCWSTR valName, DW
 // -- WINDOWS - CONFIG IO -- ---------------------------------------------------
 
 /// <summary>Load config values from registry/file</summary>
-/// <param name="pConfig">Existing config container to fill</param>
 /// <param name="hasProfileArray">Alloc an empty array with the appropriate size</param>
 /// <param name="hasProfileValues">Fill the array with profile containers</param>
 /// <exception cref="std::exception">Null config container</exception>
-void ConfigIO::loadConfig(Config* pConfig, bool hasProfileArray, bool hasProfileValues)
+void ConfigIO::loadConfig(bool hasProfileArray, bool hasProfileValues)
 {
-    unsigned int profilesNb = 1;
-    if (pConfig == NULL)
-        throw new std::exception("Null config container");
+    uint32_t profilesNb = 1;
 
     // read saved data in registry (if available)
     HKEY configKey;
     DWORD type, size;
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS", 
-                     0, KEY_ALL_ACCESS, &configKey) == ERROR_SUCCESS)
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, REG_KEY_PATH, 0, KEY_ALL_ACCESS, &configKey) == ERROR_SUCCESS)
     {
-        readRegDword<unsigned int>(&profilesNb, &configKey, L"ProfileCount", &type, &size);
+        readRegDword<uint32_t>(&profilesNb, &configKey, L"ProfileCount", &type, &size);
 
         // general
-        readRegDword<unsigned int>(&(pConfig->gen_langCode), &configKey, L"Lang", &type, &size);
-        readRegDword<unsigned int>(&(pConfig->rnd_renderApiCode), &configKey, L"RenderApi", &type, &size);
-        readRegBool(&(pConfig->rnd_isFloatAccuracy), &configKey, L"FloatAcc", &type, &size);
-        readRegBool(&(pConfig->rnd_hasPsxPrimitives), &configKey, L"PsxPrim", &type, &size);
-        readRegDword<DebugMode>(&(pConfig->rnd_debugMode), &configKey, L"Debug", &type, &size);
-        readRegBool(&(pConfig->rnd_isFpsDisplayed), &configKey, L"ShowFps", &type, &size);
+        readRegDword<uint32_t>(&(Config::gen_langCode), &configKey, L"Lang", &type, &size);
+        readRegBool(&(Config::rnd_isFloatAccuracy), &configKey, L"FloatAcc", &type, &size);
+        readRegBool(&(Config::rnd_hasPsxPrimitives), &configKey, L"PsxPrim", &type, &size);
+        readRegDword<DebugMode>(&(Config::rnd_debugMode), &configKey, L"Debug", &type, &size);
+        readRegBool(&(Config::rnd_isFpsDisplayed), &configKey, L"ShowFps", &type, &size);
 
         // display
-        readRegBool(&(pConfig->dsp_isFullscreen), &configKey, L"Fullscreen", &type, &size);
-        readRegDword<unsigned int>(&(pConfig->dsp_fullscnResX), &configKey, L"FullResX", &type, &size);
-        readRegDword<unsigned int>(&(pConfig->dsp_fullscnResY), &configKey, L"FullResY", &type, &size);
-        readRegDword<unsigned int>(&(pConfig->dsp_windowResX), &configKey, L"WinResX", &type, &size);
-        readRegDword<unsigned int>(&(pConfig->dsp_windowResY), &configKey, L"WinResY", &type, &size);
-        readRegBool(&(pConfig->dsp_isWindowResizable), &configKey, L"WinResize", &type, &size);
-        readRegBool(&(pConfig->dsp_isColorDepth32), &configKey, L"Color32", &type, &size);
+        readRegBool(&(Config::dsp_isFullscreen), &configKey, L"Fullscreen", &type, &size);
+        readRegDword<uint32_t>(&(Config::dsp_fullscnResX), &configKey, L"FullResX", &type, &size);
+        readRegDword<uint32_t>(&(Config::dsp_fullscnResY), &configKey, L"FullResY", &type, &size);
+        readRegDword<uint32_t>(&(Config::dsp_windowResX), &configKey, L"WinResX", &type, &size);
+        readRegDword<uint32_t>(&(Config::dsp_windowResY), &configKey, L"WinResY", &type, &size);
+        readRegBool(&(Config::dsp_isWindowResizable), &configKey, L"WinResize", &type, &size);
+        readRegBool(&(Config::dsp_isColorDepth32), &configKey, L"Color32", &type, &size);
         // auto-detect fullscreen resolution
-        if (pConfig->dsp_fullscnResX == 0)
+        if (Config::dsp_fullscnResX == 0u)
         {
-            #ifdef _WINDOWS
-            pConfig->dsp_fullscnResX = GetSystemMetrics(SM_CXSCREEN);
-            if (pConfig->dsp_fullscnResX < 640)
-                pConfig->dsp_fullscnResX = 800;
-            #else
-            m_pConfig->dsp_fullscnResX = 800;
-            #endif
+            Config::dsp_fullscnResX = GetSystemMetrics(SM_CXSCREEN);
+            if (Config::dsp_fullscnResX < 640u)
+                Config::dsp_fullscnResX = 800u;
         }
-        if (pConfig->dsp_fullscnResY == 0)
+        if (Config::dsp_fullscnResY == 0u)
         {
-            #ifdef _WINDOWS
-            pConfig->dsp_fullscnResY = GetSystemMetrics(SM_CYSCREEN);
-            if (pConfig->dsp_fullscnResY < 480)
-                pConfig->dsp_fullscnResY = 600;
-            #else
-            globalConfig->fullResY = 600;
-            #endif
+            Config::dsp_fullscnResY = GetSystemMetrics(SM_CYSCREEN);
+            if (Config::dsp_fullscnResY < 480u)
+                Config::dsp_fullscnResY = 600u;
         }
         // check min window resolution
-        if (pConfig->dsp_windowResX < 320)
-            pConfig->dsp_windowResX = 640;
-        if (pConfig->dsp_windowResY < 240)
-            pConfig->dsp_windowResY = 480;
+        if (Config::dsp_windowResX < 320uL)
+            Config::dsp_windowResX = 640u;
+        if (Config::dsp_windowResY < 240u)
+            Config::dsp_windowResY = 480u;
 
         // framerate
-        readRegBool(&(pConfig->sync_isVerticalSync), &configKey, L"Vsync", &type, &size);
-        readRegBool(&(pConfig->sync_isFrameSkip), &configKey, L"FrameSkip", &type, &size);
-        readRegBool(&(pConfig->sync_isFrameLimit), &configKey, L"FrameLimit", &type, &size);
-        readRegFloat(&(pConfig->sync_framerateLimit), &configKey, L"Framerate", &type, &size);
-        readRegDword<TimingMode>(&(pConfig->sync_timeMode), &configKey, L"TimeMode", &type, &size);
+        readRegBool(&(Config::sync_isVerticalSync), &configKey, L"Vsync", &type, &size);
+        readRegBool(&(Config::sync_isFrameSkip), &configKey, L"FrameSkip", &type, &size);
+        readRegBool(&(Config::sync_isFrameLimit), &configKey, L"FrameLimit", &type, &size);
+        readRegFloat(&(Config::sync_framerateLimit), &configKey, L"Framerate", &type, &size);
+        readRegDword<TimingMode>(&(Config::sync_timeMode), &configKey, L"TimeMode", &type, &size);
 
         // misc
-        readRegBool(&(pConfig->misc_isScreensaverDisabled), &configKey, L"ScreensaverOff", &type, &size);
-        readRegDword<unsigned long>(&(pConfig->misc_genFixBits), &configKey, L"GenFixBits", &type, &size);
+        readRegBool(&(Config::misc_isScreensaverDisabled), &configKey, L"ScreensaverOff", &type, &size);
+        readRegDword<uint32_t>(&(Config::misc_genFixBits), &configKey, L"GenFixBits", &type, &size);
 
         // plugin key bindings
         std::string gpuKeysStr = "";
         readRegString(&gpuKeysStr, &configKey, L"GpuKeys", &type, &size);
         if (gpuKeysStr.length() == (GPUKEYS_LENGTH - 1))
-            strcpy_s(pConfig->misc_gpuKeys, gpuKeysStr.c_str());
+            strcpy_s(Config::misc_gpuKeys, gpuKeysStr.c_str());
 
         RegCloseKey(configKey); // close
     }
@@ -193,87 +184,84 @@ void ConfigIO::loadConfig(Config* pConfig, bool hasProfileArray, bool hasProfile
     if (hasProfileArray)
     {
         CfgProfilePtr* ppProfiles = new CfgProfilePtr[profilesNb];
-        pConfig->setProfiles(&ppProfiles, profilesNb);
+        Config::setProfiles(&ppProfiles, profilesNb);
 
         // fill array
         if (hasProfileValues)
         {
-            for (unsigned int p = 0; p < profilesNb; p++) 
+            for (uint32_t p = 0; p < profilesNb; p++)
                 ppProfiles[p] = loadConfigProfile(p);
         }
         else
         {
-            for (unsigned int p = 0; p < profilesNb; p++)
+            for (uint32_t p = 0; p < profilesNb; p++)
                 ppProfiles[p] = NULL;
         }
     }
 }
 
 /// <summary>Save config values to registry/file</summary>
-/// <param name="pConfig">Config container with values</param>
 /// <param name="hasProfiles">Also save contained profiles (true) or config alone (false)</param>
 /// <exception cref="std::exception">Key creation/opening failure</exception>
-void ConfigIO::saveConfig(Config* pConfig, bool hasProfiles)
+void ConfigIO::saveConfig(bool hasProfiles)
 {
     // write data in registry
     HKEY configKey;
     DWORD keyStatus, val;
-    if (RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS",
-        0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &configKey, &keyStatus) == ERROR_SUCCESS)
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, REG_KEY_PATH, 0, NULL, 
+        REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &configKey, &keyStatus) == ERROR_SUCCESS)
     {
         // general
-        val = pConfig->gen_langCode;
+        val = Config::gen_langCode;
         RegSetValueEx(configKey, L"Lang", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pConfig->rnd_renderApiCode;
-        RegSetValueEx(configKey, L"RenderApi", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pConfig->rnd_isFloatAccuracy) ? 1uL : 0uL;
+        val = (Config::rnd_isFloatAccuracy) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"FloatAcc", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pConfig->rnd_hasPsxPrimitives) ? 1uL : 0uL;
+        val = (Config::rnd_hasPsxPrimitives) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"PsxPrim", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (DWORD)(pConfig->rnd_debugMode);
+        val = (DWORD)(Config::rnd_debugMode);
         RegSetValueEx(configKey, L"Debug", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pConfig->rnd_isFpsDisplayed) ? 1uL : 0uL;
+        val = (Config::rnd_isFpsDisplayed) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"ShowFps", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
         // display
-        val = (pConfig->dsp_isFullscreen) ? 1uL : 0uL;
+        val = (Config::dsp_isFullscreen) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"Fullscreen", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pConfig->dsp_fullscnResX;
+        val = Config::dsp_fullscnResX;
         RegSetValueEx(configKey, L"FullResX", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pConfig->dsp_fullscnResY;
+        val = Config::dsp_fullscnResY;
         RegSetValueEx(configKey, L"FullResY", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pConfig->dsp_windowResX;
+        val = Config::dsp_windowResX;
         RegSetValueEx(configKey, L"WinResX", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pConfig->dsp_windowResY;
+        val = Config::dsp_windowResY;
         RegSetValueEx(configKey, L"WinResY", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pConfig->dsp_isWindowResizable) ? 1uL : 0uL;
+        val = (Config::dsp_isWindowResizable) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"WinResize", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pConfig->dsp_isColorDepth32) ? 1uL : 0uL;
+        val = (Config::dsp_isColorDepth32) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"Color32", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
         // framerate
-        val = (pConfig->sync_isVerticalSync) ? 1uL : 0uL;
+        val = (Config::sync_isVerticalSync) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"Vsync", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pConfig->sync_isFrameSkip) ? 1uL : 0uL;
+        val = (Config::sync_isFrameSkip) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"FrameSkip", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pConfig->sync_isFrameLimit) ? 1uL : 0uL;
+        val = (Config::sync_isFrameLimit) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"FrameLimit", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        setRegFloat(pConfig->sync_framerateLimit, &configKey, L"Framerate");
-        val = (DWORD)(pConfig->sync_timeMode);
+        setRegFloat(Config::sync_framerateLimit, &configKey, L"Framerate");
+        val = (DWORD)(Config::sync_timeMode);
         RegSetValueEx(configKey, L"TimeMode", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
         // misc
-        val = (pConfig->misc_isScreensaverDisabled) ? 1uL : 0uL;
+        val = (Config::misc_isScreensaverDisabled) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"ScreensaverOff", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pConfig->misc_genFixBits;
+        val = Config::misc_genFixBits;
         RegSetValueEx(configKey, L"GenFixBits", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
         // plugin key bindings
-        RegSetValueEx(configKey, L"GpuKeys", 0, REG_BINARY, (LPBYTE)(pConfig->misc_gpuKeys), GPUKEYS_LENGTH - 1);
+        RegSetValueEx(configKey, L"GpuKeys", 0, REG_BINARY, (LPBYTE)(Config::misc_gpuKeys), GPUKEYS_LENGTH - 1);
 
         // profiles number
         CfgProfilePtr* pProfiles = NULL;
-        unsigned long arraySize = pConfig->getAllProfiles(pProfiles);
+        uint32_t arraySize = Config::getAllProfiles(pProfiles);
         val = arraySize;
         RegSetValueEx(configKey, L"ProfileCount", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
@@ -282,7 +270,7 @@ void ConfigIO::saveConfig(Config* pConfig, bool hasProfiles)
         // save config profiles
         if (hasProfiles)
         {
-            for (unsigned int p = 0; p < arraySize; p++)
+            for (uint32_t p = 0u; p < arraySize; p++)
                 saveConfigProfile(pProfiles[p]);
         }
     }
@@ -291,19 +279,17 @@ void ConfigIO::saveConfig(Config* pConfig, bool hasProfiles)
 }
 
 /// <summary>Load only frame limiting values</summary>
-/// <param name="pConfig">Existing config container to change</param>
-void ConfigIO::loadFrameLimitConfig(Config* pConfig)
+void ConfigIO::loadFrameLimitConfig()
 {
     // read saved data in registry (if available)
     HKEY configKey;
     DWORD type, size;
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS",
-        0, KEY_ALL_ACCESS, &configKey) == ERROR_SUCCESS)
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, REG_KEY_PATH, 0, KEY_ALL_ACCESS, &configKey) == ERROR_SUCCESS)
     {
         // framerate
-        readRegBool(&(pConfig->sync_isFrameSkip), &configKey, L"FrameSkip", &type, &size);
-        readRegBool(&(pConfig->sync_isFrameLimit), &configKey, L"FrameLimit", &type, &size);
-        readRegFloat(&(pConfig->sync_framerateLimit), &configKey, L"Framerate", &type, &size);
+        readRegBool(&(Config::sync_isFrameSkip), &configKey, L"FrameSkip", &type, &size);
+        readRegBool(&(Config::sync_isFrameLimit), &configKey, L"FrameLimit", &type, &size);
+        readRegFloat(&(Config::sync_framerateLimit), &configKey, L"Framerate", &type, &size);
 
         RegCloseKey(configKey); // close
     }
@@ -314,7 +300,7 @@ void ConfigIO::loadFrameLimitConfig(Config* pConfig)
 /// <param name="id">Profile identifier</param>
 /// <returns>Allocated config profile container (with loaded values)</returns>
 /// <exception cref="std::exception">Memory allocation failure</exception>
-ConfigProfile* ConfigIO::loadConfigProfile(unsigned int id)
+ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
 {
     ConfigProfile* pProfile = new ConfigProfile(id, "<default>");
     if (pProfile == NULL)
@@ -324,37 +310,59 @@ ConfigProfile* ConfigIO::loadConfigProfile(unsigned int id)
     // read saved profile (if available)
     HKEY profileKey;
     DWORD type, size;
-    std::wstring keyPath = L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\profile";
+    std::wstring keyPath = REG_KEY_SUBPATH_PROFILE;
     keyPath += std::to_wstring(id);
     if (RegOpenKeyEx(HKEY_CURRENT_USER, keyPath.c_str(), 0, KEY_ALL_ACCESS, &profileKey) == ERROR_SUCCESS)
     {
         readRegString(&(pProfile->gen_profileName), &profileKey, L"ProfileName", &type, &size);
 
         //smooth/scale filters
-        readRegDword<unsigned int>(&(pProfile->scl_textureSmooth), &profileKey, L"TxSmooth", &type, &size);
-        readRegDword<unsigned int>(&(pProfile->scl_textureUpscale), &profileKey, L"TxUpscale", &type, &size);
-        readRegDword<unsigned int>(&(pProfile->scl_spriteSmooth), &profileKey, L"SprSmooth", &type, &size);
-        readRegDword<unsigned int>(&(pProfile->scl_spriteUpscale), &profileKey, L"SprUpscale", &type, &size);
-        readRegDword<unsigned int>(&(pProfile->scl_screenSmooth), &profileKey, L"ScnSmooth", &type, &size);
+        readRegDword<uint32_t>(&(pProfile->scl_textureSmooth), &profileKey, L"TxIntp", &type, &size);
+        if (pProfile->scl_textureSmooth >= CFG_Interpolation_LENGTH) 
+            pProfile->scl_textureSmooth = 0;
+        readRegDword<uint32_t>(&(pProfile->scl_textureUpscale), &profileKey, L"TxUpscale", &type, &size);
+        if (pProfile->scl_textureUpscale >= CFG_UpScaling_LENGTH) 
+            pProfile->scl_textureUpscale = 0;
+        readRegDword<uint32_t>(&(pProfile->scl_spriteSmooth), &profileKey, L"SprIntp", &type, &size);
+        if (pProfile->scl_spriteSmooth >= CFG_Interpolation_LENGTH)
+            pProfile->scl_spriteSmooth = 0;
+        readRegDword<uint32_t>(&(pProfile->scl_spriteUpscale), &profileKey, L"SprUpscale", &type, &size);
+        if (pProfile->scl_spriteUpscale >= CFG_UpScaling_LENGTH)
+            pProfile->scl_spriteUpscale = 0;
+        readRegDword<uint32_t>(&(pProfile->scl_screenSmooth), &profileKey, L"ScnSmooth", &type, &size);
+        if (pProfile->scl_screenSmooth >= CFG_ScreenSmoothing_LENGTH)
+            pProfile->scl_screenSmooth = 0;
+        readRegBool(&(pProfile->scl_isShaderUpscale), &profileKey, L"ShaderUpscale", &type, &size);
         readRegBool(&(pProfile->scl_isMdec), &profileKey, L"Mdec", &type, &size);
-        readRegBool(&(pProfile->scl_isGpu2dScaling), &profileKey, L"Gpu2DScale", &type, &size);
 
         // shading
-        readRegDword<unsigned int>(&(pProfile->shd_antiAliasing), &profileKey, L"FxAA", &type, &size);
+        readRegDword<uint32_t>(&(pProfile->shd_antiAliasing), &profileKey, L"FxAA", &type, &size);
+        if (pProfile->shd_antiAliasing >= CFG_AntiAliasing_LENGTH)
+            pProfile->shd_antiAliasing = 0;
         //...
 
         // screen adjustment
-        readRegDword<unsigned int>(&(pProfile->dsp_internalResX), &profileKey, L"IntResX", &type, &size);
-        readRegDword<unsigned int>(&(pProfile->dsp_internalResY), &profileKey, L"IntResY", &type, &size);
-        readRegDword<unsigned int>(&(pProfile->dsp_screenStretch), &profileKey, L"Stretch", &type, &size);
+        readRegDword<uint32_t>(&(pProfile->dsp_internalResX), &profileKey, L"IntResX", &type, &size);
+        if (pProfile->dsp_internalResX == 0)
+            pProfile->dsp_internalResX = 2;
+        readRegDword<uint32_t>(&(pProfile->dsp_internalResY), &profileKey, L"IntResY", &type, &size);
+        if (pProfile->dsp_internalResY == 0)
+            pProfile->dsp_internalResY = 2;
+        readRegDword<uint32_t>(&(pProfile->dsp_ratioType), &profileKey, L"Ratio", &type, &size);
+        readRegDword<uint32_t>(&(pProfile->dsp_stretchCutRatio), &profileKey, L"StretchCutRatio", &type, &size);
+        if (pProfile->dsp_stretchCutRatio > CFG_RATIO_MAX)
+            pProfile->dsp_stretchCutRatio = CFG_RATIO_MAX;
+        readRegDword<uint32_t>(&(pProfile->dsp_cutStrength), &profileKey, L"CutStrength", &type, &size);
+        if (pProfile->dsp_cutStrength > CFG_RATIO_MAX)
+            pProfile->dsp_cutStrength = CFG_RATIO_MAX;
         readRegBool(&(pProfile->dsp_isScreenMirror), &profileKey, L"Mirror", &type, &size);
-        readRegDword<unsigned int>(&(pProfile->dsp_borderSize), &profileKey, L"BorderSize", &type, &size);
-        readRegDword<unsigned int>(&(pProfile->dsp_screenCurved), &profileKey, L"CrtCurved", &type, &size);
+        readRegDword<uint32_t>(&(pProfile->dsp_borderSize), &profileKey, L"BorderSize", &type, &size);
+        readRegDword<uint32_t>(&(pProfile->dsp_screenCurved), &profileKey, L"CrtCurved", &type, &size);
         
         //...
 
         // custom fixes
-        readRegDword<unsigned long>(&(pProfile->misc_fixBits), &profileKey, L"FixBits", &type, &size);
+        readRegDword<uint32_t>(&(pProfile->misc_fixBits), &profileKey, L"FixBits", &type, &size);
 
         RegCloseKey(profileKey); // close
     }
@@ -369,7 +377,7 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
     // write data in registry
     HKEY profileKey;
     DWORD keyStatus, val;
-    std::wstring keyPath = L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\profile";
+    std::wstring keyPath = REG_KEY_SUBPATH_PROFILE;
     keyPath += std::to_wstring(pProfile->gen_profileId);
     if (RegCreateKeyEx(HKEY_CURRENT_USER, keyPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, 
         KEY_ALL_ACCESS, NULL, &profileKey, &keyStatus) == ERROR_SUCCESS)
@@ -379,19 +387,19 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
 
         //smooth/scale filters
         val = pProfile->scl_textureSmooth;
-        RegSetValueEx(profileKey, L"TxSmooth", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        RegSetValueEx(profileKey, L"TxIntp", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->scl_textureUpscale;
         RegSetValueEx(profileKey, L"TxUpscale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->scl_spriteSmooth;
-        RegSetValueEx(profileKey, L"SprSmooth", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        RegSetValueEx(profileKey, L"SprIntp", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->scl_spriteUpscale;
         RegSetValueEx(profileKey, L"SprUpscale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->scl_screenSmooth;
         RegSetValueEx(profileKey, L"ScnSmooth", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = (pProfile->scl_isShaderUpscale) ? 1uL : 0uL;
+        RegSetValueEx(profileKey, L"ShaderUpscale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pProfile->scl_isMdec) ? 1uL : 0uL;
         RegSetValueEx(profileKey, L"Mdec", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pProfile->scl_isGpu2dScaling) ? 1uL : 0uL;
-        RegSetValueEx(profileKey, L"Gpu2dScale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
         // shading
         val = pProfile->shd_antiAliasing;
@@ -403,8 +411,12 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         RegSetValueEx(profileKey, L"IntResX", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->dsp_internalResY;
         RegSetValueEx(profileKey, L"IntResY", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pProfile->dsp_screenStretch;
-        RegSetValueEx(profileKey, L"Stretch", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = pProfile->dsp_ratioType;
+        RegSetValueEx(profileKey, L"Ratio", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = pProfile->dsp_stretchCutRatio;
+        RegSetValueEx(profileKey, L"StretchCutRatio", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = pProfile->dsp_cutStrength;
+        RegSetValueEx(profileKey, L"CutStrength", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pProfile->dsp_isScreenMirror) ? 1uL : 0uL;
         RegSetValueEx(profileKey, L"Mirror", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->dsp_borderSize;
@@ -424,27 +436,44 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         throw new std::exception("Could not open or create config profile registry key");
 }
 
+/// <summary>Remove profile key from registry/file (won't change associations !)</summary>
+/// <param name="id">Profile identifier</param>
+/// <exception cref="std::exception">Key opening/destruction failure</exception>
+static void removeConfigProfile(uint32_t id) // !!! call AFTER setting new profile associations
+{
+    // remove complete profile
+    HKEY baseKey;
+    std::wstring subKeyName = REG_SUBKEY_NAME_PROFILE;
+    subKeyName += std::to_wstring(id);
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, REG_KEY_PATH, 0, KEY_ALL_ACCESS, &baseKey) == ERROR_SUCCESS)
+    {
+        RegDeleteKeyEx(baseKey, subKeyName.c_str(), KEY_WOW64_32KEY, 0);
+        RegDeleteKeyEx(baseKey, subKeyName.c_str(), KEY_WOW64_64KEY, 0);
+        RegCloseKey(baseKey); // close
+    }
+}
+
 
 /// <summary>Remember a game/profile association (ingame)</summary>
 /// <param name="profileId">Profile ID to associate with game</param>
 /// <param name="gameId">Associated game ID</param>
 /// <exception cref="std::exception">Key creation/opening failure</exception>
-void ConfigIO::setGameAssocation(unsigned int profileId, std::string gameId)
+void ConfigIO::setGameAssocation(uint32_t profileId, std::string gameId)
 {
     if (gameId.length() == 0)
         return;
 
     HKEY assocKey;
     DWORD keyStatus, val;
-    if (RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\games",
-        0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &assocKey, &keyStatus) == ERROR_SUCCESS)
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, REG_KEY_SUBPATH_GAMES, 0, NULL, 
+        REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &assocKey, &keyStatus) == ERROR_SUCCESS)
     {
         // convert game ID string to wchar
         WCHAR valBuffer[STRING_BUFFER_LENGTH];
         MultiByteToWideChar(CP_ACP, 0, gameId.c_str(), gameId.length() + 1, valBuffer, STRING_BUFFER_LENGTH);
 
         // set profile association
-        if (profileId > 0 || RegDeleteValue(assocKey, valBuffer) != ERROR_SUCCESS)
+        if (profileId > 0u || RegDeleteValue(assocKey, valBuffer) != ERROR_SUCCESS)
         {
             val = profileId;
             RegSetValueEx(assocKey, valBuffer, 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
@@ -457,22 +486,21 @@ void ConfigIO::setGameAssocation(unsigned int profileId, std::string gameId)
 /// <summary>Get the ID of the profile associated with a game (ingame)</summary>
 /// <param name="gameId">Game ID</param>
 /// <returns>Associated profile ID (or 0)</returns>
-unsigned int ConfigIO::getGameAssociation(std::string gameId)
+uint32_t ConfigIO::getGameAssociation(std::string gameId)
 {
-    unsigned int profileId = 0;
+    uint32_t profileId = 0;
     if (gameId.length() > 0)
     {
         HKEY assocKey;
         DWORD type, size;
-        if (RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\games",
-            0, KEY_ALL_ACCESS, &assocKey) == ERROR_SUCCESS)
+        if (RegOpenKeyEx(HKEY_CURRENT_USER, REG_KEY_SUBPATH_GAMES, 0, KEY_ALL_ACCESS, &assocKey) == ERROR_SUCCESS)
         {
             // convert game ID string to wchar
             WCHAR valBuffer[STRING_BUFFER_LENGTH];
             MultiByteToWideChar(CP_ACP, 0, gameId.c_str(), gameId.length() + 1, valBuffer, STRING_BUFFER_LENGTH);
 
             // get profile association (if available)
-            readRegDword<unsigned int>(&profileId, &assocKey, valBuffer, &type, &size);
+            readRegDword<uint32_t>(&profileId, &assocKey, valBuffer, &type, &size);
 
             RegCloseKey(assocKey); // close
         }
@@ -486,24 +514,23 @@ unsigned int ConfigIO::getGameAssociation(std::string gameId)
 void ConfigIO::setProfileAssociations(ConfigIO_GameProfile_t* pAssociations)
 {
     // remove all previous associations
-    HKEY assocKey;
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS",
-        0, KEY_ALL_ACCESS, &assocKey) == ERROR_SUCCESS)
+    HKEY baseKey;
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, REG_KEY_PATH, 0, KEY_ALL_ACCESS, &baseKey) == ERROR_SUCCESS)
     {
-        RegDeleteKeyEx(assocKey, L"games", KEY_WOW64_32KEY, 0);
-        RegDeleteKeyEx(assocKey, L"games", KEY_WOW64_64KEY, 0);
+        RegDeleteKeyEx(baseKey, REG_SUBKEY_NAME_GAMES, KEY_WOW64_32KEY, 0);
+        RegDeleteKeyEx(baseKey, REG_SUBKEY_NAME_GAMES, KEY_WOW64_64KEY, 0);
 
-        RegCloseKey(assocKey); // close
+        RegCloseKey(baseKey); // close
     }
 
     // set new associations
     ConfigIO_GameProfile_t* pRemoved;
-    ConfigIO_GameProfile_t* pTmp = pAssociations;
+    ConfigIO_GameProfile_t* pTmp = pAssociations; // chained list
     while (pTmp != NULL)
     {
         setGameAssocation(pTmp->profileId, pTmp->gameId);
         pRemoved = pTmp;
-        pTmp = pTmp->pNext;
+        pTmp = pTmp->pNext; // follow chain
         delete pRemoved;
     }
 }
@@ -520,8 +547,7 @@ void ConfigIO::getProfileAssociations(ConfigIO_GameProfile_t* pAssociations)
 
     // get key values list
     HKEY hKey;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\games", 
-        0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REG_KEY_SUBPATH_GAMES, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
     {
         // general information data
         TCHAR    classNameBuffer[MAX_PATH] = TEXT("");
@@ -540,19 +566,19 @@ void ConfigIO::getProfileAssociations(ConfigIO_GameProfile_t* pAssociations)
             DWORD valueMaxSize = STRING_BUFFER_LENGTH;
 
             // enumerate the key values 
-            unsigned int profileId;
+            uint32_t profileId;
             std::wstring gameId;
             DWORD type, size;
-            for (unsigned int i = 0; i < valuesNb; i++)
+            for (uint32_t i = 0u; i < valuesNb; i++)
             {
                 valueIdentifier[0] = '\0';
                 valueMaxSize = STRING_BUFFER_LENGTH;
                 if (RegEnumValue(hKey, (DWORD)i, valueIdentifier, &valueMaxSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
                 {
                     // read identified key value
-                    profileId = 0;
-                    readRegDword<unsigned int>(&profileId, &hKey, valueIdentifier, &type, &size);
-                    if (profileId > 0)
+                    profileId = 0u;
+                    readRegDword<uint32_t>(&profileId, &hKey, valueIdentifier, &type, &size);
+                    if (profileId > 0u)
                     {
                         // chained list -> new element with data
                         pTmpAssoc->pNext = new ConfigIO_GameProfile_t();
@@ -578,41 +604,22 @@ void ConfigIO::getProfileAssociations(ConfigIO_GameProfile_t* pAssociations)
 // -- LINUX-UNIX - FILE -- -----------------------------------------------------
 
 /// <summary>Load config values from registry/file</summary>
-/// <param name="pConfig">Existing config container to fill</param>
 /// <param name="hasProfileArray">Alloc an empty array with the appropriate size</param>
 /// <param name="hasProfileValues">Fill the array with profile containers</param>
-void ConfigIO::loadConfig(Config* pConfig, bool hasProfileArray, bool hasProfileValues)
+void ConfigIO::loadConfig(bool hasProfileArray, bool hasProfileValues)
 {
-    //... cfg values
-
-    // array of profile containers
-    if (hasProfileArray)
-    {
-        int profilesNb = 1;
-        //... get profile nb
-        CfgProfilePtr* ppProfiles = new CfgProfilePtr[profilesNb];
-        pConfig->setProfiles(&ppProfiles, profilesNb);
-
-        // fill array
-        if (hasProfileValues)
-        {
-            for (int p = 0; p < profilesNb; p++) 
-                ppProfiles[p] = loadConfigProfile(p);
-        }
-    }
+    //...
 }
 
 /// <summary>Save config values to registry/file</summary>
-/// <param name="pConfig">Config container with values</param>
 /// <param name="hasProfiles">Also save contained profiles (true) or config alone (false)</param>
-void ConfigIO::saveConfig(Config* pConfig, bool hasProfiles)
+void ConfigIO::saveConfig(bool hasProfiles)
 {
     //...
 }
 
 /// <summary>Load only frame limiting values</summary>
-/// <param name="pConfig">Existing config container to change</param>
-void ConfigIO::loadFrameLimitConfig(Config* pConfig)
+void ConfigIO::loadFrameLimitConfig()
 {
     //...
 }
@@ -621,7 +628,7 @@ void ConfigIO::loadFrameLimitConfig(Config* pConfig)
 /// <summary>Load specific profile values from registry/file</summary>
 /// <param name="id">Profile identifier</param>
 /// <returns>Allocated config profile container (with loaded values)</returns>
-ConfigProfile* ConfigIO::loadConfigProfile(unsigned int id)
+ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
 {
     ConfigProfile* pProfile = new ConfigProfile(id, "<default>");
     pProfile->setPresetValues(ProfilePreset_Standard);
@@ -636,11 +643,19 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
     //...
 }
 
+/// <summary>Remove profile key from registry/file (won't change associations !)</summary>
+/// <param name="id">Profile identifier</param>
+/// <exception cref="std::exception">Key opening/destruction failure</exception>
+static void removeConfigProfile(uint32_t id)
+{
+    //...
+}
+
 
 /// <summary>Remember a game/profile association (ingame)</summary>
 /// <param name="profileId">Profile ID to associate with game</param>
 /// <param name="gameId">Associated game ID</param>
-void ConfigIO::setGameAssocation(unsigned int profileId, std::string gameId)
+void ConfigIO::setGameAssocation(uint32_t profileId, std::string gameId)
 {
     //...
 }
@@ -648,7 +663,7 @@ void ConfigIO::setGameAssocation(unsigned int profileId, std::string gameId)
 /// <summary>Get the ID of the profile associated with a game (ingame)</summary>
 /// <param name="gameId">Game ID</param>
 /// <returns>Associated profile ID (or 0)</returns>
-unsigned int ConfigIO::getGameAssociation(std::string gameId)
+uint32_t ConfigIO::getGameAssociation(std::string gameId)
 {
     //...
     return 0;

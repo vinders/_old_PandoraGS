@@ -4,29 +4,20 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-File name :   about_dialog_viewmodel.h
-Description : about dialog - business logic
+File name :   config_page_general.h
+Description : configuration dialog page - general - business logic
 *******************************************************************************/
-#ifndef _ABOUT_DIALOG_VIEWMODEL_H
-#define _ABOUT_DIALOG_VIEWMODEL_H
+#ifndef _CONFIG_PAGE_GENERAL_H
+#define _CONFIG_PAGE_GENERAL_H
 #include "globals.h"
 
-#include "about_dialog_winview.h"
-#include "about_dialog_qtview.h"
+#include "config_page.h"
 
 
-// About dialog box - business logic
-class AboutDialogVM
+// Configuration dialog page - general settings - business logic
+class ConfigPageGeneral : public ConfigPage
 {
-public:
-    AboutDialogView* m_pView; // visuals container
 
-
-public:
-    AboutDialogVM();
-    ~AboutDialogVM();
-
-    void showDialog();
 };
 
 #endif

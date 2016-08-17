@@ -18,7 +18,7 @@ typedef ConfigProfile* CfgProfilePtr;
 // game/profile association
 typedef struct CONFIGIO_GAMEPROFILE
 {
-    unsigned int profileId;
+    uint32_t profileId;
     std::string gameId;
     CONFIGIO_GAMEPROFILE* pNext;
 } ConfigIO_GameProfile_t;
@@ -32,40 +32,41 @@ private:
 
 public:
     /// <summary>Load config values from registry/file</summary>
-    /// <param name="pConfig">Existing config container to fill</param>
     /// <param name="hasProfileArray">Alloc an empty array with the appropriate size</param>
     /// <param name="hasProfileValues">Fill the array with profile containers</param>
     /// <exception cref="std::exception">Null config container</exception>
-    static void loadConfig(Config* pConfig, bool hasProfileArray, bool hasProfileValues);
+    static void loadConfig(bool hasProfileArray, bool hasProfileValues);
     /// <summary>Save config values to registry/file</summary>
-    /// <param name="pConfig">Config container with values</param>
     /// <param name="hasProfiles">Also save contained profiles (true) or config alone (false)</param>
     /// <exception cref="std::exception">Key creation/opening failure</exception>
-    static void saveConfig(Config* pConfig, bool hasProfiles);
+    static void saveConfig(bool hasProfiles);
 
     /// <summary>Load only frame limiting values</summary>
-    /// <param name="pConfig">Existing config container to change</param>
-    static void loadFrameLimitConfig(Config* pConfig);
+    static void loadFrameLimitConfig();
 
     /// <summary>Load specific profile values from registry/file</summary>
     /// <param name="id">Profile identifier</param>
     /// <returns>Allocated config profile container (with loaded values)</returns>
     /// <exception cref="std::exception">Memory allocation failure</exception>
-    static ConfigProfile* loadConfigProfile(unsigned int id);
+    static ConfigProfile* loadConfigProfile(uint32_t id);
     /// <summary>Save profile values to registry/file</summary>
     /// <param name="pProfile">Config profile container with values</param>
     /// <exception cref="std::exception">Key creation/opening failure</exception>
     static void saveConfigProfile(ConfigProfile* pProfile);
+    /// <summary>Remove profile key from registry/file (won't change associations !)</summary>
+    /// <param name="id">Profile identifier</param>
+    /// <exception cref="std::exception">Key opening/destruction failure</exception>
+    static void removeConfigProfile(uint32_t id); // !!! call AFTER setting new profile associations
 
     /// <summary>Remember a game/profile association (ingame)</summary>
     /// <param name="profileId">Profile ID to associate with game</param>
     /// <param name="gameId">Associated game ID</param>
     /// <exception cref="std::exception">Key creation/opening failure</exception>
-    static void setGameAssocation(unsigned int profileId, std::string gameId);
+    static void setGameAssocation(uint32_t profileId, std::string gameId);
     /// <summary>Get the ID of the profile associated with a game (ingame)</summary>
     /// <param name="gameId">Game ID</param>
     /// <returns>Associated profile ID (or 0)</returns>
-    static unsigned int getGameAssociation(std::string gameId);
+    static uint32_t getGameAssociation(std::string gameId);
 
     /// <summary>Define all the games/profiles associations (settings)</summary>
     /// <param name="pAssociations">List of associated games/profiles (will be freed)</param>

@@ -10,28 +10,54 @@ Description : configuration container
 using namespace std;
 #include "config.h"
 #include "config_io.h"
-#include "render.h"
 #include "lang.h"
+
+// profiles
+ConfigProfile** Config::m_pProfiles = NULL;   // config profiles array
+uint32_t Config::m_profilesArrayLength = 0u; // profiles array length
+uint32_t Config::m_currentProfile = 0u;      // active profile ID
+bool Config::m_isReady = false;
+// general
+uint32_t Config::gen_langCode;            // language identifier
+bool         Config::rnd_isFloatAccuracy; // anti-jitter GTE accuracy
+bool         Config::rnd_hasPsxPrimitives;// support for more PSX GPU primitives
+DebugMode    Config::rnd_debugMode;       // debug mode (or 0)
+bool         Config::rnd_isFpsDisplayed;  // show FPS (on/off)
+// display
+bool         Config::dsp_isFullscreen;    // display mode (fullscreen/window)
+uint32_t Config::dsp_fullscnResX;         // fullscreen display resolution [x]
+uint32_t Config::dsp_fullscnResY;         // fullscreen display resolution [y]
+uint32_t Config::dsp_windowResX;          // window display resolution [x]
+uint32_t Config::dsp_windowResY;          // window display resolution [y]
+bool         Config::dsp_isWindowResizable; // resizable window mode
+bool         Config::dsp_isColorDepth32;  // color depth mode (32/16-bit)
+// framerate
+bool         Config::sync_isVerticalSync;  // vsync (on/off)
+bool         Config::sync_isFrameSkip;     // frame skipping mode (on/off)
+bool         Config::sync_isFrameLimit;    // frame limit mode (on/off)
+float        Config::sync_framerateLimit;  // framerate limit (0=auto / value=fixed)
+TimingMode   Config::sync_timeMode;        // type of timer
+// miscellaneous
+bool Config::misc_isScreensaverDisabled;   // disable screensaver
+char Config::misc_gpuKeys[GPUKEYS_LENGTH]; // plugin key bindings
+uint32_t Config::misc_genFixBits = 0u;    // general fixes
+uint32_t Config::misc_emuFixBits = 0u;    // fixes set by emulator
 
 
 /// <summary>Create config container (default values, no profile)</summary>
-Config::Config()
+void Config::init()
 {
     m_isReady = false;
-    m_currentProfile = 0uL; // default
-    m_pProfiles = NULL; // no profile yet
-    m_profilesArrayLength = 0uL;
-    misc_emuFixBits = 0uL;
-
-    gen_langCode = (unsigned int)LANG_DEFAULT;
+    gen_langCode = (uint32_t)LANG_DEFAULT;
     misc_gpuKeys[GPUKEYS_LENGTH - 1] = '\0';
+    setDefaultValues();
 }
 
 /// <summary>Close config container and profiles</summary>
-Config::~Config()
+void Config::close()
 {
     // free profiles memory
-    setProfiles(NULL, 0uL);
+    setProfiles(NULL, 0u);
     m_pProfiles = NULL;
 }
 
@@ -41,7 +67,6 @@ Config::~Config()
 /// <summary>Set base config default values</summary>
 void Config::setDefaultValues()
 {
-    rnd_renderApiCode = RENDERAPI_DEFAULT;
     rnd_isFloatAccuracy = false;
     rnd_hasPsxPrimitives = false;
     rnd_debugMode = DebugMode_None;
@@ -50,8 +75,8 @@ void Config::setDefaultValues()
     dsp_isFullscreen = true;
     dsp_fullscnResX = RESOLUTION_AUTODETECT;
     dsp_fullscnResY = RESOLUTION_AUTODETECT;
-    dsp_windowResX = 800;
-    dsp_windowResY = 600;
+    dsp_windowResX = 800u;
+    dsp_windowResY = 600u;
     dsp_isWindowResizable = false;
     dsp_isColorDepth32 = true;
 
@@ -62,7 +87,7 @@ void Config::setDefaultValues()
     sync_timeMode = TimingMode_HighResCounter;
 
     misc_isScreensaverDisabled = false;
-    misc_genFixBits = 0uL;
+    misc_genFixBits = 0u;
 
     //...
 
@@ -87,14 +112,14 @@ void Config::setDefaultKeyBindings()
 /// <summary>Set the whole profile array</summary>
 /// <param name="ppProfiles">Allocated list of profiles</param>
 /// <param name="arrayLength">Number of profiles</param>
-void Config::setProfiles(ConfigProfile*** ppProfiles, unsigned int arrayLength)
+void Config::setProfiles(ConfigProfile*** ppProfiles, uint32_t arrayLength)
 {
     m_isReady = false;
     
     // release previous profiles
     if (m_pProfiles != NULL)
     {
-        for (unsigned int p = 0uL; p < m_profilesArrayLength; p++)
+        for (uint32_t p = 0u; p < m_profilesArrayLength; p++)
         {
             if (m_pProfiles[p] != NULL)
                 delete m_pProfiles[p];
@@ -104,9 +129,9 @@ void Config::setProfiles(ConfigProfile*** ppProfiles, unsigned int arrayLength)
     }
 
     // set new profiles
-    m_currentProfile = 0uL;
+    m_currentProfile = 0u;
     m_profilesArrayLength = arrayLength;
-    if (arrayLength > 0uL)
+    if (arrayLength > 0u)
     {
         m_pProfiles = *ppProfiles;
         m_isReady = true;
@@ -119,7 +144,7 @@ void Config::setProfiles(ConfigProfile*** ppProfiles, unsigned int arrayLength)
 /// <param name="index">Array index</param>
 /// <param name="pProfile">Loaded profile to insert</param>
 /// <param name="isUsed">Set profile as current</param>
-void Config::setProfile(unsigned int index, ConfigProfile* pProfile, bool isUsed)
+void Config::setProfile(uint32_t index, ConfigProfile* pProfile, bool isUsed)
 {
     m_isReady = false;
 
@@ -140,7 +165,7 @@ void Config::setProfile(unsigned int index, ConfigProfile* pProfile, bool isUsed
 /// <summary>Get profiles array</summary>
 /// <param name="pProfiles">Profiles array reference</param>
 /// <returns>Number of profiles</returns>
-unsigned long Config::getAllProfiles(ConfigProfile** pProfiles)
+uint32_t Config::getAllProfiles(ConfigProfile** pProfiles)
 {
     pProfiles = m_pProfiles;
     return m_profilesArrayLength;
@@ -149,7 +174,7 @@ unsigned long Config::getAllProfiles(ConfigProfile** pProfiles)
 /// <summary>Get specific profile</summary>
 /// <param name="index">Profile index (0 based)</param>
 /// <returns>Profile at the specified index (if available)</returns>
-ConfigProfile* Config::getProfile(unsigned int index)
+ConfigProfile* Config::getProfile(uint32_t index)
 {
     while (m_isReady == false);
     if (index < m_profilesArrayLength)
@@ -162,14 +187,16 @@ ConfigProfile* Config::getProfile(unsigned int index)
 
 /// <summary>Get previous profile ID</summary>
 /// <param name="start">Checked start index</param>
-unsigned int Config::getPrevProfileId(unsigned int start)
+uint32_t Config::getPrevProfileId(uint32_t start)
 {
     // get ID
-    unsigned int profileId = start;
-    if (profileId > 0uL)
-        profileId -= 1uL;
+    uint32_t profileId = start;
+    if (profileId > 0u)
+        profileId -= 1u;
+    else if (m_profilesArrayLength > 0u)
+        profileId = m_profilesArrayLength - 1u;
     else
-        profileId = m_profilesArrayLength - 1;
+        return 0u;
 
     // load profile
     while (m_isReady == false);
@@ -180,14 +207,14 @@ unsigned int Config::getPrevProfileId(unsigned int start)
 
 /// <summary>Get next profile ID</summary>
 /// <param name="start">Checked start index</param>
-unsigned int Config::getNextProfileId(unsigned int start)
+uint32_t Config::getNextProfileId(uint32_t start)
 {
     // get ID
-    unsigned int profileId = start;
-    if (profileId < (m_profilesArrayLength - 1))
-        profileId += 1uL;
+    uint32_t profileId = start;
+    if (profileId < (m_profilesArrayLength - 1u))
+        profileId += 1u;
     else
-        profileId = 0uL;
+        profileId = 0u;
 
     // load profile
     while (m_isReady == false);
@@ -202,17 +229,17 @@ void Config::useDefaultProfile()
     // change profile
     while (m_isReady == false);
     m_isReady = false;
-    m_currentProfile = 0uL;
+    m_currentProfile = 0u;
 
     // load profile (if not already)
     if (m_pProfiles[0] == NULL)
-        setProfile(m_currentProfile, ConfigIO::loadConfigProfile(0));
+        setProfile(m_currentProfile, ConfigIO::loadConfigProfile(0u));
 }
 
 /// <summary>Set specific profile as current (if available)</summary>
 /// <param name="index">Profile index (0 based)</param>
 /// <exception cref="std::exception">Memory allocation failure</exception>
-void Config::useProfile(unsigned int index)
+void Config::useProfile(uint32_t index)
 {
     // change profile
     while (m_isReady == false);

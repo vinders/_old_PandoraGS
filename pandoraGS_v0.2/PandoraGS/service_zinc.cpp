@@ -12,23 +12,23 @@ using namespace std;
 #include "config.h"
 #include "input_manager.h"
 #include "service_main.h"
+#include "core_memory.h"
 
 // zinc configuration structure
 typedef struct GPUOTAG
 {
-    unsigned long  version;        // version of structure - currently 1
-    long           hWindow;        // window handle
-    unsigned long  screenRotation; // 0 = 0CW, 1 = 90CW, 2 = 180CW, 3 = 270CW = 90CCW
-    unsigned long  gpuVersion;     // 0 = a, 1 = b, 2 = c
-    const char*    pGameName;      // game title string
-    const char*    pCfgFile;       // config filepath string
+    unsigned long version;        // version of structure - currently 1
+    long          hWindow;        // window handle
+    unsigned long screenRotation; // 0 = 0CW, 1 = 90CW, 2 = 180CW, 3 = 270CW = 90CCW
+    unsigned long gpuVersion;     // 0 = a, 1 = b, 2 = c
+    const char*   pGameName;      // game title string
+    const char*   pCfgFile;       // config filepath string
 } GPUConfiguration_t;
 
 // global data
-extern Config* g_pConfig;        // main configuration reference
-unsigned long zincGPUVersion = 0;
-bool          g_isZincEmu = false; // zinc interface emulation
-int           zincTileFix = 0;
+uint32_t zincGPUVersion = 0u;
+bool     g_isZincEmu = false;   // zinc interface emulation
+int32_t  zincTileFix = 0;
 
 
 // -- DRIVER INIT INTERFACE -- -------------------------------------------------
@@ -54,7 +54,7 @@ long CALLBACK ZN_GPUopen(void* pCfg)
 {
     GPUConfiguration_t* cfg = (GPUConfiguration_t *)pCfg;
     if (!cfg || cfg->version != 1)
-        return -1;
+        return -1L;
 
     zincTileFix = 1; // tile erase bug fix
     zincGPUVersion = cfg->gpuVersion;
@@ -204,6 +204,6 @@ void CALLBACK ZN_GPUshowScreenPic(unsigned char * pMem)
 #ifndef _WINDOWS
 void CALLBACK ZN_GPUkeypressed(int keycode)
 {
-    GPUkeypressed(keycode);
+    InputManager::GPUkeypressed(keycode);
 }
 #endif

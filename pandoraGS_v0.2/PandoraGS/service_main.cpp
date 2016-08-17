@@ -17,23 +17,21 @@ using namespace std;
 #include "core_memory.h"
 #include "framerate_manager.h"
 #include "input_manager.h"
-#include "render.h"
+#include "render_opengl.h"
+#include "render_directx.h"
 
-#include "about_dialog_viewmodel.h"
-#include "config_dialog_viewmodel.h"
+#include "about_dialog.h"
+#include "config_dialog.h"
 #include "log_utility.h"
 #include "service_main.h"
 
+// global data
 static char* s_pLibName = PLUGIN_NAME;
 #ifndef _WINDOWS
 static char* s_pLibInfo = PLUGIN_INFO;
 #endif
-extern bool          g_isZincEmu;
-extern unsigned long zincGPUVersion;
-
-// global data
-Config* g_pConfig = NULL;        // main configuration reference
-Render* g_pRender = NULL;        // display renderer
+extern bool     g_isZincEmu;
+extern uint32_t zincGPUVersion;
 
 
 // -- DRIVER INIT INTERFACE -- -------------------------------------------------
@@ -45,16 +43,12 @@ long CALLBACK GPUinit()
     try
     {
         // initialize config container
-        g_pConfig = new Config(); 
-        g_pConfig->setDefaultValues(); // default config
-        ConfigIO::loadConfig(g_pConfig, true, false); // user config
+        Config::init(); // default config
+        ConfigIO::loadConfig(true, false); // user config
 
         // initialize memory container
         CoreMemory::initMemory();
-        LanguageGameMenuResource::setLanguage((LangCode)g_pConfig->gen_langCode);
-
-        // create render object
-        g_pRender = Render::createInstance(g_pConfig);
+        LanguageGameMenuResource::setLanguage((LangCode)Config::gen_langCode);
     }
     catch (std::exception exc) // init failure
     {
@@ -71,17 +65,12 @@ long CALLBACK GPUinit()
 long CALLBACK GPUshutdown()
 {
     // stop renderer
-    if (g_pRender != NULL)
-        delete g_pRender;
-    g_pRender = NULL;
+    Render::closeApi();
     LogUtility::closeInstance();
-
     // close memory container
     CoreMemory::closeMemory();
     // release config container
-    if (g_pConfig != NULL)
-        delete g_pConfig;
-    g_pConfig = NULL;
+    Config::close();
 
     return PSE_SUCCESS;
 }
@@ -94,14 +83,14 @@ long CALLBACK GPUopen_PARAM_
     try
     {
         // reload framerate values (may have changed in previous session)
-        ConfigIO::loadFrameLimitConfig(g_pConfig);
+        ConfigIO::loadFrameLimitConfig();
         // load associated profile (if not already loaded)
-        if (CoreMemory::gen_isFirstOpening || g_pConfig->getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
+        if (CoreMemory::gen_isFirstOpening || Config::getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
         {
-            g_pConfig->useProfile(ConfigIO::getGameAssociation(CoreMemory::gen_gameId));
+            Config::useProfile(ConfigIO::getGameAssociation(CoreMemory::gen_gameId));
             CoreMemory::gen_isFirstOpening = false;
 
-            if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_EXPAND_SCREEN))
+            if (Config::getCurrentProfile()->getFix(CFG_FIX_EXPAND_SCREEN))
                 CoreMemory::dsp_displayWidths[4] = 384;
             else
                 CoreMemory::dsp_displayWidths[4] = 368;
@@ -111,11 +100,11 @@ long CALLBACK GPUopen_PARAM_
         #ifdef _WINDOWS
         CoreMemory::gen_hWindow = hWindow;
         #endif
-        g_pRender->setWindow(true);
+        Render::setWindow(true);
         CoreMemory::dsp_isDisplaySet = false;
 
         // disable screensaver (if possible)
-        if (g_pConfig->misc_isScreensaverDisabled)
+        if (Config::misc_isScreensaverDisabled)
             InputManager::setScreensaver(false);
 
         // configure framerate manager (default)
@@ -140,18 +129,18 @@ long CALLBACK GPUclose()
     InputManager::stopListener();
 
     // close window and rendering pipeline
-    g_pRender->setWindow(false);
+    Render::setWindow(false);
     #ifdef _WINDOWS
     // enable screensaver (if disabled)
-    if (g_pConfig->misc_isScreensaverDisabled)
+    if (Config::misc_isScreensaverDisabled)
         InputManager::setScreensaver(true);
     #endif
 
     // save current game/profile association
-    ConfigIO::setGameAssocation(g_pConfig->getCurrentProfileId(), CoreMemory::gen_gameId);
+    ConfigIO::setGameAssocation(Config::getCurrentProfileId(), CoreMemory::gen_gameId);
     // restore default config profile for next use
-    if (g_pConfig->getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
-        g_pConfig->useDefaultProfile();
+    if (Config::getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
+        Config::useDefaultProfile();
     CoreMemory::gen_gameId = "";
 
     return PSE_SUCCESS;
@@ -161,7 +150,7 @@ long CALLBACK GPUclose()
 void CALLBACK GPUupdateLace()
 {
     // interlacing (if CC game fix, done in GPUreadStatus)
-    if (g_pConfig->getCurrentProfile()->getNotFix(CFG_FIX_STATUS_INTERLACE))
+    if (Config::getCurrentProfile()->getNotFix(CFG_FIX_STATUS_INTERLACE))
         CoreMemory::mem_vramImage.oddFrame ^= 1;
 
     // change window or stretching mode
@@ -171,12 +160,12 @@ void CALLBACK GPUupdateLace()
         CoreMemory::dsp_isDisplaySet = false;
         if (InputManager::m_isStretchingChangePending == false) // toggle window mode
         {
-            g_pConfig->dsp_isFullscreen = !(g_pConfig->dsp_isFullscreen);
-            g_pRender->changeWindowMode();
+            Config::dsp_isFullscreen = !(Config::dsp_isFullscreen);
+            Render::changeWindowMode();
         }
         else // toggle stretching mode
         {
-            g_pRender->setDrawingSize(InputManager::m_isSizeChangePending);
+            Render::setDrawingSize(InputManager::m_isSizeChangePending);
             InputManager::m_isStretchingChangePending = false;
             InputManager::m_isSizeChangePending = false;
         }
@@ -192,14 +181,14 @@ void CALLBACK GPUupdateLace()
         CoreMemory::dsp_isDisplaySet = false;
         try
         {
-            g_pConfig->useProfile(InputManager::m_menuIndex); // set profile
-            if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_EXPAND_SCREEN))
+            Config::useProfile(InputManager::m_menuIndex); // set profile
+            if (Config::getCurrentProfile()->getFix(CFG_FIX_EXPAND_SCREEN))
                 CoreMemory::dsp_displayWidths[4] = 384;
             else
                 CoreMemory::dsp_displayWidths[4] = 368;
             InputManager::m_isProfileChangePending = false;
 
-            g_pRender->reloadApi(); // rebuild rendering pipeline
+            Render::reloadApi(); // rebuild rendering pipeline
             InputManager::updateListener();
             FramerateManager::resetFrameTime();
             return;
@@ -212,10 +201,10 @@ void CALLBACK GPUupdateLace()
     }
 
     // frame limiting/skipping + display current frame (if not skipped)
-    if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_REACTIVE_FPSLIMIT)) // reactive display mode -> draw then wait
+    if (Config::getCurrentProfile()->getFix(CFG_FIX_REACTIVE_FPSLIMIT)) // reactive display mode -> draw then wait
     {
         if (FramerateManager::isFrameSkipped() == false) // drawing starts earlier + skipping is more effective
-            g_pRender->drawFrame();
+            Render::drawFrame();
         FramerateManager::waitFrameTime(InputManager::m_frameSpeed, CoreMemory::mem_vramImage.oddFrame != 0);
     }
     else // steady display mode -> wait then draw
@@ -224,7 +213,7 @@ void CALLBACK GPUupdateLace()
         isSkipped = FramerateManager::isFrameSkipped();
         FramerateManager::waitFrameTime(InputManager::m_frameSpeed, CoreMemory::mem_vramImage.oddFrame != 0);
         if (isSkipped == false) // drawing starts at regular intervals
-            g_pRender->drawFrame();
+            Render::drawFrame();
     }
 }
 
@@ -239,10 +228,10 @@ void CALLBACK GPUupdateLace()
 long CALLBACK GPUconfigure()
 {
     // create config dialog
-    ConfigDialogVM* dial = NULL;
+    ConfigDialog* dial = NULL;
     try
     {
-        dial = new ConfigDialogVM();
+        dial = new ConfigDialog();
         if (dial == NULL)
             return PSE_ERR_FATAL;
     }
@@ -263,10 +252,10 @@ long CALLBACK GPUconfigure()
 void CALLBACK GPUabout()
 {
     // create about dialog
-    AboutDialogVM* dial = NULL;
+    AboutDialog* dial = NULL;
     try
     {
-        dial = new AboutDialogVM();
+        dial = new AboutDialog();
         if (dial == NULL)
             return;
     }
@@ -329,9 +318,6 @@ char* GPUgetLibInfos()
 /// <param name="pGameId">Newly started game identifier</param>
 void CALLBACK GPUsetExeName(char* pGameId)
 {
-    if (g_pConfig == NULL)
-        return;
-
     // set game executable ID
     if (pGameId != NULL)
     {
@@ -346,7 +332,7 @@ void CALLBACK GPUsetExeName(char* pGameId)
 /// <param name="option">Status (1 = limit / 0 = none)</param>
 void CALLBACK GPUsetframelimit(unsigned long option)
 {
-    g_pConfig->sync_isFrameLimit = (option == 1);
+    Config::sync_isFrameLimit = (option == 1);
     FramerateManager::setFramerate(true);
 }
 
@@ -355,7 +341,7 @@ void CALLBACK GPUsetframelimit(unsigned long option)
 /// <returns>Image transfer mode</returns>
 long CALLBACK GPUgetMode()
 { 
-    long imageTransfer = 0;
+    long imageTransfer = 0L;
     if (CoreMemory::mem_vramWriteMode == DR_VRAMTRANSFER)
         imageTransfer |= 0x1;
     if (CoreMemory::mem_vramReadMode == DR_VRAMTRANSFER)
@@ -383,7 +369,7 @@ void CALLBACK GPUdisplayFlags(unsigned long dwFlags)
 /// <param name="fixBits">Fixes (bits)</param>
 void CALLBACK GPUsetfix(unsigned long fixBits)
 {
-    g_pConfig->misc_emuFixBits = fixBits;
+    Config::misc_emuFixBits = fixBits;
 }
 
 
@@ -397,7 +383,7 @@ void CALLBACK GPUsetfix(unsigned long fixBits)
 unsigned long CALLBACK GPUreadStatus()
 { 
     // interlacing CC game fix
-    if (g_pConfig->isProfileSet() && g_pConfig->getCurrentProfile()->getFix(CFG_FIX_STATUS_INTERLACE))
+    if (Config::isProfileSet() && Config::getCurrentProfile()->getFix(CFG_FIX_STATUS_INTERLACE))
     {
         static int readCount = 0;
         if (++readCount >= 2) // interlace bit toggle - every second read
@@ -411,7 +397,7 @@ unsigned long CALLBACK GPUreadStatus()
     if (CoreMemory::st_fixBusyEmuSequence)
     {
         CoreMemory::st_fixBusyEmuSequence--;
-        if (CoreMemory::st_fixBusyEmuSequence & 1) // busy
+        if (CoreMemory::st_fixBusyEmuSequence & 0x1) // busy if odd number
         {
             CoreMemory::unsetStatus(GPUSTATUS_IDLE);
             CoreMemory::unsetStatus(GPUSTATUS_READYFORCOMMANDS);
@@ -471,9 +457,9 @@ void CALLBACK GPUwriteStatus(unsigned long gdata)
         case CMD_SETDISPLAYINFO:
         {
             CoreMemory::cmdSetDisplayInfo(gdata);
-            if (g_pConfig->sync_framerateLimit <= 0.05f) // == 0.0 (with float error offset) = auto-detect
+            if (Config::sync_framerateLimit <= 0.05f) // == 0.0 (with float error offset) = auto-detect
                 FramerateManager::setFramerate(true);
-            //...mÃ j
+            //...màj
             return;
         }
     }
@@ -583,7 +569,7 @@ long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem)
             memcpy(CoreMemory::st_pStatusControl, pMem->pControlReg, STATUSCTRL_SIZE*sizeof(unsigned long));
             memcpy(CoreMemory::mem_vramImage.pByte, pMem->pPsxVram, CoreMemory::mem_vramImage.bufferSize * 2);
 
-            //... reset textures opengl/dx
+            //... reset textures API
 
             // set status register, based on new status control
             GPUwriteStatus(CoreMemory::st_pStatusControl[0]);

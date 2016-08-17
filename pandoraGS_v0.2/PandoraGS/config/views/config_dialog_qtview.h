@@ -12,7 +12,9 @@ Description : configuration dialog - view
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_QT
 
-class ConfigDialogVM;
+#ifndef _CONFIG_DIALOG_H_END
+class ConfigDialog;
+#endif
 #include "config_page_qtview.h"
 
 
@@ -21,16 +23,16 @@ class ConfigDialogView
 {
 private:
     ConfigPageView* m_pPages; // page views
-    ConfigDialogVM* m_pBinding; // viewmodel data binding
+    ConfigDialog* m_pBinding; // viewmodel data binding
 
 
 public:
-    ConfigDialogView(ConfigDialogVM* pBinding);
+    ConfigDialogView(ConfigDialog* pBinding);
     ~ConfigDialogView();
 };
 
 
-#include "config_dialog_viewmodel.h"
+#include "config_dialog.h"
 
 #endif
 #endif

@@ -12,9 +12,6 @@ Description : about dialog - view
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_QT
 
-class AboutDialogVM;
-
-
 // About dialog box - view
 class AboutDialogView
 {
@@ -22,8 +19,6 @@ public:
     AboutDialogView();
     ~AboutDialogView();
 };
-
-#include "about_dialog_viewmodel.h"
 
 #endif
 #endif

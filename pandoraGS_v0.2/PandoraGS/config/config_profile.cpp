@@ -14,11 +14,11 @@ using namespace std;
 /// <summary>Create profile container (with preset values)</summary>
 /// <param name="id">Profile unique identifier</param>
 /// <param name="name">Profile name</param>
-ConfigProfile::ConfigProfile(unsigned int id, std::string name)
+ConfigProfile::ConfigProfile(uint32_t id, std::string name)
 {
     gen_profileId = id;
     gen_profileName = name;
-    misc_fixBits = 0uL;
+    misc_fixBits = 0u;
 }
 
 /// <summary>Copy profile container</summary>
@@ -33,15 +33,17 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     scl_spriteSmooth = copy.scl_spriteSmooth;
     scl_spriteUpscale = copy.scl_spriteUpscale;
     scl_screenSmooth = copy.scl_screenSmooth;
+    scl_isShaderUpscale = copy.scl_isShaderUpscale;
     scl_isMdec = copy.scl_isMdec;
-    scl_isGpu2dScaling = copy.scl_isGpu2dScaling;
 
     shd_antiAliasing = copy.shd_antiAliasing;
     //...
 
     dsp_internalResX = copy.dsp_internalResX;
     dsp_internalResY = copy.dsp_internalResY;
-    dsp_screenStretch = copy.dsp_screenStretch;
+    dsp_ratioType = copy.dsp_ratioType;
+    dsp_stretchCutRatio = copy.dsp_stretchCutRatio;
+    dsp_cutStrength = copy.dsp_cutStrength;
     dsp_isScreenMirror = copy.dsp_isScreenMirror;
     dsp_borderSize = copy.dsp_borderSize;
     dsp_screenCurved = copy.dsp_screenCurved;
@@ -60,80 +62,88 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
     {
         case ProfilePreset_Standard:
         {
-            scl_textureSmooth = CfgSmoothing_BilinearEnhanced;
-            scl_textureUpscale = CfgUpscaling_Native;
-            scl_spriteSmooth = CfgSmoothing_Nearest;
-            scl_spriteUpscale = CfgUpscaling_2xSaI;
-            scl_screenSmooth = CfgScreenSmooth_None;
+            scl_textureSmooth = CFG_Intp_Bilinear_Enhanced;
+            scl_textureUpscale = CFG_UpSc_Native;
+            scl_spriteSmooth = CFG_Intp_Nearest;
+            scl_spriteUpscale = CFG_UpSc_2xSaI;
+            scl_screenSmooth = CFG_ScrSm_None;
+            scl_isShaderUpscale = false;
             scl_isMdec = false;
-            scl_isGpu2dScaling = true;
 
-            shd_antiAliasing = CfgAntiAliasing_FXAA;
+            shd_antiAliasing = CFG_AA_FXAA;
             //...
 
-            dsp_internalResX = 2;
-            dsp_internalResY = 4;
-            dsp_screenStretch = CfgStretching_AspectHalfCut;
+            dsp_internalResX = 2u;
+            dsp_internalResY = 4u;
+            dsp_ratioType = CFG_Ratio_Aspect;
+            dsp_stretchCutRatio = CFG_RATIO_STRETCH_FullWindow;
+            dsp_cutStrength = CFG_RATIO_CUT_FullWindow;
             //...
             break;
         }
 
         case ProfilePreset_Fastest:
         {
-            scl_textureSmooth = CfgSmoothing_Nearest;
-            scl_textureUpscale = CfgUpscaling_Native;
-            scl_spriteSmooth = CfgSmoothing_Nearest;
-            scl_spriteUpscale = CfgUpscaling_Native;
-            scl_screenSmooth = CfgScreenSmooth_None;
+            scl_textureSmooth = CFG_Intp_Nearest;
+            scl_textureUpscale = CFG_UpSc_Native;
+            scl_spriteSmooth = CFG_Intp_Nearest;
+            scl_spriteUpscale = CFG_UpSc_Native;
+            scl_screenSmooth = CFG_ScrSm_None;
+            scl_isShaderUpscale = true;
             scl_isMdec = false;
-            scl_isGpu2dScaling = true;
 
-            shd_antiAliasing = CfgAntiAliasing_None;
+            shd_antiAliasing = CFG_AA_None;
             //...
 
-            dsp_internalResX = 1;
-            dsp_internalResY = 1;
-            dsp_screenStretch = CfgStretching_Stretch;
+            dsp_internalResX = 1u;
+            dsp_internalResY = 1u;
+            dsp_ratioType = CFG_Ratio_Aspect;
+            dsp_stretchCutRatio = CFG_RATIO_STRETCH_Orig;
+            dsp_cutStrength = CFG_RATIO_CUT_Orig;
             //...
             break;
         }
 
         case ProfilePreset_Enhanced2D:
         {
-            scl_textureSmooth = CfgSmoothing_Nearest;
-            scl_textureUpscale = CfgUpscaling_Native;
-            scl_spriteSmooth = CfgSmoothing_Nearest;
-            scl_spriteUpscale = CfgUpscaling_Native;
-            scl_screenSmooth = CfgScreenSmooth_Blur4xBRZ;
+            scl_textureSmooth = CFG_Intp_Nearest;
+            scl_textureUpscale = CFG_UpSc_Native;
+            scl_spriteSmooth = CFG_Intp_Nearest;
+            scl_spriteUpscale = CFG_UpSc_Native;
+            scl_screenSmooth = CFG_ScrSm_4xBRZ_Blur;
+            scl_isShaderUpscale = false;
             scl_isMdec = true;
-            scl_isGpu2dScaling = false;
 
-            shd_antiAliasing = CfgAntiAliasing_NFAA;
+            shd_antiAliasing = CFG_AA_NFAA;
             //...
 
-            dsp_internalResX = 1;
-            dsp_internalResY = 1;
-            dsp_screenStretch = CfgStretching_Aspect;
+            dsp_internalResX = 1u;
+            dsp_internalResY = 1u;
+            dsp_ratioType = CFG_Ratio_Aspect;
+            dsp_stretchCutRatio = CFG_RATIO_STRETCH_Orig;
+            dsp_cutStrength = CFG_RATIO_CUT_Orig;
             //...
             break;
         }
 
         case ProfilePreset_Enhanced3D:
         {
-            scl_textureSmooth = CfgSmoothing_BilinearEnhanced;
-            scl_textureUpscale = CfgUpscaling_2xSuperEagle;
-            scl_spriteSmooth = CfgSmoothing_Bilinear;
-            scl_spriteUpscale = CfgUpscaling_3xBRZ;
-            scl_screenSmooth = CfgScreenSmooth_None;
+            scl_textureSmooth = CFG_Intp_Bilinear_Enhanced;
+            scl_textureUpscale = CFG_UpSc_2xSuperEagle;
+            scl_spriteSmooth = CFG_Intp_Bilinear_Enhanced;
+            scl_spriteUpscale = CFG_UpSc_3xBRZ_Depolarize;
+            scl_screenSmooth = CFG_ScrSm_None;
+            scl_isShaderUpscale = true;
             scl_isMdec = true;
-            scl_isGpu2dScaling = true;
 
-            shd_antiAliasing = CfgAntiAliasing_SMAA4;
+            shd_antiAliasing = CFG_AA_SMAA4;
             //...
 
-            dsp_internalResX = 4;
-            dsp_internalResY = 8;
-            dsp_screenStretch = CfgStretching_SemiAspectCut;
+            dsp_internalResX = 4u;
+            dsp_internalResY = 8u;
+            dsp_ratioType = CFG_Ratio_Aspect;
+            dsp_stretchCutRatio = CFG_RATIO_STRETCH_CloseToOrig;
+            dsp_cutStrength = CFG_RATIO_CUT_CloseToOrig;
             //...
             break;
         }
@@ -141,10 +151,10 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
 
     // common values
     dsp_isScreenMirror = false;
-    dsp_borderSize = 0;
-    dsp_screenCurved = 0;
+    dsp_borderSize = 0u;
+    dsp_screenCurved = 0u;
     //...
-    misc_fixBits = 0uL;
+    misc_fixBits = 0u;
     setFix(CFG_FIX_REACTIVE_FPSLIMIT);
     //...
 }

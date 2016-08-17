@@ -33,24 +33,6 @@
     <ClCompile Include="config\config_profile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="config\viewmodels\config_dialog_viewmodel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\viewmodels\config_page_viewmodel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\viewmodels\config_pgeneral_viewmodel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\viewmodels\config_pmanager_viewmodel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\viewmodels\config_pprofile_viewmodel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\viewmodels\about_dialog_viewmodel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="config\models\config_io.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -108,16 +90,34 @@
     <ClCompile Include="control\core_memory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="display\render.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="display\render_directx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="display\render_opengl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="control\primitive.cpp">
+    <ClCompile Include="display\render_common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="display\primitive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\controllers\about_dialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\controllers\config_dialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\controllers\config_page.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\controllers\config_page_general.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\controllers\config_page_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\controllers\config_page_profile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -138,24 +138,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="config\config_profile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\viewmodels\config_dialog_viewmodel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\viewmodels\config_page_viewmodel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\viewmodels\config_pgeneral_viewmodel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\viewmodels\config_pmanager_viewmodel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\viewmodels\config_pprofile_viewmodel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\viewmodels\about_dialog_viewmodel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="config\models\config_io.h">
@@ -218,16 +200,31 @@
     <ClInclude Include="control\core_memory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="display\render.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="display\render_directx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="display\render_opengl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="control\primitive.h">
+    <ClInclude Include="display\primitive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\controllers\about_dialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\controllers\config_dialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\controllers\config_page.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\controllers\config_page_general.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\controllers\config_page_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\controllers\config_page_profile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

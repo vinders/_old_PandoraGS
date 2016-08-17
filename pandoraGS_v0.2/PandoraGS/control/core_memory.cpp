@@ -14,8 +14,6 @@ using namespace std;
 #include "framerate_manager.h"
 
 extern bool g_isZincEmu; // zinc interface emulation
-extern Config* g_pConfig;
-
 
 #ifdef _WINDOWS
 HWND  CoreMemory::gen_hWindow = NULL;        // main emulator window handle
@@ -347,7 +345,7 @@ bool CoreMemory::writeSimpleData(unsigned long* pDwMem, int size, unsigned long*
                 //primFunc[gpu_command]((unsigned char *)gpu_dataM); // process data set
 
                 // 'GPU busy' emulation hack
-                if (g_pConfig->misc_emuFixBits & 0x0001 || g_pConfig->getCurrentProfile()->getFix(CFG_FIX_FAKE_GPU_BUSY))
+                if (Config::misc_emuFixBits & 0x0001 || Config::getCurrentProfile()->getFix(CFG_FIX_FAKE_GPU_BUSY))
                     CoreMemory::st_fixBusyEmuSequence = 4;
             }
         }
@@ -391,7 +389,7 @@ void CoreMemory::cmdSetDisplayPosition(short x, short y)
     }
 
     // swap front/back detection fix
-    if (g_pConfig->getCurrentProfile()->getFix(8))
+    if (Config::getCurrentProfile()->getFix(8))
     {
         if ((dsp_displayState.isInterlaced == false) &&
           dsp_displayState.previous.displayPosition.x == x && dsp_displayState.previous.displayPosition.y == y)

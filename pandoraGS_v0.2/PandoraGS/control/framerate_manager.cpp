@@ -7,6 +7,11 @@ License :     GPLv2
 File name :   framerate_manager.cpp
 Description : framerate and sync management toolbox
 *******************************************************************************/
+#ifdef _WINDOWS
+#include <windows.h>
+#include <windowsx.h>
+#include <mmsystem.h>
+#endif
 using namespace std;
 #include "framerate_manager.h"
 #include "core_memory.h"
@@ -14,7 +19,6 @@ using namespace std;
 
 #define MAX_LACE_NUMBER 16
 #define MAX_SUCCESSIVE_SKIPPING 4
-extern Config* g_pConfig;
 float g_framerateHz = 59.94f;
 
 // framerate mode
@@ -52,13 +56,13 @@ void FramerateManager::initFramerate()
     s_framesToSkip = 0;
 
     #ifdef _WINDOWS
-    if (g_pConfig->sync_timeMode == TimingMode_HighResCounter
+    if (Config::sync_timeMode == TimingMode_HighResCounter
         && QueryPerformanceFrequency(&s_cpuFrequency) == false)
     {
-        g_pConfig->sync_timeMode = TimingMode_MultimediaClock;
+        Config::sync_timeMode = TimingMode_MultimediaClock;
     }
     #else
-    g_pConfig->sync_timeMode = TimingMode_MultimediaClock;
+    Config::sync_timeMode = TimingMode_MultimediaClock;
     #endif
 }
 
@@ -70,7 +74,7 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
     s_isInterlaced = false;
     if (hasFrameInfo)
     {
-        if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_AUTO_FPSLIMIT))
+        if (Config::getCurrentProfile()->getFix(CFG_FIX_PC_FPSLIMIT))
             s_isInterlaced = CoreMemory::dsp_displayState.isInterlaced;
         else
             s_isInterlaced = CoreMemory::getStatus(GPUSTATUS_INTERLACED);
@@ -78,15 +82,15 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
     
     // set fixed framerate limit
     g_framerateHz = 59.94f;
-    if (g_pConfig->sync_framerateLimit > 0.05f) // 0 + float error offset
+    if (Config::sync_framerateLimit > 0.05f) // 0 + float error offset
     {
-        g_framerateHz = g_pConfig->sync_framerateLimit;
+        g_framerateHz = Config::sync_framerateLimit;
     }
     // set auto framerate limit
     else if (hasFrameInfo)
     {
         // use theoretical standard values
-        if (g_pConfig->getCurrentProfile()->getFix(CFG_FIX_AUTO_FPSLIMIT))
+        if (Config::getCurrentProfile()->getFix(CFG_FIX_PC_FPSLIMIT))
         {
             if (CoreMemory::dsp_displayState.localize == LocalizationMode_Pal)
                 g_framerateHz = (s_isInterlaced) ? 50.0f : 25.0f;
@@ -116,7 +120,7 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
     double duration = 1000.0 / (double)g_framerateHz;
     #ifdef _WINDOWS
     s_frameDuration = (DWORD)duration;
-    if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
+    if (Config::sync_timeMode == TimingMode_HighResCounter)
     {
         double durationHiRes = (double)s_cpuFrequency.LowPart / (double)g_framerateHz;
         s_frameDurationHiRes = (DWORD)durationHiRes;
@@ -127,7 +131,7 @@ void FramerateManager::setFramerate(bool hasFrameInfo)
 
     // set frame timeout
     #ifdef _WINDOWS
-    if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
+    if (Config::sync_timeMode == TimingMode_HighResCounter)
         s_maxFrameWait = ((7 * s_frameDurationHiRes) >> 3);
     else
         s_maxFrameWait = ((7 * s_frameDuration) >> 3);
@@ -164,7 +168,7 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
     {
         s_isReset = false;
         #ifdef _WINDOWS
-        if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
+        if (Config::sync_timeMode == TimingMode_HighResCounter)
             QueryPerformanceCounter(&lastTimeRef);
         #endif
         lastTicks = timeGetTime();
@@ -177,7 +181,7 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
     static unsigned int laceCount = MAX_LACE_NUMBER;
     if (++laceCount >= MAX_LACE_NUMBER)
     {
-        if (g_pConfig->rnd_isFpsDisplayed)
+        if (Config::rnd_isFpsDisplayed)
             checkCurrentFramerate();
         laceCount = 0;
     }
@@ -211,7 +215,7 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
         {
             // double frame time
             #ifdef _WINDOWS
-            if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
+            if (Config::sync_timeMode == TimingMode_HighResCounter)
                 ticksToWait += s_frameDurationHiRes;
             else
                 ticksToWait += s_frameDuration;
@@ -223,12 +227,12 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
     }
 
     // apply framerate limit
-    if (g_pConfig->sync_isFrameLimit
-        && (s_framesToSkip == 0 || g_pConfig->getCurrentProfile()->getNotFix(CFG_FIX_AUTO_FPSLIMIT)))
+    if (Config::sync_isFrameLimit
+        && (s_framesToSkip == 0 || Config::getCurrentProfile()->getNotFix(CFG_FIX_PC_FPSLIMIT)))
     {
         #ifdef _WINDOWS
         // high resolution time sync (qpc)
-        if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
+        if (Config::sync_timeMode == TimingMode_HighResCounter)
         {
             // wait for frame duration
             static unsigned long waitLoopCount;
@@ -322,12 +326,12 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
     // frame skipping
     if (s_framesToSkip > 0) // if current was skipped, don't check time
         s_framesToSkip--;
-    else if (g_pConfig->sync_isFrameSkip)
+    else if (Config::sync_isFrameSkip)
     {
         // count number of frames missed
         static float lateFramesNumber = 0.0f;
         #ifdef _WINDOWS
-        if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
+        if (Config::sync_timeMode == TimingMode_HighResCounter)
             lateFramesNumber = (float)s_lateTicks / (float)s_frameDurationHiRes;
         else
             lateFramesNumber = (float)s_lateTicks / (float)s_frameDuration;
@@ -337,7 +341,7 @@ void FramerateManager::waitFrameTime(int frameSpeed, bool isOddFrame)
         s_lateTicks = 0;
 
         // standard skipping mode
-        if (g_pConfig->getCurrentProfile()->getNotFix(CFG_FIX_HALF_SKIPPING))
+        if (Config::getCurrentProfile()->getNotFix(CFG_FIX_HALF_SKIPPING))
         {
             if (lateFramesNumber > 0.85f)
             {
@@ -394,7 +398,7 @@ void FramerateManager::checkCurrentFramerate()
 
     // high resolution counter (qpc)
     #ifdef _WINDOWS
-    if (g_pConfig->sync_timeMode == TimingMode_HighResCounter)
+    if (Config::sync_timeMode == TimingMode_HighResCounter)
     {
         // get current time reference
         QueryPerformanceCounter(&currentCheckTimeRef);
@@ -427,7 +431,7 @@ void FramerateManager::checkCurrentFramerate()
     #endif
 
     // set FPS value
-    if (g_pConfig->sync_isFrameLimit && framerateTmp > g_framerateHz) // avoid flickering
+    if (Config::sync_isFrameLimit && framerateTmp > g_framerateHz) // avoid flickering
         framerateTmp = g_framerateHz;
     s_currentFps = framerateTmp;
 }
