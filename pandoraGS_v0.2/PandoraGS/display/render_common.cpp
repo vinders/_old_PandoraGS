@@ -64,7 +64,7 @@ void Render::setWindow(bool isOpened)
         CoreMemory::gen_hMenu = NULL;
         #endif
     }
-    _initialized = false;
+    m_isInitialized = false;
 }
 
 /// <summary>Change window mode, depending on current settings</summary>
@@ -77,7 +77,7 @@ void Render::changeWindowMode()
 
 /// <summary>Change window size or set stretching mode</summary>
 /// <param name="isWindowResized">Check new window size</param>
-void setDrawingSize(bool isWindowResized)
+void Render::setDrawingSize(bool isWindowResized)
 {
     //...
 }

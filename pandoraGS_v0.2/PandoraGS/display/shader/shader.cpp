@@ -8,7 +8,6 @@ File name :   shader.cpp
 Description : rendering API shader
 *******************************************************************************/
 using namespace std;
-#include "render.h"
 #include "shader.h"
 
 /// <summary>shader construction</summary>

@@ -149,9 +149,6 @@
     <ClInclude Include="control\input_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="display\shader\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -227,10 +224,24 @@
     <ClInclude Include="config\controllers\config_page_profile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pandoraGS_targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="pandoraGS.def">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="res\pandoraGS.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="pandoraGS.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

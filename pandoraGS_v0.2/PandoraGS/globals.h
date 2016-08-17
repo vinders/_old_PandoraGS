@@ -16,10 +16,23 @@ Description : global constants and definitions + PSEmu Pro specification
 #define PLUGIN_VERSIONSTR  "0.2"
 #define PLUGIN_NAME        "PandoraGS Driver"
 #define PLUGIN_INFO        "PandoraGS GPU Driver 0.2\nBy Romain Vinders"
+#define PLUGIN_DESCRIPTION "GPU plugin for PSEmu compatible emulator"
 #define PLUGIN_AUTHOR      "Romain Vinders"
 #define PLUGIN_DATE        "2016"
-#define PLUGIN_ABOUT_TITLE "About PandoraGS GPU renderer"
-#define PLUGIN_GL_APIS     "OpenGL 4.1, DirectX 11.0"
+#define PLUGIN_LANGUAGES   "English, Spanish, French, German"
+#define PLUGIN_TECH        "C++11 (runtimes 2015), "
+#define PLUGIN_API_OPENGL  "OpenGL 4.1"
+#define PLUGIN_API_DIRECTX "DirectX 11.0"
+
+// other informations
+#define PLUGIN_ABOUT_TITLE "About PandoraGS..."
+#ifdef _WINDOWS
+#define PLUGIN_THANKS      "Tapeq - for providing useful docs\r\nPete and iCatButler - for sharing public sources\
+        \r\nCalb & ePSXe - for adding exe-name support\r\nAsmodean - for his awesome shaders\r\nThe OpenGL SuperBible book"
+#else
+#define PLUGIN_THANKS      "Tapeq - for providing useful docs\nPete and iCatButler - for sharing public sources\
+        \nCalb & ePSXe - for adding exe-name support\nAsmodean - for his awesome shaders\nThe OpenGL SuperBible book"
+#endif
 
 // compilation settings
 #define DIALOGAPI_WIN32    1
@@ -106,28 +119,8 @@ This file can be used only to develop PSEmu Plugins. Other usage is highly prohi
 #define _CRT_NONSTDC_NO_DEPRECATE
 #endif
 
-// Including SDKDDKVer.h defines the highest available Windows platform.
-// If you wish to build your application for a previous Windows platform, include WinSDKVer.h and
-// set the _WIN32_WINNT macro to the platform you wish to support before including SDKDDKVer.h.
- 
-/*// Minimum required platform: earliest version of Windows with necessary features to run the app.  
-    // The macros work by enabling all features available on platform versions up to the one specified.
-    // Versions : Windows 7 (0x601), Vista (0x0600), XP (0x501), 98 (0x0410).
-    #ifndef WINVER           // minimum required platform.
-    #define WINVER 0x0600
-    #endif
-    #ifndef _WIN32_WINNT     // minimum required NT platform.
-    #define _WIN32_WINNT 0x0600    
-    #endif
-    #ifndef _WIN32_WINDOWS   // minimum required DOS-based platform.
-    #define _WIN32_WINDOWS 0x0600  
-    #endif
-    #ifndef _WIN32_IE        // minimum required IE is Internet Explorer 7.0.
-    #define _WIN32_IE 0x0700 
-    #endif*/
-
 // Windows inclusions
-#include <SDKDDKVer.h>
+#include "pandoraGS_targetver.h"
 #include <Windows.h>
 #include <tchar.h>
 

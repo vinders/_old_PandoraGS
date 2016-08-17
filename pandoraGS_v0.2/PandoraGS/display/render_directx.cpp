@@ -11,6 +11,7 @@ Description : API rendering pipeline - DirectX 11.0
 using namespace std;
 #include "render_directx.h"
 #if _RENDERAPI == RENDERAPI_DIRECTX
+bool Render::m_isInitialized = false;
 
 // -- RENDERING API MANAGEMENT -- ----------------------------------------------
 

@@ -162,12 +162,17 @@
     <ClInclude Include="globals.h" />
     <ClInclude Include="lang\lang.h" />
     <ClInclude Include="pandoraGS.h" />
+    <ClInclude Include="pandoraGS_targetver.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="service_main.h" />
     <ClInclude Include="tools\log_utility.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="pandoraGS.def" />
+    <None Include="res\pandoraGS.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="pandoraGS.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

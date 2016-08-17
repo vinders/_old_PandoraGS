@@ -10,6 +10,7 @@ Description : API rendering pipeline - OpenGL 4.1
 using namespace std;
 #include "render_opengl.h"
 #if _RENDERAPI == RENDERAPI_OPENGL
+bool Render::m_isInitialized = false;
 
 // -- RENDERING API MANAGEMENT -- ----------------------------------------------
 

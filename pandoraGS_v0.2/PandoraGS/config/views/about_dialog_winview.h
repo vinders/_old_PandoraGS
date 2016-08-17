@@ -11,13 +11,45 @@ Description : about dialog - view
 #define _ABOUT_DIALOG_WINVIEW_H
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_WIN32
+#include <Windows.h>
+#include <string>
 
 // About dialog box - view
 class AboutDialogView
 {
-public:
+private:
+    HWND m_hWindow; // main window handle
+    HINSTANCE m_hInstance; // DLL instance handle
+    
+protected:
+    /// <summary>Initialize dialog</summary>
     AboutDialogView();
-    ~AboutDialogView();
+
+public:   
+    /// <summary>Create new dialog</summary>
+    /// <param name="caption">Window caption</param>
+    /// <returns>Window created</returns>
+    /// <exception cref="std::exception">Creation failure</exception>
+    static AboutDialogView* createWindow(std::string caption);
+
+    /// <summary>Display window</summary>
+    /// <exception cref="std::exception">No window or event exception</exception>
+    void setVisible();
+    
+private:
+    // -- DIALOG TEMPLATE ------------------------------------------------------
+    
+    /// <summary>Retrieve window and instances handles</summary>
+    /// <exception cref="std::exception">Definition failure</exception>
+    void setDialogHandles();
+
+    /// <summary>Window event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="msg">Event message</param>
+    /// <param name="wParam">Command</param>
+    /// <param name="lParam">Informations</param>
+    /// <returns>Action code</returns>
+    static INT_PTR CALLBACK eventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

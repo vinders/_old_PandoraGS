@@ -20,8 +20,8 @@ HWND  CoreMemory::gen_hWindow = NULL;        // main emulator window handle
 HMENU CoreMemory::gen_hMenu = NULL;          // emulator menu handle
 DWORD CoreMemory::gen_origStyle = 0uL;       // original window style
 #endif
-std::string  gen_gameId = "";                // game executable ID
-bool gen_isFirstOpening = true;              // first GPUopen()
+std::string  CoreMemory::gen_gameId = "";                // game executable ID
+bool CoreMemory::gen_isFirstOpening = true;              // first GPUopen()
 
 // psx emulated memory
 int           CoreMemory::mem_gpuVramSize = PSXVRAM_SIZE;

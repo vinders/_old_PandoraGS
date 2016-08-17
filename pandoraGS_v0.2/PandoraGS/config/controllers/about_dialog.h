@@ -21,11 +21,14 @@ class AboutDialog
 public:
     AboutDialogView* m_pView; // visuals container
 
-
 public:
+    /// <summary>Initialize "about" view</summary>
+    /// <exception cref="std::exception">Allocation failure</exception>
     AboutDialog();
+    /// <summary>Destroy "about" view</summary>
     ~AboutDialog();
 
+    /// <summary>Open "about" dialog</summary>
     void showDialog();
 };
 

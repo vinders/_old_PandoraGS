@@ -11,13 +11,26 @@ Description : about dialog - view
 #define _ABOUT_DIALOG_QTVIEW_H
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_QT
+#include <string>
 
 // About dialog box - view
 class AboutDialogView
 {
 public:
+    /// <summary>Initialize variables</summary>
     AboutDialogView();
+    /// <summary>Destroy dialog data</summary>
     ~AboutDialogView();
+
+    /// <summary>Create new dialog</summary>
+    /// <param name="caption">Window caption</param>
+    /// <returns>Window created</returns>
+    /// <exception cref="std::exception">Creation failure</exception>
+    static AboutDialogView* createWindow(std::string caption);
+
+    /// <summary>Display window</summary>
+    /// <exception cref="std::exception">No window or event exception</exception>
+    void setVisible();
 };
 
 #endif
