@@ -109,7 +109,6 @@ INT_PTR CALLBACK AboutDialogView::eventHandler(HWND hWindow, UINT msg, WPARAM wP
             SetDlgItemTextW(hWindow, IDC_ABOUT_TECH, tech.c_str());
             return (INT_PTR)TRUE;
         }
-            
         case WM_COMMAND: // dialog inner control
         {
             switch (LOWORD(wParam)) 
@@ -120,7 +119,6 @@ INT_PTR CALLBACK AboutDialogView::eventHandler(HWND hWindow, UINT msg, WPARAM wP
             } 
             break;
         }
-        
         case WM_CLOSE: // close button/shortcut
             EndDialog(hWindow, TRUE);
             return (INT_PTR)TRUE;

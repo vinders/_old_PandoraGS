@@ -31,10 +31,10 @@ void AboutDialog::showDialog()
 {
     try
     {
-        // create "about" window with caption, title and content
+        // create "about" dialog with caption
         m_pView = AboutDialogView::createWindow(PLUGIN_ABOUT_TITLE);
 
-        // display window
+        // display dialog
         m_pView->setVisible(); // display + event handling loop
     }
     catch (std::exception exc)
