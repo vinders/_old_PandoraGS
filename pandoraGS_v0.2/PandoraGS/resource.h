@@ -3,8 +3,8 @@
 // Used by pandoraGS.rc
 //
 #define IDS_ACTIVATION_CONTEXT          2
-#define IDS_APP_TITLE			        103
-#define IDB_MAIN_LOGO			        104
+#define IDS_APP_TITLE                   103
+#define IDB_MAIN_LOGO                   104
 #define IDD_ABOUT_DIALOG                105
 #define IDC_ABOUT_TECH                  106
 
