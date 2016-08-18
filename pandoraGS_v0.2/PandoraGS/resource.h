@@ -51,7 +51,7 @@
 #define IDC_MNG_BTN_REMOVE              312
 #define IDC_MNG_BTN_IMPORT              313
 #define IDC_MNG_BTN_EXPORT              314
-#define IDC_MNG_PRESETS                 315
+#define IDS_MNG_PRESETS                 315
 #define IDC_MNG_PRESETS_LIST            316
 #define IDC_MNG_BTN_PRESETS             317
 

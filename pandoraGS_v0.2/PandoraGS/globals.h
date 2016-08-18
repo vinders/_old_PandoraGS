@@ -27,10 +27,10 @@ Description : global constants and definitions + PSEmu Pro specification
 // other informations
 #define PLUGIN_ABOUT_TITLE "About PandoraGS..."
 #ifdef _WINDOWS
-#define PLUGIN_THANKS      "Tapeq - for providing useful docs\r\nPete & iCatButler - for sharing public sources\
+#define PLUGIN_THANKS      "Tapeq - for providing useful docs\r\nPete and iCatButler - for sharing public sources\
  \r\nCalb & ePSXe - for adding exe-name support\r\nAsmodean - for his awesome shaders\r\nThe OpenGL SuperBible book"
 #else
-#define PLUGIN_THANKS      "Tapeq - for providing useful docs\nPete & iCatButler - for sharing public sources\
+#define PLUGIN_THANKS      "Tapeq - for providing useful docs\nPete and iCatButler - for sharing public sources\
  \nCalb & ePSXe - for adding exe-name support\nAsmodean - for his awesome shaders\nThe OpenGL SuperBible book"
 #endif
 
