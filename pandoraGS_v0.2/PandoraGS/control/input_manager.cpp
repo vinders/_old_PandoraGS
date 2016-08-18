@@ -214,16 +214,16 @@ LRESULT CALLBACK InputManager::keyHandler(HWND hWindow, UINT eventType, WPARAM w
             // miscellaneous
             if (wpCode == (WPARAM)(Config::misc_gpuKeys[(int)GpuKeys_Debug]))
             {
-                if (Config::rnd_debugMode == DebugMode_None) // not debugging -> toggle FPS display
+                if (Config::rnd_debugMode == (uint32_t)DebugMode_None) // not debugging -> toggle FPS display
                 {
                     Config::rnd_isFpsDisplayed = !(Config::rnd_isFpsDisplayed);
                 }
                 else // debug mode -> next mode
                 {
-                    if (Config::rnd_debugMode < DebugMode_TexturedMode)
-                        Config::rnd_debugMode = (DebugMode)((int)Config::rnd_debugMode + 1);
+                    if (Config::rnd_debugMode < (uint32_t)DebugMode_TexturedMode)
+                        Config::rnd_debugMode += 1;
                     else
-                        Config::rnd_debugMode = DebugMode_BaseMode;
+                        Config::rnd_debugMode = DebugMode_Normal;
                 }
                 break;
             }

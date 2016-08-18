@@ -33,18 +33,11 @@ enum GpuKeys
     GpuKeys_SlowMotion = 7,         // slow mode on/off
     GpuKeys_Debug = 8               // FPS display / next debug mode
 };
-// debug modes
-enum DebugMode
-{
-    DebugMode_None = 0,
-    DebugMode_BaseMode = 1,
-    DebugMode_TexturedMode = 2
-};
 // timing mode
 enum TimingMode
 {
     TimingMode_MultimediaClock = 0, // low res, steady
-    TimingMode_HighResCounter = 1,  // high res, unstable
+    TimingMode_HighResCounter = 1  // high res, unstable
 };
 
 // general fixes
@@ -65,9 +58,8 @@ private:
 public:
     // general
     static uint32_t   gen_langCode;        // language identifier
-    static bool       rnd_isFloatAccuracy; // anti-jitter GTE accuracy
-    static bool       rnd_hasPsxPrimitives;// support for more PSX GPU primitives
-    static DebugMode  rnd_debugMode;       // debug mode (or 0)
+    static uint32_t   rnd_floatAccuracy;   // anti-jitter GTE accuracy
+    static uint32_t   rnd_debugMode;       // debug mode (or 0)
     static bool       rnd_isFpsDisplayed;  // show FPS (on/off)
 
     // display
@@ -184,6 +176,24 @@ public:
     /// <param name="index">Profile index (0 based)</param>
     /// <exception cref="std::exception">Memory allocation failure</exception>
     static void useProfile(uint32_t index);
+};
+
+
+// debug modes
+enum DebugMode
+{
+    DebugMode_None = 0,  // normal mode (debug off)
+    DebugMode_Normal = 1,// normal mode (debug on)
+    DebugMode_BaseMode = 2,    // lines + polygons (color by order)
+    DebugMode_AccuracyMode = 3,// lines + polygons (color based on accuracy)
+    DebugMode_TexturedMode = 4 // lines + textured polygons
+};
+// GTE accuracy
+enum FloatAccuracy
+{
+    FloatAccuracy_None = 0,
+    FloatAccuracy_Simple = 1,  // simple accuracy mode (float coord)
+    FloatAccuracy_Advanced = 2 // with caching and original coord copy
 };
 
 #endif

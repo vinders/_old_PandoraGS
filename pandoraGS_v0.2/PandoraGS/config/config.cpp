@@ -13,30 +13,29 @@ using namespace std;
 #include "lang.h"
 
 // profiles
-ConfigProfile** Config::m_pProfiles = NULL;   // config profiles array
+ConfigProfile** Config::m_pProfiles = NULL;  // config profiles array
 uint32_t Config::m_profilesArrayLength = 0u; // profiles array length
 uint32_t Config::m_currentProfile = 0u;      // active profile ID
 bool Config::m_isReady = false;
 // general
-uint32_t Config::gen_langCode;            // language identifier
-bool         Config::rnd_isFloatAccuracy; // anti-jitter GTE accuracy
-bool         Config::rnd_hasPsxPrimitives;// support for more PSX GPU primitives
-DebugMode    Config::rnd_debugMode;       // debug mode (or 0)
-bool         Config::rnd_isFpsDisplayed;  // show FPS (on/off)
+uint32_t Config::gen_langCode;        // language identifier
+uint32_t Config::rnd_floatAccuracy; // anti-jitter GTE accuracy
+uint32_t Config::rnd_debugMode;       // debug mode (or 0)
+bool     Config::rnd_isFpsDisplayed;  // show FPS (on/off)
 // display
-bool         Config::dsp_isFullscreen;    // display mode (fullscreen/window)
-uint32_t Config::dsp_fullscnResX;         // fullscreen display resolution [x]
-uint32_t Config::dsp_fullscnResY;         // fullscreen display resolution [y]
-uint32_t Config::dsp_windowResX;          // window display resolution [x]
-uint32_t Config::dsp_windowResY;          // window display resolution [y]
-bool         Config::dsp_isWindowResizable; // resizable window mode
-bool         Config::dsp_isColorDepth32;  // color depth mode (32/16-bit)
+bool     Config::dsp_isFullscreen;    // display mode (fullscreen/window)
+uint32_t Config::dsp_fullscnResX;     // fullscreen display resolution [x]
+uint32_t Config::dsp_fullscnResY;     // fullscreen display resolution [y]
+uint32_t Config::dsp_windowResX;      // window display resolution [x]
+uint32_t Config::dsp_windowResY;      // window display resolution [y]
+bool     Config::dsp_isWindowResizable; // resizable window mode
+bool     Config::dsp_isColorDepth32;  // color depth mode (32/16-bit)
 // framerate
-bool         Config::sync_isVerticalSync;  // vsync (on/off)
-bool         Config::sync_isFrameSkip;     // frame skipping mode (on/off)
-bool         Config::sync_isFrameLimit;    // frame limit mode (on/off)
-float        Config::sync_framerateLimit;  // framerate limit (0=auto / value=fixed)
-TimingMode   Config::sync_timeMode;        // type of timer
+bool     Config::sync_isVerticalSync;  // vsync (on/off)
+bool     Config::sync_isFrameSkip;     // frame skipping mode (on/off)
+bool     Config::sync_isFrameLimit;    // frame limit mode (on/off)
+float    Config::sync_framerateLimit;  // framerate limit (0=auto / value=fixed)
+TimingMode Config::sync_timeMode;      // type of timer
 // miscellaneous
 bool Config::misc_isScreensaverDisabled;   // disable screensaver
 char Config::misc_gpuKeys[GPUKEYS_LENGTH]; // plugin key bindings
@@ -67,8 +66,7 @@ void Config::close()
 /// <summary>Set base config default values</summary>
 void Config::setDefaultValues()
 {
-    rnd_isFloatAccuracy = false;
-    rnd_hasPsxPrimitives = false;
+    rnd_floatAccuracy = FloatAccuracy_None;
     rnd_debugMode = DebugMode_None;
     rnd_isFpsDisplayed = false;
 

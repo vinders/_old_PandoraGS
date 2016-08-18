@@ -128,9 +128,8 @@ void ConfigIO::loadConfig(bool hasProfileArray, bool hasProfileValues)
 
         // general
         readRegDword<uint32_t>(&(Config::gen_langCode), &configKey, L"Lang", &type, &size);
-        readRegBool(&(Config::rnd_isFloatAccuracy), &configKey, L"FloatAcc", &type, &size);
-        readRegBool(&(Config::rnd_hasPsxPrimitives), &configKey, L"PsxPrim", &type, &size);
-        readRegDword<DebugMode>(&(Config::rnd_debugMode), &configKey, L"Debug", &type, &size);
+        readRegDword<uint32_t>(&(Config::rnd_floatAccuracy), &configKey, L"FloatAcc", &type, &size);
+        readRegDword<uint32_t>(&(Config::rnd_debugMode), &configKey, L"Debug", &type, &size);
         readRegBool(&(Config::rnd_isFpsDisplayed), &configKey, L"ShowFps", &type, &size);
 
         // display
@@ -214,11 +213,9 @@ void ConfigIO::saveConfig(bool hasProfiles)
         // general
         val = Config::gen_langCode;
         RegSetValueEx(configKey, L"Lang", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (Config::rnd_isFloatAccuracy) ? 1uL : 0uL;
+        val = Config::rnd_floatAccuracy;
         RegSetValueEx(configKey, L"FloatAcc", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (Config::rnd_hasPsxPrimitives) ? 1uL : 0uL;
-        RegSetValueEx(configKey, L"PsxPrim", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (DWORD)(Config::rnd_debugMode);
+        val = Config::rnd_debugMode;
         RegSetValueEx(configKey, L"Debug", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (Config::rnd_isFpsDisplayed) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"ShowFps", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
