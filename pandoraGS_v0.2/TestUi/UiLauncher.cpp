@@ -7,7 +7,7 @@ Description : test app - plugin dialogs/GUI
 #include <Windows.h>
 #include <tchar.h>
 
-#include "service_main.h" // plugin interface
+#include "gui_main.h" // plugin interface
 
 ///<summary>Test plugin dialogs</summary>
 ///<returns>Exit code</returns>
