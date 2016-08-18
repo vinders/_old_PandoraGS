@@ -18,7 +18,18 @@ Description : configuration dialog page - profiles manager - view
 // Configuration dialog page - profiles manager - view
 class ConfigPageManagerView : public ConfigPageView
 {
+public:
+    /// <summary>Create page view container</summary>
+    /// <param name="pController">Controller reference</param>
+    ConfigPageManagerView(ConfigPage* pController);
+    /// <summary>Destroy dialog view container</summary>
+    ~ConfigPageManagerView();
 
+    /// <summary>Create new dialog page</summary>
+    /// <param name="pController">Controller reference</param>
+    /// <returns>Page created</returns>
+    /// <exception cref="std::exception">Creation failure</exception>
+    static ConfigPageManagerView* createPage(ConfigPageManager* pController);
 };
 
 #endif

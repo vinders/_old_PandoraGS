@@ -60,11 +60,11 @@ private:
     static ConfigProfile** m_pProfiles;    // config profiles array
     static uint32_t m_profilesArrayLength; // profiles array length
     static uint32_t m_currentProfile;      // active profile ID
-    static bool m_isReady;
+    static bool m_isReady; // mutex
 
 public:
     // general
-    static uint32_t gen_langCode;        // language identifier
+    static uint32_t   gen_langCode;        // language identifier
     static bool       rnd_isFloatAccuracy; // anti-jitter GTE accuracy
     static bool       rnd_hasPsxPrimitives;// support for more PSX GPU primitives
     static DebugMode  rnd_debugMode;       // debug mode (or 0)

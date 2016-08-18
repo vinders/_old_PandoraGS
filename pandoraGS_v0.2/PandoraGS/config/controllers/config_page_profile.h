@@ -17,7 +17,15 @@ Description : configuration dialog page - profile settings - business logic
 // Configuration dialog page - profile settings - business logic
 class ConfigPageProfile : public ConfigPage
 {
+public:
+    /// <summary>Initialize controller variables</summary>
+    ConfigPageProfile(ConfigDialog* pParent) : ConfigPage(pParent) {}
+    /// <summary>Destroy controller data</summary>
+    ~ConfigPageProfile();
 
+    /// <summary>Create config page view</summary>
+    /// <exception cref="std::exception">Creation failure</exception>
+    virtual void createView();
 };
 
 #endif

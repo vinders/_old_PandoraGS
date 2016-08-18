@@ -22,13 +22,25 @@ class ConfigDialog;
 class ConfigDialogView
 {
 private:
-    ConfigPageView* m_pPages; // page views
-    ConfigDialog* m_pBinding; // viewmodel data binding
-
+    ConfigPageView** m_pPages; // sub-page views
+    ConfigDialog* m_pController; // controller reference
 
 public:
-    ConfigDialogView(ConfigDialog* pBinding);
+    /// <summary>Create dialog view container</summary>
+    /// <param name="pController">Controller reference</param>
+    ConfigDialogView(ConfigDialog* pController);
+    /// <summary>Destroy dialog view container</summary>
     ~ConfigDialogView();
+
+    /// <summary>Create new dialog</summary>
+    /// <param name="pController">Controller reference</param>
+    /// <returns>Window created</returns>
+    /// <exception cref="std::exception">Creation failure</exception>
+    static ConfigDialogView* createWindow(ConfigDialog* pController);
+
+    /// <summary>Display window</summary>
+    /// <exception cref="std::exception">No window or event exception</exception>
+    void setVisible();
 };
 
 

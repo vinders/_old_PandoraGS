@@ -17,7 +17,15 @@ Description : configuration dialog page - general - business logic
 // Configuration dialog page - general settings - business logic
 class ConfigPageGeneral : public ConfigPage
 {
+public:
+    /// <summary>Initialize controller variables</summary>
+    ConfigPageGeneral(ConfigDialog* pParent) : ConfigPage(pParent) {}
+    /// <summary>Destroy controller data</summary>
+    ~ConfigPageGeneral();
 
+    /// <summary>Create config page view</summary>
+    /// <exception cref="std::exception">Creation failure</exception>
+    virtual void createView();
 };
 
 #endif

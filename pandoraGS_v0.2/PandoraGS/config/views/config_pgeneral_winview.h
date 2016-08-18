@@ -18,7 +18,18 @@ Description : configuration dialog page - general - view
 // Configuration dialog page - general settings - view
 class ConfigPageGeneralView : public ConfigPageView
 {
+public:
+    /// <summary>Create page view container</summary>
+    /// <param name="pController">Controller reference</param>
+    ConfigPageGeneralView(ConfigPage* pController);
+    /// <summary>Destroy dialog view container</summary>
+    ~ConfigPageGeneralView();
 
+    /// <summary>Create new dialog page</summary>
+    /// <param name="pController">Controller reference</param>
+    /// <returns>Page created</returns>
+    /// <exception cref="std::exception">Creation failure</exception>
+    static ConfigPageGeneralView* createPage(ConfigPageGeneral* pController);
 };
 
 #endif

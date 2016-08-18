@@ -20,22 +20,44 @@ Description : configuration dialog - business logic
 #include "config_dialog_winview.h"
 #include "config_dialog_qtview.h"
 
+#define CONFIG_DIALOG_PAGES_NB 3u
+#define CONFIG_PAGE_GENERAL 0u
+#define CONFIG_PAGE_MANAGER 1u
+#define CONFIG_PAGE_PROFILE 2u
+
 
 // Configuration dialog box - business logic
 class ConfigDialog
 {
 private:
     ConfigDialogView* m_pView; // visuals container
-public:
     LanguageDialogResource* m_pLang; // language resource
-    ConfigPage* m_pPages; // dialog pages
-
+    ConfigPage** m_pPages; // dialog pages
 
 public:
+    /// <summary>Initialize controller variables</summary>
     ConfigDialog();
+    /// <summary>Destroy controller data</summary>
     ~ConfigDialog();
 
+    /// <summary>Create and display config dialog</summary>
     void showDialog();
+
+    // -- GETTERS -- -----------------------------------------------------------
+
+    /// <summary>Get language resource</summary>
+    /// <returns>Language resource pointer</returns>
+    inline LanguageDialogResource* getLangResource()
+    {
+        return m_pLang;
+    }
+    /// <summary>Get subpage controller</summary>
+    /// <param name="index">Page identifier</param>
+    /// <returns>Page controller pointer</returns>
+    inline ConfigPage* getConfigPage(uint32_t index)
+    {
+        return m_pPages[index];
+    }
 };
 
 #define _CONFIG_DIALOG_H_END

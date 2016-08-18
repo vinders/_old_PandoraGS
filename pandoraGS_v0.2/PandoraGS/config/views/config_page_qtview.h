@@ -20,12 +20,20 @@ class ConfigPage;
 class ConfigPageView
 {
 protected:
-    ConfigPage* m_pBinding; // viewmodel data binding
-
+    ConfigPage* m_pController; // controller reference
 
 public:
-    ConfigPageView(ConfigPage* pBinding);
+    /// <summary>Create page view container</summary>
+    /// <param name="pController">Controller reference</param>
+    ConfigPageView(ConfigPage* pController);
+    /// <summary>Destroy dialog view container</summary>
     ~ConfigPageView();
+
+    /// <summary>Create new dialog page</summary>
+    /// <param name="pController">Controller reference</param>
+    /// <returns>Page created</returns>
+    /// <exception cref="std::exception">Creation failure</exception>
+    static ConfigPageView* createPage(ConfigPage* pController);
 };
 
 #include "config_page.h"

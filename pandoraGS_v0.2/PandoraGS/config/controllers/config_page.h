@@ -23,12 +23,26 @@ class ConfigDialog;
 class ConfigPage
 {
 protected:
-    ConfigDialog* m_pParent; // parent viewmodel reference
+    ConfigDialog* m_pParent; // parent controller reference
     ConfigPageView* m_pView; // visuals container
 
 public:
-    ConfigPage(ConfigDialog* pParent, ConfigPageView* pView);
-    ~ConfigPage();
+    /// <summary>Initialize controller variables</summary>
+    /// <param name="pParent">Parent controller reference</param>
+    ConfigPage(ConfigDialog* pParent);
+    /// <summary>Destroy controller data</summary>
+    virtual ~ConfigPage() {}
+
+    /// <summary>Create config page view</summary>
+    /// <exception cref="std::exception">Creation failure</exception>
+    virtual void createView() = 0;
+
+    /// <summary>Get page view</summary>
+    /// <returns>Page view pointer</returns>
+    ConfigPageView* getView() const
+    {
+        return m_pView;
+    }
 };
 
 #define _CONFIG_PAGE_H_END
