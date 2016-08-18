@@ -21,6 +21,7 @@
 #define IDD_ADDPROFILE_DIALOG           132
 #define IDD_IMPORT_DIALOG               133
 #define IDD_EXPORT_DIALOG               134
+#define IDD_EDITPROFILE_DIALOG          135
 
 #define IDS_GEN_GROUP1                  201
 #define IDS_GEN_RESOLUTION              202
@@ -46,12 +47,16 @@
 #define IDC_GEN_BTN_ADVANCED            232
 
 #define IDC_MNG_BTN_ADD                 310
-#define IDC_MNG_BTN_REMOVE              311
-#define IDC_MNG_BTN_IMPORT              312
-#define IDC_MNG_BTN_EXPORT              313
-#define IDC_MNG_PRESETS                 314
-#define IDC_MNG_PRESETS_LIST            315
-#define IDC_MNG_BTN_PRESETS             316
+#define IDC_MNG_BTN_EDIT                311
+#define IDC_MNG_BTN_REMOVE              312
+#define IDC_MNG_BTN_IMPORT              313
+#define IDC_MNG_BTN_EXPORT              314
+#define IDC_MNG_PRESETS                 315
+#define IDC_MNG_PRESETS_LIST            316
+#define IDC_MNG_BTN_PRESETS             317
+
+#define IDS_PROFILE                     399
+#define IDC_PROFILE_LIST                400
 
 #define IDS_PRO_GROUP1                  401
 #define IDS_PRO_TXFILTER                402
@@ -83,6 +88,29 @@
 #define IDS_PROSTR_BLACKBORDERS_UNIT    517
 #define IDC_PROSTR_CURVATURE_CHECK      518
 #define IDC_PROSTR_CURVATURE_LIST       519
+
+#define IDS_ADD_NAME                    440
+#define IDC_ADD_NAME_EDIT               441
+#define IDC_ADD_PRESET_RADIO            442
+#define IDC_ADD_PRESET_LIST             443
+#define IDC_ADD_CLONE_RADIO             444
+#define IDC_ADD_CLONE_LIST              445
+
+#define IDS_IMPORT_NAME                 450
+#define IDC_IMPORT_NAME_EDIT            451
+#define IDS_IMPORT_PATH                 452
+#define IDC_IMPORT_PATH_EDIT            453
+#define IDC_IMPORT_BTN_PATH             454
+#define IDS_EXPORT_PATH                 455
+#define IDC_EXPORT_PATH_EDIT            456
+#define IDC_EXPORT_BTN_PATH             457
+
+#define IDS_EDT_NAME                    460
+#define IDC_EDT_NAME_EDIT               461
+#define IDS_EDT_ASSOC                   462
+#define IDC_EDT_ASSOC_LIST              463
+#define IDC_EDT_BTN_ASSOC               464 
+
 
 // Next default values for new objects
 // 
