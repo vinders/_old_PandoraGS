@@ -90,6 +90,8 @@
 #define IDC_PROSTR_BLACKBORDERSY_EDIT   518
 #define IDC_PROSTR_CURVATURE_CHECK      519
 #define IDC_PROSTR_CURVATURE_LIST       520
+#define IDC_PROSTR_PRESET_LIST          521
+#define IDC_PROSTR_PICTUREBOX           522
 
 #define IDS_ADD_NAME                    440
 #define IDC_ADD_NAME_EDIT               441
