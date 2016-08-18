@@ -4,11 +4,11 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-File name :   service_main.h
+File name :   gui_main.h
 Description : driver service interface (PSEmu)
 *******************************************************************************/
-#ifndef _SERVICE_MAIN_H
-#define _SERVICE_MAIN_H
+#ifndef _GUI_MAIN_H
+#define _GUI_MAIN_H
 #include "globals.h"
 
 

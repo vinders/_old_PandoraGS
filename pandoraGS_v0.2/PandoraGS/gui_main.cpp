@@ -4,7 +4,7 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-File name :   service_main.cpp
+File name :   gui_main.cpp
 Description : driver service interface (PSEmu)
 *******************************************************************************/
 #include <string>
@@ -23,7 +23,7 @@ using namespace std;
 #include "about_dialog.h"
 #include "config_dialog.h"
 #include "log_utility.h"
-#include "service_main.h"
+#include "gui_main.h"
 
 // global data
 static char* s_pLibName = PLUGIN_NAME;

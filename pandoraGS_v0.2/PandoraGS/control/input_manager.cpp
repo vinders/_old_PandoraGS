@@ -14,7 +14,7 @@ using namespace std;
 #include "config.h"
 #include "core_memory.h"
 #include "log_utility.h"
-#include "service_main.h"
+#include "gui_main.h"
 #include "input_manager.h"
 
 // global data
