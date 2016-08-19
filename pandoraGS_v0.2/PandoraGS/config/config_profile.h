@@ -87,8 +87,17 @@ public:
     // color filters
     //couleurs -> natural vision, couleurs daltoniens
     //inscrustations -> couleur, type incrustation, transparence
-    //scanlines -> plusieurs sortes (noir, ligne dédoublée en plus foncé, quadrillage, points, triangles)
-    //scanlines -> choix intensité et transparence
+    
+    //scanlines types :
+    //      - simples lignes sombres (garder pixels originaux)
+    //      - simples lignes sombres avec moyenne des valeurs des pixels
+    //      - en lignes  R V B     (R et B contiennent un peu du V)
+    //                    B V R   (vert + ajout beaucoup R et B)
+    //      - en triangles   R    V B   (tous avec un peu plus des deux autres)
+    //                      V B    R
+    //scanlines: INT: couleur unie (noir) / valeur pixel -> slider (0-8)
+    //scanlines: INT: sombre (noir) / coloré-clair (0-16 -> deviendra 0-255 pour couleur unie)
+    
     //corrections -> gamma (+ presets PAL, NTSC, neutre), contraste
     //...
 

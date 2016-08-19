@@ -22,6 +22,8 @@
 #define IDD_IMPORT_DIALOG               133
 #define IDD_EXPORT_DIALOG               134
 #define IDD_EDITPROFILE_DIALOG          135
+#define IDD_SCANLINES_DIALOG            136
+#define IDD_CURSOR_DIALOG               137
 
 #define IDS_GEN_GROUP1                  201
 #define IDS_GEN_RESOLUTION              202
@@ -68,8 +70,16 @@
 #define IDS_PRO_SCRFILTER               408
 #define IDC_PRO_SCRFILTER_LIST          409
 #define IDC_PRO_MDEC_CHECK              410
-#define IDC_PRO_FXAA_CHECK              420
-#define IDC_PRO_AAFILTER_LIST           421
+#define IDS_PRO_GROUP2                  411
+#define IDC_PRO_FXAA_CHECK              412
+#define IDC_PRO_FXAA_LIST               413
+#define IDC_PRO_FXHDR_CHECK             414
+#define IDC_PRO_FXHDR_LIST              415
+#define IDS_PRO_GROUP3                  422
+#define IDC_PRO_SCANLINES_CHECK         423
+#define IDC_PRO_BTN_SCANLINES           424
+#define IDC_PRO_CURSOR_CHECK            425
+#define IDC_PRO_BTN_CURSOR              426
 
 #define IDS_PROSTR_INTRES               501
 #define IDC_PROSTR_INTRESX_LIST         502
@@ -92,27 +102,42 @@
 #define IDC_PROSTR_CURVATURE_CHECK      519
 #define IDC_PROSTR_CURVATURE_LIST       520
 
-#define IDS_ADD_NAME                    440
-#define IDC_ADD_NAME_EDIT               441
-#define IDC_ADD_PRESET_RADIO            442
+#define IDS_ADD_NAME                    450
+#define IDC_ADD_NAME_EDIT               451
+#define IDC_ADD_PRESET_RADIO            452
 #define IDC_ADD_PRESET_LIST             443
-#define IDC_ADD_CLONE_RADIO             444
-#define IDC_ADD_CLONE_LIST              445
+#define IDC_ADD_CLONE_RADIO             454
+#define IDC_ADD_CLONE_LIST              455
+#define IDS_IMPORT_NAME                 460
+#define IDC_IMPORT_NAME_EDIT            461
+#define IDS_IMPORT_PATH                 462
+#define IDC_IMPORT_PATH_EDIT            463
+#define IDC_IMPORT_BTN_PATH             464
+#define IDS_EXPORT_PATH                 465
+#define IDC_EXPORT_PATH_EDIT            466
+#define IDC_EXPORT_BTN_PATH             467
+#define IDS_EDT_NAME                    470
+#define IDC_EDT_NAME_EDIT               471
+#define IDS_EDT_ASSOC                   472
+#define IDC_EDT_ASSOC_LIST              473
+#define IDC_EDT_BTN_ASSOC               474 
 
-#define IDS_IMPORT_NAME                 450
-#define IDC_IMPORT_NAME_EDIT            451
-#define IDS_IMPORT_PATH                 452
-#define IDC_IMPORT_PATH_EDIT            453
-#define IDC_IMPORT_BTN_PATH             454
-#define IDS_EXPORT_PATH                 455
-#define IDC_EXPORT_PATH_EDIT            456
-#define IDC_EXPORT_BTN_PATH             457
-
-#define IDS_EDT_NAME                    460
-#define IDC_EDT_NAME_EDIT               461
-#define IDS_EDT_ASSOC                   462
-#define IDC_EDT_ASSOC_LIST              463
-#define IDC_EDT_BTN_ASSOC               464 
+#define IDC_SCANLINES_PICTUREBOX        601
+#define IDC_SCANLINES_LIST              602
+#define IDS_SCANLINES_COLOR_MIN         603
+#define IDC_SCANLINES_COLOR_SLIDER      604 
+#define IDS_SCANLINES_COLOR_MAX         605
+#define IDS_SCANLINES_BRIGHTNESS_MIN    606
+#define IDC_SCANLINES_BRIGHTNESS_SLIDER 607
+#define IDS_SCANLINES_BRIGHTNESS_MAX    608
+#define IDC_CURSOR_PICTUREBOX           609
+#define IDC_CURSOR_LIST                 610
+#define IDS_CURSOR_COLOR                611
+#define IDC_CURSOR_COLOR_SLIDER         612
+#define IDS_CURSOR_SAT                  613
+#define IDC_CURSOR_SAT_SLIDER           614
+#define IDS_CURSOR_OPACITY              615
+#define IDC_CURSOR_OPACITY_SLIDER       616
 
 
 // Next default values for new objects
