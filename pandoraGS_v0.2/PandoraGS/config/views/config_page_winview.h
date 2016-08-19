@@ -27,7 +27,7 @@ public:
     /// <param name="pController">Controller reference</param>
     ConfigPageView(ConfigPage* pController);
     /// <summary>Destroy dialog view container</summary>
-    ~ConfigPageView();
+    virtual ~ConfigPageView();
 };
 
 #include "config_page.h"
