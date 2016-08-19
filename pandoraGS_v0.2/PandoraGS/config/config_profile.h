@@ -141,8 +141,10 @@ public:
 // screen ratio modes
 enum CFG_ScreenRatio
 {
-    CFG_Ratio_Aspect = 0,
-    CFG_Ratio_Pixel = 1
+    CFG_Ratio_Aspect = 0,       // auto - Pete's method
+    CFG_Ratio_Aspect_15_10 = 1, // 15:10 - NTSC US/J + some PAL ports
+    CFG_Ratio_Aspect_4_3 = 2,   // 4:3 - PAL standard
+    CFG_Ratio_Pixel = 3
 };
 #define CFG_ScreenRatio_LENGTH 2
 // screen stretching presets
