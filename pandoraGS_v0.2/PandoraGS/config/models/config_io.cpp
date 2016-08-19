@@ -346,12 +346,12 @@ ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
         if (pProfile->dsp_internalResY == 0)
             pProfile->dsp_internalResY = 2;
         readRegDword<uint32_t>(&(pProfile->dsp_ratioType), &profileKey, L"Ratio", &type, &size);
-        readRegDword<uint32_t>(&(pProfile->dsp_stretchCutRatio), &profileKey, L"StretchCutRatio", &type, &size);
-        if (pProfile->dsp_stretchCutRatio > CFG_RATIO_MAX)
-            pProfile->dsp_stretchCutRatio = CFG_RATIO_MAX;
-        readRegDword<uint32_t>(&(pProfile->dsp_cutStrength), &profileKey, L"CutStrength", &type, &size);
-        if (pProfile->dsp_cutStrength > CFG_RATIO_MAX)
-            pProfile->dsp_cutStrength = CFG_RATIO_MAX;
+        readRegDword<uint32_t>(&(pProfile->dsp_stretchRatio), &profileKey, L"StretchCutRatio", &type, &size);
+        if (pProfile->dsp_stretchRatio > CFG_RATIO_MAX)
+            pProfile->dsp_stretchRatio = CFG_RATIO_MAX;
+        readRegDword<uint32_t>(&(pProfile->dsp_cropStrength), &profileKey, L"CutStrength", &type, &size);
+        if (pProfile->dsp_cropStrength > CFG_RATIO_MAX)
+            pProfile->dsp_cropStrength = CFG_RATIO_MAX;
         readRegBool(&(pProfile->dsp_isScreenMirror), &profileKey, L"Mirror", &type, &size);
         readRegDword<uint32_t>(&(pProfile->dsp_borderSize), &profileKey, L"BorderSize", &type, &size);
         readRegDword<uint32_t>(&(pProfile->dsp_screenCurved), &profileKey, L"CrtCurved", &type, &size);
@@ -410,9 +410,9 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         RegSetValueEx(profileKey, L"IntResY", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->dsp_ratioType;
         RegSetValueEx(profileKey, L"Ratio", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pProfile->dsp_stretchCutRatio;
+        val = pProfile->dsp_stretchRatio;
         RegSetValueEx(profileKey, L"StretchCutRatio", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pProfile->dsp_cutStrength;
+        val = pProfile->dsp_cropStrength;
         RegSetValueEx(profileKey, L"CutStrength", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pProfile->dsp_isScreenMirror) ? 1uL : 0uL;
         RegSetValueEx(profileKey, L"Mirror", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));

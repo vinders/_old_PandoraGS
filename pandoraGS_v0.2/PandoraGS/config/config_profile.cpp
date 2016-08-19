@@ -42,8 +42,8 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     dsp_internalResX = copy.dsp_internalResX;
     dsp_internalResY = copy.dsp_internalResY;
     dsp_ratioType = copy.dsp_ratioType;
-    dsp_stretchCutRatio = copy.dsp_stretchCutRatio;
-    dsp_cutStrength = copy.dsp_cutStrength;
+    dsp_stretchRatio = copy.dsp_stretchRatio;
+    dsp_cropStrength = copy.dsp_cropStrength;
     dsp_isScreenMirror = copy.dsp_isScreenMirror;
     dsp_borderSize = copy.dsp_borderSize;
     dsp_screenCurved = copy.dsp_screenCurved;
@@ -76,8 +76,8 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             dsp_internalResX = 2u;
             dsp_internalResY = 4u;
             dsp_ratioType = CFG_Ratio_Aspect;
-            dsp_stretchCutRatio = CFG_RATIO_STRETCH_FullWindow;
-            dsp_cutStrength = CFG_RATIO_CUT_FullWindow;
+            dsp_stretchRatio = CFG_RATIO_STRETCH_FullWindow;
+            dsp_cropStrength = CFG_RATIO_CROP_FullWindow;
             //...
             break;
         }
@@ -98,8 +98,8 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             dsp_internalResX = 1u;
             dsp_internalResY = 1u;
             dsp_ratioType = CFG_Ratio_Aspect;
-            dsp_stretchCutRatio = CFG_RATIO_STRETCH_Orig;
-            dsp_cutStrength = CFG_RATIO_CUT_Orig;
+            dsp_stretchRatio = CFG_RATIO_STRETCH_Orig;
+            dsp_cropStrength = CFG_RATIO_CROP_Orig;
             //...
             break;
         }
@@ -120,8 +120,8 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             dsp_internalResX = 1u;
             dsp_internalResY = 1u;
             dsp_ratioType = CFG_Ratio_Aspect;
-            dsp_stretchCutRatio = CFG_RATIO_STRETCH_Orig;
-            dsp_cutStrength = CFG_RATIO_CUT_Orig;
+            dsp_stretchRatio = CFG_RATIO_STRETCH_Orig;
+            dsp_cropStrength = CFG_RATIO_CROP_Orig;
             //...
             break;
         }
@@ -142,8 +142,8 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             dsp_internalResX = 4u;
             dsp_internalResY = 8u;
             dsp_ratioType = CFG_Ratio_Aspect;
-            dsp_stretchCutRatio = CFG_RATIO_STRETCH_CloseToOrig;
-            dsp_cutStrength = CFG_RATIO_CUT_CloseToOrig;
+            dsp_stretchRatio = CFG_RATIO_STRETCH_CloseToOrig;
+            dsp_cropStrength = CFG_RATIO_CROP_CloseToOrig;
             //...
             break;
         }

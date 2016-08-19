@@ -78,8 +78,8 @@ public:
     uint32_t dsp_internalResX;    // internal resolution [x]
     uint32_t dsp_internalResY;    // internal resolution [y]
     uint32_t dsp_ratioType;       // screen ratio type (aspect ratio, pixel ratio)
-    uint32_t dsp_stretchCutRatio; // screen "keep ratio and cut" (0) / "full stretch" (8) - ratio (0 - 8)
-    uint32_t dsp_cutStrength;     // screen "black sides" (0) / "cut" (8) - strength (0 - 8)
+    uint32_t dsp_stretchRatio;    // screen "keep ratio" (0) / "full stretch" (8) - ratio (0 - 8)
+    uint32_t dsp_cropStrength;     // screen "black sides" (0) / "cropping" (8) - strength (0 - 8)
     bool     dsp_isScreenMirror;  // screen mirroring (mirrored/normal)
     uint32_t dsp_borderSize;      // add black borders (0 = none)
     uint32_t dsp_screenCurved;    // emulate curved CRT screen (0 to 2 ; 0 = none)
@@ -150,23 +150,21 @@ public:
 // screen ratio modes
 enum CFG_ScreenRatio
 {
-    CFG_Ratio_Aspect = 0,       // auto - Pete's method
-    CFG_Ratio_Aspect_15_10 = 1, // 15:10 - NTSC US/J + some PAL ports
-    CFG_Ratio_Aspect_4_3 = 2,   // 4:3 - PAL standard
-    CFG_Ratio_Pixel = 3
+    CFG_Ratio_Aspect = 0, // 15:10 - NTSC US/J + some PAL ports / 4:3 - PAL standard
+    CFG_Ratio_Pixel = 1
 };
 #define CFG_ScreenRatio_LENGTH 2
 // screen stretching presets
 #define CFG_RATIO_MAX  8
 #define CFG_RATIO_HALF 4
 #define CFG_RATIO_STRETCH_FullWindow  CFG_RATIO_MAX  // full window stretch - best if emulator uses widescreen hack
-#define CFG_RATIO_CUT_FullWindow      0
+#define CFG_RATIO_CROP_FullWindow     0
 #define CFG_RATIO_STRETCH_Orig        0              // keep ratio - best with 2D
-#define CFG_RATIO_CUT_Orig            0
-#define CFG_RATIO_STRETCH_OrigFill    0              // keep ratio & cut - strong top/bottom cut
-#define CFG_RATIO_CUT_OrigFill        CFG_RATIO_MAX
-#define CFG_RATIO_STRETCH_CloseToOrig CFG_RATIO_HALF // half stretch & slight cut - best with 3D
-#define CFG_RATIO_CUT_CloseToOrig     CFG_RATIO_MAX
+#define CFG_RATIO_CROP_Orig           0
+#define CFG_RATIO_STRETCH_OrigFill    0              // keep ratio & crop - strong top/bottom cut
+#define CFG_RATIO_CROP_OrigFill       CFG_RATIO_MAX
+#define CFG_RATIO_STRETCH_CloseToOrig CFG_RATIO_HALF // half stretch & slight cropping - best with 3D
+#define CFG_RATIO_CROP_CloseToOrig    CFG_RATIO_MAX
 
 // interpolation modes
 enum CFG_Interpolation
