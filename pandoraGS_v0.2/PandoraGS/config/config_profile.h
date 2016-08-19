@@ -61,11 +61,10 @@ public:
     uint32_t scl_screenSmooth;    // global screen smoothing
     bool     scl_isShaderUpscale;   // upscaling algorithm using shader (faster, less precision)
     bool     scl_isMdec;          // MDEC video filter
-    //ajout bruit aux textures (pour les rendre plus précises) -> taux : 0 - 10
-    //texture perspective correction ???
+    //ajout bruit aux textures (pour les rendre plus précises -> voir doomsday)
     //smooth texture transitions ('texture splatting' avec textures de polygones voisins)
                 //-> essayer de ne le faire qu'une fois par association de textures (tableau avec ID textures ?)
-                //-> paramètre étendue : léger / moyen / fort
+                //-> paramètre étendue : léger dégradé / moyen dégradé / moyen distribué / fort dégradé / fort distribué
                 //-> distribution pattern (au lieu de dégradé, baser transition sur masque 
                                         //(selon une image, ou selon nuages de plus en plus petits/transparents)
                 //-> étendue dépend de taille des polygones (petits polys = petites transitions) -> évite fond flou 
@@ -78,8 +77,7 @@ public:
     //HDR bloom
     //HDR lumasharpen
     //HDR divers (voir PsxFx et GSDX)
-    //renforcement (masque laplacien, unsharp masking) + param force (1 - 10)
-    //effets (cel-shading V1 à 4, kirsch-négatif, verre brisé, storybook, bruit, incrustations, ...) + force
+    //effets (cel-shading V1 à 4, kirsch-négatif, storybook, bruit, incrustations, ...) + force
     //effets colorimétrie (couleurs daltoniens, natural vision, CRT, verdatre, bleuatre, désaturé cuivré, désaturé gris) + force
 
     // screen adjustment
@@ -105,10 +103,12 @@ public:
     // miscellaneous
     uint32_t misc_fixBits; // custom fixes
     //corrections -> gamma/contraste (+ presets PAL, NTSC, neutre, presets selon jeux)
-    //path de shader externe ?
+    //texture perspective correction ???
+    //tessellation ???
+    //path absolu/relatif de shader externe ?
     //zbuffer/order table ???
-    //alpha/maskbit/... 
-    //framebuffer/...
+    //alpha/maskbit/psx texture window/...
+    //framebuffer/offscreen/...
 
 
 public:
