@@ -62,7 +62,14 @@ public:
     bool     scl_isShaderUpscale;   // upscaling algorithm using shader (faster, less precision)
     bool     scl_isMdec;          // MDEC video filter
     //ajout bruit aux textures (pour les rendre plus précises) -> taux : 0 - 10
-    //...
+    //texture perspective correction ???
+    //smooth texture transitions ('texture splatting' avec textures de polygones voisins)
+                //-> essayer de ne le faire qu'une fois par association de textures (tableau avec ID textures ?)
+                //-> paramètre étendue : léger / moyen / fort
+                //-> distribution pattern (au lieu de dégradé, baser transition sur masque 
+                                        //(selon une image, ou selon nuages de plus en plus petits/transparents)
+                //-> étendue dépend de taille des polygones (petits polys = petites transitions) -> évite fond flou 
+                                        //(! prévoir étendue max assez petite, pour éviter skyboxes complètement floues)
     
     // shading
     uint32_t shd_antiAliasing;    // anti-aliasing
@@ -70,9 +77,10 @@ public:
     //motion blur
     //HDR bloom
     //HDR lumasharpen
+    //HDR divers (voir PsxFx et GSDX)
     //renforcement (masque laplacien, unsharp masking) + param force (1 - 10)
-    //effets (cel-shading V1 à 4, kirsch-négatif, verre brisé, storybook, ...)
-    //...
+    //effets (cel-shading V1 à 4, kirsch-négatif, verre brisé, storybook, bruit, incrustations, ...) + force
+    //effets colorimétrie (couleurs daltoniens, natural vision, CRT, verdatre, bleuatre, désaturé cuivré, désaturé gris) + force
 
     // screen adjustment
     uint32_t dsp_internalResX;    // internal resolution [x]
@@ -83,11 +91,7 @@ public:
     bool     dsp_isScreenMirror;  // screen mirroring (mirrored/normal)
     uint32_t dsp_borderSize;      // add black borders (0 = none)
     uint32_t dsp_screenCurved;    // emulate curved CRT screen (0 to 2 ; 0 = none)
-
-    // color filters
-    //couleurs -> natural vision, couleurs daltoniens
-    //inscrustations -> couleur, type incrustation, transparence
-    
+   
     //scanlines types :
     //      - simples lignes sombres (garder pixels originaux)
     //      - simples lignes sombres avec moyenne des valeurs des pixels
@@ -98,11 +102,11 @@ public:
     //scanlines: INT: couleur unie (noir) / valeur pixel -> slider (0-8)
     //scanlines: INT: sombre (noir) / coloré-clair (0-16 -> deviendra 0-255 pour couleur unie)
     
-    //corrections -> gamma (+ presets PAL, NTSC, neutre), contraste
-    //...
-
     // miscellaneous
     uint32_t misc_fixBits; // custom fixes
+    //corrections -> gamma/contraste (+ presets PAL, NTSC, neutre, presets selon jeux)
+    //path de shader externe ?
+    //zbuffer/order table ???
     //alpha/maskbit/... 
     //framebuffer/...
 
