@@ -80,8 +80,9 @@
 #define IDS_PROSTR_CUT_MIN              507    
 #define IDC_PROSTR_CUT_SLIDER           508
 #define IDS_PROSTR_CUT_MAX              509
-#define IDC_PROSTR_RATIO_ASPECT         510
-#define IDC_PROSTR_RATIO_PIXEL          511
+#define IDC_PROSTR_PXRATIO_CHECK        510
+#define IDC_PROSTR_PRESET_LIST          511
+#define IDC_PROSTR_PICTUREBOX           512
 #define IDC_PROSTR_MIRROR               513
 #define IDC_PROSTR_BLACKBORDERS_CHECK   514
 #define IDS_PROSTR_BLACKBORDERSX        515
@@ -90,8 +91,6 @@
 #define IDC_PROSTR_BLACKBORDERSY_EDIT   518
 #define IDC_PROSTR_CURVATURE_CHECK      519
 #define IDC_PROSTR_CURVATURE_LIST       520
-#define IDC_PROSTR_PRESET_LIST          521
-#define IDC_PROSTR_PICTUREBOX           522
 
 #define IDS_ADD_NAME                    440
 #define IDC_ADD_NAME_EDIT               441
