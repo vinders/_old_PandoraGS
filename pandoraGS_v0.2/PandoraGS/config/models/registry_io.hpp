@@ -7,6 +7,8 @@ License :     GPLv2
 File name :   registry_io.hpp
 Description : registry IO helper
 *******************************************************************************/
+#ifndef _REGISTRY_IO_HPP
+#define _REGISTRY_IO_HPP
 using namespace std;
 #include "config_io.h"
 
@@ -106,4 +108,6 @@ inline void setRegFloat(float source, HKEY* pRegKey, LPCWSTR valName)
     val = (DWORD)conv;
     RegSetValueEx(*pRegKey, legacyName.c_str(), 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 }
+
+#endif
 #endif
