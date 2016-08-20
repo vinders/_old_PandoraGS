@@ -152,6 +152,8 @@
     <ClInclude Include="config\views\config_pgeneral_winview.h" />
     <ClInclude Include="config\views\config_pmanager_winview.h" />
     <ClInclude Include="config\views\config_pprofile_winview.h" />
+    <ClInclude Include="control\core_memory_commands.h" />
+    <ClInclude Include="control\core_memory_inline.hpp" />
     <ClInclude Include="control\display_state.h" />
     <ClInclude Include="control\framerate_manager.h" />
     <ClInclude Include="control\core_memory.h" />

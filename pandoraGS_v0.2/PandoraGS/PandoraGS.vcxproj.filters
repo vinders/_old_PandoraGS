@@ -233,6 +233,12 @@
     <ClInclude Include="config\models\registry_io.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="control\core_memory_inline.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="control\core_memory_commands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="pandoraGS.def">
