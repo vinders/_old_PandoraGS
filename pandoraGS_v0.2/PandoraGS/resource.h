@@ -92,10 +92,10 @@
 #define IDC_PRO_FXBLOOM_SLIDER          402
 #define IDC_PRO_FXLUMA_CHECK            403
 #define IDC_PRO_FXLUMA_SLIDER           404
-#define IDC_PRO_FXTONEMAP_CHECK         403
-#define IDC_PRO_FXVIBRANCE_CHECK        403
-#define IDC_PRO_FXLIGHTATT_CHECK        403
-#define IDC_PRO_FXDITHER_CHECK          403
+#define IDC_PRO_FXTONEMAP_CHECK         405
+#define IDC_PRO_FXVIBRANCE_CHECK        406
+#define IDC_PRO_FXLIGHTATT_CHECK        407
+#define IDC_PRO_FXDITHER_CHECK          408
 #define IDS_PRO_GROUP4                  420
 #define IDC_PRO_MDEC_CHECK              421
 #define IDC_PRO_SCANLINES_CHECK         422
@@ -159,13 +159,13 @@
 #define IDC_CURSOR_LIST                 550
 #define IDS_CURSOR_COLOR                551
 #define IDC_CURSOR_COLOR_SLIDER         552
-#define IDC_CURSOR_COLOR_UNIT           553
+#define IDS_CURSOR_COLOR_UNIT           553
 #define IDS_CURSOR_SAT                  554
 #define IDC_CURSOR_SAT_SLIDER           555
-#define IDC_CURSOR_SAT_UNIT             556
+#define IDS_CURSOR_SAT_UNIT             556
 #define IDS_CURSOR_OPACITY              557
 #define IDC_CURSOR_OPACITY_SLIDER       558
-#define IDC_CURSOR_OPACITY_UNIT         559
+#define IDS_CURSOR_OPACITY_UNIT         559
 
 #define IDS_KEY_0                       570
 #define IDS_KEY_1                       571
