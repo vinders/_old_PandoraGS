@@ -164,7 +164,7 @@ void LogUtility::writeEntry(const std::string origin, const std::string type, co
         if (!out.is_open())
         {
             out.open(getFilePath().c_str(), ios_base::trunc); // create file
-            out << ("DATE;TIME;TYPE;ORIGIN;MESSAGE") << endl; // header
+            out << "DATE;TIME;TYPE;ORIGIN;MESSAGE" << endl; // header
         }
 
         // get date/time
