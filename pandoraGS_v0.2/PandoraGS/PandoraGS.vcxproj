@@ -139,6 +139,7 @@
     <ClInclude Include="config\controllers\config_page_general.h" />
     <ClInclude Include="config\controllers\config_page_manager.h" />
     <ClInclude Include="config\controllers\config_page_profile.h" />
+    <ClInclude Include="config\models\registry_io.hpp" />
     <ClInclude Include="config\views\about_dialog_qtview.h" />
     <ClInclude Include="config\views\config_dialog_qtview.h" />
     <ClInclude Include="config\views\config_page_qtview.h" />

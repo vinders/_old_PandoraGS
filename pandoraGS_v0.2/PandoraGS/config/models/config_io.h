@@ -10,9 +10,11 @@ Description : configuration IO toolbox (load/save)
 #ifndef _CONFIG_IO_H
 #define _CONFIG_IO_H
 #include "globals.h"
-
 #include <string>
 #include "config.h"
+#define CFG_STRING_BUFFER_LENGTH 128
+#define CFG_PATH_BUFFER_LENGTH 260
+
 typedef ConfigProfile* CfgProfilePtr;
 
 // game/profile association

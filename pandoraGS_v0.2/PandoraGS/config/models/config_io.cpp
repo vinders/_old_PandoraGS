@@ -26,112 +26,12 @@ Description : configuration IO toolbox (load/save)
 #endif
 
 using namespace std;
-#define STRING_BUFFER_LENGTH 128
-#define PATH_BUFFER_LENGTH 260
 #include "config_io.h"
-
-
-#ifdef _WINDOWS 
-// -- REGISTRY GETTERS/SETTERS -- ----------------------------------------------
-///Advapi32.lib
-
-/// <summary>Read DWORD registry value</summary>
-/// <param name="pDest">Destination for read value</param>
-/// <param name="pRegKey">Registry key containing value</param>
-/// <param name="valName">Value identifier</param>
-template<typename T> inline void readRegDword(T* pDest,HKEY* pRegKey,LPCWSTR valName,DWORD* pType,DWORD* pSize)
-{
-    DWORD val;
-    *pSize = sizeof(DWORD);
-    if (RegQueryValueEx(*pRegKey, valName, 0, pType, (LPBYTE)&val, pSize) == ERROR_SUCCESS)
-        *pDest = (T)val;
-}
-
-/// <summary>Read bool registry value</summary>
-inline void readRegBool(bool* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pType, DWORD* pSize)
-{
-    DWORD val;
-    *pSize = sizeof(DWORD);
-    if (RegQueryValueEx(*pRegKey, valName, 0, pType, (LPBYTE)&val, pSize) == ERROR_SUCCESS)
-        *pDest = (val != 0uL);
-}
-
-/// <summary>Read float registry value</summary>
-inline void readRegFloat(float* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pType, DWORD* pSize)
-{
-    DWORD val;
-    *pSize = sizeof(DWORD);
-    if (RegQueryValueEx(*pRegKey, valName, 0, pType, (LPBYTE)&val, pSize) == ERROR_SUCCESS)
-        *pDest = *((float *)(&val));
-
-    if (*pDest == 0.0f)
-    {
-        std::wstring legacyName = L"Conv";
-        legacyName += valName;
-        if (RegQueryValueEx(*pRegKey, legacyName.c_str(), 0, pType, (LPBYTE)&val, pSize) == ERROR_SUCCESS)
-        {
-            if (val > 5uL && (long)val > 0L)
-                *pDest = (float)val / 100.0f;
-        }
-    }
-}
-
-/// <summary>Convert registry string to standard string</summary>
-inline void convertRegString(std::string* pDest, WCHAR* valBuffer, DWORD* pSize)
-{
-    //convert from wide char to narrow char array
-    if (pSize != NULL && *pSize > 0)
-    {
-        int len = *pSize;
-        valBuffer[len] = L'\0';
-        char* ncharBuffer = new char[len];
-        char defChar = ' ';
-        WideCharToMultiByte(CP_ACP, 0, valBuffer, -1, ncharBuffer, 1 + len, &defChar, NULL);
-        *pDest = std::string(ncharBuffer);
-        delete [] ncharBuffer;
-    }
-    else
-        *pDest = "";
-}
-/// <summary>Read string registry value</summary>
-inline void readRegString(std::string* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pType, DWORD* pSize)
-{
-    WCHAR* valBuffer = new WCHAR[STRING_BUFFER_LENGTH];
-    *pSize = STRING_BUFFER_LENGTH;
-    if (RegQueryValueEx(*pRegKey, valName, 0, NULL, (LPBYTE)valBuffer, pSize) == ERROR_SUCCESS)
-        convertRegString(pDest, valBuffer, pSize);
-    delete [] valBuffer;
-}
-/// <summary>Read string path registry value</summary>
-inline void readRegPath(std::string* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pType, DWORD* pSize)
-{
-    WCHAR* valBuffer = new WCHAR[PATH_BUFFER_LENGTH];
-    *pSize = PATH_BUFFER_LENGTH;
-    if (RegQueryValueEx(*pRegKey, valName, 0, NULL, (LPBYTE)valBuffer, pSize) == ERROR_SUCCESS)
-        convertRegString(pDest, valBuffer, pSize);
-    delete [] valBuffer;
-}
-
-/// <summary>Set float registry value</summary>
-/// <param name="pDest">Source value</param>
-/// <param name="pRegKey">Registry key containing value</param>
-/// <param name="valName">Value identifier</param>
-inline void setRegFloat(float source, HKEY* pRegKey, LPCWSTR valName)
-{
-    DWORD val = *((DWORD *)&source);
-    RegSetValueEx(*pRegKey, valName, 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-
-    std::wstring legacyName = L"Conv";
-    legacyName += valName;
-    float conv = source * 100.0f;
-    val = (DWORD)conv;
-    RegSetValueEx(*pRegKey, legacyName.c_str(), 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-}
-#endif
+#include "registry_io.hpp"
 
 
 #ifdef _WINDOWS
-// -- WINDOWS - CONFIG IO -- ---------------------------------------------------
+// -- WINDOWS - REGISTRY IO -- ---------------------------------------------------
 
 /// <summary>Load config values from registry/file</summary>
 /// <param name="hasProfileArray">Alloc an empty array with the appropriate size</param>
@@ -522,8 +422,8 @@ void ConfigIO::setGameAssocation(uint32_t profileId, std::string gameId)
         REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &assocKey, &keyStatus) == ERROR_SUCCESS)
     {
         // convert game ID string to wchar
-        WCHAR valBuffer[STRING_BUFFER_LENGTH];
-        MultiByteToWideChar(CP_ACP, 0, gameId.c_str(), gameId.length() + 1, valBuffer, STRING_BUFFER_LENGTH);
+        WCHAR valBuffer[CFG_STRING_BUFFER_LENGTH];
+        MultiByteToWideChar(CP_ACP, 0, gameId.c_str(), gameId.length() + 1, valBuffer, CFG_STRING_BUFFER_LENGTH);
 
         // set profile association
         if (profileId > 0u || RegDeleteValue(assocKey, valBuffer) != ERROR_SUCCESS)
@@ -549,8 +449,8 @@ uint32_t ConfigIO::getGameAssociation(std::string gameId)
         if (RegOpenKeyEx(HKEY_CURRENT_USER, REG_KEY_SUBPATH_GAMES, 0, KEY_ALL_ACCESS, &assocKey) == ERROR_SUCCESS)
         {
             // convert game ID string to wchar
-            WCHAR valBuffer[STRING_BUFFER_LENGTH];
-            MultiByteToWideChar(CP_ACP, 0, gameId.c_str(), gameId.length() + 1, valBuffer, STRING_BUFFER_LENGTH);
+            WCHAR valBuffer[CFG_STRING_BUFFER_LENGTH];
+            MultiByteToWideChar(CP_ACP, 0, gameId.c_str(), gameId.length() + 1, valBuffer, CFG_STRING_BUFFER_LENGTH);
 
             // get profile association (if available)
             readRegDword<uint32_t>(&profileId, &assocKey, valBuffer, &type, &size);
@@ -615,8 +515,8 @@ void ConfigIO::getProfileAssociations(ConfigIO_GameProfile_t* pAssociations)
             &valuesNb, &valuesMaxSize, &maxValueData, &securityDescriptorSize, &lastWriteTime) == ERROR_SUCCESS)
         {
             // key subvalue data
-            TCHAR  valueIdentifier[STRING_BUFFER_LENGTH];
-            DWORD valueMaxSize = STRING_BUFFER_LENGTH;
+            TCHAR  valueIdentifier[CFG_STRING_BUFFER_LENGTH];
+            DWORD valueMaxSize = CFG_STRING_BUFFER_LENGTH;
 
             // enumerate the key values 
             uint32_t profileId;
@@ -625,7 +525,7 @@ void ConfigIO::getProfileAssociations(ConfigIO_GameProfile_t* pAssociations)
             for (uint32_t i = 0u; i < valuesNb; i++)
             {
                 valueIdentifier[0] = '\0';
-                valueMaxSize = STRING_BUFFER_LENGTH;
+                valueMaxSize = CFG_STRING_BUFFER_LENGTH;
                 if (RegEnumValue(hKey, (DWORD)i, valueIdentifier, &valueMaxSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
                 {
                     // read identified key value
