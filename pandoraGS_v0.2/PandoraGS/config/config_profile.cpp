@@ -180,7 +180,7 @@ void ConfigProfile::setExternalShader(bool isEnabled, const char* path)
     {
         uint32_t len = strlen(path);
         misc_externalShaderPath = new char[1 + len];
-        strcpy(misc_externalShaderPath, path);
+        strcpy_s(misc_externalShaderPath, 1 + len, path);
         misc_externalShaderPath[len] = '\0';
     }
 }
