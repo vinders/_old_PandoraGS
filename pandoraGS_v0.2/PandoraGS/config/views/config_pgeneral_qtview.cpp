@@ -29,6 +29,7 @@ ConfigPageGeneralView::~ConfigPageGeneralView()
 ConfigPageGeneralView* ConfigPageGeneralView::createPage(ConfigPageGeneral* pController)
 {
     ConfigPageGeneralView* pPage = new ConfigPageGeneralView(pController);
+    return pPage;
 }
 
 #endif

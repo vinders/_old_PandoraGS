@@ -29,6 +29,7 @@ ConfigPageManagerView::~ConfigPageManagerView()
 ConfigPageManagerView* ConfigPageManagerView::createPage(ConfigPageManager* pController)
 {
     ConfigPageManagerView* pPage = new ConfigPageManagerView(pController);
+    return pPage;
 }
 
 #endif

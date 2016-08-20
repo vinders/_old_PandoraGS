@@ -29,6 +29,7 @@ ConfigPageProfileView::~ConfigPageProfileView()
 ConfigPageProfileView* ConfigPageProfileView::createPage(ConfigPageProfile* pController)
 {
     ConfigPageProfileView* pPage = new ConfigPageProfileView(pController);
+    return pPage;
 }
 
 #endif
