@@ -27,6 +27,7 @@ Description : configuration IO toolbox (load/save)
 
 using namespace std;
 #define STRING_BUFFER_LENGTH 128
+#define PATH_BUFFER_LENGTH 260
 #include "config_io.h"
 
 
@@ -75,19 +76,40 @@ inline void readRegFloat(float* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pT
     }
 }
 
+/// <summary>Convert registry string to standard string</summary>
+inline void convertRegString(std::string* pDest, WCHAR* valBuffer, DWORD* pSize)
+{
+    //convert from wide char to narrow char array
+    if (pSize != NULL && *pSize > 0)
+    {
+        int len = *pSize;
+        valBuffer[len] = L'\0';
+        char* ncharBuffer = new char[len];
+        char defChar = ' ';
+        WideCharToMultiByte(CP_ACP, 0, valBuffer, -1, ncharBuffer, 1 + len, &defChar, NULL);
+        *pDest = std::string(ncharBuffer);
+        delete [] ncharBuffer;
+    }
+    else
+        *pDest = "";
+}
 /// <summary>Read string registry value</summary>
 inline void readRegString(std::string* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pType, DWORD* pSize)
 {
-    WCHAR valBuffer[STRING_BUFFER_LENGTH];
-    *pSize = sizeof(valBuffer);
+    WCHAR* valBuffer = new WCHAR[STRING_BUFFER_LENGTH];
+    *pSize = STRING_BUFFER_LENGTH;
     if (RegQueryValueEx(*pRegKey, valName, 0, NULL, (LPBYTE)valBuffer, pSize) == ERROR_SUCCESS)
-    {
-        //convert from wide char to narrow char array
-        char ncharBuffer[STRING_BUFFER_LENGTH];
-        char defChar = ' ';
-        WideCharToMultiByte(CP_ACP, 0, valBuffer, -1, ncharBuffer, STRING_BUFFER_LENGTH, &defChar, NULL);
-        *pDest = ncharBuffer;
-    }
+        convertRegString(pDest, valBuffer, pSize);
+    delete [] valBuffer;
+}
+/// <summary>Read string path registry value</summary>
+inline void readRegPath(std::string* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pType, DWORD* pSize)
+{
+    WCHAR* valBuffer = new WCHAR[PATH_BUFFER_LENGTH];
+    *pSize = PATH_BUFFER_LENGTH;
+    if (RegQueryValueEx(*pRegKey, valName, 0, NULL, (LPBYTE)valBuffer, pSize) == ERROR_SUCCESS)
+        convertRegString(pDest, valBuffer, pSize);
+    delete [] valBuffer;
 }
 
 /// <summary>Set float registry value</summary>
@@ -360,6 +382,24 @@ ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
 
         // custom fixes
         readRegDword<uint32_t>(&(pProfile->misc_fixBits), &profileKey, L"FixBits", &type, &size);
+        readRegDword<uint32_t>(&(pProfile->misc_offscreenDrawing), &profileKey, L"Offscreen", &type, &size);
+        if (pProfile->misc_offscreenDrawing >= CFG_OffScreenDrawing_LENGTH)
+            pProfile->misc_offscreenDrawing = CFG_OffScr_Standard;
+
+        // external shader
+        bool useExtShader = false;
+        std::string extShaderBuffer = "";
+        readRegBool(&useExtShader, &profileKey, L"UseExtShader", &type, &size);
+        if (useExtShader)
+        {
+            readRegPath(&extShaderBuffer, &profileKey, L"ExtShader", &type, &size);
+            if (extShaderBuffer.length() > 0 && extShaderBuffer.at(0) != '\0')
+                pProfile->setExternalShader(useExtShader, extShaderBuffer.c_str());
+            else
+                pProfile->setExternalShader(false, NULL);
+        }
+        else
+            pProfile->setExternalShader(false, NULL);
 
         RegCloseKey(profileKey); // close
     }
@@ -426,6 +466,22 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         // custom fixes
         val = pProfile->misc_fixBits;
         RegSetValueEx(profileKey, L"FixBits", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = pProfile->misc_offscreenDrawing;
+        RegSetValueEx(profileKey, L"Offscreen", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        
+        // external shader
+        val = (pProfile->misc_useExternalShader) ? 1uL : 0uL;
+        RegSetValueEx(profileKey, L"UseExtShader", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        if (pProfile->misc_useExternalShader && pProfile->misc_externalShaderPath != NULL)
+        {
+            RegSetValueEx(profileKey, L"ExtShader", 0, REG_BINARY, (LPBYTE)(pProfile->misc_externalShaderPath), 
+                          strlen(pProfile->misc_externalShaderPath));
+        }
+        else
+        {
+            char pEmpty[1] = { '\0' };
+            RegSetValueEx(profileKey, L"ExtShader", 0, REG_BINARY, (LPBYTE)pEmpty, 1);
+        }
 
         RegCloseKey(profileKey); // close
     }

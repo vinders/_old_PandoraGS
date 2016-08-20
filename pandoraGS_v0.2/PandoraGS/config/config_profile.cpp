@@ -8,6 +8,7 @@ File name :   config_profile.cpp
 Description : configuration profile container
 *******************************************************************************/
 using namespace std;
+#include <string.h>
 #include "config_profile.h"
 
 
@@ -19,6 +20,8 @@ ConfigProfile::ConfigProfile(uint32_t id, std::string name)
     gen_profileId = id;
     gen_profileName = name;
     misc_fixBits = 0u;
+    misc_useExternalShader = false;
+    misc_externalShaderPath = NULL;
 }
 
 /// <summary>Copy profile container</summary>
@@ -50,6 +53,8 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     //...
 
     misc_fixBits = copy.misc_fixBits;
+    misc_offscreenDrawing = copy.misc_offscreenDrawing;
+    setExternalShader(copy.misc_useExternalShader, copy.misc_externalShaderPath);
 }
 
 
@@ -156,5 +161,26 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
     //...
     misc_fixBits = 0u;
     setFix(CFG_FIX_REACTIVE_FPSLIMIT);
-    //...
+    misc_offscreenDrawing = CFG_OffScr_Standard;
+    setExternalShader(false, NULL);
+}
+
+/// <summary>Set external shader</summary>
+/// <param name="isEnabled">Use this shader or not</param>
+/// <param name="path">External shader file path</param>
+void ConfigProfile::setExternalShader(bool isEnabled, const char* path)
+{
+    misc_useExternalShader = isEnabled;
+    if (misc_externalShaderPath != NULL)
+    {
+        delete [] misc_externalShaderPath;
+        misc_externalShaderPath = NULL;
+    }
+    if (path != NULL)
+    {
+        uint32_t len = strlen(path);
+        misc_externalShaderPath = new char[1 + len];
+        strcpy(misc_externalShaderPath, path);
+        misc_externalShaderPath[len] = '\0';
+    }
 }

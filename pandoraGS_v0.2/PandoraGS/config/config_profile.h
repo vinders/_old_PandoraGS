@@ -76,7 +76,7 @@ public:
     //motion blur
     //HDR bloom
     //HDR lumasharpen
-    //HDR divers (voir PsxFx et GSDX)
+    //HDR divers : tonemapping pass, light attenuation, pixel vibrance, subpixel dithering
     //effets (cel-shading V1 à 4, kirsch-négatif, storybook, bruit, incrustations, ...) + force
     //effets colorimétrie (couleurs daltoniens, natural vision, CRT, verdatre, bleuatre, désaturé cuivré, désaturé gris) + force
 
@@ -89,6 +89,12 @@ public:
     bool     dsp_isScreenMirror;  // screen mirroring (mirrored/normal)
     uint32_t dsp_borderSize;      // add black borders (0 = none)
     uint32_t dsp_screenCurved;    // emulate curved CRT screen (0 to 2 ; 0 = none)
+    
+    // rendering corrections
+        //corrections -> gamma/contraste (+ presets PAL, NTSC, neutre, presets selon jeux) + S-curve contrast
+        //texture perspective correction ???
+        //tessellation ???
+        //zbuffer/order table ???
    
     //scanlines types :
     //      - simples lignes sombres (garder pixels originaux)
@@ -100,15 +106,15 @@ public:
     //scanlines: INT: couleur unie (noir) / valeur pixel -> slider (0-8)
     //scanlines: INT: sombre (noir) / coloré-clair (0-16 -> deviendra 0-255 pour couleur unie)
     
+    //cursor: enabled, type, color, saturation, opacity
+    
     // miscellaneous
-    uint32_t misc_fixBits; // custom fixes
-    //corrections -> gamma/contraste (+ presets PAL, NTSC, neutre, presets selon jeux)
-    //texture perspective correction ???
-    //tessellation ???
-    //path absolu/relatif de shader externe ?
-    //zbuffer/order table ???
+    uint32_t misc_fixBits;           // custom fixes
+    uint32_t misc_offscreenDrawing;  // off-screen drawing mode
+    bool     misc_useExternalShader; // bypass built-in effects with external shader
+    char*    misc_externalShaderPath;// external shader file path
     //alpha/maskbit/psx texture window/...
-    //framebuffer/offscreen/...
+    //framebuffer/...
 
 
 public:
@@ -148,6 +154,11 @@ public:
     {
         return ((misc_fixBits & fixBits) == 0);
     }
+    
+    /// <summary>Set external shader</summary>
+    /// <param name="isEnabled">Use this shader or not</param>
+    /// <param name="path">External shader file path</param>
+    void setExternalShader(bool isEnabled, const char* path);
 };
 
 
@@ -169,6 +180,15 @@ enum CFG_ScreenRatio
 #define CFG_RATIO_CROP_OrigFill       CFG_RATIO_MAX
 #define CFG_RATIO_STRETCH_CloseToOrig CFG_RATIO_HALF // half stretch & slight cropping - best with 3D
 #define CFG_RATIO_CROP_CloseToOrig    CFG_RATIO_MAX
+
+// off-screen drawing modes
+enum CFG_OffScreenDrawing
+{
+    //...
+    CFG_OffScr_Standard = 1
+    //...
+};
+#define CFG_OffScreenDrawing_LENGTH 3
 
 // interpolation modes
 enum CFG_Interpolation
