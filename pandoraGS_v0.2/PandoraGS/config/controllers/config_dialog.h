@@ -10,7 +10,6 @@ Description : configuration dialog - business logic
 #ifndef _CONFIG_DIALOG_H
 #define _CONFIG_DIALOG_H
 #include "globals.h"
-
 #include "lang.h"
 #include "config_io.h"
 #include "config_page.h"
@@ -19,6 +18,9 @@ Description : configuration dialog - business logic
 #include "config_page_profile.h"
 #include "config_dialog_winview.h"
 #include "config_dialog_qtview.h"
+#ifndef _CONFIG_DIALOG_VIEW_H_END
+class ConfigDialogView;
+#endif
 
 #define CONFIG_DIALOG_PAGES_NB 3u
 #define CONFIG_PAGE_GENERAL 0u

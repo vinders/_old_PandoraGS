@@ -41,6 +41,8 @@ ConfigDialogView* ConfigDialogView::createWindow(ConfigDialog* pController)
     pWindow->m_pPages = new ConfigPageView*[CONFIG_DIALOG_PAGES_NB];
     for (int p = 0; p < CONFIG_DIALOG_PAGES_NB; ++p)
         pWindow->m_pPages[p] = pController->getConfigPage(p)->getView();
+
+    return pWindow;
 }
 
 /// <summary>Display window</summary>

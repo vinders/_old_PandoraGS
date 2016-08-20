@@ -43,7 +43,7 @@ public:
     void setVisible();
 };
 
-
+#define _CONFIG_DIALOG_VIEW_H_END
 #include "config_dialog.h"
 
 #endif
