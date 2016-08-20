@@ -159,10 +159,13 @@
 #define IDC_CURSOR_LIST                 550
 #define IDS_CURSOR_COLOR                551
 #define IDC_CURSOR_COLOR_SLIDER         552
-#define IDS_CURSOR_SAT                  553
-#define IDC_CURSOR_SAT_SLIDER           554
-#define IDS_CURSOR_OPACITY              555
-#define IDC_CURSOR_OPACITY_SLIDER       556
+#define IDC_CURSOR_COLOR_UNIT           553
+#define IDS_CURSOR_SAT                  554
+#define IDC_CURSOR_SAT_SLIDER           555
+#define IDC_CURSOR_SAT_UNIT             556
+#define IDS_CURSOR_OPACITY              557
+#define IDC_CURSOR_OPACITY_SLIDER       558
+#define IDC_CURSOR_OPACITY_UNIT         559
 
 #define IDS_KEY_0                       570
 #define IDS_KEY_1                       571
