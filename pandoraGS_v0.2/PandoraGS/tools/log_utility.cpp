@@ -52,12 +52,12 @@ LogUtility::LogUtility()
         {
             homePath = outPath; // %AppData%/Roaming
             if (homePath.length() > 0)
-                homePath += "\\";
+                homePath += std::string("\\");
             else
-                homePath = "C:\\ProgramData\\";
+                homePath = std::string("C:\\ProgramData\\");
         }
         else
-            homePath = "C:\\ProgramData\\";
+            homePath = std::string("C:\\ProgramData\\");
 
         #else
         char* buffer = getenv("HOME");
@@ -68,11 +68,11 @@ LogUtility::LogUtility()
             char* homedir = getpwuid(getuid())->pw_dir;
             homePath = buffer;
         }
-        homePath += "/";
+        homePath += std::string("/");
         #endif
 
         // set home file path
-        m_filePath = homePath + "pandoraGS_log.csv";
+        m_filePath = homePath + std::string("pandoraGS_log.csv");
         errno = 0;
     }
     
@@ -82,7 +82,7 @@ LogUtility::LogUtility()
         throw std::exception("LogUtility.LogUtility: mutex init failure");
     #else
     if (pthread_mutex_init(&m_hMtxInstance, NULL) == -1)
-        throw std::exception(((std::string)"LogUtility.LogUtility: mutex init failure: " + strerror(errno)).c_str());
+        throw std::exception((std::string("LogUtility.LogUtility: mutex init failure: ") + std::to_string(strerror(errno))).c_str());
     #endif
     m_isReady = true;
 }
@@ -175,8 +175,10 @@ void LogUtility::writeEntry(const std::string origin, const std::string type, co
         struct tm now;
         if (localtime_s(&now, &tm) == 0)
         {
-            curDate = std::to_string(now.tm_mday) + "/" + std::to_string(now.tm_mon + 1) + "/" + std::to_string(now.tm_year + 1900);
-            curTime = std::to_string(now.tm_hour) + ":" + std::to_string(now.tm_min) + ":" + std::to_string(now.tm_sec);
+            curDate = std::to_string(now.tm_mday) + std::string("/") + std::to_string(now.tm_mon + 1) 
+                    + std::string("/") + std::to_string(now.tm_year + 1900);
+            curTime = std::to_string(now.tm_hour) + std::string(":") + std::to_string(now.tm_min) 
+                    + std::string(":") + std::to_string(now.tm_sec);
         }
         else
         {
@@ -185,12 +187,14 @@ void LogUtility::writeEntry(const std::string origin, const std::string type, co
         }
         #else
         struct tm* now = localtime(&tm);
-        curDate = std::to_string(now->tm_mday) + "/" + std::to_string(now->tm_mon + 1) + "/" + std::to_string(now->tm_year + 1900);
-        curTime = std::to_string(now->tm_hour) + ":" + std::to_string(now->tm_min) + ":" + std::to_string(now->tm_sec);
+        curDate = std::to_string(now->tm_mday) + std::string("/") + std::to_string(now->tm_mon + 1) 
+                + std::string("/") + std::to_string(now->tm_year + 1900);
+        curTime = std::to_string(now->tm_hour) + std::string(":") + std::to_string(now->tm_min) 
+                + std::string(":") + std::to_string(now->tm_sec);
         #endif
 
         // write new entry
-        out << (curDate + ";" + curTime + ";" + type + ";" + origin + ";" + message) << endl;
+        out << curDate << ";" << curTime << ";" << type << ";" << origin << ";" << message << endl;
 
         out.close();
     }
@@ -219,9 +223,9 @@ void LogUtility::writeErrorEntry(const std::string origin, std::string message)
         char buffer[160];
         strerror_s(buffer, (size_t)160, errno);
         std::string errStr(buffer);
-        message = message + ": " + errStr; // error message
+        message = message + std::string(": ") + errStr; // error message
         #else
-        message = message + ": " + (std::string)strerror(errno); // error message
+        message = message + std::string(": ") + std::string(strerror(errno)); // error message
         #endif
     }
     errno = 0;

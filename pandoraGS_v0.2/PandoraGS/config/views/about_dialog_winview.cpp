@@ -101,9 +101,9 @@ INT_PTR CALLBACK AboutDialogView::eventHandler(HWND hWindow, UINT msg, WPARAM wP
         {
             std::wstring tech = _T(PLUGIN_TECH);
             #if _RENDERAPI == RENDERAPI_DIRECTX
-            tech += _T(PLUGIN_API_DIRECTX);
+            tech += std::wstring(_T(PLUGIN_API_DIRECTX));
             #else
-            tech += _T(PLUGIN_API_OPENGL);
+            tech += std::wstring(_T(PLUGIN_API_OPENGL));
             #endif
             SetDlgItemTextW(hWindow, IDC_ABOUT_TECH, tech.c_str());
             return (INT_PTR)TRUE;

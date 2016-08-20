@@ -48,7 +48,7 @@ inline void readRegFloat(float* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pT
     if (*pDest == 0.0f)
     {
         std::wstring legacyName = L"Conv";
-        legacyName += valName;
+        legacyName += std::wstring(valName);
         if (RegQueryValueEx(*pRegKey, legacyName.c_str(), 0, pType, (LPBYTE)&val, pSize) == ERROR_SUCCESS)
         {
             if (val > 5uL && (long)val > 0L)
@@ -103,7 +103,7 @@ inline void setRegFloat(float source, HKEY* pRegKey, LPCWSTR valName)
     RegSetValueEx(*pRegKey, valName, 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
     std::wstring legacyName = L"Conv";
-    legacyName += valName;
+    legacyName += std::wstring(valName);
     float conv = source * 100.0f;
     val = (DWORD)conv;
     RegSetValueEx(*pRegKey, legacyName.c_str(), 0, REG_DWORD, (LPBYTE)&val, sizeof(val));

@@ -508,7 +508,7 @@ long CALLBACK GPUdmaChain(unsigned long* pDwBaseAddress, unsigned long offset)
             break;
 
         // read and process data (if not empty)
-        currentCount = pByteBaseAddress[(sizeof(offset) - 1) + offset];
+        currentCount = pByteBaseAddress[(sizeof(offset) - 1u) + offset];
         dmaOffset = offset / sizeof(offset); // convert address to dword array index
         if (currentCount > 0)
             GPUwriteDataMem(&pDwBaseAddress[1uL + dmaOffset], currentCount);

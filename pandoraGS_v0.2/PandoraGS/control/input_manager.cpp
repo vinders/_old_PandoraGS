@@ -221,7 +221,7 @@ LRESULT CALLBACK InputManager::keyHandler(HWND hWindow, UINT eventType, WPARAM w
                 else // debug mode -> next mode
                 {
                     if (Config::rnd_debugMode < (uint32_t)DebugMode_TexturedMode)
-                        Config::rnd_debugMode += 1;
+                        Config::rnd_debugMode += 1u;
                     else
                         Config::rnd_debugMode = DebugMode_Normal;
                 }
