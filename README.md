@@ -1,6 +1,6 @@
 #########################################################################
 
-    #PandoraGS - PS1 Emulation GPU library
+#PandoraGS - PS1 Emulation GPU library
 
     - Author            : Romain Vinders
     - Prog. languages   : C++, GLSL, HLSL
