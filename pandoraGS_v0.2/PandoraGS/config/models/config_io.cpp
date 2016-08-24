@@ -236,21 +236,30 @@ ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
         readRegString(&(pProfile->gen_profileName), &profileKey, L"ProfileName", &type, &size);
 
         //smooth/scale filters
-        readRegDword<uint32_t>(&(pProfile->scl_textureSmooth), &profileKey, L"TxIntp", &type, &size);
-        if (pProfile->scl_textureSmooth >= CFG_Interpolation_LENGTH) 
-            pProfile->scl_textureSmooth = 0;
-        readRegDword<uint32_t>(&(pProfile->scl_textureUpscale), &profileKey, L"TxUpscale", &type, &size);
-        if (pProfile->scl_textureUpscale >= CFG_UpScaling_LENGTH) 
-            pProfile->scl_textureUpscale = 0;
-        readRegDword<uint32_t>(&(pProfile->scl_spriteSmooth), &profileKey, L"SprIntp", &type, &size);
-        if (pProfile->scl_spriteSmooth >= CFG_Interpolation_LENGTH)
-            pProfile->scl_spriteSmooth = 0;
-        readRegDword<uint32_t>(&(pProfile->scl_spriteUpscale), &profileKey, L"SprUpscale", &type, &size);
-        if (pProfile->scl_spriteUpscale >= CFG_UpScaling_LENGTH)
-            pProfile->scl_spriteUpscale = 0;
-        readRegDword<uint32_t>(&(pProfile->scl_screenSmooth), &profileKey, L"ScnSmooth", &type, &size);
-        if (pProfile->scl_screenSmooth >= CFG_ScreenSmoothing_LENGTH)
-            pProfile->scl_screenSmooth = 0;
+        readRegDword<uint32_t>(&(pProfile->scl_texSmooth), &profileKey, L"TxIntp", &type, &size);
+        if (pProfile->scl_texSmooth >= CFG_Interpolation_LENGTH)
+            pProfile->scl_texSmooth = 0;
+        readRegDword<uint32_t>(&(pProfile->scl_texUpscaleVal), &profileKey, L"TxUpscale", &type, &size);
+        if (pProfile->scl_texUpscaleVal == 0)
+            pProfile->scl_texUpscaleVal = 1;
+        readRegDword<uint32_t>(&(pProfile->scl_texUpscaleType), &profileKey, L"TxUpType", &type, &size);
+        if (pProfile->scl_texUpscaleType >= CFG_UpScaling_LENGTH)
+            pProfile->scl_texUpscaleType = 0;
+        readRegDword<uint32_t>(&(pProfile->scl_sprSmooth), &profileKey, L"SprIntp", &type, &size);
+        if (pProfile->scl_sprSmooth >= CFG_Interpolation_LENGTH)
+            pProfile->scl_sprSmooth = 0;
+        readRegDword<uint32_t>(&(pProfile->scl_sprUpscaleVal), &profileKey, L"TxUpscale", &type, &size);
+        if (pProfile->scl_sprUpscaleVal == 0)
+            pProfile->scl_sprUpscaleVal = 1;
+        readRegDword<uint32_t>(&(pProfile->scl_sprUpscaleType), &profileKey, L"SprUpType", &type, &size);
+        if (pProfile->scl_sprUpscaleType >= CFG_UpScaling_LENGTH)
+            pProfile->scl_sprUpscaleType = 0;
+        readRegDword<uint32_t>(&(pProfile->scl_screenSmoothType), &profileKey, L"ScnSmooth", &type, &size);
+        if (pProfile->scl_screenSmoothType >= CFG_ScreenSmoothing_LENGTH)
+            pProfile->scl_screenSmoothType = 0;
+        readRegDword<uint32_t>(&(pProfile->scl_screenSmoothVal), &profileKey, L"ScnUpscale", &type, &size);
+        if (pProfile->scl_screenSmoothVal == 0)
+            pProfile->scl_screenSmoothVal = 1;
         readRegBool(&(pProfile->scl_isShaderUpscale), &profileKey, L"ShaderUpscale", &type, &size);
         readRegBool(&(pProfile->scl_isMdec), &profileKey, L"Mdec", &type, &size);
 
@@ -323,16 +332,22 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
                       (LPBYTE)(pProfile->gen_profileName.c_str()), pProfile->gen_profileName.length());
 
         //smooth/scale filters
-        val = pProfile->scl_textureSmooth;
+        val = pProfile->scl_texSmooth;
         RegSetValueEx(profileKey, L"TxIntp", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pProfile->scl_textureUpscale;
+        val = pProfile->scl_texUpscaleVal;
         RegSetValueEx(profileKey, L"TxUpscale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pProfile->scl_spriteSmooth;
+        val = pProfile->scl_texUpscaleType;
+        RegSetValueEx(profileKey, L"TxUpType", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = pProfile->scl_sprSmooth;
         RegSetValueEx(profileKey, L"SprIntp", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pProfile->scl_spriteUpscale;
+        val = pProfile->scl_sprUpscaleVal;
         RegSetValueEx(profileKey, L"SprUpscale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = pProfile->scl_screenSmooth;
+        val = pProfile->scl_sprUpscaleType;
+        RegSetValueEx(profileKey, L"SprUpType", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = pProfile->scl_screenSmoothType;
         RegSetValueEx(profileKey, L"ScnSmooth", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = pProfile->scl_screenSmoothVal;
+        RegSetValueEx(profileKey, L"ScnUpscale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pProfile->scl_isShaderUpscale) ? 1uL : 0uL;
         RegSetValueEx(profileKey, L"ShaderUpscale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pProfile->scl_isMdec) ? 1uL : 0uL;

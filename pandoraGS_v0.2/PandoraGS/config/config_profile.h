@@ -54,12 +54,15 @@ public:
     std::string  gen_profileName; // profile displayed name
 
     // smooth/scale filters
-    uint32_t scl_textureSmooth;   // textures smoothing
-    uint32_t scl_textureUpscale;  // textures hi-res upscaling
-    uint32_t scl_spriteSmooth;    // 2D/sprites smoothing
-    uint32_t scl_spriteUpscale;   // sprites hi-res upscaling
-    uint32_t scl_screenSmooth;    // global screen smoothing
-    bool     scl_isShaderUpscale;   // upscaling algorithm using shader (faster, less precision)
+    uint32_t scl_texSmooth;       // textures smoothing
+    uint32_t scl_texUpscaleVal;   // textures hi-res upscaling - value (level)
+    uint32_t scl_texUpscaleType;  // textures hi-res upscaling - type (algorithm)
+    uint32_t scl_sprSmooth;       // 2D/sprites smoothing
+    uint32_t scl_sprUpscaleVal;   // sprites hi-res upscaling - value (level)
+    uint32_t scl_sprUpscaleType;  // sprites hi-res upscaling - type (algorithm)
+    uint32_t scl_screenSmoothType;// global screen smoothing - type (blur, algorithm, ..)
+    uint32_t scl_screenSmoothVal; // global screen smoothing - value (level)
+    bool     scl_isShaderUpscale; // upscaling algorithm using shader (faster, less precision)
     bool     scl_isMdec;          // MDEC video filter
     //ajout bruit aux textures (pour les rendre plus précises -> voir doomsday)
     //smooth texture transitions ('texture splatting' avec textures de polygones voisins)
@@ -205,31 +208,25 @@ enum CFG_Interpolation
 enum CFG_UpScaling
 {
     CFG_UpSc_Native = 0,
-    CFG_UpSc_2xSaI = 1,
-    CFG_UpSc_2xSuperEagle = 2,
-    CFG_UpSc_2xHQ = 3,
-    CFG_UpSc_2xBRZ = 4,
-    CFG_UpSc_2xBRZ_Depolarize = 5,
-    CFG_UpSc_3xHQ = 6,
-    CFG_UpSc_3xBRZ = 7,
-    CFG_UpSc_3xBRZ_Depolarize = 8,
-    CFG_UpSc_4xHQ = 9,
-    CFG_UpSc_4xBRZ = 10,
-    CFG_UpSc_4xBRZ_Depolarize = 11,
-    CFG_UpSc_5xBRZ = 12,
-    CFG_UpSc_5xBRZ_Depolarize = 13
+    CFG_UpSc_SaI = 1,
+    CFG_UpSc_SuperEagle = 2,
+    CFG_UpSc_HQx = 3,
+    CFG_UpSc_xBRZ = 4,
+    CFG_UpSc_xBRZ_Depolarized = 5,
+    CFG_UpSc_SuperxBR = 6,
+    CFG_UpSc_SuperxBR_FastBilateral = 7
 };
-#define CFG_UpScaling_LENGTH 14
+#define CFG_UpScaling_LENGTH 8
 // screen smoothing
 enum CFG_ScreenSmoothing
 {
     CFG_ScrSm_None = 0,
     CFG_ScrSm_Blur = 1,
-    CFG_ScrSm_3xBRZ = 2,
-    CFG_ScrSm_3xBRZ_Blur = 3,
-    CFG_ScrSm_4xBRZ = 4,
-    CFG_ScrSm_4xBRZ_Blur = 5,
-    CFG_ScrSm_5xBRZ = 6
+    CFG_ScrSm_HQx = 2,
+    CFG_ScrSm_xBRZ = 3,
+    CFG_ScrSm_SuperxBR = 4,
+    CFG_ScrSm_xBRZ_Blur = 5,
+    CFG_ScrSm_SuperxBR_Blur = 6
     //...
     //xBR-Lv2-3D
     //...

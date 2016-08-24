@@ -31,11 +31,14 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     gen_profileId = copy.gen_profileId;
     gen_profileName = copy.gen_profileName;
 
-    scl_textureSmooth = copy.scl_textureSmooth;
-    scl_textureUpscale = copy.scl_textureUpscale;
-    scl_spriteSmooth = copy.scl_spriteSmooth;
-    scl_spriteUpscale = copy.scl_spriteUpscale;
-    scl_screenSmooth = copy.scl_screenSmooth;
+    scl_texSmooth = copy.scl_texSmooth;
+    scl_texUpscaleVal = copy.scl_texUpscaleVal;
+    scl_texUpscaleType = copy.scl_texUpscaleType;
+    scl_sprSmooth = copy.scl_sprSmooth;
+    scl_sprUpscaleVal = copy.scl_sprUpscaleVal;
+    scl_sprUpscaleType = copy.scl_sprUpscaleType;
+    scl_screenSmoothType = copy.scl_screenSmoothType;
+    scl_screenSmoothVal = copy.scl_screenSmoothVal;
     scl_isShaderUpscale = copy.scl_isShaderUpscale;
     scl_isMdec = copy.scl_isMdec;
 
@@ -67,11 +70,14 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
     {
         case ProfilePreset_Standard:
         {
-            scl_textureSmooth = CFG_Intp_Bilinear_Enhanced;
-            scl_textureUpscale = CFG_UpSc_Native;
-            scl_spriteSmooth = CFG_Intp_Nearest;
-            scl_spriteUpscale = CFG_UpSc_2xSaI;
-            scl_screenSmooth = CFG_ScrSm_None;
+            scl_texSmooth = CFG_Intp_Bilinear_Enhanced;
+            scl_texUpscaleVal = 1u;
+            scl_texUpscaleType = CFG_UpSc_Native;
+            scl_sprSmooth = CFG_Intp_Nearest;
+            scl_sprUpscaleVal = 2u;
+            scl_sprUpscaleType = CFG_UpSc_SaI;
+            scl_screenSmoothType = CFG_ScrSm_None;
+            scl_screenSmoothVal = 1u;
             scl_isShaderUpscale = false;
             scl_isMdec = false;
 
@@ -89,11 +95,14 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
 
         case ProfilePreset_Fastest:
         {
-            scl_textureSmooth = CFG_Intp_Nearest;
-            scl_textureUpscale = CFG_UpSc_Native;
-            scl_spriteSmooth = CFG_Intp_Nearest;
-            scl_spriteUpscale = CFG_UpSc_Native;
-            scl_screenSmooth = CFG_ScrSm_None;
+            scl_texSmooth = CFG_Intp_Nearest;
+            scl_texUpscaleVal = 1u;
+            scl_texUpscaleType = CFG_UpSc_Native;
+            scl_sprSmooth = CFG_Intp_Nearest;
+            scl_sprUpscaleVal = 1u;
+            scl_sprUpscaleType = CFG_UpSc_Native;
+            scl_screenSmoothType = CFG_ScrSm_None;
+            scl_screenSmoothVal = 1u;
             scl_isShaderUpscale = true;
             scl_isMdec = false;
 
@@ -111,11 +120,14 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
 
         case ProfilePreset_Enhanced2D:
         {
-            scl_textureSmooth = CFG_Intp_Nearest;
-            scl_textureUpscale = CFG_UpSc_Native;
-            scl_spriteSmooth = CFG_Intp_Nearest;
-            scl_spriteUpscale = CFG_UpSc_Native;
-            scl_screenSmooth = CFG_ScrSm_4xBRZ_Blur;
+            scl_texSmooth = CFG_Intp_Nearest;
+            scl_texUpscaleVal = 1u;
+            scl_texUpscaleType = CFG_UpSc_Native;
+            scl_sprSmooth = CFG_Intp_Nearest;
+            scl_sprUpscaleVal = 1u;
+            scl_sprUpscaleType = CFG_UpSc_Native;
+            scl_screenSmoothType = CFG_ScrSm_SuperxBR_Blur;
+            scl_screenSmoothVal = 4u;
             scl_isShaderUpscale = false;
             scl_isMdec = true;
 
@@ -133,11 +145,14 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
 
         case ProfilePreset_Enhanced3D:
         {
-            scl_textureSmooth = CFG_Intp_Bilinear_Enhanced;
-            scl_textureUpscale = CFG_UpSc_2xSuperEagle;
-            scl_spriteSmooth = CFG_Intp_Bilinear_Enhanced;
-            scl_spriteUpscale = CFG_UpSc_3xBRZ_Depolarize;
-            scl_screenSmooth = CFG_ScrSm_None;
+            scl_texSmooth = CFG_Intp_Bilinear_Enhanced;
+            scl_texUpscaleVal = 2u;
+            scl_texUpscaleType = CFG_UpSc_SuperEagle;
+            scl_sprSmooth = CFG_Intp_Bilinear_Enhanced;
+            scl_sprUpscaleVal = 3u;
+            scl_sprUpscaleType = CFG_UpSc_xBRZ_Depolarized;
+            scl_screenSmoothType = CFG_ScrSm_None;
+            scl_screenSmoothVal = 1u;
             scl_isShaderUpscale = true;
             scl_isMdec = true;
 
