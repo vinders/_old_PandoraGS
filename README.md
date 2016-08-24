@@ -26,7 +26,7 @@ PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu Pro specificat
 * basic graphics rendering (OpenGL)
 * display management - screen resolution, internal resolution, ratio
 * textures/sprites/screen filtering/upscaling
-* testing utility - psx vram viewer
+* testing utility - psx vram viewer / editor
 
 ###To do (2017):
 * enhanced graphics rendering (OpenGL, later Direct3D)
