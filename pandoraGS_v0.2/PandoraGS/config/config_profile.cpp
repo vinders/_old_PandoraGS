@@ -37,10 +37,11 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     scl_sprSmooth = copy.scl_sprSmooth;
     scl_sprUpscaleVal = copy.scl_sprUpscaleVal;
     scl_sprUpscaleType = copy.scl_sprUpscaleType;
-    scl_screenSmoothType = copy.scl_screenSmoothType;
-    scl_screenSmoothVal = copy.scl_screenSmoothVal;
+    scl_screenSmooth = copy.scl_screenSmooth;
+    scl_screenUpscaleVal = copy.scl_screenUpscaleVal;
+    scl_screenUpscaleType = copy.scl_screenUpscaleType;
     scl_isShaderUpscale = copy.scl_isShaderUpscale;
-    scl_isMdec = copy.scl_isMdec;
+    scl_mdecFilter = copy.scl_mdecFilter;
 
     shd_antiAliasing = copy.shd_antiAliasing;
     //...
@@ -76,10 +77,10 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             scl_sprSmooth = CFG_Intp_Nearest;
             scl_sprUpscaleVal = 2u;
             scl_sprUpscaleType = CFG_UpSc_SaI;
-            scl_screenSmoothType = CFG_ScrSm_None;
-            scl_screenSmoothVal = 1u;
-            scl_isShaderUpscale = false;
-            scl_isMdec = false;
+            scl_screenSmooth = CFG_ScrSm_None;
+            scl_screenUpscaleVal = 1u;
+            scl_screenUpscaleType = CFG_UpSc_Native;
+            scl_mdecFilter = CFG_Mdec_Standard;
 
             shd_antiAliasing = CFG_AA_FXAA;
             //...
@@ -101,10 +102,10 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             scl_sprSmooth = CFG_Intp_Nearest;
             scl_sprUpscaleVal = 1u;
             scl_sprUpscaleType = CFG_UpSc_Native;
-            scl_screenSmoothType = CFG_ScrSm_None;
-            scl_screenSmoothVal = 1u;
-            scl_isShaderUpscale = true;
-            scl_isMdec = false;
+            scl_screenSmooth = CFG_ScrSm_None;
+            scl_screenUpscaleVal = 1u;
+            scl_screenUpscaleType = CFG_UpSc_Native;
+            scl_mdecFilter = CFG_Mdec_None;
 
             shd_antiAliasing = CFG_AA_None;
             //...
@@ -126,10 +127,10 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             scl_sprSmooth = CFG_Intp_Nearest;
             scl_sprUpscaleVal = 1u;
             scl_sprUpscaleType = CFG_UpSc_Native;
-            scl_screenSmoothType = CFG_ScrSm_SuperxBR_Blur;
-            scl_screenSmoothVal = 4u;
-            scl_isShaderUpscale = false;
-            scl_isMdec = true;
+            scl_screenSmooth = CFG_ScrSm_SlightBlur;
+            scl_screenUpscaleVal = 4u;
+            scl_screenUpscaleType = CFG_UpSc_SuperxBR_FB;
+            scl_mdecFilter = CFG_Mdec_Standard;
 
             shd_antiAliasing = CFG_AA_NFAA;
             //...
@@ -151,14 +152,15 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             scl_sprSmooth = CFG_Intp_Bilinear_Enhanced;
             scl_sprUpscaleVal = 3u;
             scl_sprUpscaleType = CFG_UpSc_xBRZ_Depolarized;
-            scl_screenSmoothType = CFG_ScrSm_None;
-            scl_screenSmoothVal = 1u;
-            scl_isShaderUpscale = true;
-            scl_isMdec = true;
+            scl_screenSmooth = CFG_ScrSm_None;
+            scl_screenUpscaleVal = 1u;
+            scl_screenUpscaleType = CFG_UpSc_Native;
+            scl_mdecFilter = CFG_Mdec_NNEDI3;
 
             shd_antiAliasing = CFG_AA_SMAA4;
             //...
 
+            scl_isShaderUpscale = true;
             dsp_internalResX = 4u;
             dsp_internalResY = 8u;
             dsp_ratioType = CFG_Ratio_Aspect;
