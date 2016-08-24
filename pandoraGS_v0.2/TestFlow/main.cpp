@@ -10,7 +10,7 @@ Description : test app - flow/unit tests -- entry point and test function
 #include "windowManager.h"
 #include "main.h"
 
-#include "gui_main.h" // plugin interface
+#include "gpu_main.h" // plugin interface
 
 
 ///<summary>Test app to check plugin execution flow</summary>
