@@ -114,10 +114,10 @@
     <ClCompile Include="config\controllers\config_page_profile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui_main.cpp">
+    <ClCompile Include="gpu_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui_zinc.cpp">
+    <ClCompile Include="gpu_zinc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -227,9 +227,6 @@
     <ClInclude Include="pandoraGS_targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui_main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="config\models\registry_io.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -237,6 +234,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="control\core_memory_commands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu_main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

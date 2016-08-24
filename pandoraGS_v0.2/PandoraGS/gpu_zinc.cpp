@@ -4,14 +4,14 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-File name :   gui_zinc.cpp
+File name :   gpu_zinc.cpp
 Description : zinc specification interface
 *******************************************************************************/
 #include <string>
 using namespace std;
 #include "config.h"
 #include "input_manager.h"
-#include "gui_main.h"
+#include "gpu_main.h"
 #include "core_memory.h"
 
 // zinc configuration structure

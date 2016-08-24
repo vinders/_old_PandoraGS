@@ -125,8 +125,8 @@
     <ClCompile Include="display\shader\shader.cpp" />
     <ClCompile Include="lang\lang.cpp" />
     <ClCompile Include="pandoraGS.cpp" />
-    <ClCompile Include="gui_main.cpp" />
-    <ClCompile Include="gui_zinc.cpp" />
+    <ClCompile Include="gpu_main.cpp" />
+    <ClCompile Include="gpu_zinc.cpp" />
     <ClCompile Include="tools\log_utility.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -167,7 +167,7 @@
     <ClInclude Include="pandoraGS.h" />
     <ClInclude Include="pandoraGS_targetver.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="gui_main.h" />
+    <ClInclude Include="gpu_main.h" />
     <ClInclude Include="tools\log_utility.h" />
   </ItemGroup>
   <ItemGroup>
