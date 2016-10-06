@@ -8,7 +8,6 @@ PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu Pro specificat
     License           : GPLv2
 
 #########################################################################
-/!\ Development halted until mid-september 2016.
 
 ###Done:
 * driver init/open/close/shutdown, low-level commands, read/write access
