@@ -209,10 +209,10 @@ enum CFG_UpScaling
     CFG_UpSc_SaI = 1,               // 2x
     CFG_UpSc_xBR_Lv2 = 2,           // 2x, 3x, 4x
     CFG_UpSc_xBRZ = 3,              // 2x, 3x, 4x, 5x
-    CFG_UpSc_xBRZ_Depolarized = 4,  //     3x, 4x, 5x
+    CFG_UpSc_xBRZ_Depolarized = 4,  //     3x, 4x, 5x // deposterize pre-filter -> utiliser option indépendante du filtre ?
     CFG_UpSc_SuperxBR = 5,          // 2x,     4x,     8x
     CFG_UpSc_SuperxBR_FB = 6,       // 2x,     4x,     8x  // FB = fast-bilateral
-    CFG_Intp_NNEDI3 = 6 7           // 2x,     4x,     8x
+    CFG_Intp_NNEDI3 = 7             // 2x,     4x,     8x
 };
 #define CFG_UpScaling_LENGTH 8
 // MDEC filters

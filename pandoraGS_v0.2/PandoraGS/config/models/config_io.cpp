@@ -357,7 +357,7 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         RegSetValueEx(profileKey, L"ScnUpType", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (pProfile->scl_isShaderUpscale) ? 1uL : 0uL;
         RegSetValueEx(profileKey, L"ShaderUpscale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = scl_mdecFilter;
+        val = pProfile->scl_mdecFilter;
         RegSetValueEx(profileKey, L"Mdec", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
         // shading

@@ -73,3 +73,25 @@ void ConfigDialog::showDialog()
     }
 }
 
+/// <summary>Save current config</summary>
+/// <returns>Success</returns>
+bool ConfigDialog::saveConfig()
+{
+    //...
+    //...
+    //...
+
+    return true;
+}
+
+/// <summary>Change language</summary>
+/// <param name="code">Language code</param>
+/// <returns>Changes indicator</returns>
+bool ConfigDialog::setLanguage(int code)
+{
+    //...vérif si code valide
+    //...charger langue
+
+    return true;
+}
+

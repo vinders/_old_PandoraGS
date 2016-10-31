@@ -25,6 +25,10 @@
 #define IDD_EDITPROFILE_DIALOG          135
 #define IDD_SCANLINES_DIALOG            136
 #define IDD_CURSOR_DIALOG               137
+#define IDB_CONFIG_ICONS                160
+#define IDC_GENERAL_TAB                 162
+#define IDC_MANAGER_TAB                 163
+#define IDC_PROFILE_TAB                 164
 
 #define IDS_GEN_GROUP1                  201
 #define IDS_GEN_RESOLUTION              202

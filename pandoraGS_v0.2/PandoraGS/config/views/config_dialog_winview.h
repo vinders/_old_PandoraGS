@@ -24,6 +24,19 @@ class ConfigDialogView
 private:
     ConfigPageView** m_pPages; // sub-page views
     ConfigDialog* m_pController; // controller reference
+    HWND m_hWindow; // main window handle
+public:
+    HINSTANCE m_hInstance; // DLL instance handle
+    static ConfigDialogView* s_pCurrentWindow; // current instance (static access)
+
+    // onglets
+    int m_initialize;
+    HWND res_tabGeneral;
+    HWND res_tabManager;
+    HWND res_tabProfile;
+    HBITMAP res_tabIcons;
+    HFONT   res_tabFont;
+    int m_menuHeight;
 
 public:
     /// <summary>Create dialog view container</summary>
@@ -41,6 +54,63 @@ public:
     /// <summary>Display window</summary>
     /// <exception cref="std::exception">No window or event exception</exception>
     void setVisible();
+
+    /// <summary>Get associated controller (event bubbling)</summary>
+    /// <returns>Controller reference</returns>
+    ConfigDialog* getController()
+    {
+        return m_pController;
+    }
+
+private:
+    // -- DIALOG TEMPLATE ------------------------------------------------------
+
+    /// <summary>Retrieve window and instances handles</summary>
+    /// <exception cref="std::exception">Definition failure</exception>
+    void setDialogHandles();
+
+    /// <summary>Window event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="msg">Event message</param>
+    /// <param name="wParam">Command</param>
+    /// <param name="lParam">Informations</param>
+    /// <returns>Action code</returns>
+    static INT_PTR CALLBACK eventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
+
+    // -- EVENTS ---------------------------------------------------------------
+
+    /// <summary>Validation event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <returns>Success</returns>
+    static bool onValidation(HWND hWindow);
+
+    /// <summary>Language event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <returns>Changes indicator</returns>
+    static INT_PTR onLanguageChange(HWND hWindow);
+
+    /// <summary>Drawing init event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="lParam">Parameter</param>
+    /// <returns>Changes indicator</returns>
+    static INT_PTR onInitDialog(HWND hWindow, LPARAM lParam);
+
+    /// <summary>Paint event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="lParam">Parameter</param>
+    /// <returns>Changes indicator</returns>
+    static INT_PTR onPaint(HWND hWindow, LPARAM lParam);
+
+    /// <summary>Drawing item event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="lParam">Parameter</param>
+    /// <returns>Changes indicator</returns>
+    static INT_PTR onDrawItem(HWND hWindow, LPARAM lParam);
+
+    /// <summary>Initialize memory</summary>
+    void onBoot();
+    /// <summary>Free allocated memory</summary>
+    void onClose();
 };
 
 #define _CONFIG_DIALOG_VIEW_H_END

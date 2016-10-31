@@ -45,6 +45,15 @@ public:
     /// <summary>Create and display config dialog</summary>
     void showDialog();
 
+    /// <summary>Save current config</summary>
+    /// <returns>Success</returns>
+    bool saveConfig();
+
+    /// <summary>Change language</summary>
+    /// <param name="code">Language code</param>
+    /// <returns>Changes indicator</returns>
+    bool setLanguage(int code);
+
     // -- GETTERS -- -----------------------------------------------------------
 
     /// <summary>Get language resource</summary>
