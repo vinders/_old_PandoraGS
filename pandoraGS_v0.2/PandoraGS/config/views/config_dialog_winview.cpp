@@ -308,11 +308,11 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
     HWND hLangList = GetDlgItem(hWindow, IDC_LANG_LIST);
     if (hLangList)
     {
-        ComboBox_AddString(hLangList, _T("English"));
-        ComboBox_AddString(hLangList, _T("Español"));
-        ComboBox_AddString(hLangList, _T("Français"));
-        ComboBox_AddString(hLangList, _T("Deutsch"));
-        ComboBox_AddString(hLangList, _T("External file..."));
+        ComboBox_AddString(hLangList, _T(" English"));
+        ComboBox_AddString(hLangList, _T(" Español"));
+        ComboBox_AddString(hLangList, _T(" Français"));
+        ComboBox_AddString(hLangList, _T(" Deutsch"));
+        ComboBox_AddString(hLangList, _T(" External file..."));
         switch (Config::gen_langCode)
         {
             case LangCode_English:
@@ -419,6 +419,8 @@ INT_PTR ConfigDialogView::onPaint(HWND hWindow, LPARAM lParam)
         FillRect(hDC, &lineBorder, brush2);
         FillRect(hDC, &line, brush);
         DeleteObject(brush);
+        DeleteObject(brush2);
+        brush = NULL;
     }
 
     // page bottom background color
@@ -502,7 +504,7 @@ INT_PTR ConfigDialogView::onDrawItem(HWND hWindow, LPARAM lParam)
             int winHeight = pThis->m_menuHeight;
             if (winHeight == 1)
                 winHeight = TAB_FIRST_Y - LOGO_HEIGHT + 3 * (TAB_HEIGHT + TAB_INTERVAL) + 70;
-            int top = number*(TAB_HEIGHT + TAB_INTERVAL);
+            int top = TAB_INTERVAL + number*(TAB_HEIGHT + TAB_INTERVAL);
 
             // background gradient
             HBRUSH brushBack = NULL;
@@ -526,6 +528,7 @@ INT_PTR ConfigDialogView::onDrawItem(HWND hWindow, LPARAM lParam)
                 FillRect(hDC, &lineBorder, brushBorder);
                 FillRect(hDC, &line, brushBack);
                 DeleteObject(brushBack);
+                DeleteObject(brushBorder);
             }
             pThis->drawMenuContent(hWindow, &hDC, &titleRect, number);
         }
@@ -586,13 +589,65 @@ void ConfigDialogView::drawMenuContent(HWND hWindow, HDC* phDC, RECT* pTitleRect
         iconRect.top = iconRect.bottom - ICONS_SIZE;
 
         // draw icon
-        HBRUSH curIcon = getSpriteBrush(phDC, &res_tabIcons, tabId*ICONS_SIZE, 0, ICONS_SIZE, ICONS_SIZE);
+        /*HBRUSH curIcon = getSpriteBrush(phDC, &res_tabIcons, tabId*ICONS_SIZE, 0, ICONS_SIZE, ICONS_SIZE);
         if (curIcon)
         {
             SetBrushOrgEx(*phDC, iconRect.left, iconRect.top, NULL);
             FillRect(*phDC, &iconRect, curIcon);
             DeleteObject(curIcon);
+        }*/
+        
+        // prepare bitmap
+        BITMAPINFO bmi;
+        ZeroMemory(&bmi, sizeof(BITMAPINFO));
+        bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        bmi.bmiHeader.biWidth = CONFIG_DIALOG_PAGES_NB*ICONS_SIZE;
+        bmi.bmiHeader.biHeight = ICONS_SIZE;
+        bmi.bmiHeader.biPlanes = 1;
+        bmi.bmiHeader.biBitCount = 32;
+        bmi.bmiHeader.biCompression = BI_RGB;
+        bmi.bmiHeader.biSizeImage = bmi.bmiHeader.biWidth * bmi.bmiHeader.biHeight * 4;
+
+        VOID* pvBits = NULL;
+        HDC hMemDC = CreateCompatibleDC(*phDC);
+        HBITMAP hBmp = CreateDIBSection(hMemDC, &bmi, DIB_RGB_COLORS, &pvBits, NULL, 0);
+        SelectObject(hMemDC, hBmp);
+        GetDIBits(*phDC, res_tabIcons, 0, ICONS_SIZE, pvBits, &bmi, DIB_RGB_COLORS);
+
+        //pre-multiply alpha
+        BITMAP bm = { 0 };
+        GetObject(hBmp, sizeof(bm), &bm);
+        BITMAPINFO* bmi2 = (BITMAPINFO*)_alloca(sizeof(BITMAPINFOHEADER) + (256 * sizeof(RGBQUAD)));
+        ZeroMemory(bmi2, sizeof(BITMAPINFOHEADER) + (256 * sizeof(RGBQUAD)));
+        bmi2->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        BOOL bRes = ::GetDIBits(*phDC, hBmp, 0, bm.bmHeight, NULL, bmi2, DIB_RGB_COLORS);
+        if (!bRes || bmi2->bmiHeader.biBitCount != 32) return;
+        LPBYTE pBitData = (LPBYTE) ::LocalAlloc(LPTR, bm.bmWidth * bm.bmHeight * sizeof(DWORD));
+        if (pBitData == NULL) return;
+        LPBYTE pData = pBitData;
+        ::GetDIBits(*phDC, hBmp, 0, bm.bmHeight, pData, bmi2, DIB_RGB_COLORS);
+        for (int y = 0; y < bm.bmHeight; y++) {
+            for (int x = 0; x < bm.bmWidth; x++) {
+                pData[0] = (BYTE)((DWORD)pData[0] * pData[3] / 255);
+                pData[1] = (BYTE)((DWORD)pData[1] * pData[3] / 255);
+                pData[2] = (BYTE)((DWORD)pData[2] * pData[3] / 255);
+                pData += 4;
+            }
         }
+        ::SetDIBits(*phDC, hBmp, 0, bm.bmHeight, pBitData, bmi2, DIB_RGB_COLORS);
+        ::LocalFree(pBitData);
+
+        // blend alpha
+        BLENDFUNCTION bf;
+        bf.BlendOp = AC_SRC_OVER;
+        bf.BlendFlags = 0;
+        bf.SourceConstantAlpha = 0xFF; // opaque
+        bf.AlphaFormat = AC_SRC_ALPHA; // bitmap alpha
+        AlphaBlend(*phDC, iconRect.left, iconRect.top, ICONS_SIZE, ICONS_SIZE,
+            hMemDC, tabId*ICONS_SIZE, 0, ICONS_SIZE, ICONS_SIZE, bf);
+
+        DeleteObject(hBmp);
+        DeleteDC(hMemDC);
     }
 }
 
@@ -603,7 +658,7 @@ void ConfigDialogView::drawMenuContent(HWND hWindow, HDC* phDC, RECT* pTitleRect
 /// <param name="coordY">Vertical coord</param>
 /// <param name="sizeX">Width</param>
 /// <param name="sizeY">Height</param>
-HBRUSH ConfigDialogView::getSpriteBrush(HDC* phDC, HBITMAP* phSheet, int coordX, int coordY, int sizeX, int sizeY)
+/*HBRUSH ConfigDialogView::getSpriteBrush(HDC* phDC, HBITMAP* phSheet, int coordX, int coordY, int sizeX, int sizeY)
 {
     HDC memDC = NULL;
     HDC dstDC = NULL;
@@ -650,6 +705,6 @@ HBRUSH ConfigDialogView::getSpriteBrush(HDC* phDC, HBITMAP* phSheet, int coordX,
     result = CreatePatternBrush(dstBmp);
     DeleteObject(dstBmp);
     return result;
-}
+}*/
 
 #endif

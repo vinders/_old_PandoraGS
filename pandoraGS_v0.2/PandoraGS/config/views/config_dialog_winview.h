@@ -122,14 +122,6 @@ private:
     /// <param name="pTitleRect">Target rectangle reference</param>
     /// <param name="tabId">Tab identifier</param>
     void drawMenuContent(HWND hWindow, HDC* phDC, RECT* pTitleRect, unsigned int tabId);
-    /// <summary>Grab a part of a sprite-sheet</summary>
-    /// <param name="phDC">Context reference</param>
-    /// <param name="pSheet">Sprite-sheet reference</param>
-    /// <param name="coordX">Horizontal coord</param>
-    /// <param name="coordY">Vertical coord</param>
-    /// <param name="sizeX">Width</param>
-    /// <param name="sizeY">Height</param>
-    static HBRUSH getSpriteBrush(HDC* phDC, HBITMAP* phSheet, int coordX, int coordY, int sizeX, int sizeY);
 };
 
 #define _CONFIG_DIALOG_VIEW_H_END
