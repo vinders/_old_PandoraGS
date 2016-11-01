@@ -30,6 +30,7 @@ public:
     static ConfigDialogView* s_pCurrentWindow; // current instance (static access)
 
     // onglets
+    unsigned int m_activePage;
     int m_initialize;
     HWND res_tabGeneral;
     HWND res_tabManager;
@@ -89,28 +90,46 @@ private:
     /// <returns>Changes indicator</returns>
     static INT_PTR onLanguageChange(HWND hWindow);
 
-    /// <summary>Drawing init event handler</summary>
+    /// <summary>Menu event handler</summary>
     /// <param name="hWindow">Window handle</param>
-    /// <param name="lParam">Parameter</param>
-    /// <returns>Changes indicator</returns>
-    static INT_PTR onInitDialog(HWND hWindow, LPARAM lParam);
+    /// <param name="tabId">Tab identifier</param>
+    void ConfigDialogView::onPageChange(HWND hWindow, int tabId);
 
-    /// <summary>Paint event handler</summary>
-    /// <param name="hWindow">Window handle</param>
-    /// <param name="lParam">Parameter</param>
-    /// <returns>Changes indicator</returns>
-    static INT_PTR onPaint(HWND hWindow, LPARAM lParam);
-
-    /// <summary>Drawing item event handler</summary>
-    /// <param name="hWindow">Window handle</param>
-    /// <param name="lParam">Parameter</param>
-    /// <returns>Changes indicator</returns>
-    static INT_PTR onDrawItem(HWND hWindow, LPARAM lParam);
 
     /// <summary>Initialize memory</summary>
     void onBoot();
     /// <summary>Free allocated memory</summary>
     void onClose();
+
+    /// <summary>Drawing init event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="lParam">Parameter</param>
+    /// <returns>Changes indicator</returns>
+    static INT_PTR onInitDialog(HWND hWindow, LPARAM lParam);
+    /// <summary>Paint event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="lParam">Parameter</param>
+    /// <returns>Changes indicator</returns>
+    static INT_PTR onPaint(HWND hWindow, LPARAM lParam);
+    /// <summary>Drawing item event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="lParam">Parameter</param>
+    /// <returns>Changes indicator</returns>
+    static INT_PTR onDrawItem(HWND hWindow, LPARAM lParam);
+    /// <summary>Drawing item event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="phDC">Context reference</param>
+    /// <param name="pTitleRect">Target rectangle reference</param>
+    /// <param name="tabId">Tab identifier</param>
+    void drawMenuContent(HWND hWindow, HDC* phDC, RECT* pTitleRect, unsigned int tabId);
+    /// <summary>Grab a part of a sprite-sheet</summary>
+    /// <param name="phDC">Context reference</param>
+    /// <param name="pSheet">Sprite-sheet reference</param>
+    /// <param name="coordX">Horizontal coord</param>
+    /// <param name="coordY">Vertical coord</param>
+    /// <param name="sizeX">Width</param>
+    /// <param name="sizeY">Height</param>
+    static HBRUSH getSpriteBrush(HDC* phDC, HBITMAP* phSheet, int coordX, int coordY, int sizeX, int sizeY);
 };
 
 #define _CONFIG_DIALOG_VIEW_H_END

@@ -49,11 +49,6 @@ public:
     /// <returns>Success</returns>
     bool saveConfig();
 
-    /// <summary>Change language</summary>
-    /// <param name="code">Language code</param>
-    /// <returns>Changes indicator</returns>
-    bool setLanguage(int code);
-
     // -- GETTERS -- -----------------------------------------------------------
 
     /// <summary>Get language resource</summary>
@@ -62,6 +57,11 @@ public:
     {
         return m_pLang;
     }
+    /// <summary>Change language</summary>
+    /// <param name="code">Language code</param>
+    /// <returns>Changes indicator</returns>
+    bool setLanguage(int code);
+
     /// <summary>Get subpage controller</summary>
     /// <param name="index">Page identifier</param>
     /// <returns>Page controller pointer</returns>

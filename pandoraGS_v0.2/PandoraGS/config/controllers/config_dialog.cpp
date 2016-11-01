@@ -80,7 +80,7 @@ bool ConfigDialog::saveConfig()
     //...
     //...
     //...
-
+    //ConfigIO::saveConfig(true);
     return true;
 }
 
@@ -89,9 +89,15 @@ bool ConfigDialog::saveConfig()
 /// <returns>Changes indicator</returns>
 bool ConfigDialog::setLanguage(int code)
 {
-    //...vérif si code valide
-    //...charger langue
-
+    switch (Config::gen_langCode)
+    {
+        case LangCode_English:
+        case LangCode_Spanish:
+        case LangCode_French:
+        case LangCode_German:
+        case LangCode_CustomFile: m_pLang->setLanguage((LangCode)code); break;
+        default: return false; break;
+    }
     return true;
 }
 

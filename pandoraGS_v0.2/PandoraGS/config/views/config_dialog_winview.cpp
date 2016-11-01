@@ -25,15 +25,25 @@ using namespace std;
 #define TAB_HEIGHT   90
 #define TAB_TEXT_Y   64
 // dialog colors
-#define COLOR_PAGE        RGB(255,255,255)
-#define COLOR_BORDER      RGB(210,216,220)
-#define COLOR_MENU_BORDER RGB(227,232,236)
-#define COLOR_MENUTOP_R     235
-#define COLOR_MENUTOP_G     240
-#define COLOR_MENUTOP_B     245
-#define COLOR_MENUBTM_R     156 //152
-#define COLOR_MENUBTM_G     189 //192
-#define COLOR_MENUBTM_B     220 //229
+#define COLOR_PAGE         RGB(255,255,255)
+#define COLOR_BORDER       RGB(210,216,220)
+#define COLOR_TAB_BORDER   RGB(217,222,226)
+#define COLOR_TAB_BORDER2  RGB(204,212,220)
+#define COLOR_TAB_BORDER3  RGB(191,202,215)
+#define COLOR_MENU_TEXT        RGB(67,82,97)
+#define COLOR_MENU_TEXT_ACTIVE RGB(88,100,116)
+#define COLOR_MENUTOP_BORDER_R 227
+#define COLOR_MENUTOP_BORDER_G 232
+#define COLOR_MENUTOP_BORDER_B 236
+#define COLOR_MENUOFFSET_BORDER_R -70.0
+#define COLOR_MENUOFFSET_BORDER_G -36.0
+#define COLOR_MENUOFFSET_BORDER_B -21.0
+#define COLOR_MENUTOP_R    235
+#define COLOR_MENUTOP_G    240
+#define COLOR_MENUTOP_B    245
+#define COLOR_MENUOFFSET_R -79.0 // bottom 156 //152
+#define COLOR_MENUOFFSET_G -51.0 // bottom 189 //192
+#define COLOR_MENUOFFSET_B -25.0 // bottom 220 //229
 
 ConfigDialogView* ConfigDialogView::s_pCurrentWindow = NULL; // current instance (static access)
 
@@ -184,10 +194,14 @@ INT_PTR CALLBACK ConfigDialogView::eventHandler(HWND hWindow, UINT msg, WPARAM w
 /// <returns>Success</returns>
 bool ConfigDialogView::onValidation(HWND hWindow)
 {
-    //...mise à jour config selon valeurs d'UI
+    // update config
+    ConfigDialog* pController = ConfigDialogView::s_pCurrentWindow->getController();
+    //...
+    //...mise à jour config courante selon valeurs d'UI
     //...
 
-    if (ConfigDialogView::s_pCurrentWindow->getController()->saveConfig() == false)
+    // save changes
+    if (pController->saveConfig() == false)
     {
         MessageBox(hWindow, (LPCWSTR)L"Could not save config in registry.\nPlease make sure the application has admin rights.", 
                    (LPCWSTR)L"Validation error...", MB_ICONWARNING | MB_OK);
@@ -201,15 +215,73 @@ bool ConfigDialogView::onValidation(HWND hWindow)
 /// <returns>Changes indicator</returns>
 INT_PTR ConfigDialogView::onLanguageChange(HWND hWindow)
 {
-    int languageCode = /**/0;//! lire dans UI
-    if (ConfigDialogView::s_pCurrentWindow->getController()->setLanguage(languageCode))
+    int languageCode = SendMessage(GetDlgItem(hWindow, IDC_LANG_LIST), CB_GETCURSEL, NULL, NULL);
+    if (languageCode == CB_ERR)
     {
-        //...màj UI général
+        MessageBox(hWindow, (LPCWSTR)L"An error occurred during selection. Please try again.",
+                   (LPCWSTR)L"Language selection error...", MB_ICONWARNING | MB_OK);
+        return (INT_PTR)FALSE;
+    }
+    ConfigDialogView* pThis = ConfigDialogView::s_pCurrentWindow;
+    if (pThis->getController()->setLanguage(languageCode))
+    {
+        // main dialog controls translation
+        SetDlgItemText(hWindow, IDOK, (LPCWSTR)pThis->getController()->getLangResource()->dialog_ok.c_str());
+        SetDlgItemText(hWindow, IDCANCEL, (LPCWSTR)pThis->getController()->getLangResource()->dialog_cancel.c_str());
+        // reset page tabs visuals
+        pThis->m_initialize = 0;
+        SendMessage(pThis->res_tabGeneral, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
+        SendMessage(pThis->res_tabManager, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
+        SendMessage(pThis->res_tabProfile, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
+
+        // update pages
         //...màj pages
 
         return (INT_PTR)TRUE;
     }
     return (INT_PTR)FALSE;
+}
+
+/// <summary>Menu event handler</summary>
+/// <param name="hWindow">Window handle</param>
+/// <param name="tabId">Tab identifier</param>
+void ConfigDialogView::onPageChange(HWND hWindow, int tabId)
+{
+    // disable previous page
+    //...ShowWindow(m_pPages[m_activePage], SW_HIDE); EnableWindow(m_pPages[m_activePage], FALSE);
+    // set new page
+    m_activePage = tabId;
+    //...ShowWindow(m_pPages[m_activePage], SW_SHOW); EnableWindow(m_pPages[m_activePage], TRUE);
+}
+
+/// <summary>Initialize memory</summary>
+void ConfigDialogView::onBoot()
+{
+    m_activePage = CONFIG_PAGE_GENERAL;
+    m_initialize = 0;
+    res_tabGeneral = NULL;
+    res_tabManager = NULL;
+    res_tabProfile = NULL;
+    res_tabIcons = NULL;
+    res_tabFont = NULL;
+    m_menuHeight = 1;
+}
+/// <summary>Free allocated memory</summary>
+void ConfigDialogView::onClose()
+{
+    m_activePage = CONFIG_PAGE_GENERAL;
+    m_initialize = 0;
+    if (res_tabGeneral) DestroyWindow(res_tabGeneral);
+    if (res_tabManager) DestroyWindow(res_tabManager);
+    if (res_tabProfile) DestroyWindow(res_tabProfile);
+    if (res_tabIcons) DeleteObject(res_tabIcons);
+    if (res_tabFont) DeleteObject(res_tabFont);
+    res_tabGeneral = NULL;
+    res_tabManager = NULL;
+    res_tabProfile = NULL;
+    res_tabIcons = NULL;
+    res_tabFont = NULL;
+    m_menuHeight = 1;
 }
 
 /// <summary>Drawing init event handler</summary>
@@ -218,9 +290,6 @@ INT_PTR ConfigDialogView::onLanguageChange(HWND hWindow)
 /// <returns>Changes indicator</returns>
 INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
 {
-    // load pages
-    //...demander à chaque page de créer dialog
-
     // list profiles
     HWND hProfileList = GetDlgItem(hWindow, IDC_PROFILE_LIST);
     if (hProfileList)
@@ -231,6 +300,9 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
     else
         MessageBox(hWindow, (LPCWSTR)L"Could not load profile selector. Please reload this window.",
                    (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
+
+    // load pages
+    //...demander à chaque page de créer dialog
 
     // language choice combobox
     HWND hLangList = GetDlgItem(hWindow, IDC_LANG_LIST);
@@ -243,20 +315,23 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
         ComboBox_AddString(hLangList, _T("External file..."));
         switch (Config::gen_langCode)
         {
-            case LangCode_English: ComboBox_SetCurSel(hLangList, 0); break;
-            case LangCode_Spanish: ComboBox_SetCurSel(hLangList, 1); break;
-            case LangCode_French:  ComboBox_SetCurSel(hLangList, 2); break;
-            case LangCode_German:  ComboBox_SetCurSel(hLangList, 3); break;
-            case LangCode_CustomFile: ComboBox_SetCurSel(hLangList, 4); break;
+            case LangCode_English:
+            case LangCode_Spanish:
+            case LangCode_French:
+            case LangCode_German:
+            case LangCode_CustomFile: ComboBox_SetCurSel(hLangList, Config::gen_langCode); break;
             default: ComboBox_SetCurSel(hLangList, 0); break;
         }
     }
     else
         MessageBox(hWindow, (LPCWSTR)L"Could not load language selector.",
                    (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
+    // main dialog buttons language
+    ConfigDialogView* pThis = ConfigDialogView::s_pCurrentWindow;
+    SetDlgItemText(hWindow, IDOK, (LPCWSTR)pThis->getController()->getLangResource()->dialog_ok.c_str());
+    SetDlgItemText(hWindow, IDCANCEL, (LPCWSTR)pThis->getController()->getLangResource()->dialog_cancel.c_str());
 
     // menu - page tabs
-    ConfigDialogView* pThis = ConfigDialogView::s_pCurrentWindow;
     pThis->res_tabGeneral = CreateWindow(L"button", L"General settings",
         WS_CHILD | WS_VISIBLE | BS_TEXT | BS_BITMAP | BS_BOTTOM | BS_OWNERDRAW, 4, TAB_FIRST_Y, LOGO_WIDTH - 4, TAB_HEIGHT, 
         hWindow, (HMENU)IDC_GENERAL_TAB, pThis->m_hInstance, NULL);
@@ -287,6 +362,9 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
         pThis->res_tabFont = CreateFontIndirect(&logFont);
         ReleaseDC(hWindow, hDC);
     }
+    SendMessage(pThis->res_tabGeneral, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
+    SendMessage(pThis->res_tabManager, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
+    SendMessage(pThis->res_tabProfile, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
     return (INT_PTR)TRUE;
 }
 
@@ -299,7 +377,7 @@ INT_PTR ConfigDialogView::onPaint(HWND hWindow, LPARAM lParam)
     ConfigDialogView* pThis = ConfigDialogView::s_pCurrentWindow;
     PAINTSTRUCT paint;
     HDC hDC = NULL;
-    HBRUSH brush = NULL;
+    HBRUSH brush = NULL, brush2 = NULL;
     hDC = BeginPaint(hWindow, &paint);
     if (hDC == NULL)
         return FALSE;
@@ -317,35 +395,28 @@ INT_PTR ConfigDialogView::onPaint(HWND hWindow, LPARAM lParam)
         brush = NULL;
     }
 
-    // main menu right border
-    brush = CreateSolidBrush(COLOR_MENU_BORDER);
-    if (brush)
-    {
-        GetClientRect(hWindow, &rect);
-        rect.top += LOGO_HEIGHT;
-        rect.bottom -= 43;
-        rect.right = rect.left + LOGO_WIDTH;
-        rect.left = rect.right - 1;
-        FillRect(hDC, &rect, brush);
-        DeleteObject(brush);
-        brush = NULL;
-    }
-
-    // main menu background gradient
-    RECT line;
+    // main menu background gradient + border
+    RECT line, lineBorder;
+    float ratio;
     GetClientRect(hWindow, &rect);
     rect.top += LOGO_HEIGHT;
     rect.bottom -= 43;
     line.left = rect.left;
-    line.right = rect.left + LOGO_WIDTH - 1;
+    line.right = lineBorder.left = rect.left + LOGO_WIDTH - 1;
+    lineBorder.right = lineBorder.left + 1;
     pThis->m_menuHeight = rect.bottom - rect.top;
     for (int px = 0; px < pThis->m_menuHeight; px++)
     {
-        line.top = rect.top + px;
-        line.bottom = line.top + 1;
-        brush = CreateSolidBrush(RGB(COLOR_MENUTOP_R + (px*(COLOR_MENUBTM_R - COLOR_MENUTOP_R) / pThis->m_menuHeight),
-                                     COLOR_MENUTOP_G + (px*(COLOR_MENUBTM_G - COLOR_MENUTOP_G) / pThis->m_menuHeight),
-                                     COLOR_MENUTOP_B + (px*(COLOR_MENUBTM_B - COLOR_MENUTOP_B) / pThis->m_menuHeight)));
+        line.top = lineBorder.top = rect.top + px;
+        line.bottom = lineBorder.bottom = line.top + 1;
+        ratio = (float)px / (float)pThis->m_menuHeight;
+        brush = CreateSolidBrush(RGB(COLOR_MENUTOP_R + (ratio*COLOR_MENUOFFSET_R),
+                                     COLOR_MENUTOP_G + (ratio*COLOR_MENUOFFSET_G),
+                                     COLOR_MENUTOP_B + (ratio*COLOR_MENUOFFSET_B)));
+        brush2 = CreateSolidBrush(RGB(COLOR_MENUTOP_BORDER_R + (ratio*COLOR_MENUOFFSET_BORDER_R),
+                                      COLOR_MENUTOP_BORDER_G + (ratio*COLOR_MENUOFFSET_BORDER_G),
+                                      COLOR_MENUTOP_BORDER_B + (ratio*COLOR_MENUOFFSET_BORDER_B)));
+        FillRect(hDC, &lineBorder, brush2);
         FillRect(hDC, &line, brush);
         DeleteObject(brush);
     }
@@ -392,10 +463,6 @@ INT_PTR ConfigDialogView::onDrawItem(HWND hWindow, LPARAM lParam)
     if (hDC == NULL)
         return FALSE;
     HBRUSH brushBack = NULL;
-    HBRUSH brushBorder = NULL;
-    brushBorder = CreateSolidBrush(COLOR_MENU_BORDER);
-    if (brushBorder == NULL)
-        return FALSE;
     RECT itemRect = pDraw->rcItem;
     RECT titleRect = { itemRect.left, itemRect.top + TAB_TEXT_Y,
         itemRect.right - 4, itemRect.bottom };
@@ -405,8 +472,17 @@ INT_PTR ConfigDialogView::onDrawItem(HWND hWindow, LPARAM lParam)
     if (pThis->m_initialize < CONFIG_DIALOG_PAGES_NB)
     {
         pThis->m_initialize++;
-        if (0/*active-page*/ == number)  // active tab
+        if (pThis->m_activePage == number)  // active tab
         {
+            HBRUSH brushBorder = NULL;
+            switch (number)
+            {
+                case 0: brushBorder = CreateSolidBrush(COLOR_TAB_BORDER); break;
+                case 1: brushBorder = CreateSolidBrush(COLOR_TAB_BORDER2); break;
+                case 2: brushBorder = CreateSolidBrush(COLOR_TAB_BORDER3); break;
+            }
+            if (brushBorder == NULL)
+                return FALSE;
             FrameRect(hDC, &itemRect, brushBorder);  // border
             brushBack = CreateSolidBrush(COLOR_PAGE);
             if (brushBack)
@@ -417,7 +493,8 @@ INT_PTR ConfigDialogView::onDrawItem(HWND hWindow, LPARAM lParam)
                 FillRect(hDC, &itemRect, brushBack);
                 DeleteObject(brushBack);
             }
-            //...redessiner texte
+            pThis->drawMenuContent(hWindow, &hDC, &titleRect, number);
+            DeleteObject(brushBorder);
         }
         else  // inactive tabs
         {
@@ -429,30 +506,28 @@ INT_PTR ConfigDialogView::onDrawItem(HWND hWindow, LPARAM lParam)
 
             // background gradient
             HBRUSH brushBack = NULL;
-            RECT line;
+            HBRUSH brushBorder = NULL;
+            float ratio;
+            RECT line, lineBorder;
             line.left = itemRect.left;
-            line.right = itemRect.right - 1;
+            line.right = lineBorder.left = itemRect.right - 1;
+            lineBorder.right = lineBorder.left + 1;
             for (int px = 0; px < TAB_HEIGHT; px++)
             {
-                line.top = px;
-                line.bottom = line.top + 1;
-                brushBack = CreateSolidBrush(RGB(COLOR_MENUTOP_R + ((top + px)*(COLOR_MENUBTM_R - COLOR_MENUTOP_R) / winHeight),
-                    COLOR_MENUTOP_G + ((top + px)*(COLOR_MENUBTM_G - COLOR_MENUTOP_G) / winHeight),
-                    COLOR_MENUTOP_B + ((top + px)*(COLOR_MENUBTM_B - COLOR_MENUTOP_B) / winHeight)));
+                line.top = lineBorder.top = px;
+                line.bottom = lineBorder.bottom = line.top + 1;
+                ratio = (float)(top + px) / (float)winHeight;
+                brushBack = CreateSolidBrush(RGB((char)COLOR_MENUTOP_R + (char)(ratio*COLOR_MENUOFFSET_R),
+                                                 (char)COLOR_MENUTOP_G + (char)(ratio*COLOR_MENUOFFSET_G),
+                                                 (char)COLOR_MENUTOP_B + (char)(ratio*COLOR_MENUOFFSET_B)));
+                brushBorder = CreateSolidBrush(RGB((char)COLOR_MENUTOP_BORDER_R + (char)(ratio*COLOR_MENUOFFSET_BORDER_R),
+                                                   (char)COLOR_MENUTOP_BORDER_G + (char)(ratio*COLOR_MENUOFFSET_BORDER_G),
+                                                   (char)COLOR_MENUTOP_BORDER_B + (char)(ratio*COLOR_MENUOFFSET_BORDER_B)));
+                FillRect(hDC, &lineBorder, brushBorder);
                 FillRect(hDC, &line, brushBack);
                 DeleteObject(brushBack);
             }
-
-            // right border
-            HBRUSH brushBorder = NULL;
-            brushBorder = CreateSolidBrush(COLOR_MENU_BORDER);
-            if (brushBorder)
-            {
-                itemRect.left = -1 + itemRect.right;
-                FillRect(hDC, &itemRect, brushBorder);
-                DeleteObject(brushBorder);
-            }
-            //...redessiner texte
+            pThis->drawMenuContent(hWindow, &hDC, &titleRect, number);
         }
     }
     // redraw selection
@@ -463,50 +538,118 @@ INT_PTR ConfigDialogView::onDrawItem(HWND hWindow, LPARAM lParam)
         if (bIsPressed)
         {
             // change selection + toggle dialogs
-            int prevTab = 0/*active-page*/;
-            //...avertir controleur
+            unsigned int prevTab = pThis->m_activePage;
+            pThis->onPageChange(hWindow, number);
 
             // change visual selection
             pThis->m_initialize = 0;
-            if (prevTab == 0 || /*active-page*/0 == 0)
+            if (prevTab == CONFIG_PAGE_GENERAL || pThis->m_activePage == CONFIG_PAGE_GENERAL)
                 SendMessage(pThis->res_tabGeneral, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
-            if (prevTab == 1 || /*active-page*/0 == 1)
+            if (prevTab == CONFIG_PAGE_MANAGER || pThis->m_activePage == CONFIG_PAGE_MANAGER)
                 SendMessage(pThis->res_tabManager, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
-            if (prevTab == 2 || /*active-page*/0 == 2)
+            if (prevTab == CONFIG_PAGE_PROFILE || pThis->m_activePage == CONFIG_PAGE_PROFILE)
                 SendMessage(pThis->res_tabProfile, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
         }
     }
-    DeleteObject(brushBorder);
     ReleaseDC(hWindow, hDC);
     return (INT_PTR)TRUE;
 }
 
-/// <summary>Initialize memory</summary>
-void ConfigDialogView::onBoot()
+/// <summary>Drawing item event handler</summary>
+/// <param name="hWindow">Window handle</param>
+/// <param name="phDC">Context reference</param>
+/// <param name="pTitleRect">Target rectangle reference</param>
+/// <param name="tabId">Tab identifier</param>
+void ConfigDialogView::drawMenuContent(HWND hWindow, HDC* phDC, RECT* pTitleRect, unsigned int tabId)
 {
-    m_initialize = 0;
-    res_tabGeneral = NULL;
-    res_tabManager = NULL;
-    res_tabProfile = NULL;
-    res_tabIcons = NULL;
-    res_tabFont = NULL;
-    m_menuHeight = 1;
+    // set text color
+    if (tabId == m_activePage)
+        SetTextColor(*phDC, COLOR_MENU_TEXT_ACTIVE);
+    else
+        SetTextColor(*phDC, COLOR_MENU_TEXT);
+
+    // draw text
+    switch (tabId)
+    {
+        case 0: DrawText(*phDC, (LPCWSTR)getController()->getLangResource()->tabTitle_generalSettings.c_str(), -1, pTitleRect, DT_CENTER); break;
+        case 1: DrawText(*phDC, (LPCWSTR)getController()->getLangResource()->tabTitle_profilesManager.c_str(), -1, pTitleRect, DT_CENTER); break;
+        case 2: DrawText(*phDC, (LPCWSTR)getController()->getLangResource()->tabTitle_profileSettings.c_str(), -1, pTitleRect, DT_CENTER); break;
+    }
+
+    if (res_tabIcons) // image
+    {
+        // set icon position
+        RECT iconRect;
+        iconRect.left = pTitleRect->left + (LOGO_WIDTH / 2) - (4 + ICONS_SIZE / 2);
+        iconRect.right = pTitleRect->right + (4 + ICONS_SIZE / 2) - (LOGO_WIDTH / 2);
+        iconRect.bottom = pTitleRect->top - 4;
+        iconRect.top = iconRect.bottom - ICONS_SIZE;
+
+        // draw icon
+        HBRUSH curIcon = getSpriteBrush(phDC, &res_tabIcons, tabId*ICONS_SIZE, 0, ICONS_SIZE, ICONS_SIZE);
+        if (curIcon)
+        {
+            SetBrushOrgEx(*phDC, iconRect.left, iconRect.top, NULL);
+            FillRect(*phDC, &iconRect, curIcon);
+            DeleteObject(curIcon);
+        }
+    }
 }
-/// <summary>Free allocated memory</summary>
-void ConfigDialogView::onClose()
+
+/// <summary>Grab a part of a sprite-sheet</summary>
+/// <param name="phDC">Context reference</param>
+/// <param name="pSheet">Sprite-sheet reference</param>
+/// <param name="coordX">Horizontal coord</param>
+/// <param name="coordY">Vertical coord</param>
+/// <param name="sizeX">Width</param>
+/// <param name="sizeY">Height</param>
+HBRUSH ConfigDialogView::getSpriteBrush(HDC* phDC, HBITMAP* phSheet, int coordX, int coordY, int sizeX, int sizeY)
 {
-    m_initialize = 0;
-    m_menuHeight = 1;
-    if (res_tabGeneral) DestroyWindow(res_tabGeneral);
-    if (res_tabManager) DestroyWindow(res_tabManager);
-    if (res_tabProfile) DestroyWindow(res_tabProfile);
-    if (res_tabIcons) DeleteObject(res_tabIcons);
-    if (res_tabFont) DeleteObject(res_tabFont);
-    res_tabGeneral = NULL;
-    res_tabManager = NULL;
-    res_tabProfile = NULL;
-    res_tabIcons = NULL;
-    res_tabFont = NULL;
+    HDC memDC = NULL;
+    HDC dstDC = NULL;
+    HBITMAP oldMemBmp = NULL;
+    HBITMAP oldDstBmp = NULL;
+    HBITMAP dstBmp = NULL;
+
+    // define bitmap contexts
+    memDC = CreateCompatibleDC(NULL);
+    if (!memDC)
+        return NULL;
+    dstDC = CreateCompatibleDC(NULL);
+    if (!dstDC)
+    {
+        DeleteDC(memDC);
+        return NULL;
+    }
+
+    // create bitmap icon
+    dstBmp = CreateCompatibleBitmap(*phDC, sizeX, sizeY);
+    if (!dstBmp)
+    {
+        DeleteDC(memDC);
+        DeleteDC(dstDC);
+        return NULL;
+    }
+
+    // get part of sprite-sheet image
+    oldMemBmp = (HBITMAP)SelectObject(memDC, *phSheet);
+    oldDstBmp = (HBITMAP)SelectObject(dstDC, dstBmp);
+    if (oldMemBmp && oldDstBmp)
+        BitBlt(dstDC, 0, 0, sizeX, sizeY, memDC, coordX, coordY, SRCCOPY);
+
+    // remove contexts
+    if (oldMemBmp)
+        SelectObject(memDC, oldMemBmp);
+    if (oldDstBmp)
+        SelectObject(dstDC, oldDstBmp);
+    DeleteDC(memDC);
+    DeleteDC(dstDC);
+
+    // create image-pattern brush
+    HBRUSH result;
+    result = CreatePatternBrush(dstBmp);
+    DeleteObject(dstBmp);
+    return result;
 }
 
 #endif

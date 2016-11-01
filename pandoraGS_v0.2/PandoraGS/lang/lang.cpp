@@ -32,7 +32,7 @@ void LanguageGameMenuResource::setLanguage(LangCode code)
 /// <summary>Set english values</summary>
 void LanguageGameMenuResource::setLanguage_English()
 {
-
+    
 }
 /// <summary>Set spanish values</summary>
 void LanguageGameMenuResource::setLanguage_Spanish()
@@ -82,27 +82,44 @@ void LanguageDialogResource::setLanguage(LangCode code)
 /// <summary>Set english values</summary>
 void LanguageDialogResource::setLanguage_English()
 {
-
+    dialog_ok = L"OK";
+    dialog_cancel = L"Cancel";
+    tabTitle_generalSettings = L"General settings";
+    tabTitle_profilesManager = L"Profile manager";
+    tabTitle_profileSettings = L"Profile settings";
 }
 /// <summary>Set spanish values</summary>
 void LanguageDialogResource::setLanguage_Spanish()
 {
-
+    dialog_ok = L"OK";
+    dialog_cancel = L"Cancelar";
+    tabTitle_generalSettings = L"General settings";
+    tabTitle_profilesManager = L"Profile manager";
+    tabTitle_profileSettings = L"Profile settings";
 }
 /// <summary>Set french values</summary>
 void LanguageDialogResource::setLanguage_French()
 {
-
+    dialog_ok = L"OK";
+    dialog_cancel = L"Annuler";
+    tabTitle_generalSettings = L"Options générales";
+    tabTitle_profilesManager = L"Gestion de profils";
+    tabTitle_profileSettings = L"Paramétrer profil";
 }
 /// <summary>Set german values</summary>
 void LanguageDialogResource::setLanguage_German()
 {
-
+    dialog_ok = L"OK";
+    dialog_cancel = L"Abbrechen";
+    tabTitle_generalSettings = L"General settings";
+    tabTitle_profilesManager = L"Profile manager";
+    tabTitle_profileSettings = L"Profile settings";
 }
 
 /// <summary>Read values from file</summary>
 /// <exception cref="std::exception">File not found</exception>
 void LanguageDialogResource::setLanguageFromFile()
 {
-
+    setLanguage_English();
+    //...lire fichier
 }

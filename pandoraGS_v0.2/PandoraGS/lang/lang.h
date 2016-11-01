@@ -51,7 +51,11 @@ public:
 class LanguageDialogResource
 {
 public:
-    // std::string ...
+    std::wstring dialog_ok;
+    std::wstring dialog_cancel;
+    std::wstring tabTitle_generalSettings;
+    std::wstring tabTitle_profilesManager;
+    std::wstring tabTitle_profileSettings;
 
 public:
     /// <summary>Create uninitialized instance</summary>
