@@ -32,4 +32,23 @@ ConfigPageManagerView* ConfigPageManagerView::createPage(ConfigPageManager* pCon
     return pPage;
 }
 
+
+/// <summary>Refresh language-dependent page content</summary>
+void ConfigPageManagerView::resetLanguage()
+{
+
+}
+/// <summary>Copy UI settings to global configuration</summary>
+void ConfigPageManagerView::updateConfig()
+{
+
+}
+
+/// <summary>Load page content</summary>
+/// <param name="isVisible">Visibility (show/hide)</param>
+void ConfigPageManagerView::loadPage(bool isVisible)
+{
+
+}
+
 #endif

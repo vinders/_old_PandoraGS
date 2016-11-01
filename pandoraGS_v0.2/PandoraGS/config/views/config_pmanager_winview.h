@@ -30,6 +30,15 @@ public:
     /// <returns>Page created</returns>
     /// <exception cref="std::exception">Creation failure</exception>
     static ConfigPageManagerView* createPage(ConfigPageManager* pController);
+
+    /// <summary>Refresh language-dependent page content</summary>
+    virtual void resetLanguage();
+    /// <summary>Copy UI settings to global configuration</summary>
+    virtual void updateConfig();
+
+    /// <summary>Load page content</summary>
+    /// <param name="isVisible">Visibility (show/hide)</param>
+    virtual void loadPage(bool isVisible);
 };
 
 #endif

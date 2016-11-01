@@ -12,6 +12,11 @@ Description : configuration dialog page - view
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_WIN32
 
+#define COLOR_GROUPBOX_BORDER RGB(210,219,226)
+#define COLOR_GROUPBOX_BAR    RGB(240,243,245)
+#define COLOR_GROUPBOX_TEXT   RGB(94,97,99)
+#define GROUPBOX_BAR_HEIGHT   24
+
 #ifndef _CONFIG_PAGE_H_END
 class ConfigPage;
 #endif
@@ -21,6 +26,7 @@ class ConfigPageView
 {
 protected:
     ConfigPage* m_pController; // controller reference
+    HWND m_hPage; // page handle
 
 public:
     /// <summary>Create page view container</summary>
@@ -28,6 +34,18 @@ public:
     ConfigPageView(ConfigPage* pController);
     /// <summary>Destroy dialog view container</summary>
     virtual ~ConfigPageView();
+
+    /// <summary>Refresh language-dependent page content</summary>
+    virtual void resetLanguage() = 0;
+    /// <summary>Copy UI settings to global configuration</summary>
+    virtual void updateConfig() = 0;
+
+    /// <summary>Load page content</summary>
+    /// <param name="isVisible">Visibility (show/hide)</param>
+    virtual void loadPage(bool isVisible) = 0;
+    /// <summary>Show/hide page</summary>
+    /// <param name="isVisible">Visibility (show/hide)</param>
+    void showPage(bool isVisible);
 };
 
 #include "config_page.h"

@@ -53,6 +53,7 @@ class LanguageDialogResource
 public:
     std::wstring dialog_ok;
     std::wstring dialog_cancel;
+    std::wstring dialog_profiles;
     std::wstring tabTitle_generalSettings;
     std::wstring tabTitle_profilesManager;
     std::wstring tabTitle_profileSettings;

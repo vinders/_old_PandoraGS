@@ -32,4 +32,23 @@ ConfigPageProfileView* ConfigPageProfileView::createPage(ConfigPageProfile* pCon
     return pPage;
 }
 
+
+/// <summary>Refresh language-dependent page content</summary>
+void ConfigPageProfileView::resetLanguage()
+{
+
+}
+/// <summary>Copy UI settings to global configuration</summary>
+void ConfigPageProfileView::updateConfig()
+{
+
+}
+
+/// <summary>Load page content</summary>
+/// <param name="isVisible">Visibility (show/hide)</param>
+void ConfigPageProfileView::loadPage(bool isVisible)
+{
+
+}
+
 #endif

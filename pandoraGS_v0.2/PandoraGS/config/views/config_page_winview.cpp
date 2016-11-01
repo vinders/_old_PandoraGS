@@ -24,4 +24,20 @@ ConfigPageView::~ConfigPageView()
 {
 }
 
+/// <summary>Show/hide page</summary>
+/// <param name="isVisible">Visibility (show/hide)</param>
+void ConfigPageView::showPage(bool isVisible)
+{
+    if (isVisible)
+    {
+        ShowWindow(m_hPage, SW_SHOW);
+        EnableWindow(m_hPage, TRUE);
+    }
+    else
+    {
+        ShowWindow(m_hPage, SW_HIDE);
+        EnableWindow(m_hPage, FALSE);
+    }
+}
+
 #endif

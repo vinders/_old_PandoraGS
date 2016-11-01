@@ -124,6 +124,7 @@ void ConfigDialogView::setVisible()
         throw std::exception("Could not open config window");
 }
 
+
 // -- DIALOG TEMPLATE ----------------------------------------------------------
 
 /// <summary>Retrieve window and instances handles</summary>
@@ -187,6 +188,25 @@ INT_PTR CALLBACK ConfigDialogView::eventHandler(HWND hWindow, UINT msg, WPARAM w
     return (INT_PTR)FALSE;
 }
 
+/// <summary>Create and display pages</summary>
+void ConfigDialogView::loadPages()
+{
+    for (int p = 1; p < CONFIG_DIALOG_PAGES_NB; ++p)
+        m_pPages[p]->loadPage(false);
+    m_pPages[0]->loadPage(true);
+}
+
+/// <summary>Copy UI settings to global configuration</summary>
+void ConfigDialogView::updateConfig()
+{
+    for (int p = 0; p < CONFIG_DIALOG_PAGES_NB; ++p)
+        m_pPages[p]->updateConfig();
+    int languageCode = SendMessage(GetDlgItem(m_hWindow, IDC_LANG_LIST), CB_GETCURSEL, NULL, NULL);
+    if (languageCode != CB_ERR)
+        Config::gen_langCode = languageCode;
+}
+
+
 // -- EVENTS -------------------------------------------------------------------
 
 /// <summary>Validation event handler</summary>
@@ -196,10 +216,7 @@ bool ConfigDialogView::onValidation(HWND hWindow)
 {
     // update config
     ConfigDialog* pController = ConfigDialogView::s_pCurrentWindow->getController();
-    //...
-    //...mise à jour config courante selon valeurs d'UI
-    //...
-
+    ConfigDialogView::s_pCurrentWindow->updateConfig();
     // save changes
     if (pController->saveConfig() == false)
     {
@@ -228,6 +245,7 @@ INT_PTR ConfigDialogView::onLanguageChange(HWND hWindow)
         // main dialog controls translation
         SetDlgItemText(hWindow, IDOK, (LPCWSTR)pThis->getController()->getLangResource()->dialog_ok.c_str());
         SetDlgItemText(hWindow, IDCANCEL, (LPCWSTR)pThis->getController()->getLangResource()->dialog_cancel.c_str());
+        SetDlgItemText(hWindow, IDS_PROFILE, (LPCWSTR)pThis->getController()->getLangResource()->dialog_profiles.c_str());
         // reset page tabs visuals
         pThis->m_initialize = 0;
         SendMessage(pThis->res_tabGeneral, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
@@ -235,8 +253,8 @@ INT_PTR ConfigDialogView::onLanguageChange(HWND hWindow)
         SendMessage(pThis->res_tabProfile, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
 
         // update pages
-        //...màj pages
-
+        for (int p = 0; p < CONFIG_DIALOG_PAGES_NB; ++p)
+            pThis->m_pPages[p]->resetLanguage();
         return (INT_PTR)TRUE;
     }
     return (INT_PTR)FALSE;
@@ -247,11 +265,18 @@ INT_PTR ConfigDialogView::onLanguageChange(HWND hWindow)
 /// <param name="tabId">Tab identifier</param>
 void ConfigDialogView::onPageChange(HWND hWindow, int tabId)
 {
-    // disable previous page
-    //...ShowWindow(m_pPages[m_activePage], SW_HIDE); EnableWindow(m_pPages[m_activePage], FALSE);
-    // set new page
-    m_activePage = tabId;
-    //...ShowWindow(m_pPages[m_activePage], SW_SHOW); EnableWindow(m_pPages[m_activePage], TRUE);
+    // page change
+    m_pPages[m_activePage]->showPage(false);
+    m_activePage = tabId; // set new page
+    m_pPages[m_activePage]->showPage(true);
+
+    // profile list
+    HWND hProfileList = NULL;
+    int cmdProfileList = (m_activePage == CONFIG_PAGE_PROFILE) ? SW_SHOW : SW_HIDE;
+    if (hProfileList = GetDlgItem(hWindow, IDC_PROFILE_LIST))
+        ShowWindow(hProfileList, cmdProfileList);
+    if (hProfileList = GetDlgItem(hWindow, IDS_PROFILE))
+        ShowWindow(hProfileList, cmdProfileList);
 }
 
 /// <summary>Initialize memory</summary>
@@ -284,6 +309,9 @@ void ConfigDialogView::onClose()
     m_menuHeight = 1;
 }
 
+
+// -- DISPLAY EVENTS -----------------------------------------------------------
+
 /// <summary>Drawing init event handler</summary>
 /// <param name="hWindow">Window handle</param>
 /// <param name="lParam">Parameter</param>
@@ -294,15 +322,19 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
     HWND hProfileList = GetDlgItem(hWindow, IDC_PROFILE_LIST);
     if (hProfileList)
     {
-        //...charger liste de profils
+        //...récupérer liste noms de profils
         ShowWindow(hProfileList, SW_HIDE);
     }
     else
         MessageBox(hWindow, (LPCWSTR)L"Could not load profile selector. Please reload this window.",
                    (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
+    HWND hProfileLabel = GetDlgItem(hWindow, IDS_PROFILE);
+    if (hProfileLabel)
+        ShowWindow(hProfileLabel, SW_HIDE);
 
     // load pages
-    //...demander à chaque page de créer dialog
+    ConfigDialogView* pThis = ConfigDialogView::s_pCurrentWindow;
+    pThis->loadPages();
 
     // language choice combobox
     HWND hLangList = GetDlgItem(hWindow, IDC_LANG_LIST);
@@ -324,10 +356,9 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
         }
     }
     else
-        MessageBox(hWindow, (LPCWSTR)L"Could not load language selector.",
-                   (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
+        MessageBox(hWindow, (LPCWSTR)L"Could not load language selector.", (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
+
     // main dialog buttons language
-    ConfigDialogView* pThis = ConfigDialogView::s_pCurrentWindow;
     SetDlgItemText(hWindow, IDOK, (LPCWSTR)pThis->getController()->getLangResource()->dialog_ok.c_str());
     SetDlgItemText(hWindow, IDCANCEL, (LPCWSTR)pThis->getController()->getLangResource()->dialog_cancel.c_str());
 
@@ -348,23 +379,62 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
     // menu - tab icons
     pThis->res_tabIcons = (HBITMAP)LoadBitmap(ConfigDialogView::s_pCurrentWindow->m_hInstance, MAKEINTRESOURCE(IDB_CONFIG_ICONS));
     if (!pThis->res_tabIcons)
-        MessageBox(hWindow, (LPCWSTR)L"Could not load menu bitmap.",
-                   (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
-    // menu - font
+        MessageBox(hWindow, (LPCWSTR)L"Could not load menu bitmap.", (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
+
     HDC hDC = GetDC(hWindow);
     if (hDC)
     {
+        if (pThis->res_tabIcons)
+        {
+            // prepare icons - set information
+            BITMAPINFO bmi;
+            ZeroMemory(&bmi, sizeof(BITMAPINFO));
+            bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+            bmi.bmiHeader.biWidth = CONFIG_DIALOG_PAGES_NB*ICONS_SIZE;
+            bmi.bmiHeader.biHeight = ICONS_SIZE;
+            bmi.bmiHeader.biPlanes = 1;
+            bmi.bmiHeader.biBitCount = 32;
+            bmi.bmiHeader.biCompression = BI_RGB;
+            bmi.bmiHeader.biSizeImage = bmi.bmiHeader.biWidth * bmi.bmiHeader.biHeight * 4;
+            // prepare icons - pre-multiply alpha channel
+            BITMAP bm = { 0 };
+            GetObject(pThis->res_tabIcons, sizeof(bm), &bm);
+            GetDIBits(hDC, pThis->res_tabIcons, 0, bm.bmHeight, NULL, &bmi, DIB_RGB_COLORS); // pass effective dimensions to bmi
+            LPBYTE pBitData = (LPBYTE)LocalAlloc(LPTR, bm.bmWidth * bm.bmHeight * sizeof(DWORD));
+            if (pBitData != NULL)
+            {
+                LPBYTE pData = pBitData;
+                GetDIBits(hDC, pThis->res_tabIcons, 0, bm.bmHeight, pData, &bmi, DIB_RGB_COLORS); // copy image to array
+                for (int y = 0; y < bm.bmHeight; y++)
+                {
+                    for (int x = 0; x < bm.bmWidth; x++)
+                    {
+                        pData[0] = (BYTE)((DWORD)pData[0] * pData[3] / 255); // for AlphaBlend
+                        pData[1] = (BYTE)((DWORD)pData[1] * pData[3] / 255);
+                        pData[2] = (BYTE)((DWORD)pData[2] * pData[3] / 255);
+                        pData += 4;
+                    }
+                }
+                SetDIBits(hDC, pThis->res_tabIcons, 0, bm.bmHeight, pBitData, &bmi, DIB_RGB_COLORS); // copy array to image
+                LocalFree(pBitData);
+            }
+        }
+
+        // menu - font
         LOGFONT logFont = { 0 };
         logFont.lfHeight = -MulDiv(10, GetDeviceCaps(hDC, LOGPIXELSY), 72);
-        logFont.lfWeight = FW_NORMAL;
-        //logFont.lfQuality = CLEARTYPE_QUALITY;
+        logFont.lfWeight = FW_NORMAL; //logFont.lfQuality = CLEARTYPE_QUALITY;
         _tcscpy_s(logFont.lfFaceName, _T("Tahoma"));
         pThis->res_tabFont = CreateFontIndirect(&logFont);
         ReleaseDC(hWindow, hDC);
+        // set font on tabs
+        SendMessage(pThis->res_tabGeneral, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
+        SendMessage(pThis->res_tabManager, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
+        SendMessage(pThis->res_tabProfile, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
     }
-    SendMessage(pThis->res_tabGeneral, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
-    SendMessage(pThis->res_tabManager, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
-    SendMessage(pThis->res_tabProfile, WM_SETFONT, (WPARAM)pThis->res_tabFont, (LPARAM)MAKELONG(TRUE, 0));
+    else
+        MessageBox(hWindow, (LPCWSTR)L"Could not obtain context.\nTabs fonts and icons transparency could not be set.", 
+                   (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
     return (INT_PTR)TRUE;
 }
 
@@ -581,23 +651,7 @@ void ConfigDialogView::drawMenuContent(HWND hWindow, HDC* phDC, RECT* pTitleRect
 
     if (res_tabIcons) // image
     {
-        // set icon position
-        RECT iconRect;
-        iconRect.left = pTitleRect->left + (LOGO_WIDTH / 2) - (4 + ICONS_SIZE / 2);
-        iconRect.right = pTitleRect->right + (4 + ICONS_SIZE / 2) - (LOGO_WIDTH / 2);
-        iconRect.bottom = pTitleRect->top - 4;
-        iconRect.top = iconRect.bottom - ICONS_SIZE;
-
-        // draw icon
-        /*HBRUSH curIcon = getSpriteBrush(phDC, &res_tabIcons, tabId*ICONS_SIZE, 0, ICONS_SIZE, ICONS_SIZE);
-        if (curIcon)
-        {
-            SetBrushOrgEx(*phDC, iconRect.left, iconRect.top, NULL);
-            FillRect(*phDC, &iconRect, curIcon);
-            DeleteObject(curIcon);
-        }*/
-        
-        // prepare bitmap
+        // prepare bitmap information
         BITMAPINFO bmi;
         ZeroMemory(&bmi, sizeof(BITMAPINFO));
         bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -607,35 +661,12 @@ void ConfigDialogView::drawMenuContent(HWND hWindow, HDC* phDC, RECT* pTitleRect
         bmi.bmiHeader.biBitCount = 32;
         bmi.bmiHeader.biCompression = BI_RGB;
         bmi.bmiHeader.biSizeImage = bmi.bmiHeader.biWidth * bmi.bmiHeader.biHeight * 4;
-
+        // copy bitmap to DIB
         VOID* pvBits = NULL;
         HDC hMemDC = CreateCompatibleDC(*phDC);
         HBITMAP hBmp = CreateDIBSection(hMemDC, &bmi, DIB_RGB_COLORS, &pvBits, NULL, 0);
         SelectObject(hMemDC, hBmp);
         GetDIBits(*phDC, res_tabIcons, 0, ICONS_SIZE, pvBits, &bmi, DIB_RGB_COLORS);
-
-        //pre-multiply alpha
-        BITMAP bm = { 0 };
-        GetObject(hBmp, sizeof(bm), &bm);
-        BITMAPINFO* bmi2 = (BITMAPINFO*)_alloca(sizeof(BITMAPINFOHEADER) + (256 * sizeof(RGBQUAD)));
-        ZeroMemory(bmi2, sizeof(BITMAPINFOHEADER) + (256 * sizeof(RGBQUAD)));
-        bmi2->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-        BOOL bRes = ::GetDIBits(*phDC, hBmp, 0, bm.bmHeight, NULL, bmi2, DIB_RGB_COLORS);
-        if (!bRes || bmi2->bmiHeader.biBitCount != 32) return;
-        LPBYTE pBitData = (LPBYTE) ::LocalAlloc(LPTR, bm.bmWidth * bm.bmHeight * sizeof(DWORD));
-        if (pBitData == NULL) return;
-        LPBYTE pData = pBitData;
-        ::GetDIBits(*phDC, hBmp, 0, bm.bmHeight, pData, bmi2, DIB_RGB_COLORS);
-        for (int y = 0; y < bm.bmHeight; y++) {
-            for (int x = 0; x < bm.bmWidth; x++) {
-                pData[0] = (BYTE)((DWORD)pData[0] * pData[3] / 255);
-                pData[1] = (BYTE)((DWORD)pData[1] * pData[3] / 255);
-                pData[2] = (BYTE)((DWORD)pData[2] * pData[3] / 255);
-                pData += 4;
-            }
-        }
-        ::SetDIBits(*phDC, hBmp, 0, bm.bmHeight, pBitData, bmi2, DIB_RGB_COLORS);
-        ::LocalFree(pBitData);
 
         // blend alpha
         BLENDFUNCTION bf;
@@ -643,8 +674,9 @@ void ConfigDialogView::drawMenuContent(HWND hWindow, HDC* phDC, RECT* pTitleRect
         bf.BlendFlags = 0;
         bf.SourceConstantAlpha = 0xFF; // opaque
         bf.AlphaFormat = AC_SRC_ALPHA; // bitmap alpha
-        AlphaBlend(*phDC, iconRect.left, iconRect.top, ICONS_SIZE, ICONS_SIZE,
-            hMemDC, tabId*ICONS_SIZE, 0, ICONS_SIZE, ICONS_SIZE, bf);
+        AlphaBlend(*phDC, pTitleRect->left + ((LOGO_WIDTH / 2) - (4 + ICONS_SIZE / 2)), 
+                          pTitleRect->top - (4 + ICONS_SIZE), ICONS_SIZE, ICONS_SIZE,
+                   hMemDC, tabId*ICONS_SIZE, 0, ICONS_SIZE, ICONS_SIZE, bf);
 
         DeleteObject(hBmp);
         DeleteDC(hMemDC);
@@ -652,40 +684,23 @@ void ConfigDialogView::drawMenuContent(HWND hWindow, HDC* phDC, RECT* pTitleRect
 }
 
 /// <summary>Grab a part of a sprite-sheet</summary>
-/// <param name="phDC">Context reference</param>
-/// <param name="pSheet">Sprite-sheet reference</param>
-/// <param name="coordX">Horizontal coord</param>
-/// <param name="coordY">Vertical coord</param>
-/// <param name="sizeX">Width</param>
-/// <param name="sizeY">Height</param>
 /*HBRUSH ConfigDialogView::getSpriteBrush(HDC* phDC, HBITMAP* phSheet, int coordX, int coordY, int sizeX, int sizeY)
 {
-    HDC memDC = NULL;
-    HDC dstDC = NULL;
-    HBITMAP oldMemBmp = NULL;
-    HBITMAP oldDstBmp = NULL;
-    HBITMAP dstBmp = NULL;
-
     // define bitmap contexts
-    memDC = CreateCompatibleDC(NULL);
-    if (!memDC)
+    HDC memDC = NULL, dstDC = NULL;
+    HBITMAP oldMemBmp = NULL, oldDstBmp = NULL, dstBmp = NULL;
+    if ((memDC = CreateCompatibleDC(NULL)) == NULL) 
         return NULL;
-    dstDC = CreateCompatibleDC(NULL);
-    if (!dstDC)
+    if ((dstDC = CreateCompatibleDC(NULL)) == NULL)
     {
-        DeleteDC(memDC);
-        return NULL;
+        DeleteDC(memDC); return NULL;
     }
 
     // create bitmap icon
-    dstBmp = CreateCompatibleBitmap(*phDC, sizeX, sizeY);
-    if (!dstBmp)
+    if ((dstBmp = CreateCompatibleBitmap(*phDC, sizeX, sizeY)) == NULL)
     {
-        DeleteDC(memDC);
-        DeleteDC(dstDC);
-        return NULL;
+        DeleteDC(memDC); DeleteDC(dstDC); return NULL;
     }
-
     // get part of sprite-sheet image
     oldMemBmp = (HBITMAP)SelectObject(memDC, *phSheet);
     oldDstBmp = (HBITMAP)SelectObject(dstDC, dstBmp);
@@ -701,8 +716,7 @@ void ConfigDialogView::drawMenuContent(HWND hWindow, HDC* phDC, RECT* pTitleRect
     DeleteDC(dstDC);
 
     // create image-pattern brush
-    HBRUSH result;
-    result = CreatePatternBrush(dstBmp);
+    HBRUSH result = CreatePatternBrush(dstBmp);
     DeleteObject(dstBmp);
     return result;
 }*/

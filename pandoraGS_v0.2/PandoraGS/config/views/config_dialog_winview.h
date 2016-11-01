@@ -78,6 +78,11 @@ private:
     /// <returns>Action code</returns>
     static INT_PTR CALLBACK eventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 
+    /// <summary>Create and display pages</summary>
+    void loadPages();
+    /// <summary>Copy UI settings to global configuration</summary>
+    void updateConfig();
+
     // -- EVENTS ---------------------------------------------------------------
 
     /// <summary>Validation event handler</summary>
@@ -89,17 +94,17 @@ private:
     /// <param name="hWindow">Window handle</param>
     /// <returns>Changes indicator</returns>
     static INT_PTR onLanguageChange(HWND hWindow);
-
     /// <summary>Menu event handler</summary>
     /// <param name="hWindow">Window handle</param>
     /// <param name="tabId">Tab identifier</param>
     void ConfigDialogView::onPageChange(HWND hWindow, int tabId);
 
-
     /// <summary>Initialize memory</summary>
     void onBoot();
     /// <summary>Free allocated memory</summary>
     void onClose();
+
+    // -- DISPLAY EVENTS -----------------------------------------------------------
 
     /// <summary>Drawing init event handler</summary>
     /// <param name="hWindow">Window handle</param>
