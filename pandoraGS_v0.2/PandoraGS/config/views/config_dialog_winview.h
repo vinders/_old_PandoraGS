@@ -12,6 +12,27 @@ Description : configuration dialog - view
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_WIN32
 
+// dialog colors
+#define COLOR_PAGE         RGB(255,255,255)
+#define COLOR_BORDER       RGB(210,216,220)
+#define COLOR_TAB_BORDER   RGB(217,222,226)
+#define COLOR_TAB_BORDER2  RGB(204,212,220)
+#define COLOR_TAB_BORDER3  RGB(191,202,215)
+#define COLOR_MENU_TEXT        RGB(67,82,97)
+#define COLOR_MENU_TEXT_ACTIVE RGB(88,100,116)
+#define COLOR_MENUTOP_BORDER_R 227
+#define COLOR_MENUTOP_BORDER_G 232
+#define COLOR_MENUTOP_BORDER_B 236
+#define COLOR_MENUOFFSET_BORDER_R -70.0
+#define COLOR_MENUOFFSET_BORDER_G -36.0
+#define COLOR_MENUOFFSET_BORDER_B -21.0
+#define COLOR_MENUTOP_R    235
+#define COLOR_MENUTOP_G    240
+#define COLOR_MENUTOP_B    245
+#define COLOR_MENUOFFSET_R -79.0 // bottom 156 //152
+#define COLOR_MENUOFFSET_G -51.0 // bottom 189 //192
+#define COLOR_MENUOFFSET_B -25.0 // bottom 220 //229
+
 #ifndef _CONFIG_DIALOG_H_END
 class ConfigDialog;
 #endif
@@ -79,7 +100,9 @@ private:
     static INT_PTR CALLBACK eventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 
     /// <summary>Create and display pages</summary>
-    void loadPages();
+    /// <param name="hSubWindow">Form handle</param>
+    /// <returns>Action code</returns>
+    bool loadPages(HWND hSubWindow);
     /// <summary>Copy UI settings to global configuration</summary>
     void updateConfig();
 

@@ -84,7 +84,7 @@ void LanguageDialogResource::setLanguage_English()
 {
     dialog_ok = L"OK";
     dialog_cancel = L"Cancel";
-    dialog_profiles = L"Profile:";
+    dialog_profiles = L"Current profile:";
     tabTitle_generalSettings = L"General settings";
     tabTitle_profilesManager = L"Profile manager";
     tabTitle_profileSettings = L"Profile settings";
@@ -94,7 +94,7 @@ void LanguageDialogResource::setLanguage_Spanish()
 {
     dialog_ok = L"OK";
     dialog_cancel = L"Cancelar";
-    dialog_profiles = L"Profile:";
+    dialog_profiles = L"Current profile:";
     tabTitle_generalSettings = L"General settings";
     tabTitle_profilesManager = L"Profile manager";
     tabTitle_profileSettings = L"Profile settings";
@@ -104,7 +104,7 @@ void LanguageDialogResource::setLanguage_French()
 {
     dialog_ok = L"OK";
     dialog_cancel = L"Annuler";
-    dialog_profiles = L"Profil :";
+    dialog_profiles = L"Profil courant :";
     tabTitle_generalSettings = L"Options générales";
     tabTitle_profilesManager = L"Gestion de profils";
     tabTitle_profileSettings = L"Paramétrer profil";
@@ -114,7 +114,7 @@ void LanguageDialogResource::setLanguage_German()
 {
     dialog_ok = L"OK";
     dialog_cancel = L"Abbrechen";
-    dialog_profiles = L"Profile:";
+    dialog_profiles = L"Current profile:";
     tabTitle_generalSettings = L"General settings";
     tabTitle_profilesManager = L"Profile manager";
     tabTitle_profileSettings = L"Profile settings";

@@ -24,26 +24,6 @@ using namespace std;
 #define TAB_FIRST_Y  46
 #define TAB_HEIGHT   90
 #define TAB_TEXT_Y   64
-// dialog colors
-#define COLOR_PAGE         RGB(255,255,255)
-#define COLOR_BORDER       RGB(210,216,220)
-#define COLOR_TAB_BORDER   RGB(217,222,226)
-#define COLOR_TAB_BORDER2  RGB(204,212,220)
-#define COLOR_TAB_BORDER3  RGB(191,202,215)
-#define COLOR_MENU_TEXT        RGB(67,82,97)
-#define COLOR_MENU_TEXT_ACTIVE RGB(88,100,116)
-#define COLOR_MENUTOP_BORDER_R 227
-#define COLOR_MENUTOP_BORDER_G 232
-#define COLOR_MENUTOP_BORDER_B 236
-#define COLOR_MENUOFFSET_BORDER_R -70.0
-#define COLOR_MENUOFFSET_BORDER_G -36.0
-#define COLOR_MENUOFFSET_BORDER_B -21.0
-#define COLOR_MENUTOP_R    235
-#define COLOR_MENUTOP_G    240
-#define COLOR_MENUTOP_B    245
-#define COLOR_MENUOFFSET_R -79.0 // bottom 156 //152
-#define COLOR_MENUOFFSET_G -51.0 // bottom 189 //192
-#define COLOR_MENUOFFSET_B -25.0 // bottom 220 //229
 
 ConfigDialogView* ConfigDialogView::s_pCurrentWindow = NULL; // current instance (static access)
 
@@ -189,11 +169,27 @@ INT_PTR CALLBACK ConfigDialogView::eventHandler(HWND hWindow, UINT msg, WPARAM w
 }
 
 /// <summary>Create and display pages</summary>
-void ConfigDialogView::loadPages()
+/// <param name="hSubWindow">Form handle</param>
+/// <returns>Success</returns>
+bool ConfigDialogView::loadPages(HWND hSubWindow)
 {
-    for (int p = 1; p < CONFIG_DIALOG_PAGES_NB; ++p)
-        m_pPages[p]->loadPage(false);
-    m_pPages[0]->loadPage(true);
+    // get page size
+    RECT pageSize;
+    GetClientRect(hSubWindow, &pageSize);
+    pageSize.left += LOGO_WIDTH;
+    pageSize.bottom -= 43;
+    // display pages
+    try
+    {
+        for (int p = 1; p < CONFIG_DIALOG_PAGES_NB; ++p)
+            m_pPages[p]->loadPage(hSubWindow, &m_hInstance, &pageSize, false);
+        m_pPages[0]->loadPage(hSubWindow, &m_hInstance, &pageSize, true);
+    }
+    catch (std::exception exc)
+    {
+        return false;
+    }
+    return true;
 }
 
 /// <summary>Copy UI settings to global configuration</summary>
@@ -272,11 +268,26 @@ void ConfigDialogView::onPageChange(HWND hWindow, int tabId)
 
     // profile list
     HWND hProfileList = NULL;
-    int cmdProfileList = (m_activePage == CONFIG_PAGE_PROFILE) ? SW_SHOW : SW_HIDE;
-    if (hProfileList = GetDlgItem(hWindow, IDC_PROFILE_LIST))
-        ShowWindow(hProfileList, cmdProfileList);
-    if (hProfileList = GetDlgItem(hWindow, IDS_PROFILE))
-        ShowWindow(hProfileList, cmdProfileList);
+    if (m_activePage == CONFIG_PAGE_PROFILE)
+    {
+        if (hProfileList = GetDlgItem(hWindow, IDC_PROFILE_LIST))
+        {
+            ShowWindow(hProfileList, SW_SHOW);
+            EnableWindow(hProfileList, TRUE);
+        }
+        if (hProfileList = GetDlgItem(hWindow, IDS_PROFILE))
+            ShowWindow(hProfileList, SW_SHOW);
+    }
+    else
+    {
+        if (hProfileList = GetDlgItem(hWindow, IDC_PROFILE_LIST))
+        {
+            ShowWindow(hProfileList, SW_HIDE);
+            EnableWindow(hProfileList, FALSE);
+        }
+        if (hProfileList = GetDlgItem(hWindow, IDS_PROFILE))
+            ShowWindow(hProfileList, SW_HIDE);
+    }
 }
 
 /// <summary>Initialize memory</summary>
@@ -334,7 +345,12 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
 
     // load pages
     ConfigDialogView* pThis = ConfigDialogView::s_pCurrentWindow;
-    pThis->loadPages();
+    if (pThis->loadPages(hWindow) == false)
+    {
+        MessageBox(hWindow, (LPCWSTR)L"Failed to load page content.", (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
+        EndDialog(hWindow, (INT_PTR)FALSE);
+        return (INT_PTR)FALSE;
+    }
 
     // language choice combobox
     HWND hLangList = GetDlgItem(hWindow, IDC_LANG_LIST);
@@ -361,6 +377,7 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
     // main dialog buttons language
     SetDlgItemText(hWindow, IDOK, (LPCWSTR)pThis->getController()->getLangResource()->dialog_ok.c_str());
     SetDlgItemText(hWindow, IDCANCEL, (LPCWSTR)pThis->getController()->getLangResource()->dialog_cancel.c_str());
+    SetDlgItemText(hWindow, IDS_PROFILE, (LPCWSTR)pThis->getController()->getLangResource()->dialog_profiles.c_str());
 
     // menu - page tabs
     pThis->res_tabGeneral = CreateWindow(L"button", L"General settings",

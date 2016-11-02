@@ -37,8 +37,20 @@ public:
     virtual void updateConfig();
 
     /// <summary>Load page content</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="phInstance">Instance handle reference</param>
+    /// <param name="pPageSize">Page limits (rectangle)</param>
     /// <param name="isVisible">Visibility (show/hide)</param>
-    virtual void loadPage(bool isVisible);
+    /// <exception cref="std::exception">Creation failure</exception>
+    virtual void loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* pPageSize, bool isVisible);
+
+    /// <summary>Page event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="msg">Event message</param>
+    /// <param name="wParam">Command</param>
+    /// <param name="lParam">Informations</param>
+    /// <returns>Action code</returns>
+    static INT_PTR CALLBACK eventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

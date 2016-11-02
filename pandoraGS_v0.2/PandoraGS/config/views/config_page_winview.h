@@ -41,8 +41,12 @@ public:
     virtual void updateConfig() = 0;
 
     /// <summary>Load page content</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="phInstance">Instance handle reference</param>
+    /// <param name="pPageSize">Page limits (rectangle)</param>
     /// <param name="isVisible">Visibility (show/hide)</param>
-    virtual void loadPage(bool isVisible) = 0;
+    /// <exception cref="std::exception">Creation failure</exception>
+    virtual void loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* pPageSize, bool isVisible) = 0;
     /// <summary>Show/hide page</summary>
     /// <param name="isVisible">Visibility (show/hide)</param>
     void showPage(bool isVisible);
