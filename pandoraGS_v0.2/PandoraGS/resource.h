@@ -58,6 +58,7 @@
 #define IDC_GEN_BTN_KEYBINDING          231
 #define IDC_GEN_BTN_ADVANCED            232
 
+#define IDS_MNG_GROUP1                  309
 #define IDC_MNG_BTN_ADD                 310
 #define IDC_MNG_BTN_EDIT                311
 #define IDC_MNG_BTN_REMOVE              312

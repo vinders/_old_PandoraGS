@@ -18,6 +18,13 @@ Description : configuration dialog page - profiles manager - view
 // Configuration dialog page - profiles manager - view
 class ConfigPageManagerView : public ConfigPageView
 {
+private:
+    HANDLE res_iconAdd;
+    HANDLE res_iconEdit;
+    HANDLE res_iconDel;
+    HANDLE res_iconIn;
+    HANDLE res_iconOut;
+
 public:
     /// <summary>Create page view container</summary>
     /// <param name="pController">Controller reference</param>
