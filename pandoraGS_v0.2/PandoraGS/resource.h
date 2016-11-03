@@ -29,6 +29,11 @@
 #define IDC_GENERAL_TAB                 162
 #define IDC_MANAGER_TAB                 163
 #define IDC_PROFILE_TAB                 164
+#define IDI_CONFIG_BUTTON_ADD           170
+#define IDI_CONFIG_BUTTON_DEL           171
+#define IDI_CONFIG_BUTTON_EDIT          172
+#define IDI_CONFIG_BUTTON_IN            173
+#define IDI_CONFIG_BUTTON_OUT           174
 
 #define IDS_GEN_GROUP1                  201
 #define IDS_GEN_RESOLUTION              202
