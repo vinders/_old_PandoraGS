@@ -12,6 +12,8 @@ Description : configuration dialog page - general - view
 using namespace std;
 #include "config_pgeneral_winview.h"
 
+ConfigPageGeneralView* ConfigPageGeneralView::s_pCurrentPage = NULL; // current page (static access)
+
 /// <summary>Create page view container</summary>
 /// <param name="pController">Controller reference</param>
 ConfigPageGeneralView::ConfigPageGeneralView(ConfigPage* pController) : ConfigPageView(pController)
@@ -56,6 +58,7 @@ void ConfigPageGeneralView::updateConfig()
 /// <exception cref="std::exception">Creation failure</exception>
 void ConfigPageGeneralView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* pPageSize, bool isVisible)
 {
+    s_pCurrentPage = this;
     m_hPage = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_GENERAL_PAGE), hWindow, (DLGPROC)eventHandler);
     if (m_hPage)
     {
@@ -123,7 +126,7 @@ INT_PTR CALLBACK ConfigPageGeneralView::eventHandler(HWND hWindow, UINT msg, WPA
     // controls interaction
     case WM_COMMAND:
     {
-        // combobox
+        // buttons
         if (HIWORD(wParam) != CBN_SELCHANGE)
         {
             switch (LOWORD(wParam))

@@ -18,6 +18,9 @@ Description : configuration dialog page - profiles manager - view
 // Configuration dialog page - profiles manager - view
 class ConfigPageManagerView : public ConfigPageView
 {
+public:
+    HWND res_dataTable;
+    int m_headerCheckboxId;
 private:
     HANDLE res_iconAdd;
     HANDLE res_iconEdit;
@@ -26,6 +29,8 @@ private:
     HANDLE res_iconOut;
 
 public:
+    static ConfigPageManagerView* s_pCurrentPage; // current page (static access)
+
     /// <summary>Create page view container</summary>
     /// <param name="pController">Controller reference</param>
     ConfigPageManagerView(ConfigPage* pController);
@@ -58,6 +63,10 @@ public:
     /// <param name="lParam">Informations</param>
     /// <returns>Action code</returns>
     static INT_PTR CALLBACK eventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
+
+    /// <summary>Update table header checkbox</summary>
+    /// <param name="isChecked">Checkbox status</param>
+    static void setTableHeaderChecked(bool isChecked);
 };
 
 #endif

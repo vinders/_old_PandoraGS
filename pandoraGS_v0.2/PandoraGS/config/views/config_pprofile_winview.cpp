@@ -12,6 +12,8 @@ Description : configuration dialog page - profile settings - view
 using namespace std;
 #include "config_pprofile_winview.h"
 
+ConfigPageProfileView* ConfigPageProfileView::s_pCurrentPage = NULL; // current page (static access)
+
 /// <summary>Create page view container</summary>
 /// <param name="pController">Controller reference</param>
 ConfigPageProfileView::ConfigPageProfileView(ConfigPage* pController) : ConfigPageView(pController)
@@ -56,6 +58,7 @@ void ConfigPageProfileView::updateConfig()
 /// <exception cref="std::exception">Creation failure</exception>
 void ConfigPageProfileView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* pPageSize, bool isVisible)
 {
+    s_pCurrentPage = this;
     m_hPage = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_PAGE), hWindow, (DLGPROC)eventHandler);
     if (m_hPage)
     {

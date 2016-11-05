@@ -19,6 +19,8 @@ Description : configuration dialog page - general - view
 class ConfigPageGeneralView : public ConfigPageView
 {
 public:
+    static ConfigPageGeneralView* s_pCurrentPage; // current page (static access)
+
     /// <summary>Create page view container</summary>
     /// <param name="pController">Controller reference</param>
     ConfigPageGeneralView(ConfigPage* pController);

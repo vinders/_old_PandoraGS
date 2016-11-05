@@ -10,13 +10,22 @@ Description : configuration dialog page - profiles manager - view
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_WIN32
 using namespace std;
+#include <commctrl.h>
 #include "config_pmanager_winview.h"
+
+#define MAX_ROWS_WITHOUT_SCROLL 13
+#define LISTVIEW_WIDTH 389
+#define LISTVIEW_NAME_WIDTH_NOSCROLL 324
+#define LISTVIEW_NAME_WIDTH_SCROLL   307
+
+ConfigPageManagerView* ConfigPageManagerView::s_pCurrentPage = NULL; // current page (static access)
 
 /// <summary>Create page view container</summary>
 /// <param name="pController">Controller reference</param>
 ConfigPageManagerView::ConfigPageManagerView(ConfigPage* pController) : ConfigPageView(pController)
 {
     m_hPage = NULL;
+    res_dataTable = NULL;
     res_iconAdd = NULL;
     res_iconEdit = NULL;
     res_iconDel = NULL;
@@ -26,9 +35,9 @@ ConfigPageManagerView::ConfigPageManagerView(ConfigPage* pController) : ConfigPa
 /// <summary>Destroy dialog view container</summary>
 ConfigPageManagerView::~ConfigPageManagerView()
 {
-    if (m_hPage != NULL)
-        DestroyWindow(m_hPage);
-    m_hPage = NULL;
+    if (res_dataTable != NULL)
+        DestroyWindow(res_dataTable);
+    res_dataTable = NULL;
     if (res_iconAdd != NULL)
         DestroyIcon((HICON)res_iconAdd);
     res_iconAdd = NULL;
@@ -44,6 +53,8 @@ ConfigPageManagerView::~ConfigPageManagerView()
     if (res_iconOut != NULL)
         DestroyIcon((HICON)res_iconOut);
     res_iconOut = NULL;
+    if (m_hPage != NULL)
+        DestroyWindow(m_hPage);
 }
 
 /// <summary>Create new dialog page</summary>
@@ -77,6 +88,7 @@ void ConfigPageManagerView::updateConfig()
 void ConfigPageManagerView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* pPageSize, bool isVisible)
 {
     // load page
+    s_pCurrentPage = this;
     m_hPage = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_MANAGER_PAGE), hWindow, (DLGPROC)eventHandler);
     if (m_hPage)
     {
@@ -119,6 +131,62 @@ void ConfigPageManagerView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
             SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EXPORT, BM_SETIMAGE, IMAGE_ICON, (LPARAM)res_iconOut);
         else
             SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EXPORT, WM_SETTEXT, 0, (LPARAM)L"Out");
+
+        // set data table
+        InitCommonControls();
+        res_dataTable = CreateWindow(WC_LISTVIEWW, L"blabla", WS_VISIBLE | WS_CHILD | LVS_REPORT | WS_VSCROLL,
+                                  30, 54, LISTVIEW_WIDTH, 287, m_hPage, (HMENU)IDC_MNG_LISTVIEW, *phInstance, 0);
+        if (res_dataTable)
+        {
+            // set columns
+            ListView_SetExtendedListViewStyle(res_dataTable, LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+            LVCOLUMN lvcSelect; // checkboxes
+            ZeroMemory(&lvcSelect, sizeof(LVCOLUMN));
+            lvcSelect.mask = LVCF_WIDTH | LVCF_TEXT;
+            lvcSelect.cx = 24;
+            lvcSelect.pszText = L"";
+            SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTCOLUMN, 0, (LPARAM)&lvcSelect);
+            LVCOLUMN lvcId; // ID
+            ZeroMemory(&lvcId, sizeof(LVCOLUMN));
+            lvcId.mask = LVCF_WIDTH | LVCF_TEXT;
+            lvcId.cx = 40;
+            lvcId.pszText = L"#";
+            SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTCOLUMN, 1, (LPARAM)&lvcId);
+            LVCOLUMN lvcProfile; // profile names
+            ZeroMemory(&lvcProfile, sizeof(LVCOLUMN));
+            lvcProfile.mask = LVCF_WIDTH | LVCF_TEXT;
+            lvcProfile.cx = (1/*...*/ <= MAX_ROWS_WITHOUT_SCROLL) ? LISTVIEW_NAME_WIDTH_NOSCROLL : LISTVIEW_NAME_WIDTH_SCROLL;
+            lvcProfile.pszText = L"profile";
+            SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTCOLUMN, 2, (LPARAM)&lvcProfile);
+            // set header checkbox
+            HWND hHeader = ListView_GetHeader(res_dataTable);
+            DWORD dwHeaderStyle = ::GetWindowLong(hHeader, GWL_STYLE);
+            dwHeaderStyle |= HDS_CHECKBOXES;
+            ::SetWindowLong(hHeader, GWL_STYLE, dwHeaderStyle);
+            m_headerCheckboxId = ::GetDlgCtrlID(hHeader); // store control ID
+            // update header format - display checkbox
+            HDITEM hdi = { 0 };
+            hdi.mask = HDI_FORMAT;
+            Header_GetItem(hHeader, 0, &hdi);
+            hdi.fmt |= HDF_CHECKBOX | HDF_FIXEDWIDTH;
+            Header_SetItem(hHeader, 0, &hdi);
+
+            // insert rows
+            LVITEM lviDef;
+            ZeroMemory(&lviDef, sizeof(LVITEM));
+            lviDef.mask = 0;
+            lviDef.iSubItem = 0;
+            for (int p = 0; p < /*...*/10; ++p)
+            {
+                lviDef.iItem = p; // index
+                SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTITEM, 0, (LPARAM)&lviDef);
+                std::wstring index = std::to_wstring(p);
+                ListView_SetItemText(res_dataTable, p, 1, (LPWSTR)index.c_str());
+                ListView_SetItemText(res_dataTable, p, 2, /*...*/L"<default>");
+            }
+        }
+        else
+            throw std::exception();
     }
     else
         throw std::exception();
@@ -168,27 +236,103 @@ INT_PTR CALLBACK ConfigPageManagerView::eventHandler(HWND hWindow, UINT msg, WPA
             return (INT_PTR)TRUE; break;
         }
 
+        // selection changed
+        case WM_NOTIFY:
+            if (lParam)
+            {
+                NMHDR* header = (NMHDR*)lParam;
+                NMLISTVIEW* nmlist = (NMLISTVIEW*)lParam;
+
+                static bool busy = false; // prevent recursive calls
+                if (!busy && header->hwndFrom == s_pCurrentPage->res_dataTable && header->code == LVN_ITEMCHANGED)
+                {
+                    busy = true;
+                    if (nmlist->uNewState & LVIS_SELECTED) // row selected
+                    {
+                        ListView_SetCheckState(s_pCurrentPage->res_dataTable, nmlist->iItem, 1);
+                        bool isTotalCheck = true;
+                        int rowCount = ListView_GetItemCount(s_pCurrentPage->res_dataTable);
+                        for (int nItem = 0; nItem < rowCount; nItem++)
+                        {
+                            if (!ListView_GetCheckState(s_pCurrentPage->res_dataTable, nItem))
+                            {
+                                isTotalCheck = false;
+                                break;
+                            }
+                        }
+                        if (isTotalCheck)
+                            setTableHeaderChecked(true);
+                    }
+                    else if (nmlist->uNewState & LVIS_STATEIMAGEMASK) // checkbox changed
+                    {
+                        if (ListView_GetCheckState(s_pCurrentPage->res_dataTable, nmlist->iItem))
+                        {
+                            bool isTotalCheck = true;
+                            int rowCount = ListView_GetItemCount(s_pCurrentPage->res_dataTable);
+                            for (int nItem = 0; nItem < rowCount; nItem++)
+                            {
+                                if (!ListView_GetCheckState(s_pCurrentPage->res_dataTable, nItem))
+                                {
+                                    isTotalCheck = false;
+                                    break;
+                                }
+                            }
+                            if (isTotalCheck)
+                                setTableHeaderChecked(true);
+                            ListView_SetItemState(s_pCurrentPage->res_dataTable, nmlist->iItem, LVIS_SELECTED, LVIS_SELECTED);
+                        }
+                        else
+                        {
+                            setTableHeaderChecked(false);
+                            ListView_SetItemState(s_pCurrentPage->res_dataTable, nmlist->iItem, 0, LVIS_SELECTED);
+                        }
+                    }
+                    else if ((nmlist->uNewState & (LVIS_FOCUSED | LVIS_CUT | LVIS_DROPHILITED | LVIS_OVERLAYMASK)) == 0)
+                    {
+                        setTableHeaderChecked(false);
+                        ListView_SetCheckState(s_pCurrentPage->res_dataTable, nmlist->iItem, 0);
+                        ListView_SetItemState(s_pCurrentPage->res_dataTable, nmlist->iItem, 0, LVIS_SELECTED);
+                    }
+                    busy = false;
+                }
+            }
+            break;
+
         // controls interaction
         case WM_COMMAND:
         {
-            // combobox
-            if (HIWORD(wParam) == CBN_SELCHANGE)
+            // buttons
+            if (HIWORD(wParam) != CBN_SELCHANGE)
             {
-                //switch (LOWORD(wParam))
+                switch (LOWORD(wParam))
                 {
-                }
-            }
-            // button
-            else
-            {
-                //switch (LOWORD(wParam))
-                {
+                    case IDC_MNG_BTN_PRESETS: break;// return onPreset(hWindow); break;
+                    case IDC_MNG_BTN_ADD:     break;// if(onProfileAdd(hWindow)) setTableHeaderChecked(false); if (? > MAX_ROWS_WITHOUT_SCROLL) SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_SETCOLUMNWIDTH, 2, LISTVIEW_NAME_WIDTH_SCROLL); return TRUE;
+                    case IDC_MNG_BTN_EDIT:    break;// return onProfileEdit(hWindow); break;
+                    case IDC_MNG_BTN_REMOVE:  break;// onProfileRemove(hWindow); if (? <= MAX_ROWS_WITHOUT_SCROLL) SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_SETCOLUMNWIDTH, 2, LISTVIEW_NAME_WIDTH_NOSCROLL); return TRUE;
+                    case IDC_MNG_BTN_IMPORT:  break;// return onProfileImport(hWindow); break;
+                    case IDC_MNG_BTN_EXPORT:  break;// return onProfileExport(hWindow); break;
                 }
             }
             break;
         } // WM_COMMAND
     }
     return (INT_PTR)FALSE;
+}
+
+/// <summary>Update table header checkbox</summary>
+/// <param name="isChecked">Checkbox status</param>
+void ConfigPageManagerView::setTableHeaderChecked(bool isChecked)
+{
+    HWND header = ListView_GetHeader(s_pCurrentPage->res_dataTable);
+    HDITEM hdi = { 0 };
+    hdi.mask = HDI_FORMAT;
+    Header_GetItem(header, 0, &hdi);
+    if (isChecked)
+        hdi.fmt |= HDF_CHECKED;
+    else
+        hdi.fmt &= ~HDF_CHECKED;
+    Header_SetItem(header, 0, &hdi);
 }
 
 #endif

@@ -67,6 +67,7 @@
 #define IDS_MNG_PRESETS                 315
 #define IDC_MNG_PRESETS_LIST            316
 #define IDC_MNG_BTN_PRESETS             317
+#define IDC_MNG_LISTVIEW                320
 
 #define IDS_PROFILE                     350
 #define IDC_PROFILE_LIST                351

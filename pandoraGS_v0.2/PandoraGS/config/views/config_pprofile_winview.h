@@ -19,6 +19,8 @@ Description : configuration dialog page - profile settings - view
 class ConfigPageProfileView : public ConfigPageView
 {
 public:
+    static ConfigPageProfileView* s_pCurrentPage; // current page (static access)
+
     /// <summary>Create page view container</summary>
     /// <param name="pController">Controller reference</param>
     ConfigPageProfileView(ConfigPage* pController);
