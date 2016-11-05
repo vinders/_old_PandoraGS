@@ -79,23 +79,37 @@ void ConfigPageProfileView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
 {
     s_pCurrentPage = this;
     m_hPage = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_PAGE), hWindow, (DLGPROC)eventHandler);
-    if (m_hPage)
+    if (!m_hPage)
+        throw std::exception();
+    SetWindowPos(m_hPage, NULL, pPageSize->left, pPageSize->top,
+        pPageSize->right - pPageSize->left, pPageSize->bottom - pPageSize->top, 0);
+    if (isVisible)
     {
-        SetWindowPos(m_hPage, NULL, pPageSize->left, pPageSize->top,
-            pPageSize->right - pPageSize->left, pPageSize->bottom - pPageSize->top, 0);
-        if (isVisible)
-        {
-            ShowWindow(m_hPage, TRUE);
-            EnableWindow(m_hPage, TRUE);
-        }
-        else
-        {
-            ShowWindow(m_hPage, FALSE);
-            EnableWindow(m_hPage, FALSE);
-        }
+        ShowWindow(m_hPage, TRUE);
+        EnableWindow(m_hPage, TRUE);
     }
     else
-        throw std::exception();
+    {
+        ShowWindow(m_hPage, FALSE);
+        EnableWindow(m_hPage, FALSE);
+    }
+
+    // tab control
+    HWND hTabControl = GetDlgItem(m_hPage, IDC_PROFILE_TABS);
+    TCITEM ti;
+    ti.mask = TCIF_TEXT;
+    ti.pszText = L"Filters";//...lang
+    TabCtrl_InsertItem(hTabControl, 0, &ti);
+    ti.pszText = L"Screen stretching";//...lang
+    TabCtrl_InsertItem(hTabControl, 1, &ti);
+    ti.pszText = L"Compatibility settings";//...lang
+    TabCtrl_InsertItem(hTabControl, 2, &ti);
+    TabCtrl_SetCurSel(hTabControl, 0);
+    // tabs content
+    //HWND hFiltersTab = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_FILTERS_TAB), hTabControl, 0);//...stocker handle + détruire dans destr
+    //HWND hStretchingTab = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_STRETCHING_TAB), hTabControl, 0);//...stocker handle + détruire dans destr
+    //HWND hCompatTab = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_COMPAT_TAB), hTabControl, 0);//...stocker handle + détruire dans destr
+
     // set language
     resetLanguage(true);
 }

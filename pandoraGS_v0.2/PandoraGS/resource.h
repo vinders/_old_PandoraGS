@@ -71,6 +71,7 @@
 
 #define IDS_PROFILE                     350
 #define IDC_PROFILE_LIST                351
+#define IDC_PROFILE_TABS                352
 
 #define IDS_PRO_GROUP1                  360
 #define IDS_PRO_TXFILTER                361
