@@ -10,7 +10,6 @@ Description : configuration dialog page - profiles manager - view
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_WIN32
 using namespace std;
-#include <commctrl.h>
 #include "config_pmanager_winview.h"
 
 #define MAX_ROWS_WITHOUT_SCROLL 13
@@ -31,30 +30,28 @@ ConfigPageManagerView::ConfigPageManagerView(ConfigPage* pController) : ConfigPa
     res_iconDel = NULL;
     res_iconIn = NULL;
     res_iconOut = NULL;
+    for (int t = 0; t < PMANAGER_TOOLTIPS_NB; ++t)
+        res_tooltips[t] = NULL;
 }
 /// <summary>Destroy dialog view container</summary>
 ConfigPageManagerView::~ConfigPageManagerView()
 {
-    if (res_dataTable != NULL)
-        DestroyWindow(res_dataTable);
-    res_dataTable = NULL;
-    if (res_iconAdd != NULL)
-        DestroyIcon((HICON)res_iconAdd);
-    res_iconAdd = NULL;
-    if (res_iconEdit != NULL)
-        DestroyIcon((HICON)res_iconEdit);
-    res_iconEdit = NULL;
-    if (res_iconDel != NULL)
-        DestroyIcon((HICON)res_iconDel);
-    res_iconDel = NULL;
-    if (res_iconIn != NULL)
-        DestroyIcon((HICON)res_iconIn);
-    res_iconIn = NULL;
-    if (res_iconOut != NULL)
-        DestroyIcon((HICON)res_iconOut);
-    res_iconOut = NULL;
+    // delete tooltips
+    for (int t = 0; t < PMANAGER_TOOLTIPS_NB; ++t)
+    {
+        if (res_tooltips[t] != NULL) DestroyWindow(res_tooltips[t]);
+        res_tooltips[t] = NULL;
+    }
+    // delete items
+    if (res_dataTable != NULL) DestroyWindow(res_dataTable);
+    if (res_iconAdd != NULL) DestroyIcon((HICON)res_iconAdd);
+    if (res_iconEdit != NULL) DestroyIcon((HICON)res_iconEdit);
+    if (res_iconDel != NULL) DestroyIcon((HICON)res_iconDel);
+    if (res_iconIn != NULL) DestroyIcon((HICON)res_iconIn);
+    if (res_iconOut != NULL) DestroyIcon((HICON)res_iconOut);
     if (m_hPage != NULL)
         DestroyWindow(m_hPage);
+    m_hPage = NULL;
 }
 
 /// <summary>Create new dialog page</summary>
@@ -69,9 +66,32 @@ ConfigPageManagerView* ConfigPageManagerView::createPage(ConfigPageManager* pCon
 
 
 /// <summary>Refresh language-dependent page content</summary>
-void ConfigPageManagerView::resetLanguage()
+/// <param name="isFirstInit">First time (only labels) or update (all)</param>
+void ConfigPageManagerView::resetLanguage(bool isFirstInit)
 {
+    LanguageDialogResource* pLang = m_pController->getLangResource();
 
+    // set labels
+    SetDlgItemText(m_hPage, IDS_MNG_PRESETS, (LPCWSTR)pLang->manager_presets.c_str());
+    SetDlgItemText(m_hPage, IDC_MNG_BTN_PRESETS, (LPCWSTR)pLang->manager_btnPresetsApply.c_str());
+
+    // set table header
+    if (isFirstInit == false)
+    {
+        LVCOLUMN lvcProfile; // profile names
+        ZeroMemory(&lvcProfile, sizeof(LVCOLUMN));
+        lvcProfile.mask = LVCF_WIDTH | LVCF_TEXT;
+        lvcProfile.cx = (1/*...*/ <= MAX_ROWS_WITHOUT_SCROLL) ? LISTVIEW_NAME_WIDTH_NOSCROLL : LISTVIEW_NAME_WIDTH_SCROLL;
+        lvcProfile.pszText = (LPWSTR)pLang->manager_tableColumnProfile.c_str();
+        SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_SETCOLUMN, 2, (LPARAM)&lvcProfile);
+
+        // set tooltips
+        updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_ADD], IDC_MNG_BTN_ADD, m_hPage, (PTSTR)pLang->manager_btnAdd_tooltip.c_str());
+        updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_EDIT], IDC_MNG_BTN_EDIT, m_hPage, (PTSTR)pLang->manager_btnEdit_tooltip.c_str());
+        updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_REMOVE], IDC_MNG_BTN_REMOVE, m_hPage, (PTSTR)pLang->manager_btnRemove_tooltip.c_str());
+        updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_IMPORT], IDC_MNG_BTN_IMPORT, m_hPage, (PTSTR)pLang->manager_btnImport_tooltip.c_str());
+        updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_EXPORT], IDC_MNG_BTN_EXPORT, m_hPage, (PTSTR)pLang->manager_btnExport_tooltip.c_str());
+    }
 }
 /// <summary>Copy UI settings to global configuration</summary>
 void ConfigPageManagerView::updateConfig()
@@ -131,9 +151,15 @@ void ConfigPageManagerView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
             SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EXPORT, BM_SETIMAGE, IMAGE_ICON, (LPARAM)res_iconOut);
         else
             SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EXPORT, WM_SETTEXT, 0, (LPARAM)L"Out");
+        // set tooltips
+        LanguageDialogResource* pLang = m_pController->getLangResource();
+        res_tooltips[PMANAGER_TOOLTIP_BTN_ADD] = createToolTip(IDC_MNG_BTN_ADD, m_hPage, phInstance, (PTSTR)pLang->manager_btnAdd_tooltip.c_str());
+        res_tooltips[PMANAGER_TOOLTIP_BTN_EDIT] = createToolTip(IDC_MNG_BTN_EDIT, m_hPage, phInstance, (PTSTR)pLang->manager_btnEdit_tooltip.c_str());
+        res_tooltips[PMANAGER_TOOLTIP_BTN_REMOVE] = createToolTip(IDC_MNG_BTN_REMOVE, m_hPage, phInstance, (PTSTR)pLang->manager_btnRemove_tooltip.c_str());
+        res_tooltips[PMANAGER_TOOLTIP_BTN_IMPORT] = createToolTip(IDC_MNG_BTN_IMPORT, m_hPage, phInstance, (PTSTR)pLang->manager_btnImport_tooltip.c_str());
+        res_tooltips[PMANAGER_TOOLTIP_BTN_EXPORT] = createToolTip(IDC_MNG_BTN_EXPORT, m_hPage, phInstance, (PTSTR)pLang->manager_btnExport_tooltip.c_str());
 
         // set data table
-        InitCommonControls();
         res_dataTable = CreateWindow(WC_LISTVIEWW, L"blabla", WS_VISIBLE | WS_CHILD | LVS_REPORT | WS_VSCROLL,
                                   30, 54, LISTVIEW_WIDTH, 287, m_hPage, (HMENU)IDC_MNG_LISTVIEW, *phInstance, 0);
         if (res_dataTable)
@@ -156,7 +182,7 @@ void ConfigPageManagerView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
             ZeroMemory(&lvcProfile, sizeof(LVCOLUMN));
             lvcProfile.mask = LVCF_WIDTH | LVCF_TEXT;
             lvcProfile.cx = (1/*...*/ <= MAX_ROWS_WITHOUT_SCROLL) ? LISTVIEW_NAME_WIDTH_NOSCROLL : LISTVIEW_NAME_WIDTH_SCROLL;
-            lvcProfile.pszText = L"profile";
+            lvcProfile.pszText = (LPWSTR)pLang->manager_tableColumnProfile.c_str();
             SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTCOLUMN, 2, (LPARAM)&lvcProfile);
             // set header checkbox
             HWND hHeader = ListView_GetHeader(res_dataTable);
@@ -176,7 +202,7 @@ void ConfigPageManagerView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
             ZeroMemory(&lviDef, sizeof(LVITEM));
             lviDef.mask = 0;
             lviDef.iSubItem = 0;
-            for (int p = 0; p < /*...*/10; ++p)
+            for (int p = 0; p < /*...*/1; ++p)
             {
                 lviDef.iItem = p; // index
                 SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTITEM, 0, (LPARAM)&lviDef);
@@ -190,6 +216,8 @@ void ConfigPageManagerView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
     }
     else
         throw std::exception();
+    // set language
+    resetLanguage(true);
 }
 
 /// <summary>Page event handler</summary>

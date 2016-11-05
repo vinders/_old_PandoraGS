@@ -14,11 +14,14 @@ Description : configuration dialog page - profile settings - view
 
 #include "config_page_winview.h"
 
+#define PPROFILE_TOOLTIPS_NB 1
+
 
 // Configuration dialog page - profile settings - view
 class ConfigPageProfileView : public ConfigPageView
 {
 public:
+    HWND res_tooltips[PPROFILE_TOOLTIPS_NB];
     static ConfigPageProfileView* s_pCurrentPage; // current page (static access)
 
     /// <summary>Create page view container</summary>
@@ -34,7 +37,8 @@ public:
     static ConfigPageProfileView* createPage(ConfigPageProfile* pController);
 
     /// <summary>Refresh language-dependent page content</summary>
-    virtual void resetLanguage();
+    /// <param name="isFirstInit">First time (only labels) or update (all)</param>
+    virtual void resetLanguage(bool isFirstInit);
     /// <summary>Copy UI settings to global configuration</summary>
     virtual void updateConfig();
 

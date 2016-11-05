@@ -17,3 +17,10 @@ ConfigPage::ConfigPage(ConfigDialog* pParent)
     m_pView = NULL;
     m_pParent = pParent;
 }
+
+/// <summary>Get language resource</summary>
+/// <returns>Language resource pointer</returns>
+LanguageDialogResource* ConfigPage::getLangResource()
+{
+    return m_pParent->getLangResource();
+}

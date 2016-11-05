@@ -19,10 +19,19 @@ ConfigPageProfileView* ConfigPageProfileView::s_pCurrentPage = NULL; // current 
 ConfigPageProfileView::ConfigPageProfileView(ConfigPage* pController) : ConfigPageView(pController)
 {
     m_hPage = NULL;
+    for (int t = 0; t < PPROFILE_TOOLTIPS_NB; ++t)
+        res_tooltips[t] = NULL;
 }
 /// <summary>Destroy dialog view container</summary>
 ConfigPageProfileView::~ConfigPageProfileView()
 {
+    // delete tooltips
+    for (int t = 0; t < PPROFILE_TOOLTIPS_NB; ++t)
+    {
+        if (res_tooltips[t] != NULL) DestroyWindow(res_tooltips[t]);
+        res_tooltips[t] = NULL;
+    }
+    // delete items
     if (m_hPage != NULL)
         DestroyWindow(m_hPage);
     m_hPage = NULL;
@@ -40,9 +49,18 @@ ConfigPageProfileView* ConfigPageProfileView::createPage(ConfigPageProfile* pCon
 
 
 /// <summary>Refresh language-dependent page content</summary>
-void ConfigPageProfileView::resetLanguage()
+/// <param name="isFirstInit">First time (only labels) or update (all)</param>
+void ConfigPageProfileView::resetLanguage(bool isFirstInit)
 {
+    LanguageDialogResource* pLang = m_pController->getLangResource();
 
+    // set labels
+    //
+    if (isFirstInit == false)
+    {
+        // set tooltips
+        //
+    }
 }
 /// <summary>Copy UI settings to global configuration</summary>
 void ConfigPageProfileView::updateConfig()
@@ -77,6 +95,8 @@ void ConfigPageProfileView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
     }
     else
         throw std::exception();
+    // set language
+    resetLanguage(true);
 }
 
 /// <summary>Page event handler</summary>

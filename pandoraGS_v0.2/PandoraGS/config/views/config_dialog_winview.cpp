@@ -87,6 +87,7 @@ void ConfigDialogView::setVisible()
         ActivateActCtx(hActCtx, &cookie);
 
     // open modal dialog box
+    InitCommonControls();
     ConfigDialogView* pPrevWindow = s_pCurrentWindow; // support for multiple instances
     s_pCurrentWindow = this;
     bool isSuccess = (DialogBox(m_hInstance, MAKEINTRESOURCE(IDD_CONFIG_DIALOG), m_hWindow, (DLGPROC)eventHandler) >= 0);
@@ -250,7 +251,7 @@ INT_PTR ConfigDialogView::onLanguageChange(HWND hWindow)
 
         // update pages
         for (int p = 0; p < CONFIG_DIALOG_PAGES_NB; ++p)
-            pThis->m_pPages[p]->resetLanguage();
+            pThis->m_pPages[p]->resetLanguage(false);
         return (INT_PTR)TRUE;
     }
     return (INT_PTR)FALSE;

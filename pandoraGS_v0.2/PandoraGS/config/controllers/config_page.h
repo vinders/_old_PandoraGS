@@ -17,6 +17,7 @@ class ConfigDialog;
 #include "config_io.h"
 #include "config_page_qtview.h"
 #include "config_page_winview.h"
+#include "lang.h"
 
 
 // Configuration dialog page (generic) - business logic
@@ -43,6 +44,9 @@ public:
     {
         return m_pView;
     }
+    /// <summary>Get language resource</summary>
+    /// <returns>Language resource pointer</returns>
+    LanguageDialogResource* getLangResource();
 };
 
 #define _CONFIG_PAGE_H_END

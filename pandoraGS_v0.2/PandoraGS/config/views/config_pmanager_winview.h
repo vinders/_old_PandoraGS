@@ -14,21 +14,27 @@ Description : configuration dialog page - profiles manager - view
 
 #include "config_page_winview.h"
 
+#define PMANAGER_TOOLTIPS_NB 5
+#define PMANAGER_TOOLTIP_BTN_ADD    0
+#define PMANAGER_TOOLTIP_BTN_EDIT   1
+#define PMANAGER_TOOLTIP_BTN_REMOVE 2
+#define PMANAGER_TOOLTIP_BTN_IMPORT 3
+#define PMANAGER_TOOLTIP_BTN_EXPORT 4
+
 
 // Configuration dialog page - profiles manager - view
 class ConfigPageManagerView : public ConfigPageView
 {
-public:
-    HWND res_dataTable;
-    int m_headerCheckboxId;
 private:
     HANDLE res_iconAdd;
     HANDLE res_iconEdit;
     HANDLE res_iconDel;
     HANDLE res_iconIn;
     HANDLE res_iconOut;
-
 public:
+    HWND res_dataTable;
+    int  m_headerCheckboxId;
+    HWND res_tooltips[PMANAGER_TOOLTIPS_NB];
     static ConfigPageManagerView* s_pCurrentPage; // current page (static access)
 
     /// <summary>Create page view container</summary>
@@ -44,7 +50,8 @@ public:
     static ConfigPageManagerView* createPage(ConfigPageManager* pController);
 
     /// <summary>Refresh language-dependent page content</summary>
-    virtual void resetLanguage();
+    /// <param name="isFirstInit">First time (only labels) or update (all)</param>
+    virtual void resetLanguage(bool isFirstInit);
     /// <summary>Copy UI settings to global configuration</summary>
     virtual void updateConfig();
 

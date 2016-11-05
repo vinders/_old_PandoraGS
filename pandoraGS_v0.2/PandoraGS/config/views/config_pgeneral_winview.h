@@ -14,11 +14,14 @@ Description : configuration dialog page - general - view
 
 #include "config_page_winview.h"
 
+#define PGENERAL_TOOLTIPS_NB 1
+
 
 // Configuration dialog page - general settings - view
 class ConfigPageGeneralView : public ConfigPageView
 {
 public:
+    HWND res_tooltips[PGENERAL_TOOLTIPS_NB];
     static ConfigPageGeneralView* s_pCurrentPage; // current page (static access)
 
     /// <summary>Create page view container</summary>
@@ -34,7 +37,8 @@ public:
     static ConfigPageGeneralView* createPage(ConfigPageGeneral* pController);
 
     /// <summary>Refresh language-dependent page content</summary>
-    virtual void resetLanguage();
+    /// <param name="isFirstInit">First time (only labels) or update (all)</param>
+    virtual void resetLanguage(bool isFirstInit);
     /// <summary>Copy UI settings to global configuration</summary>
     virtual void updateConfig();
 

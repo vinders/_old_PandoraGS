@@ -11,6 +11,7 @@ Description : configuration dialog page - view
 #define _CONFIG_PAGE_WINVIEW_H
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_WIN32
+#include <commctrl.h>
 
 #define COLOR_GROUPBOX_BORDER RGB(210,219,226)
 #define COLOR_GROUPBOX_BAR    RGB(240,243,245)
@@ -36,7 +37,8 @@ public:
     virtual ~ConfigPageView();
 
     /// <summary>Refresh language-dependent page content</summary>
-    virtual void resetLanguage() = 0;
+    /// <param name="isFirstInit">First time (only labels) or update (all)</param>
+    virtual void resetLanguage(bool isFirstInit) = 0;
     /// <summary>Copy UI settings to global configuration</summary>
     virtual void updateConfig() = 0;
 
@@ -50,6 +52,20 @@ public:
     /// <summary>Show/hide page</summary>
     /// <param name="isVisible">Visibility (show/hide)</param>
     void showPage(bool isVisible);
+
+    /// <summary>Show/hide page</summary>
+    /// <param name="itemId">Item associated with tooltip (ID)</param>
+    /// <param name="hWindow">Parent dialog handle</param>
+    /// <param name="phInst">Window instance</param>
+    /// <param name="pText">Tooltip text</param>
+    /// <returns>Tooltip handle</returns>
+    static HWND createToolTip(int itemId, HWND hWindow, HINSTANCE* phInst, PTSTR pText);
+    /// <summary>Show/hide page</summary>
+    /// <param name="hTooltip">Tooltip handle</param>
+    /// <param name="itemId">Item associated with tooltip (ID)</param>
+    /// <param name="hWindow">Parent dialog handle</param>
+    /// <param name="pText">Tooltip text</param>
+    static void updateToolTip(HWND hTooltip, int itemId, HWND hWindow, PTSTR pText);
 };
 
 #include "config_page.h"
