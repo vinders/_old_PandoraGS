@@ -10,6 +10,7 @@ Description : configuration dialog page - general - view
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_WIN32
 using namespace std;
+#include <windowsx.h>
 #include "config_pgeneral_winview.h"
 
 ConfigPageGeneralView* ConfigPageGeneralView::s_pCurrentPage = NULL; // current page (static access)

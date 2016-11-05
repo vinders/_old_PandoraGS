@@ -10,6 +10,7 @@ Description : configuration dialog page - profile settings - view
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_WIN32
 using namespace std;
+#include <windowsx.h>
 #include "config_pprofile_winview.h"
 
 ConfigPageProfileView* ConfigPageProfileView::s_pCurrentPage = NULL; // current page (static access)

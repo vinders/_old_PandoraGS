@@ -136,10 +136,15 @@ public:
     }
     /// <summary>Get previous profile ID</summary>
     /// <param name="start">Checked start index</param>
+    /// <returns>Profile ID</returns>
     static uint32_t getPrevProfileId(uint32_t start);
     /// <summary>Get next profile ID</summary>
     /// <param name="start">Checked start index</param>
+    /// <returns>Profile ID</returns>
     static uint32_t getNextProfileId(uint32_t start);
+    /// <summary>Count available profiles</summary>
+    /// <returns>Profile number</returns>
+    static uint32_t countProfiles();
 
 
     /// <summary>Enable fix bits/summary>

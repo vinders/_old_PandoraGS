@@ -37,6 +37,9 @@ ConfigDialog::~ConfigDialog()
         delete [] m_pPages;
     }
     m_pPages = NULL;
+    if (m_pProfileNames != NULL)
+        delete [] m_pProfileNames;
+    m_pProfileNames = NULL;
 }
 
 /// <summary>Create and display config dialog</summary>
@@ -48,6 +51,7 @@ void ConfigDialog::showDialog()
         Config::init(); // default config
         ConfigIO::loadConfig(true, false); // user config
         Config::useProfile(0);
+        m_pProfileNames = ConfigIO::listProfiles();
 
         // load language resources
         m_pLang = new LanguageDialogResource();

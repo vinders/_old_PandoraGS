@@ -11,8 +11,9 @@ Description : configuration dialog page - profiles manager - view
 #if _DIALOGAPI == DIALOGAPI_WIN32
 using namespace std;
 #include "config_pmanager_winview.h"
+#include <windowsx.h>
 
-#define MAX_ROWS_WITHOUT_SCROLL 13
+#define MAX_ROWS_WITHOUT_SCROLL 13u
 #define LISTVIEW_WIDTH 389
 #define LISTVIEW_NAME_WIDTH_NOSCROLL 324
 #define LISTVIEW_NAME_WIDTH_SCROLL   307
@@ -64,7 +65,6 @@ ConfigPageManagerView* ConfigPageManagerView::createPage(ConfigPageManager* pCon
     return pPage;
 }
 
-
 /// <summary>Refresh language-dependent page content</summary>
 /// <param name="isFirstInit">First time (only labels) or update (all)</param>
 void ConfigPageManagerView::resetLanguage(bool isFirstInit)
@@ -81,7 +81,7 @@ void ConfigPageManagerView::resetLanguage(bool isFirstInit)
         LVCOLUMN lvcProfile; // profile names
         ZeroMemory(&lvcProfile, sizeof(LVCOLUMN));
         lvcProfile.mask = LVCF_WIDTH | LVCF_TEXT;
-        lvcProfile.cx = (1/*...*/ <= MAX_ROWS_WITHOUT_SCROLL) ? LISTVIEW_NAME_WIDTH_NOSCROLL : LISTVIEW_NAME_WIDTH_SCROLL;
+        lvcProfile.cx = (Config::countProfiles() <= MAX_ROWS_WITHOUT_SCROLL) ? LISTVIEW_NAME_WIDTH_NOSCROLL : LISTVIEW_NAME_WIDTH_SCROLL;
         lvcProfile.pszText = (LPWSTR)pLang->manager_tableColumnProfile.c_str();
         SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_SETCOLUMN, 2, (LPARAM)&lvcProfile);
 
@@ -110,112 +110,123 @@ void ConfigPageManagerView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
     // load page
     s_pCurrentPage = this;
     m_hPage = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_MANAGER_PAGE), hWindow, (DLGPROC)eventHandler);
-    if (m_hPage)
+    if (!m_hPage)
+        throw std::exception();
+    SetWindowPos(m_hPage, NULL, pPageSize->left, pPageSize->top,
+        pPageSize->right - pPageSize->left, pPageSize->bottom - pPageSize->top, 0);
+    // set colors
+    if (isVisible)
     {
-        SetWindowPos(m_hPage, NULL, pPageSize->left, pPageSize->top,
-            pPageSize->right - pPageSize->left, pPageSize->bottom - pPageSize->top, 0);
-        // set colors
-        if (isVisible)
-        {
-            ShowWindow(m_hPage, TRUE);
-            EnableWindow(m_hPage, TRUE);
-        }
-        else
-        {
-            ShowWindow(m_hPage, FALSE);
-            EnableWindow(m_hPage, FALSE);
-        }
-        // set button icons
-        res_iconAdd = LoadImage(*phInstance, MAKEINTRESOURCE(IDI_CONFIG_BUTTON_ADD), IMAGE_ICON, 24, 24, NULL);
-        res_iconEdit= LoadImage(*phInstance, MAKEINTRESOURCE(IDI_CONFIG_BUTTON_EDIT), IMAGE_ICON, 24, 24, NULL);
-        res_iconDel = LoadImage(*phInstance, MAKEINTRESOURCE(IDI_CONFIG_BUTTON_DEL), IMAGE_ICON, 24, 24, NULL);
-        res_iconIn =  LoadImage(*phInstance, MAKEINTRESOURCE(IDI_CONFIG_BUTTON_IN), IMAGE_ICON, 24, 24, NULL);
-        res_iconOut = LoadImage(*phInstance, MAKEINTRESOURCE(IDI_CONFIG_BUTTON_OUT), IMAGE_ICON, 24, 24, NULL);
-        if (res_iconAdd)
-            SendDlgItemMessage(m_hPage, IDC_MNG_BTN_ADD, BM_SETIMAGE, IMAGE_ICON, (LPARAM)res_iconAdd);
-        else
-            SendDlgItemMessage(m_hPage, IDC_MNG_BTN_ADD, WM_SETTEXT, 0, (LPARAM)L"Add");
-        if (res_iconEdit)
-            SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EDIT, BM_SETIMAGE, IMAGE_ICON, (LPARAM)res_iconEdit);
-        else
-            SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EDIT, WM_SETTEXT, 0, (LPARAM)L"Edit");
-        if (res_iconDel)
-            SendDlgItemMessage(m_hPage, IDC_MNG_BTN_REMOVE, BM_SETIMAGE, IMAGE_ICON, (LPARAM)res_iconDel);
-        else
-            SendDlgItemMessage(m_hPage, IDC_MNG_BTN_REMOVE, WM_SETTEXT, 0, (LPARAM)L"X");
-        if (res_iconIn)
-            SendDlgItemMessage(m_hPage, IDC_MNG_BTN_IMPORT, BM_SETIMAGE, IMAGE_ICON, (LPARAM)res_iconIn);
-        else
-            SendDlgItemMessage(m_hPage, IDC_MNG_BTN_IMPORT, WM_SETTEXT, 0, (LPARAM)L"In");
-        if (res_iconOut)
-            SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EXPORT, BM_SETIMAGE, IMAGE_ICON, (LPARAM)res_iconOut);
-        else
-            SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EXPORT, WM_SETTEXT, 0, (LPARAM)L"Out");
-        // set tooltips
-        LanguageDialogResource* pLang = m_pController->getLangResource();
-        res_tooltips[PMANAGER_TOOLTIP_BTN_ADD] = createToolTip(IDC_MNG_BTN_ADD, m_hPage, phInstance, (PTSTR)pLang->manager_btnAdd_tooltip.c_str());
-        res_tooltips[PMANAGER_TOOLTIP_BTN_EDIT] = createToolTip(IDC_MNG_BTN_EDIT, m_hPage, phInstance, (PTSTR)pLang->manager_btnEdit_tooltip.c_str());
-        res_tooltips[PMANAGER_TOOLTIP_BTN_REMOVE] = createToolTip(IDC_MNG_BTN_REMOVE, m_hPage, phInstance, (PTSTR)pLang->manager_btnRemove_tooltip.c_str());
-        res_tooltips[PMANAGER_TOOLTIP_BTN_IMPORT] = createToolTip(IDC_MNG_BTN_IMPORT, m_hPage, phInstance, (PTSTR)pLang->manager_btnImport_tooltip.c_str());
-        res_tooltips[PMANAGER_TOOLTIP_BTN_EXPORT] = createToolTip(IDC_MNG_BTN_EXPORT, m_hPage, phInstance, (PTSTR)pLang->manager_btnExport_tooltip.c_str());
+        ShowWindow(m_hPage, TRUE);
+        EnableWindow(m_hPage, TRUE);
+    }
+    else
+    {
+        ShowWindow(m_hPage, FALSE);
+        EnableWindow(m_hPage, FALSE);
+    }
+    // set button icons
+    res_iconAdd = LoadImage(*phInstance, MAKEINTRESOURCE(IDI_CONFIG_BUTTON_ADD), IMAGE_ICON, 24, 24, NULL);
+    res_iconEdit= LoadImage(*phInstance, MAKEINTRESOURCE(IDI_CONFIG_BUTTON_EDIT), IMAGE_ICON, 24, 24, NULL);
+    res_iconDel = LoadImage(*phInstance, MAKEINTRESOURCE(IDI_CONFIG_BUTTON_DEL), IMAGE_ICON, 24, 24, NULL);
+    res_iconIn =  LoadImage(*phInstance, MAKEINTRESOURCE(IDI_CONFIG_BUTTON_IN), IMAGE_ICON, 24, 24, NULL);
+    res_iconOut = LoadImage(*phInstance, MAKEINTRESOURCE(IDI_CONFIG_BUTTON_OUT), IMAGE_ICON, 24, 24, NULL);
+    if (res_iconAdd)
+        SendDlgItemMessage(m_hPage, IDC_MNG_BTN_ADD, BM_SETIMAGE, IMAGE_ICON, (LPARAM)res_iconAdd);
+    else
+        SendDlgItemMessage(m_hPage, IDC_MNG_BTN_ADD, WM_SETTEXT, 0, (LPARAM)L"Add");
+    if (res_iconEdit)
+        SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EDIT, BM_SETIMAGE, IMAGE_ICON, (LPARAM)res_iconEdit);
+    else
+        SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EDIT, WM_SETTEXT, 0, (LPARAM)L"Edit");
+    if (res_iconDel)
+        SendDlgItemMessage(m_hPage, IDC_MNG_BTN_REMOVE, BM_SETIMAGE, IMAGE_ICON, (LPARAM)res_iconDel);
+    else
+        SendDlgItemMessage(m_hPage, IDC_MNG_BTN_REMOVE, WM_SETTEXT, 0, (LPARAM)L"X");
+    if (res_iconIn)
+        SendDlgItemMessage(m_hPage, IDC_MNG_BTN_IMPORT, BM_SETIMAGE, IMAGE_ICON, (LPARAM)res_iconIn);
+    else
+        SendDlgItemMessage(m_hPage, IDC_MNG_BTN_IMPORT, WM_SETTEXT, 0, (LPARAM)L"In");
+    if (res_iconOut)
+        SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EXPORT, BM_SETIMAGE, IMAGE_ICON, (LPARAM)res_iconOut);
+    else
+        SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EXPORT, WM_SETTEXT, 0, (LPARAM)L"Out");
+    // set tooltips
+    LanguageDialogResource* pLang = m_pController->getLangResource();
+    res_tooltips[PMANAGER_TOOLTIP_BTN_ADD] = createToolTip(IDC_MNG_BTN_ADD, m_hPage, phInstance, (PTSTR)pLang->manager_btnAdd_tooltip.c_str());
+    res_tooltips[PMANAGER_TOOLTIP_BTN_EDIT] = createToolTip(IDC_MNG_BTN_EDIT, m_hPage, phInstance, (PTSTR)pLang->manager_btnEdit_tooltip.c_str());
+    res_tooltips[PMANAGER_TOOLTIP_BTN_REMOVE] = createToolTip(IDC_MNG_BTN_REMOVE, m_hPage, phInstance, (PTSTR)pLang->manager_btnRemove_tooltip.c_str());
+    res_tooltips[PMANAGER_TOOLTIP_BTN_IMPORT] = createToolTip(IDC_MNG_BTN_IMPORT, m_hPage, phInstance, (PTSTR)pLang->manager_btnImport_tooltip.c_str());
+    res_tooltips[PMANAGER_TOOLTIP_BTN_EXPORT] = createToolTip(IDC_MNG_BTN_EXPORT, m_hPage, phInstance, (PTSTR)pLang->manager_btnExport_tooltip.c_str());
 
-        // set data table
-        res_dataTable = CreateWindow(WC_LISTVIEWW, L"blabla", WS_VISIBLE | WS_CHILD | LVS_REPORT | WS_VSCROLL,
-                                  30, 54, LISTVIEW_WIDTH, 287, m_hPage, (HMENU)IDC_MNG_LISTVIEW, *phInstance, 0);
-        if (res_dataTable)
-        {
-            // set columns
-            ListView_SetExtendedListViewStyle(res_dataTable, LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-            LVCOLUMN lvcSelect; // checkboxes
-            ZeroMemory(&lvcSelect, sizeof(LVCOLUMN));
-            lvcSelect.mask = LVCF_WIDTH | LVCF_TEXT;
-            lvcSelect.cx = 24;
-            lvcSelect.pszText = L"";
-            SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTCOLUMN, 0, (LPARAM)&lvcSelect);
-            LVCOLUMN lvcId; // ID
-            ZeroMemory(&lvcId, sizeof(LVCOLUMN));
-            lvcId.mask = LVCF_WIDTH | LVCF_TEXT;
-            lvcId.cx = 40;
-            lvcId.pszText = L"#";
-            SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTCOLUMN, 1, (LPARAM)&lvcId);
-            LVCOLUMN lvcProfile; // profile names
-            ZeroMemory(&lvcProfile, sizeof(LVCOLUMN));
-            lvcProfile.mask = LVCF_WIDTH | LVCF_TEXT;
-            lvcProfile.cx = (1/*...*/ <= MAX_ROWS_WITHOUT_SCROLL) ? LISTVIEW_NAME_WIDTH_NOSCROLL : LISTVIEW_NAME_WIDTH_SCROLL;
-            lvcProfile.pszText = (LPWSTR)pLang->manager_tableColumnProfile.c_str();
-            SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTCOLUMN, 2, (LPARAM)&lvcProfile);
-            // set header checkbox
-            HWND hHeader = ListView_GetHeader(res_dataTable);
-            DWORD dwHeaderStyle = ::GetWindowLong(hHeader, GWL_STYLE);
-            dwHeaderStyle |= HDS_CHECKBOXES;
-            ::SetWindowLong(hHeader, GWL_STYLE, dwHeaderStyle);
-            m_headerCheckboxId = ::GetDlgCtrlID(hHeader); // store control ID
-            // update header format - display checkbox
-            HDITEM hdi = { 0 };
-            hdi.mask = HDI_FORMAT;
-            Header_GetItem(hHeader, 0, &hdi);
-            hdi.fmt |= HDF_CHECKBOX | HDF_FIXEDWIDTH;
-            Header_SetItem(hHeader, 0, &hdi);
+    // set data table
+    res_dataTable = CreateWindow(WC_LISTVIEWW, L"blabla", WS_VISIBLE | WS_CHILD | LVS_REPORT | WS_VSCROLL,
+                                30, 54, LISTVIEW_WIDTH, 287, m_hPage, (HMENU)IDC_MNG_LISTVIEW, *phInstance, 0);
+    if (res_dataTable)
+    {
+        // set columns
+        ListView_SetExtendedListViewStyle(res_dataTable, LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+        LVCOLUMN lvcSelect; // checkboxes
+        ZeroMemory(&lvcSelect, sizeof(LVCOLUMN));
+        lvcSelect.mask = LVCF_WIDTH | LVCF_TEXT;
+        lvcSelect.cx = 24;
+        lvcSelect.pszText = L"";
+        SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTCOLUMN, 0, (LPARAM)&lvcSelect);
+        LVCOLUMN lvcId; // ID
+        ZeroMemory(&lvcId, sizeof(LVCOLUMN));
+        lvcId.mask = LVCF_WIDTH | LVCF_TEXT;
+        lvcId.cx = 40;
+        lvcId.pszText = L"#";
+        SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTCOLUMN, 1, (LPARAM)&lvcId);
+        LVCOLUMN lvcProfile; // profile names
+        ZeroMemory(&lvcProfile, sizeof(LVCOLUMN));
+        lvcProfile.mask = LVCF_WIDTH | LVCF_TEXT;
+        lvcProfile.cx = (Config::countProfiles() <= MAX_ROWS_WITHOUT_SCROLL) ? LISTVIEW_NAME_WIDTH_NOSCROLL : LISTVIEW_NAME_WIDTH_SCROLL;
+        lvcProfile.pszText = (LPWSTR)pLang->manager_tableColumnProfile.c_str();
+        SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTCOLUMN, 2, (LPARAM)&lvcProfile);
+        // set header checkbox
+        HWND hHeader = ListView_GetHeader(res_dataTable);
+        DWORD dwHeaderStyle = ::GetWindowLong(hHeader, GWL_STYLE);
+        dwHeaderStyle |= HDS_CHECKBOXES;
+        ::SetWindowLong(hHeader, GWL_STYLE, dwHeaderStyle);
+        m_headerCheckboxId = ::GetDlgCtrlID(hHeader); // store control ID
+        // update header format - display checkbox
+        HDITEM hdi = { 0 };
+        hdi.mask = HDI_FORMAT;
+        Header_GetItem(hHeader, 0, &hdi);
+        hdi.fmt |= HDF_CHECKBOX | HDF_FIXEDWIDTH;
+        Header_SetItem(hHeader, 0, &hdi);
 
-            // insert rows
-            LVITEM lviDef;
-            ZeroMemory(&lviDef, sizeof(LVITEM));
-            lviDef.mask = 0;
-            lviDef.iSubItem = 0;
-            for (int p = 0; p < /*...*/1; ++p)
-            {
-                lviDef.iItem = p; // index
-                SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTITEM, 0, (LPARAM)&lviDef);
-                std::wstring index = std::to_wstring(p);
-                ListView_SetItemText(res_dataTable, p, 1, (LPWSTR)index.c_str());
-                ListView_SetItemText(res_dataTable, p, 2, /*...*/L"<default>");
-            }
+        // insert rows
+        LVITEM lviDef;
+        ZeroMemory(&lviDef, sizeof(LVITEM));
+        lviDef.mask = 0;
+        lviDef.iSubItem = 0;
+        std::string* profileNames = m_pController->getProfileNames();
+        for (uint32_t p = 0; p < Config::countProfiles(); ++p)
+        {
+            lviDef.iItem = p; // index
+            SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_INSERTITEM, 0, (LPARAM)&lviDef);
+            std::wstring index = std::to_wstring(p);
+            ListView_SetItemText(res_dataTable, p, 1, (LPWSTR)index.c_str());
+            std::wstring profileConvert(profileNames[p].begin(), profileNames[p].end());
+            ListView_SetItemText(res_dataTable, p, 2, (LPWSTR)profileConvert.c_str());
         }
-        else
-            throw std::exception();
     }
     else
         throw std::exception();
+
+    // set profile presets
+    HWND hPresetList = GetDlgItem(m_hPage, IDC_MNG_PRESETS_LIST);
+    if (hPresetList)
+    {
+        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_fastest.c_str());
+        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_standard.c_str());
+        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_enhanced2d.c_str());
+        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_enhanced3d.c_str());
+        ComboBox_SetCurSel(hPresetList, 1);
+    }
+
     // set language
     resetLanguage(true);
 }
@@ -335,9 +346,9 @@ INT_PTR CALLBACK ConfigPageManagerView::eventHandler(HWND hWindow, UINT msg, WPA
                 switch (LOWORD(wParam))
                 {
                     case IDC_MNG_BTN_PRESETS: break;// return onPreset(hWindow); break;
-                    case IDC_MNG_BTN_ADD:     break;// if(onProfileAdd(hWindow)) setTableHeaderChecked(false); if (? > MAX_ROWS_WITHOUT_SCROLL) SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_SETCOLUMNWIDTH, 2, LISTVIEW_NAME_WIDTH_SCROLL); return TRUE;
+                    case IDC_MNG_BTN_ADD:     break;// if(onProfileAdd(hWindow)) setTableHeaderChecked(false); if (Config::countProfiles() > MAX_ROWS_WITHOUT_SCROLL) SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_SETCOLUMNWIDTH, 2, LISTVIEW_NAME_WIDTH_SCROLL); return TRUE;
                     case IDC_MNG_BTN_EDIT:    break;// return onProfileEdit(hWindow); break;
-                    case IDC_MNG_BTN_REMOVE:  break;// onProfileRemove(hWindow); if (? <= MAX_ROWS_WITHOUT_SCROLL) SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_SETCOLUMNWIDTH, 2, LISTVIEW_NAME_WIDTH_NOSCROLL); return TRUE;
+                    case IDC_MNG_BTN_REMOVE:  break;// onProfileRemove(hWindow); if (Config::countProfiles() <= MAX_ROWS_WITHOUT_SCROLL) SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_SETCOLUMNWIDTH, 2, LISTVIEW_NAME_WIDTH_NOSCROLL); return TRUE;
                     case IDC_MNG_BTN_IMPORT:  break;// return onProfileImport(hWindow); break;
                     case IDC_MNG_BTN_EXPORT:  break;// return onProfileExport(hWindow); break;
                 }

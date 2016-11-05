@@ -10,6 +10,7 @@ Description : configuration dialog - business logic
 #ifndef _CONFIG_DIALOG_H
 #define _CONFIG_DIALOG_H
 #include "globals.h"
+#include <string>
 #include "lang.h"
 #include "config_io.h"
 #include "config_page.h"
@@ -35,6 +36,7 @@ private:
     ConfigDialogView* m_pView; // visuals container
     LanguageDialogResource* m_pLang; // language resource
     ConfigPage** m_pPages; // dialog pages
+    std::string* m_pProfileNames; // profile names
 
 public:
     /// <summary>Initialize controller variables</summary>
@@ -56,6 +58,12 @@ public:
     inline LanguageDialogResource* getLangResource()
     {
         return m_pLang;
+    }
+    /// <summary>Get language resource</summary>
+    /// <returns>Array of profile names</returns>
+    std::string* getProfileNames()
+    {
+        return m_pProfileNames;
     }
     /// <summary>Change language</summary>
     /// <param name="code">Language code</param>

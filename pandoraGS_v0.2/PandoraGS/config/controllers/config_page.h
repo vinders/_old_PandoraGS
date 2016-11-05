@@ -47,6 +47,9 @@ public:
     /// <summary>Get language resource</summary>
     /// <returns>Language resource pointer</returns>
     LanguageDialogResource* getLangResource();
+    /// <summary>Get language resource</summary>
+    /// <returns>Array of profile names</returns>
+    std::string* getProfileNames();
 };
 
 #define _CONFIG_PAGE_H_END

@@ -180,6 +180,13 @@ ConfigProfile* Config::getProfile(uint32_t index)
     return NULL;
 }
 
+/// <summary>Count available profiles</summary>
+/// <returns>Profile number</returns>
+uint32_t Config::countProfiles()
+{
+    return m_profilesArrayLength;
+}
+
 
 // -- CURRENT PROFILE CHANGE -- --------------------------------------------
 
@@ -232,6 +239,7 @@ void Config::useDefaultProfile()
     // load profile (if not already)
     if (m_pProfiles[0] == NULL)
         setProfile(m_currentProfile, ConfigIO::loadConfigProfile(0u));
+    m_isReady = true;
 }
 
 /// <summary>Set specific profile as current (if available)</summary>
@@ -248,4 +256,5 @@ void Config::useProfile(uint32_t index)
     // load profile (if not already)
     if (m_pProfiles[m_currentProfile] == NULL)
         setProfile(m_currentProfile, ConfigIO::loadConfigProfile(m_currentProfile));
+    m_isReady = true;
 }

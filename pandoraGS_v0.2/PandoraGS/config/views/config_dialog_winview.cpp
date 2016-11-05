@@ -330,11 +330,19 @@ void ConfigDialogView::onClose()
 /// <returns>Changes indicator</returns>
 INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
 {
+    ConfigDialogView* pThis = ConfigDialogView::s_pCurrentWindow;
+
     // list profiles
     HWND hProfileList = GetDlgItem(hWindow, IDC_PROFILE_LIST);
     if (hProfileList)
     {
-        //...récupérer liste noms de profils
+        std::string* profileNames = pThis->getController()->getProfileNames();
+        for (uint32_t pf = 0; pf < Config::countProfiles(); ++pf)
+        {
+            std::wstring profileConvert(profileNames[pf].begin(), profileNames[pf].end());
+            ComboBox_AddString(hProfileList, (LPCTSTR)profileConvert.c_str());
+        }
+        ComboBox_SetCurSel(hProfileList, 0);
         ShowWindow(hProfileList, SW_HIDE);
     }
     else
@@ -345,7 +353,6 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
         ShowWindow(hProfileLabel, SW_HIDE);
 
     // load pages
-    ConfigDialogView* pThis = ConfigDialogView::s_pCurrentWindow;
     if (pThis->loadPages(hWindow) == false)
     {
         MessageBox(hWindow, (LPCWSTR)L"Failed to load page content.", (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);

@@ -33,6 +33,49 @@ using namespace std;
 #ifdef _WINDOWS
 // -- WINDOWS - REGISTRY IO -- ---------------------------------------------------
 
+/// <summary>List profile names</summary>
+/// <returns>Array of profile names</returns>
+std::string* ConfigIO::listProfiles()
+{
+    uint32_t profilesNb = 1;
+
+    // count profiles
+    HKEY configKey;
+    DWORD type, size;
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, REG_KEY_PATH, 0, KEY_ALL_ACCESS, &configKey) == ERROR_SUCCESS)
+    {
+        readRegDword<uint32_t>(&profilesNb, &configKey, L"ProfileCount", &type, &size);
+        RegCloseKey(configKey); // close
+    }
+
+    // get profile names
+    std::string* pNames = NULL;
+    if (profilesNb < 1)
+    {
+        pNames = new std::string[1];
+        pNames[0] = "<default>";
+    }
+    else
+    {
+        pNames = new std::string[profilesNb];
+        for (uint32_t id = 0; id < profilesNb; ++id)
+        {
+            std::wstring keyPath = REG_KEY_SUBPATH_PROFILE;
+            keyPath += std::to_wstring(id);
+            if (RegOpenKeyEx(HKEY_CURRENT_USER, keyPath.c_str(), 0, KEY_ALL_ACCESS, &configKey) == ERROR_SUCCESS)
+            {
+                readRegString(&(pNames[id]), &configKey, L"ProfileName", &type, &size);
+                RegCloseKey(configKey); // close
+            }
+            else if (id == 0)
+                pNames[id] = "<default>";
+            else
+                pNames[id] = "<undefined>";
+        }
+    }
+    return pNames;
+}
+
 /// <summary>Load config values from registry/file</summary>
 /// <param name="hasProfileArray">Alloc an empty array with the appropriate size</param>
 /// <param name="hasProfileValues">Fill the array with profile containers</param>
@@ -104,6 +147,8 @@ void ConfigIO::loadConfig(bool hasProfileArray, bool hasProfileValues)
     // array of profile containers
     if (hasProfileArray)
     {
+        if (profilesNb < 1)
+            profilesNb = 1;
         CfgProfilePtr* ppProfiles = new CfgProfilePtr[profilesNb];
         Config::setProfiles(&ppProfiles, profilesNb);
 
