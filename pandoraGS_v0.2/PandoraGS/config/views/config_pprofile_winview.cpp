@@ -20,6 +20,9 @@ ConfigPageProfileView* ConfigPageProfileView::s_pCurrentPage = NULL; // current 
 ConfigPageProfileView::ConfigPageProfileView(ConfigPage* pController) : ConfigPageView(pController)
 {
     m_hPage = NULL;
+    for (int i = 0; i < CONFIG_PROFILE_TABS_NB; ++i)
+        res_tabPages[i] = NULL;
+    m_activeTab = 0;
     for (int t = 0; t < PPROFILE_TOOLTIPS_NB; ++t)
         res_tooltips[t] = NULL;
 }
@@ -31,6 +34,11 @@ ConfigPageProfileView::~ConfigPageProfileView()
     {
         if (res_tooltips[t] != NULL) DestroyWindow(res_tooltips[t]);
         res_tooltips[t] = NULL;
+    }
+    // delete tabs
+    for (int i = 0; i < CONFIG_PROFILE_TABS_NB; ++i)
+    {
+        if (res_tabPages[i] != NULL) DestroyWindow(res_tabPages[i]);
     }
     // delete items
     if (m_hPage != NULL)
@@ -106,15 +114,45 @@ void ConfigPageProfileView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
     TabCtrl_InsertItem(hTabControl, 2, &ti);
     TabCtrl_SetCurSel(hTabControl, 0);
     // tabs content
-    HWND hFiltersTab = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_FILTERS_TAB), hTabControl, eventHandler);//...stocker handle + utiliser autre handler + détruire dans destr
-    ShowWindow(hFiltersTab, SW_SHOW);
-    EnableWindow(hFiltersTab, TRUE);
-    // créer/détruire dialog lors de changement (sauver à chaque fois changements)
-    //HWND hStretchingTab = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_STRETCHING_TAB), hTabControl, 0);//...stocker handle + détruire dans destr
-    //HWND hCompatTab = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_COMPAT_TAB), hTabControl, 0);//...stocker handle + détruire dans destr
+    m_activeTab = 0;
+    res_tabPages[0] = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_FILTERS_TAB), m_hPage, tabEventHandler);
+    res_tabPages[1] = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_STRETCHING_TAB), m_hPage, tabEventHandler);
+    res_tabPages[2] = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_COMPAT_TAB), m_hPage, tabEventHandler);
+    ShowWindow(res_tabPages[0], SW_SHOW);
+    EnableWindow(res_tabPages[0], TRUE);
+    for (int t = 1; t < CONFIG_PROFILE_TABS_NB; ++t)
+    {
+        ShowWindow(res_tabPages[t], SW_HIDE);
+        EnableWindow(res_tabPages[t], FALSE);
+    }
 
     // set language
     resetLanguage(true);
+}
+
+// EVENTS ----------------------------------------------------------------------
+
+/// <summary>Tabcontrol event handler</summary>
+/// <param name="hWindow">Window handle</param>
+/// <param name="hTabControl">Tab control handle</param>
+/// <returns>Success</returns>
+INT_PTR ConfigPageProfileView::onTabChange(HWND hWindow, HWND hTabControl)
+{
+    // tab change
+    if (res_tabPages[m_activeTab] != NULL)
+    {
+        ShowWindow(res_tabPages[m_activeTab], SW_HIDE);
+        EnableWindow(res_tabPages[m_activeTab], FALSE);
+        m_activeTab = TabCtrl_GetCurSel(hTabControl); // set new tab
+        if (m_activeTab == -1)
+        {
+            m_activeTab = 0;
+            TabCtrl_SetCurSel(hTabControl, 0);
+        }
+        ShowWindow(res_tabPages[m_activeTab], SW_SHOW);
+        EnableWindow(res_tabPages[m_activeTab], TRUE);
+    }
+    return (INT_PTR)TRUE;
 }
 
 /// <summary>Page event handler</summary>
@@ -160,6 +198,15 @@ INT_PTR CALLBACK ConfigPageProfileView::eventHandler(HWND hWindow, UINT msg, WPA
                 DeleteObject(hBrushColor);
             return (INT_PTR)TRUE; break;
         }
+        case WM_NOTIFY:
+        {
+            switch (((LPNMHDR)lParam)->code)
+            {
+                case TCN_SELCHANGE: 
+                    return ConfigPageProfileView::s_pCurrentPage->onTabChange(hWindow, ((LPNMHDR)lParam)->hwndFrom); break;
+            }
+            return (INT_PTR)TRUE;
+        }
 
         // controls interaction
         case WM_COMMAND:
@@ -180,6 +227,73 @@ INT_PTR CALLBACK ConfigPageProfileView::eventHandler(HWND hWindow, UINT msg, WPA
             }
             break;
         } // WM_COMMAND
+    }
+    return (INT_PTR)FALSE;
+}
+
+/// <summary>Sub-tab event handler</summary>
+/// <param name="hWindow">Window handle</param>
+/// <param name="msg">Event message</param>
+/// <param name="wParam">Command</param>
+/// <param name="lParam">Informations</param>
+/// <returns>Action code</returns>
+INT_PTR CALLBACK ConfigPageProfileView::tabEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    static HBRUSH hBrushColor = NULL;
+    switch (msg)
+    {
+    case WM_PAINT: // page background color
+    {
+        PAINTSTRUCT paint;
+        HDC hDC = BeginPaint(hWindow, &paint);
+        RECT rect;
+        if (!hBrushColor)
+            hBrushColor = CreateSolidBrush(COLOR_PAGE);
+        if (hBrushColor)
+        {
+            GetClientRect(hWindow, &rect);
+            FillRect(hDC, &rect, hBrushColor);
+        }
+        EndPaint(hWindow, &paint);
+        if (hDC)
+            ReleaseDC(hWindow, hDC);
+        return (INT_PTR)TRUE; break;
+    }
+    case WM_CTLCOLORSTATIC: // controls text color
+    {
+        HDC hdcStatic = (HDC)wParam;
+        SetTextColor(hdcStatic, RGB(0, 0, 0));
+        SetBkColor(hdcStatic, COLOR_PAGE);
+        if (!hBrushColor)
+            hBrushColor = CreateSolidBrush(COLOR_PAGE);
+        return (LRESULT)hBrushColor; break;
+    }
+    case WM_DESTROY:
+    {
+        if (hBrushColor)
+            DeleteObject(hBrushColor);
+        return (INT_PTR)TRUE; break;
+    }
+
+    // controls interaction
+    case WM_COMMAND:
+    {
+        // combobox
+        if (HIWORD(wParam) == CBN_SELCHANGE)
+        {
+            //switch (LOWORD(wParam))
+            {
+            }
+        }
+        // button
+        else
+        {
+            //switch (LOWORD(wParam))
+            {
+            }
+        }
+        break;
+    } // WM_COMMAND
     }
     return (INT_PTR)FALSE;
 }
