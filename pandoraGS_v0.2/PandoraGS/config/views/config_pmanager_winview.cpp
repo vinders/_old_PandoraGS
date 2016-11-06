@@ -74,6 +74,20 @@ void ConfigPageManagerView::resetLanguage(bool isFirstInit)
     // set labels
     SetDlgItemText(m_hPage, IDS_MNG_PRESETS, (LPCWSTR)pLang->manager_presets.c_str());
     SetDlgItemText(m_hPage, IDC_MNG_BTN_PRESETS, (LPCWSTR)pLang->manager_btnPresetsApply.c_str());
+    // set profile presets
+    HWND hPresetList = GetDlgItem(m_hPage, IDC_MNG_PRESETS_LIST);
+    if (hPresetList)
+    {
+        int selection = ComboBox_GetCurSel(hPresetList);
+        if (selection < 0)
+            selection = 1;
+        ComboBox_ResetContent(hPresetList);
+        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_fastest.c_str());
+        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_standard.c_str());
+        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_enhanced2d.c_str());
+        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_enhanced3d.c_str());
+        ComboBox_SetCurSel(hPresetList, selection);
+    }
 
     // set table header
     if (isFirstInit == false)
@@ -215,17 +229,6 @@ void ConfigPageManagerView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
     }
     else
         throw std::exception();
-
-    // set profile presets
-    HWND hPresetList = GetDlgItem(m_hPage, IDC_MNG_PRESETS_LIST);
-    if (hPresetList)
-    {
-        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_fastest.c_str());
-        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_standard.c_str());
-        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_enhanced2d.c_str());
-        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_enhanced3d.c_str());
-        ComboBox_SetCurSel(hPresetList, 1);
-    }
 
     // set language
     resetLanguage(true);

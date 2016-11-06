@@ -46,7 +46,6 @@
 #define IDS_GEN_COLOR                   209
 #define IDC_GEN_COLOR_LIST              210
 #define IDC_GEN_GTEACC_CHECK            211
-#define IDC_GEN_GTEACC_LIST             212
 #define IDS_GEN_GROUP2                  220
 #define IDC_GEN_FRAMESKIP_CHECK         221
 #define IDC_GEN_FRAMELIMIT_CHECK        222
