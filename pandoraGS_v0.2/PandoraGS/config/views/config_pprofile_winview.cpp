@@ -196,6 +196,7 @@ INT_PTR CALLBACK ConfigPageProfileView::eventHandler(HWND hWindow, UINT msg, WPA
         {
             if (hBrushColor) 
                 DeleteObject(hBrushColor);
+            hBrushColor = NULL;
             return (INT_PTR)TRUE; break;
         }
         case WM_NOTIFY:
@@ -227,6 +228,8 @@ INT_PTR CALLBACK ConfigPageProfileView::eventHandler(HWND hWindow, UINT msg, WPA
             }
             break;
         } // WM_COMMAND
+
+        default: return DefWindowProc(hWindow, msg, wParam, lParam); break;
     }
     return (INT_PTR)FALSE;
 }
@@ -242,58 +245,61 @@ INT_PTR CALLBACK ConfigPageProfileView::tabEventHandler(HWND hWindow, UINT msg, 
     static HBRUSH hBrushColor = NULL;
     switch (msg)
     {
-    case WM_PAINT: // page background color
-    {
-        PAINTSTRUCT paint;
-        HDC hDC = BeginPaint(hWindow, &paint);
-        RECT rect;
-        if (!hBrushColor)
-            hBrushColor = CreateSolidBrush(COLOR_PAGE);
-        if (hBrushColor)
+        case WM_PAINT: // page background color
         {
-            GetClientRect(hWindow, &rect);
-            FillRect(hDC, &rect, hBrushColor);
+            PAINTSTRUCT paint;
+            HDC hDC = BeginPaint(hWindow, &paint);
+            RECT rect;
+            if (!hBrushColor)
+                hBrushColor = CreateSolidBrush(COLOR_PAGE);
+            if (hBrushColor)
+            {
+                GetClientRect(hWindow, &rect);
+                FillRect(hDC, &rect, hBrushColor);
+            }
+            EndPaint(hWindow, &paint);
+            if (hDC)
+                ReleaseDC(hWindow, hDC);
+            return (INT_PTR)TRUE; break;
         }
-        EndPaint(hWindow, &paint);
-        if (hDC)
-            ReleaseDC(hWindow, hDC);
-        return (INT_PTR)TRUE; break;
-    }
-    case WM_CTLCOLORSTATIC: // controls text color
-    {
-        HDC hdcStatic = (HDC)wParam;
-        SetTextColor(hdcStatic, RGB(0, 0, 0));
-        SetBkColor(hdcStatic, COLOR_PAGE);
-        if (!hBrushColor)
-            hBrushColor = CreateSolidBrush(COLOR_PAGE);
-        return (LRESULT)hBrushColor; break;
-    }
-    case WM_DESTROY:
-    {
-        if (hBrushColor)
-            DeleteObject(hBrushColor);
-        return (INT_PTR)TRUE; break;
-    }
+        case WM_CTLCOLORSTATIC: // controls text color
+        {
+            HDC hdcStatic = (HDC)wParam;
+            SetTextColor(hdcStatic, RGB(0, 0, 0));
+            SetBkColor(hdcStatic, COLOR_PAGE);
+            if (!hBrushColor)
+                hBrushColor = CreateSolidBrush(COLOR_PAGE);
+            return (LRESULT)hBrushColor; break;
+        }
+        case WM_DESTROY:
+        {
+            if (hBrushColor)
+                DeleteObject(hBrushColor);
+            hBrushColor = NULL;
+            return (INT_PTR)TRUE; break;
+        }
 
-    // controls interaction
-    case WM_COMMAND:
-    {
-        // combobox
-        if (HIWORD(wParam) == CBN_SELCHANGE)
+        // controls interaction
+        case WM_COMMAND:
         {
-            //switch (LOWORD(wParam))
+            // combobox
+            if (HIWORD(wParam) == CBN_SELCHANGE)
             {
+                //switch (LOWORD(wParam))
+                {
+                }
             }
-        }
-        // button
-        else
-        {
-            //switch (LOWORD(wParam))
+            // button
+            else
             {
+                //switch (LOWORD(wParam))
+                {
+                }
             }
-        }
-        break;
-    } // WM_COMMAND
+            break;
+        } // WM_COMMAND
+
+        default: return DefWindowProc(hWindow, msg, wParam, lParam); break;
     }
     return (INT_PTR)FALSE;
 }

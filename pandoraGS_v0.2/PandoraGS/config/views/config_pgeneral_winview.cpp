@@ -111,54 +111,57 @@ INT_PTR CALLBACK ConfigPageGeneralView::eventHandler(HWND hWindow, UINT msg, WPA
     static HBRUSH hBrushColor = NULL;
     switch (msg)
     {
-    case WM_PAINT: // page background color
-    {
-        PAINTSTRUCT paint;
-        HDC hDC = BeginPaint(hWindow, &paint);
-        RECT rect;
-        if (!hBrushColor)
-            hBrushColor = CreateSolidBrush(COLOR_PAGE);
-        if (hBrushColor)
+        case WM_PAINT: // page background color
         {
-            GetClientRect(hWindow, &rect);
-            FillRect(hDC, &rect, hBrushColor);
-        }
-        EndPaint(hWindow, &paint);
-        if (hDC)
-            ReleaseDC(hWindow, hDC);
-        return (INT_PTR)TRUE; break;
-    }
-    case WM_CTLCOLORSTATIC: // controls text color
-    {
-        HDC hdcStatic = (HDC)wParam;
-        SetTextColor(hdcStatic, RGB(0, 0, 0));
-        SetBkColor(hdcStatic, COLOR_PAGE);
-        if (!hBrushColor)
-            hBrushColor = CreateSolidBrush(COLOR_PAGE);
-        return (LRESULT)hBrushColor; break;
-    }
-    case WM_DESTROY:
-    {
-        if (hBrushColor)
-            DeleteObject(hBrushColor);
-        return (INT_PTR)TRUE; break;
-    }
-
-    // controls interaction
-    case WM_COMMAND:
-    {
-        // buttons
-        if (HIWORD(wParam) != CBN_SELCHANGE)
-        {
-            switch (LOWORD(wParam))
+            PAINTSTRUCT paint;
+            HDC hDC = BeginPaint(hWindow, &paint);
+            RECT rect;
+            if (!hBrushColor)
+                hBrushColor = CreateSolidBrush(COLOR_PAGE);
+            if (hBrushColor)
             {
-                //open popup dialogs
-                case IDC_GEN_BTN_KEYBINDING: break;// return onKeyBinding(hWindow); break;
-                case IDC_GEN_BTN_ADVANCED:   break;// return onAdvancedSettings(hWindow); break;
+                GetClientRect(hWindow, &rect);
+                FillRect(hDC, &rect, hBrushColor);
             }
+            EndPaint(hWindow, &paint);
+            if (hDC)
+                ReleaseDC(hWindow, hDC);
+            return (INT_PTR)TRUE; break;
         }
-        break;
-    } // WM_COMMAND
+        case WM_CTLCOLORSTATIC: // controls text color
+        {
+            HDC hdcStatic = (HDC)wParam;
+            SetTextColor(hdcStatic, RGB(0, 0, 0));
+            SetBkColor(hdcStatic, COLOR_PAGE);
+            if (!hBrushColor)
+                hBrushColor = CreateSolidBrush(COLOR_PAGE);
+            return (LRESULT)hBrushColor; break;
+        }
+        case WM_DESTROY:
+        {
+            if (hBrushColor)
+                DeleteObject(hBrushColor);
+            hBrushColor = NULL;
+            return (INT_PTR)TRUE; break;
+        }
+
+        // controls interaction
+        case WM_COMMAND:
+        {
+            // buttons
+            if (HIWORD(wParam) != CBN_SELCHANGE)
+            {
+                switch (LOWORD(wParam))
+                {
+                    //open popup dialogs
+                    case IDC_GEN_BTN_KEYBINDING: break;// return onKeyBinding(hWindow); break;
+                    case IDC_GEN_BTN_ADVANCED:   break;// return onAdvancedSettings(hWindow); break;
+                }
+            }
+            break;
+        } 
+
+        default: return DefWindowProc(hWindow, msg, wParam, lParam); break;
     }
     return (INT_PTR)FALSE;
 }

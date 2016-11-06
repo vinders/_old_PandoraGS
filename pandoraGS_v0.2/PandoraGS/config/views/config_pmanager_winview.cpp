@@ -272,6 +272,7 @@ INT_PTR CALLBACK ConfigPageManagerView::eventHandler(HWND hWindow, UINT msg, WPA
         {
             if (hBrushColor)
                 DeleteObject(hBrushColor);
+            hBrushColor = NULL;
             return (INT_PTR)TRUE; break;
         }
 
@@ -355,6 +356,8 @@ INT_PTR CALLBACK ConfigPageManagerView::eventHandler(HWND hWindow, UINT msg, WPA
             }
             break;
         } // WM_COMMAND
+
+        default: return DefWindowProc(hWindow, msg, wParam, lParam); break;
     }
     return (INT_PTR)FALSE;
 }

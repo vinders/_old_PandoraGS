@@ -134,9 +134,9 @@ INT_PTR CALLBACK ConfigDialogView::eventHandler(HWND hWindow, UINT msg, WPARAM w
     switch (msg)
     {
         // drawing
-        case WM_INITDIALOG: return onInitDialog(hWindow, lParam);
-        case WM_PAINT:      return onPaint(hWindow, lParam);
-        case WM_DRAWITEM:   return onDrawItem(hWindow, lParam);
+        case WM_INITDIALOG: return onInitDialog(hWindow, lParam); break;
+        case WM_PAINT:      return onPaint(hWindow, lParam); break;
+        case WM_DRAWITEM:   return onDrawItem(hWindow, lParam); break;
 
         // dialog controls
         case WM_COMMAND:
@@ -164,7 +164,7 @@ INT_PTR CALLBACK ConfigDialogView::eventHandler(HWND hWindow, UINT msg, WPARAM w
         }
         case WM_CLOSE: // close button/shortcut
             EndDialog(hWindow, TRUE);
-            return (INT_PTR)TRUE;
+            return (INT_PTR)TRUE; break;
     }
     return (INT_PTR)FALSE;
 }
