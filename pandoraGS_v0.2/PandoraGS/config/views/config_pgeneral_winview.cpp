@@ -85,12 +85,12 @@ void ConfigPageGeneralView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
                      pPageSize->right - pPageSize->left, pPageSize->bottom - pPageSize->top, 0);
         if (isVisible)
         {
-            ShowWindow(m_hPage, TRUE);
+            ShowWindow(m_hPage, SW_SHOW);
             EnableWindow(m_hPage, TRUE);
         }
         else
         {
-            ShowWindow(m_hPage, FALSE);
+            ShowWindow(m_hPage, SW_HIDE);
             EnableWindow(m_hPage, FALSE);
         }
     }

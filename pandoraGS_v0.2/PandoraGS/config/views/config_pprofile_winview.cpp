@@ -85,12 +85,12 @@ void ConfigPageProfileView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
         pPageSize->right - pPageSize->left, pPageSize->bottom - pPageSize->top, 0);
     if (isVisible)
     {
-        ShowWindow(m_hPage, TRUE);
+        ShowWindow(m_hPage, SW_SHOW);
         EnableWindow(m_hPage, TRUE);
     }
     else
     {
-        ShowWindow(m_hPage, FALSE);
+        ShowWindow(m_hPage, SW_HIDE);
         EnableWindow(m_hPage, FALSE);
     }
 
@@ -106,7 +106,10 @@ void ConfigPageProfileView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
     TabCtrl_InsertItem(hTabControl, 2, &ti);
     TabCtrl_SetCurSel(hTabControl, 0);
     // tabs content
-    //HWND hFiltersTab = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_FILTERS_TAB), hTabControl, 0);//...stocker handle + détruire dans destr
+    HWND hFiltersTab = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_FILTERS_TAB), hTabControl, eventHandler);//...stocker handle + utiliser autre handler + détruire dans destr
+    ShowWindow(hFiltersTab, SW_SHOW);
+    EnableWindow(hFiltersTab, TRUE);
+    // créer/détruire dialog lors de changement (sauver à chaque fois changements)
     //HWND hStretchingTab = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_STRETCHING_TAB), hTabControl, 0);//...stocker handle + détruire dans destr
     //HWND hCompatTab = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_COMPAT_TAB), hTabControl, 0);//...stocker handle + détruire dans destr
 

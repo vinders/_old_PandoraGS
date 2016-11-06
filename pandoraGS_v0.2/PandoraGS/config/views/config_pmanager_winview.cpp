@@ -117,12 +117,12 @@ void ConfigPageManagerView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
     // set colors
     if (isVisible)
     {
-        ShowWindow(m_hPage, TRUE);
+        ShowWindow(m_hPage, SW_SHOW);
         EnableWindow(m_hPage, TRUE);
     }
     else
     {
-        ShowWindow(m_hPage, FALSE);
+        ShowWindow(m_hPage, SW_HIDE);
         EnableWindow(m_hPage, FALSE);
     }
     // set button icons
