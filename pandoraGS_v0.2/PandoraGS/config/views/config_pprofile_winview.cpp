@@ -161,7 +161,7 @@ void ConfigPageProfileView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
         ComboBox_AddString(hControl, (LPCTSTR)L"4x");
         ComboBox_AddString(hControl, (LPCTSTR)L"5x");
         ComboBox_AddString(hControl, (LPCTSTR)L"8x");
-        ComboBox_SetCurSel(hControl, selection - 1);
+        ComboBox_SetCurSel(hControl, (selection == 8) ? 8 : (selection - 1));
     }
     hControl = NULL;
     if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_2DUPSCALE_LIST))
