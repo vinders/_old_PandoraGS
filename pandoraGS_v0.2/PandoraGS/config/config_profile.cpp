@@ -151,7 +151,7 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             scl_texUpscaleType = CFG_UpSc_SaI;
             scl_sprSmooth = CFG_Intp_Bilinear_Enhanced;
             scl_sprUpscaleVal = 3u;
-            scl_sprUpscaleType = CFG_UpSc_xBRZ_Depolarized;
+            scl_sprUpscaleType = CFG_UpSc_xBRZ_Smoothed;
             scl_screenSmooth = CFG_ScrSm_None;
             scl_screenUpscaleVal = 1u;
             scl_screenUpscaleType = CFG_UpSc_Native;

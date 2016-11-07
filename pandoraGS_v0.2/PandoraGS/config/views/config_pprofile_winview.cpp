@@ -14,6 +14,7 @@ using namespace std;
 #include "config_pprofile_winview.h"
 
 ConfigPageProfileView* ConfigPageProfileView::s_pCurrentPage = NULL; // current page (static access)
+static HBRUSH gs_hBrushColor = NULL;
 
 /// <summary>Create page view container</summary>
 /// <param name="pController">Controller reference</param>
@@ -44,6 +45,10 @@ ConfigPageProfileView::~ConfigPageProfileView()
     if (m_hPage != NULL)
         DestroyWindow(m_hPage);
     m_hPage = NULL;
+    // delete brush
+    if (gs_hBrushColor)
+        DeleteObject(gs_hBrushColor);
+    gs_hBrushColor = NULL;
 }
 
 /// <summary>Create new dialog page</summary>
@@ -115,9 +120,9 @@ void ConfigPageProfileView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
     TabCtrl_SetCurSel(hTabControl, 0);
     // tabs content
     m_activeTab = 0;
-    res_tabPages[0] = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_FILTERS_TAB), m_hPage, tabEventHandler);
-    res_tabPages[1] = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_STRETCHING_TAB), m_hPage, tabEventHandler);
-    res_tabPages[2] = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_COMPAT_TAB), m_hPage, tabEventHandler);
+    res_tabPages[CONFIG_PROFILE_TAB_FILTERS] = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_FILTERS_TAB), m_hPage, tabEventHandler);
+    res_tabPages[CONFIG_PROFILE_TAB_STRETCH] = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_STRETCHING_TAB), m_hPage, tabEventHandler);
+    res_tabPages[CONFIG_PROFILE_TAB_COMPAT] = CreateDialog(*phInstance, MAKEINTRESOURCE(IDD_PROFILE_COMPAT_TAB), m_hPage, tabEventHandler);
     ShowWindow(res_tabPages[0], SW_SHOW);
     EnableWindow(res_tabPages[0], TRUE);
     for (int t = 1; t < CONFIG_PROFILE_TABS_NB; ++t)
@@ -126,8 +131,148 @@ void ConfigPageProfileView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
         EnableWindow(res_tabPages[t], FALSE);
     }
 
+    // set language-independant controls
+    uint32_t selection = 0;
+    HWND hControl = NULL;
+    if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_TXUPSCALE_FACTOR))
+    {
+        selection = Config::getCurrentProfile()->scl_texUpscaleVal;
+        if (selection < 1 || selection > 5)
+            selection = 2;
+        ComboBox_AddString(hControl, (LPCTSTR)L"1x");
+        ComboBox_AddString(hControl, (LPCTSTR)L"2x");
+        ComboBox_AddString(hControl, (LPCTSTR)L"3x");
+        ComboBox_AddString(hControl, (LPCTSTR)L"4x");
+        ComboBox_AddString(hControl, (LPCTSTR)L"5x");
+        ComboBox_SetCurSel(hControl, selection - 1);
+    }
+    hControl = NULL;
+    if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_TXUPSCALE_LIST))
+        setUpscalingList(&hControl, selection, Config::getCurrentProfile()->scl_texUpscaleType);
+    hControl = NULL;
+    if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_2DUPSCALE_FACTOR))
+    {
+        selection = Config::getCurrentProfile()->scl_sprUpscaleVal;
+        if (selection < 1 || selection > 8 || selection == 6 || selection == 7)
+            selection = 2;
+        ComboBox_AddString(hControl, (LPCTSTR)L"1x");
+        ComboBox_AddString(hControl, (LPCTSTR)L"2x");
+        ComboBox_AddString(hControl, (LPCTSTR)L"3x");
+        ComboBox_AddString(hControl, (LPCTSTR)L"4x");
+        ComboBox_AddString(hControl, (LPCTSTR)L"5x");
+        ComboBox_AddString(hControl, (LPCTSTR)L"8x");
+        ComboBox_SetCurSel(hControl, selection - 1);
+    }
+    hControl = NULL;
+    if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_2DUPSCALE_LIST))
+        setUpscalingList(&hControl, selection, Config::getCurrentProfile()->scl_sprUpscaleType);
+    hControl = NULL;
+    if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_FXAA_LIST))
+    {
+        ComboBox_AddString(hControl, (LPCTSTR)L"FXAA");
+        ComboBox_AddString(hControl, (LPCTSTR)L"NFAA");
+        ComboBox_AddString(hControl, (LPCTSTR)L"MSAA 4x");
+        ComboBox_AddString(hControl, (LPCTSTR)L"MSAA 8x");
+        ComboBox_AddString(hControl, (LPCTSTR)L"SMAA 4x");
+        ComboBox_AddString(hControl, (LPCTSTR)L"SMAA 8x");
+        ComboBox_SetCurSel(hControl, 0L);
+    }
+
     // set language
     resetLanguage(true);
+}
+
+/// <summary>Set upscaling type list, based on factor</summary>
+/// <param name="phComboBox">Control handle reference</param>
+/// <param name="factor">Multiplication factor</param>
+/// <param name="value">Config value</param>
+void ConfigPageProfileView::setUpscalingList(HWND* phComboBox, uint32_t factor, uint32_t value)
+{
+    ComboBox_ResetContent(*phComboBox);
+    switch (factor)
+    {
+        case 2:
+        {
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"SaI");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"xBR");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"xBRZ");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"NNEDI3");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"Super-xBR");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"Super-xBR bilateral");
+            switch (value)
+            {
+                case CFG_UpSc_xBR: ComboBox_SetCurSel(*phComboBox, 1L); break;
+                case CFG_UpSc_xBRZ: ComboBox_SetCurSel(*phComboBox, 2L); break;
+                case CFG_UpSc_NNEDI3: ComboBox_SetCurSel(*phComboBox, 3L); break;
+                case CFG_UpSc_SuperxBR: ComboBox_SetCurSel(*phComboBox, 4L); break;
+                case CFG_UpSc_SuperxBR_FB: ComboBox_SetCurSel(*phComboBox, 5L); break;
+                default: ComboBox_SetCurSel(*phComboBox, 0L); break;
+            }
+            break;
+        }
+        case 3:
+        {
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"xBR");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"xBRZ");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"xBRZ smoothed");
+            switch (value)
+            {
+                case CFG_UpSc_xBRZ: ComboBox_SetCurSel(*phComboBox, 1L); break;
+                case CFG_UpSc_xBRZ_Smoothed: ComboBox_SetCurSel(*phComboBox, 2L); break;
+                default: ComboBox_SetCurSel(*phComboBox, 0L); break;
+            }
+            break;
+        }
+        case 4:
+        {
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"xBR");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"xBRZ");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"xBRZ smoothed");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"NNEDI3");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"Super-xBR");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"Super-xBR bilateral");
+            switch (value)
+            {
+                case CFG_UpSc_xBRZ: ComboBox_SetCurSel(*phComboBox, 1L); break;
+                case CFG_UpSc_xBRZ_Smoothed: ComboBox_SetCurSel(*phComboBox, 2L); break;
+                case CFG_UpSc_NNEDI3: ComboBox_SetCurSel(*phComboBox, 3L); break;
+                case CFG_UpSc_SuperxBR: ComboBox_SetCurSel(*phComboBox, 4L); break;
+                case CFG_UpSc_SuperxBR_FB: ComboBox_SetCurSel(*phComboBox, 5L); break;
+                default: ComboBox_SetCurSel(*phComboBox, 0L); break;
+            }
+            break;
+        }
+        case 5:
+        {
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"xBRZ");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"xBRZ smoothed");
+            switch (value)
+            {
+                case CFG_UpSc_xBRZ_Smoothed: ComboBox_SetCurSel(*phComboBox, 1L); break;
+                default: ComboBox_SetCurSel(*phComboBox, 0L); break;
+            }
+            break;
+        }
+        case 8:
+        {
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"NNEDI3");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"Super-xBR");
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"Super-xBR bilateral");
+            switch (value)
+            {
+                case CFG_UpSc_SuperxBR: ComboBox_SetCurSel(*phComboBox, 1L); break;
+                case CFG_UpSc_SuperxBR_FB: ComboBox_SetCurSel(*phComboBox, 2L); break;
+                default: ComboBox_SetCurSel(*phComboBox, 0L); break;
+            }
+            break;
+        }
+        default:
+        {
+            ComboBox_AddString(*phComboBox, (LPCTSTR)L"Native");
+            ComboBox_SetCurSel(*phComboBox, 0L);
+            break;
+        }
+    }
 }
 
 // EVENTS ----------------------------------------------------------------------
@@ -155,6 +300,39 @@ INT_PTR ConfigPageProfileView::onTabChange(HWND hWindow, HWND hTabControl)
     return (INT_PTR)TRUE;
 }
 
+/// <summary>Page drawing handler</summary>
+/// <param name="hWindow">Window handle</param>
+/// <returns>Action code</returns>
+INT_PTR ConfigPageProfileView::onPaint(HWND hWindow)
+{
+    PAINTSTRUCT paint;
+    HDC hDC = BeginPaint(hWindow, &paint);
+    RECT rect;
+    if (!gs_hBrushColor)
+        gs_hBrushColor = CreateSolidBrush(COLOR_PAGE);
+    if (gs_hBrushColor)
+    {
+        GetClientRect(hWindow, &rect);
+        FillRect(hDC, &rect, gs_hBrushColor);
+    }
+    EndPaint(hWindow, &paint);
+    if (hDC)
+        ReleaseDC(hWindow, hDC);
+    return (INT_PTR)TRUE;
+}
+/// <summary>Page drawing handler</summary>
+/// <param name="wParam">Command</param>
+/// <returns>Action code</returns>
+INT_PTR ConfigPageProfileView::onDrawColorStatic(WPARAM wParam)
+{
+    HDC hdcStatic = (HDC)wParam;
+    SetTextColor(hdcStatic, RGB(0, 0, 0));
+    SetBkColor(hdcStatic, COLOR_PAGE);
+    if (!gs_hBrushColor)
+        gs_hBrushColor = CreateSolidBrush(COLOR_PAGE);
+    return (LRESULT)gs_hBrushColor;
+}
+
 /// <summary>Page event handler</summary>
 /// <param name="hWindow">Window handle</param>
 /// <param name="msg">Event message</param>
@@ -163,42 +341,12 @@ INT_PTR ConfigPageProfileView::onTabChange(HWND hWindow, HWND hTabControl)
 /// <returns>Action code</returns>
 INT_PTR CALLBACK ConfigPageProfileView::eventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    static HBRUSH hBrushColor = NULL;
     switch (msg)
     {
-        case WM_PAINT: // page background color
-        {
-            PAINTSTRUCT paint;
-            HDC hDC = BeginPaint(hWindow, &paint);
-            RECT rect;
-            if (!hBrushColor)
-                hBrushColor = CreateSolidBrush(COLOR_PAGE);
-            if (hBrushColor)
-            {
-                GetClientRect(hWindow, &rect);
-                FillRect(hDC, &rect, hBrushColor);
-            }
-            EndPaint(hWindow, &paint);
-            if (hDC)
-                ReleaseDC(hWindow, hDC);
-            return (INT_PTR)TRUE; break;
-        }
-        case WM_CTLCOLORSTATIC: // controls text color
-        {
-            HDC hdcStatic = (HDC)wParam;
-            SetTextColor(hdcStatic, RGB(0, 0, 0));
-            SetBkColor(hdcStatic, COLOR_PAGE);
-            if (!hBrushColor)
-                hBrushColor = CreateSolidBrush(COLOR_PAGE);
-            return (LRESULT)hBrushColor; break;
-        }
-        case WM_DESTROY:
-        {
-            if (hBrushColor) 
-                DeleteObject(hBrushColor);
-            hBrushColor = NULL;
-            return (INT_PTR)TRUE; break;
-        }
+        // page background color
+        case WM_PAINT: return onPaint(hWindow); break;
+        case WM_CTLCOLORSTATIC: return onDrawColorStatic(wParam); break;
+        // tab change
         case WM_NOTIFY:
         {
             switch (((LPNMHDR)lParam)->code)
@@ -234,7 +382,7 @@ INT_PTR CALLBACK ConfigPageProfileView::eventHandler(HWND hWindow, UINT msg, WPA
     return (INT_PTR)FALSE;
 }
 
-/// <summary>Sub-tab event handler</summary>
+/// <summary>Simple sub-tab event handler</summary>
 /// <param name="hWindow">Window handle</param>
 /// <param name="msg">Event message</param>
 /// <param name="wParam">Command</param>
@@ -242,42 +390,11 @@ INT_PTR CALLBACK ConfigPageProfileView::eventHandler(HWND hWindow, UINT msg, WPA
 /// <returns>Action code</returns>
 INT_PTR CALLBACK ConfigPageProfileView::tabEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    static HBRUSH hBrushColor = NULL;
     switch (msg)
     {
-        case WM_PAINT: // page background color
-        {
-            PAINTSTRUCT paint;
-            HDC hDC = BeginPaint(hWindow, &paint);
-            RECT rect;
-            if (!hBrushColor)
-                hBrushColor = CreateSolidBrush(COLOR_PAGE);
-            if (hBrushColor)
-            {
-                GetClientRect(hWindow, &rect);
-                FillRect(hDC, &rect, hBrushColor);
-            }
-            EndPaint(hWindow, &paint);
-            if (hDC)
-                ReleaseDC(hWindow, hDC);
-            return (INT_PTR)TRUE; break;
-        }
-        case WM_CTLCOLORSTATIC: // controls text color
-        {
-            HDC hdcStatic = (HDC)wParam;
-            SetTextColor(hdcStatic, RGB(0, 0, 0));
-            SetBkColor(hdcStatic, COLOR_PAGE);
-            if (!hBrushColor)
-                hBrushColor = CreateSolidBrush(COLOR_PAGE);
-            return (LRESULT)hBrushColor; break;
-        }
-        case WM_DESTROY:
-        {
-            if (hBrushColor)
-                DeleteObject(hBrushColor);
-            hBrushColor = NULL;
-            return (INT_PTR)TRUE; break;
-        }
+        // page background color
+        case WM_PAINT: return onPaint(hWindow); break;
+        case WM_CTLCOLORSTATIC: return onDrawColorStatic(wParam); break;
 
         // controls interaction
         case WM_COMMAND:
