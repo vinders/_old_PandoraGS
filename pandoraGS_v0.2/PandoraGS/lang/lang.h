@@ -10,6 +10,7 @@ Description : language resources
 #ifndef _LANG_H
 #define _LANG_H
 
+#include <stdint.h>
 #include <string>
 
 // languages
