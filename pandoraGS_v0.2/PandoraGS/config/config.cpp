@@ -19,7 +19,8 @@ uint32_t Config::m_currentProfile = 0u;      // active profile ID
 bool Config::m_isReady = false;
 // general
 uint32_t Config::gen_langCode;        // language identifier
-uint32_t Config::rnd_floatAccuracy; // anti-jitter GTE accuracy
+std::wstring Config::gen_langFilePath;        // language file path
+uint32_t Config::rnd_floatAccuracy;   // anti-jitter GTE accuracy
 uint32_t Config::rnd_debugMode;       // debug mode (or 0)
 bool     Config::rnd_isFpsDisplayed;  // show FPS (on/off)
 // display
@@ -48,6 +49,7 @@ void Config::init()
 {
     m_isReady = false;
     gen_langCode = (uint32_t)LANG_DEFAULT;
+    gen_langFilePath = L"./pandoraGS.lang";
     misc_gpuKeys[GPUKEYS_LENGTH - 1] = '\0';
     setDefaultValues();
 }

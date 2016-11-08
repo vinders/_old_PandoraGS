@@ -36,7 +36,7 @@ private:
     ConfigDialogView* m_pView; // visuals container
     LanguageDialogResource* m_pLang; // language resource
     ConfigPage** m_pPages; // dialog pages
-    std::string* m_pProfileNames; // profile names
+    std::wstring* m_pProfileNames; // profile names
 
 public:
     /// <summary>Initialize controller variables</summary>
@@ -61,7 +61,7 @@ public:
     }
     /// <summary>Get language resource</summary>
     /// <returns>Array of profile names</returns>
-    std::string* getProfileNames()
+    std::wstring* getProfileNames()
     {
         return m_pProfileNames;
     }

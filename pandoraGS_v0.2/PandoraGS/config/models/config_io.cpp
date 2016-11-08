@@ -35,7 +35,7 @@ using namespace std;
 
 /// <summary>List profile names</summary>
 /// <returns>Array of profile names</returns>
-std::string* ConfigIO::listProfiles()
+std::wstring* ConfigIO::listProfiles()
 {
     uint32_t profilesNb = 1;
 
@@ -49,28 +49,28 @@ std::string* ConfigIO::listProfiles()
     }
 
     // get profile names
-    std::string* pNames = NULL;
+    std::wstring* pNames = NULL;
     if (profilesNb < 1)
     {
-        pNames = new std::string[1];
-        pNames[0] = "<default>";
+        pNames = new std::wstring[1];
+        pNames[0] = L"<default>";
     }
     else
     {
-        pNames = new std::string[profilesNb];
+        pNames = new std::wstring[profilesNb];
         for (uint32_t id = 0; id < profilesNb; ++id)
         {
             std::wstring keyPath = REG_KEY_SUBPATH_PROFILE;
             keyPath += std::to_wstring(id);
             if (RegOpenKeyEx(HKEY_CURRENT_USER, keyPath.c_str(), 0, KEY_ALL_ACCESS, &configKey) == ERROR_SUCCESS)
             {
-                readRegString(&(pNames[id]), &configKey, L"ProfileName", &type, &size);
+                readRegWString(&(pNames[id]), &configKey, L"ProfileName", &type, &size);
                 RegCloseKey(configKey); // close
             }
             else if (id == 0)
-                pNames[id] = "<default>";
+                pNames[id] = L"<default>";
             else
-                pNames[id] = "<undefined>";
+                pNames[id] = L"<undefined>";
         }
     }
     return pNames;
@@ -93,6 +93,7 @@ void ConfigIO::loadConfig(bool hasProfileArray, bool hasProfileValues)
 
         // general
         readRegDword<uint32_t>(&(Config::gen_langCode), &configKey, L"Lang", &type, &size);
+        readRegWString(&(Config::gen_langFilePath), &configKey, L"LangFile", &type, &size);
         readRegDword<uint32_t>(&(Config::rnd_floatAccuracy), &configKey, L"FloatAcc", &type, &size);
         readRegDword<uint32_t>(&(Config::rnd_debugMode), &configKey, L"Debug", &type, &size);
         readRegBool(&(Config::rnd_isFpsDisplayed), &configKey, L"ShowFps", &type, &size);
@@ -180,6 +181,8 @@ void ConfigIO::saveConfig(bool hasProfiles)
         // general
         val = Config::gen_langCode;
         RegSetValueEx(configKey, L"Lang", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        RegSetValueEx(configKey, L"LangFile", 0, REG_BINARY,
+            (LPBYTE)(Config::gen_langFilePath.c_str()), Config::gen_langFilePath.length());
         val = Config::rnd_floatAccuracy;
         RegSetValueEx(configKey, L"FloatAcc", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = Config::rnd_debugMode;
@@ -266,7 +269,7 @@ void ConfigIO::loadFrameLimitConfig()
 /// <exception cref="std::exception">Memory allocation failure</exception>
 ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
 {
-    ConfigProfile* pProfile = new ConfigProfile(id, "<default>");
+    ConfigProfile* pProfile = new ConfigProfile(id, L"<default>");
     if (pProfile == NULL)
         throw new std::exception("Profile allocation failure");
     pProfile->setPresetValues(ProfilePreset_Standard);
@@ -278,7 +281,7 @@ ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
     keyPath += std::to_wstring(id);
     if (RegOpenKeyEx(HKEY_CURRENT_USER, keyPath.c_str(), 0, KEY_ALL_ACCESS, &profileKey) == ERROR_SUCCESS)
     {
-        readRegString(&(pProfile->gen_profileName), &profileKey, L"ProfileName", &type, &size);
+        readRegWString(&(pProfile->gen_profileName), &profileKey, L"ProfileName", &type, &size);
 
         //smooth/scale filters
         readRegDword<uint32_t>(&(pProfile->scl_texSmooth), &profileKey, L"TxIntp", &type, &size);
@@ -344,21 +347,6 @@ ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
         readRegDword<uint32_t>(&(pProfile->misc_offscreenDrawing), &profileKey, L"Offscreen", &type, &size);
         if (pProfile->misc_offscreenDrawing >= CFG_OffScreenDrawing_LENGTH)
             pProfile->misc_offscreenDrawing = CFG_OffScr_Standard;
-
-        // external shader
-        bool useExtShader = false;
-        std::string extShaderBuffer = "";
-        readRegBool(&useExtShader, &profileKey, L"UseExtShader", &type, &size);
-        if (useExtShader)
-        {
-            readRegPath(&extShaderBuffer, &profileKey, L"ExtShader", &type, &size);
-            if (extShaderBuffer.length() > 0 && extShaderBuffer.at(0) != '\0')
-                pProfile->setExternalShader(useExtShader, extShaderBuffer.c_str());
-            else
-                pProfile->setExternalShader(false, NULL);
-        }
-        else
-            pProfile->setExternalShader(false, NULL);
 
         RegCloseKey(profileKey); // close
     }
@@ -435,20 +423,6 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         RegSetValueEx(profileKey, L"FixBits", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->misc_offscreenDrawing;
         RegSetValueEx(profileKey, L"Offscreen", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        
-        // external shader
-        val = (pProfile->misc_useExternalShader) ? 1uL : 0uL;
-        RegSetValueEx(profileKey, L"UseExtShader", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        if (pProfile->misc_useExternalShader && pProfile->misc_externalShaderPath != NULL)
-        {
-            RegSetValueEx(profileKey, L"ExtShader", 0, REG_BINARY, (LPBYTE)(pProfile->misc_externalShaderPath), 
-                          strlen(pProfile->misc_externalShaderPath));
-        }
-        else
-        {
-            char pEmpty[1] = { '\0' };
-            RegSetValueEx(profileKey, L"ExtShader", 0, REG_BINARY, (LPBYTE)pEmpty, 1);
-        }
 
         RegCloseKey(profileKey); // close
     }
@@ -623,6 +597,12 @@ void ConfigIO::getProfileAssociations(ConfigIO_GameProfile_t* pAssociations)
 #else 
 // -- LINUX-UNIX - FILE -- -----------------------------------------------------
 
+/// <summary>List profile names</summary>
+/// <returns>Array of profile names</returns>
+std::wstring* ConfigIO::listProfiles()
+{
+}
+
 /// <summary>Load config values from registry/file</summary>
 /// <param name="hasProfileArray">Alloc an empty array with the appropriate size</param>
 /// <param name="hasProfileValues">Fill the array with profile containers</param>
@@ -650,7 +630,7 @@ void ConfigIO::loadFrameLimitConfig()
 /// <returns>Allocated config profile container (with loaded values)</returns>
 ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
 {
-    ConfigProfile* pProfile = new ConfigProfile(id, "<default>");
+    ConfigProfile* pProfile = new ConfigProfile(id, L"<default>");
     pProfile->setPresetValues(ProfilePreset_Standard);
     //...
     return pProfile;

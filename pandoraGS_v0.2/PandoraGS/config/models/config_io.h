@@ -35,7 +35,7 @@ private:
 public:
     /// <summary>List profile names</summary>
     /// <returns>Array of profile names</returns>
-    static std::string* listProfiles();
+    static std::wstring* listProfiles();
     /// <summary>Load config values from registry/file</summary>
     /// <param name="hasProfileArray">Alloc an empty array with the appropriate size</param>
     /// <param name="hasProfileValues">Fill the array with profile containers</param>

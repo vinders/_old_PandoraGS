@@ -27,7 +27,7 @@ LanguageDialogResource* ConfigPage::getLangResource()
 
 /// <summary>Get language resource</summary>
 /// <returns>Array of profile names</returns>
-std::string* ConfigPage::getProfileNames()
+std::wstring* ConfigPage::getProfileNames()
 {
     return m_pParent->getProfileNames();
 }

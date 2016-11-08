@@ -88,6 +88,19 @@ void LanguageDialogResource::setLanguage_English()
     tabTitle_generalSettings = L"General settings";
     tabTitle_profilesManager = L"Profile manager";
     tabTitle_profileSettings = L"Profile settings";
+
+    manager_tableColumnProfile = L"profile";
+    manager_btnAdd_tooltip = L"Add a new profile";
+    manager_btnEdit_tooltip = L"Edit the selected profile (name and associations)";
+    manager_btnRemove_tooltip = L"Remove selected profiles";
+    manager_btnImport_tooltip = L"Import profile (from file)";
+    manager_btnExport_tooltip = L"Export profile (save file)";
+    manager_presets = L"Profile presets";
+    manager_btnPresetsApply = L"Apply to selection";
+    manager_preset_fastest = L"Fastest";
+    manager_preset_standard = L"Standard";
+    manager_preset_enhanced2d = L"Enhanced 2D";
+    manager_preset_enhanced3d = L"Enhanced 3D";
 }
 /// <summary>Set spanish values</summary>
 void LanguageDialogResource::setLanguage_Spanish()
@@ -98,6 +111,19 @@ void LanguageDialogResource::setLanguage_Spanish()
     tabTitle_generalSettings = L"General settings";
     tabTitle_profilesManager = L"Profile manager";
     tabTitle_profileSettings = L"Profile settings";
+
+    manager_tableColumnProfile = L"profile";
+    manager_btnAdd_tooltip = L"Add a new profile";
+    manager_btnEdit_tooltip = L"Edit the selected profile (name and associations)";
+    manager_btnRemove_tooltip = L"Remove selected profiles";
+    manager_btnImport_tooltip = L"Import profile (from file)";
+    manager_btnExport_tooltip = L"Export profile (save file)";
+    manager_presets = L"Profile presets";
+    manager_btnPresetsApply = L"Apply to selection";
+    manager_preset_fastest = L"Fastest";
+    manager_preset_standard = L"Standard";
+    manager_preset_enhanced2d = L"Enhanced 2D";
+    manager_preset_enhanced3d = L"Enhanced 3D";
 }
 /// <summary>Set french values</summary>
 void LanguageDialogResource::setLanguage_French()
@@ -108,6 +134,19 @@ void LanguageDialogResource::setLanguage_French()
     tabTitle_generalSettings = L"Options générales";
     tabTitle_profilesManager = L"Gestion de profils";
     tabTitle_profileSettings = L"Paramétrer profil";
+
+    manager_tableColumnProfile = L"profil";
+    manager_btnAdd_tooltip = L"Ajouter un profil";
+    manager_btnEdit_tooltip = L"Editer le profil sélectionné (nom et associations)";
+    manager_btnRemove_tooltip = L"Supprimer la sélection";
+    manager_btnImport_tooltip = L"Importer profil (depuis fichier)";
+    manager_btnExport_tooltip = L"Exporter profil (sauvegarder)";
+    manager_presets = L"Préconfigurer profil";
+    manager_btnPresetsApply = L"Modifier sélection";
+    manager_preset_fastest = L"Plus rapide";
+    manager_preset_standard = L"Standard";
+    manager_preset_enhanced2d = L"2D améliorée";
+    manager_preset_enhanced3d = L"3D améliorée";
 }
 /// <summary>Set german values</summary>
 void LanguageDialogResource::setLanguage_German()
@@ -118,6 +157,19 @@ void LanguageDialogResource::setLanguage_German()
     tabTitle_generalSettings = L"General settings";
     tabTitle_profilesManager = L"Profile manager";
     tabTitle_profileSettings = L"Profile settings";
+
+    manager_tableColumnProfile = L"profile";
+    manager_btnAdd_tooltip = L"Add a new profile";
+    manager_btnEdit_tooltip = L"Edit the selected profile (name and associations)";
+    manager_btnRemove_tooltip = L"Remove selected profiles";
+    manager_btnImport_tooltip = L"Import profile (from file)";
+    manager_btnExport_tooltip = L"Export profile (save file)";
+    manager_presets = L"Profile presets";
+    manager_btnPresetsApply = L"Apply to selection";
+    manager_preset_fastest = L"Fastest";
+    manager_preset_standard = L"Standard";
+    manager_preset_enhanced2d = L"Enhanced 2D";
+    manager_preset_enhanced3d = L"Enhanced 3D";
 }
 
 /// <summary>Read values from file</summary>

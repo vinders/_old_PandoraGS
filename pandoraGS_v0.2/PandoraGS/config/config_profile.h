@@ -14,7 +14,7 @@ Description : configuration profile container
 #include <string>
 
 // presets
-enum ProfilePreset
+enum ProfilePreset : uint32_t
 {
     ProfilePreset_Fastest = 0,
     ProfilePreset_Standard = 1,
@@ -51,7 +51,7 @@ class ConfigProfile
 public:
     // general
     uint32_t gen_profileId;       // profile unique identifier
-    std::string  gen_profileName; // profile displayed name
+    std::wstring  gen_profileName; // profile displayed name
 
     // smooth/scale filters
     uint32_t scl_texSmooth;       // textures smoothing
@@ -113,8 +113,6 @@ public:
     // miscellaneous
     uint32_t misc_fixBits;           // custom fixes
     uint32_t misc_offscreenDrawing;  // off-screen drawing mode
-    bool     misc_useExternalShader; // bypass built-in effects with external shader
-    char*    misc_externalShaderPath;// external shader file path
     //alpha/maskbit/psx texture window/...
     //framebuffer/...
 
@@ -123,7 +121,7 @@ public:
     /// <summary>Create profile container (with preset values)</summary>
     /// <param name="id">Profile unique identifier</param>
     /// <param name="name">Profile name</param>
-    ConfigProfile(uint32_t id, std::string name);
+    ConfigProfile(uint32_t id, std::wstring name);
     /// <summary>Copy profile container</summary>
     /// <param name="copy">Profile container to copy</param>
     ConfigProfile(ConfigProfile& copy);
@@ -156,16 +154,11 @@ public:
     {
         return ((misc_fixBits & fixBits) == 0);
     }
-    
-    /// <summary>Set external shader</summary>
-    /// <param name="isEnabled">Use this shader or not</param>
-    /// <param name="path">External shader file path</param>
-    void setExternalShader(bool isEnabled, const char* path);
 };
 
 
 // screen ratio modes
-enum CFG_ScreenRatio
+enum CFG_ScreenRatio : uint32_t
 {
     CFG_Ratio_Aspect = 0, // 15:10 - NTSC US/J + some PAL ports / 4:3 - PAL standard
     CFG_Ratio_Pixel = 1
@@ -184,7 +177,7 @@ enum CFG_ScreenRatio
 #define CFG_RATIO_CROP_CloseToOrig    CFG_RATIO_MAX
 
 // off-screen drawing modes
-enum CFG_OffScreenDrawing
+enum CFG_OffScreenDrawing : uint32_t
 {
     //...
     CFG_OffScr_Standard = 1
@@ -193,7 +186,7 @@ enum CFG_OffScreenDrawing
 #define CFG_OffScreenDrawing_LENGTH 3
 
 // interpolation modes
-enum CFG_Interpolation
+enum CFG_Interpolation : uint32_t
 {
     CFG_Intp_Nearest = 0,
     CFG_Intp_Bilinear = 1,
@@ -203,7 +196,7 @@ enum CFG_Interpolation
 };
 #define CFG_Interpolation_LENGTH 5
 // upscaling modes
-enum CFG_UpScaling
+enum CFG_UpScaling : uint32_t
 {
     CFG_UpSc_Native = 0,        // 1x
     CFG_UpSc_SaI = 1,               // 2x
@@ -216,7 +209,7 @@ enum CFG_UpScaling
 };
 #define CFG_UpScaling_LENGTH 8
 // MDEC filters
-enum CFG_MdecFiltering
+enum CFG_MdecFiltering : uint32_t
 {
     CFG_Mdec_None = 0,
     CFG_Mdec_Standard = 1,
@@ -225,7 +218,7 @@ enum CFG_MdecFiltering
 };
 #define CFG_MdecFiltering_LENGTH 4
 // screen smoothing
-enum CFG_ScreenSmoothing
+enum CFG_ScreenSmoothing : uint32_t
 {
     CFG_ScrSm_None = 0,
     CFG_ScrSm_SlightBlur = 1,
@@ -235,7 +228,7 @@ enum CFG_ScreenSmoothing
 #define CFG_ScreenSmoothing_LENGTH 4
 
 // anti-aliasing
-enum CFG_AntiAliasing
+enum CFG_AntiAliasing : uint32_t
 {
     CFG_AA_None = 0,
     CFG_AA_FXAA = 1, // fast

@@ -92,6 +92,24 @@ inline void readRegPath(std::string* pDest, HKEY* pRegKey, LPCWSTR valName, DWOR
         convertRegString(pDest, valBuffer, pSize);
     delete[] valBuffer;
 }
+/// <summary>Read wide string registry value</summary>
+inline void readRegWString(std::wstring* pDest, HKEY* pRegKey, LPCWSTR valName, DWORD* pType, DWORD* pSize)
+{
+    WCHAR* valBuffer = new WCHAR[CFG_STRING_BUFFER_LENGTH];
+    *pSize = CFG_STRING_BUFFER_LENGTH;
+    if (RegQueryValueEx(*pRegKey, valName, 0, NULL, (LPBYTE)valBuffer, pSize) == ERROR_SUCCESS)
+    {
+        if (pSize != NULL && *pSize > 0)
+        {
+            int len = *pSize;
+            valBuffer[len] = L'\0';
+            *pDest = std::wstring(valBuffer);
+        }
+        else
+            *pDest = L"";
+    }
+    delete[] valBuffer;
+}
 
 /// <summary>Set float registry value</summary>
 /// <param name="pDest">Source value</param>

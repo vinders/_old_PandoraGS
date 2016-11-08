@@ -13,7 +13,7 @@ Description : language resources
 #include <string>
 
 // languages
-enum LangCode
+enum LangCode : uint32_t
 {
     LangCode_English = 0,
     LangCode_Spanish = 1,
@@ -57,6 +57,19 @@ public:
     std::wstring tabTitle_generalSettings;
     std::wstring tabTitle_profilesManager;
     std::wstring tabTitle_profileSettings;
+
+    std::wstring manager_tableColumnProfile;
+    std::wstring manager_btnAdd_tooltip;
+    std::wstring manager_btnEdit_tooltip;
+    std::wstring manager_btnRemove_tooltip;
+    std::wstring manager_btnImport_tooltip;
+    std::wstring manager_btnExport_tooltip;
+    std::wstring manager_presets;
+    std::wstring manager_btnPresetsApply;
+    std::wstring manager_preset_fastest;
+    std::wstring manager_preset_standard;
+    std::wstring manager_preset_enhanced2d;
+    std::wstring manager_preset_enhanced3d;
 
 public:
     /// <summary>Create uninitialized instance</summary>

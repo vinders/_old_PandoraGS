@@ -49,7 +49,7 @@ public:
     LanguageDialogResource* getLangResource();
     /// <summary>Get language resource</summary>
     /// <returns>Array of profile names</returns>
-    std::string* getProfileNames();
+    std::wstring* getProfileNames();
 };
 
 #define _CONFIG_PAGE_H_END

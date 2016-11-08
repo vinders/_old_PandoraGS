@@ -21,7 +21,7 @@ Description : configuration container
 // plugin key bindings
 #define GPUKEYS_LENGTH 10           // 9 + NULL ending
 #define VK_NOKEY 0x07
-enum GpuKeys
+enum GpuKeys : uint32_t
 {
     GpuKeys_ProfileMenu = 0,        // menu on/off
     GpuKeys_ProfilePrev = 1,        // menu shows prev profile
@@ -34,7 +34,7 @@ enum GpuKeys
     GpuKeys_Debug = 8               // FPS display / next debug mode
 };
 // timing mode
-enum TimingMode
+enum TimingMode : uint32_t
 {
     TimingMode_MultimediaClock = 0, // low res, steady
     TimingMode_HighResCounter = 1  // high res, unstable
@@ -58,6 +58,7 @@ private:
 public:
     // general
     static uint32_t   gen_langCode;        // language identifier
+    static std::wstring gen_langFilePath;  // language file path
     static uint32_t   rnd_floatAccuracy;   // anti-jitter GTE accuracy
     static uint32_t   rnd_debugMode;       // debug mode (or 0)
     static bool       rnd_isFpsDisplayed;  // show FPS (on/off)

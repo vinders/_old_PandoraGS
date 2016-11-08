@@ -39,42 +39,6 @@
     <ClCompile Include="display\shader\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="config\views\about_dialog_qtview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\views\config_dialog_qtview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\views\config_page_qtview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\views\config_pgeneral_qtview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\views\config_pmanager_qtview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\views\config_pprofile_qtview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\views\about_dialog_winview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\views\config_dialog_winview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\views\config_page_winview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\views\config_pgeneral_winview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\views\config_pmanager_winview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config\views\config_pprofile_winview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="control\framerate_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,6 +84,42 @@
     <ClCompile Include="gpu_zinc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="config\views\qt\about_dialog_qtview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\views\qt\config_dialog_qtview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\views\qt\config_page_qtview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\views\qt\config_pgeneral_qtview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\views\qt\config_pmanager_qtview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\views\qt\config_pprofile_qtview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\views\win\about_dialog_winview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\views\win\config_dialog_winview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\views\win\config_page_winview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\views\win\config_pgeneral_winview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\views\win\config_pmanager_winview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config\views\win\config_pprofile_winview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.h">
@@ -147,42 +147,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="display\shader\shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\views\about_dialog_qtview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\views\config_dialog_qtview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\views\config_page_qtview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\views\config_pgeneral_qtview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\views\config_pmanager_qtview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\views\config_pprofile_qtview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\views\about_dialog_winview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\views\config_dialog_winview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\views\config_page_winview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\views\config_pgeneral_winview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\views\config_pmanager_winview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config\views\config_pprofile_winview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="control\framerate_manager.h">
@@ -237,6 +201,42 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gpu_main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\qt\about_dialog_qtview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\qt\config_dialog_qtview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\qt\config_page_qtview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\qt\config_pgeneral_qtview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\qt\config_pmanager_qtview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\qt\config_pprofile_qtview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\win\about_dialog_winview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\win\config_dialog_winview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\win\config_page_winview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\win\config_pgeneral_winview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\win\config_pmanager_winview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\win\config_pprofile_winview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
