@@ -11,6 +11,7 @@ Description : configuration dialog page - profile settings - business logic
 #define _CONFIG_PAGE_PROFILE_H
 #include "globals.h"
 
+#include <stdint.h>
 #include "config_page.h"
 
 
@@ -26,6 +27,14 @@ public:
     /// <summary>Create config page view</summary>
     /// <exception cref="std::exception">Creation failure</exception>
     virtual void createView();
+
+    /// <summary>Set upscaling type list, based on factor</summary>
+    /// <param name="ppTypeList">Upscaling type list to allocate</param>
+    /// <param name="length">Allocated list length</param>
+    /// <param name="factor">Multiplication factor</param>
+    /// <param name="value">Config value</param>
+    /// <returns>Selected index</returns>
+    static uint32_t setUpscalingList(std::wstring** ppTypeList, int* length, uint32_t factor, uint32_t value);
 };
 
 #endif

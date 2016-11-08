@@ -56,12 +56,8 @@ public:
     /// <param name="isVisible">Visibility (show/hide)</param>
     /// <exception cref="std::exception">Creation failure</exception>
     virtual void loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* pPageSize, bool isVisible);
-
-    /// <summary>Set upscaling type list, based on factor</summary>
-    /// <param name="phComboBox">Control handle reference</param>
-    /// <param name="factor">Multiplication factor</param>
-    /// <param name="value">Config value</param>
-    void setUpscalingList(HWND* phComboBox, uint32_t factor, uint32_t value);
+    /// <summary>Load page config</summary>
+    void loadConfig();
 
     // EVENTS ----------------------------------------------------------------------
 
@@ -70,15 +66,6 @@ public:
     /// <param name="hTabControl">Tab control handle</param>
     /// <returns>Success</returns>
     INT_PTR onTabChange(HWND hWindow, HWND hTabControl);
-
-    /// <summary>Page drawing handler</summary>
-    /// <param name="hWindow">Window handle</param>
-    /// <returns>Action code</returns>
-    static INT_PTR onPaint(HWND hWindow);
-    /// <summary>Page drawing handler</summary>
-    /// <param name="wParam">Command</param>
-    /// <returns>Action code</returns>
-    static INT_PTR onDrawColorStatic(WPARAM wParam);
 
     /// <summary>Page event handler</summary>
     /// <param name="hWindow">Window handle</param>

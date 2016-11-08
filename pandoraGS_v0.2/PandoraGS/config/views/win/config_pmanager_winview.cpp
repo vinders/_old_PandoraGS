@@ -11,7 +11,7 @@ Description : configuration dialog page - profiles manager - view
 #if _DIALOGAPI == DIALOGAPI_WIN32
 using namespace std;
 #include "config_pmanager_winview.h"
-#include <windowsx.h>
+#include "win_toolbox.hpp"
 
 #define MAX_ROWS_WITHOUT_SCROLL 13u
 #define LISTVIEW_WIDTH 389
@@ -75,19 +75,12 @@ void ConfigPageManagerView::resetLanguage(bool isFirstInit)
     SetDlgItemText(m_hPage, IDS_MNG_PRESETS, (LPCWSTR)pLang->manager_presets.c_str());
     SetDlgItemText(m_hPage, IDC_MNG_BTN_PRESETS, (LPCWSTR)pLang->manager_btnPresetsApply.c_str());
     // set profile presets
-    HWND hPresetList = GetDlgItem(m_hPage, IDC_MNG_PRESETS_LIST);
-    if (hPresetList)
-    {
-        int selection = ComboBox_GetCurSel(hPresetList);
-        if (selection < 0)
-            selection = 1;
-        ComboBox_ResetContent(hPresetList);
-        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_fastest.c_str());
-        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_standard.c_str());
-        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_enhanced2d.c_str());
-        ComboBox_AddString(hPresetList, (LPCTSTR)pLang->manager_preset_enhanced3d.c_str());
-        ComboBox_SetCurSel(hPresetList, selection);
-    }
+    int presetSelection = COMBOBOX_USE_PREVIOUS_INDEX;
+    if (isFirstInit)
+        presetSelection = 1;
+    std::wstring pPresetList[] = { pLang->manager_preset_fastest, pLang->manager_preset_standard, pLang->manager_preset_enhanced2d, pLang->manager_preset_enhanced3d };
+    WinToolbox::setComboboxValues(GetDlgItem(m_hPage, IDC_MNG_PRESETS_LIST), presetSelection, pPresetList, 4);
+    pPresetList->clear();
 
     // set table header
     if (isFirstInit == false)
@@ -100,11 +93,11 @@ void ConfigPageManagerView::resetLanguage(bool isFirstInit)
         SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_SETCOLUMN, 2, (LPARAM)&lvcProfile);
 
         // set tooltips
-        updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_ADD], IDC_MNG_BTN_ADD, m_hPage, (PTSTR)pLang->manager_btnAdd_tooltip.c_str());
-        updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_EDIT], IDC_MNG_BTN_EDIT, m_hPage, (PTSTR)pLang->manager_btnEdit_tooltip.c_str());
-        updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_REMOVE], IDC_MNG_BTN_REMOVE, m_hPage, (PTSTR)pLang->manager_btnRemove_tooltip.c_str());
-        updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_IMPORT], IDC_MNG_BTN_IMPORT, m_hPage, (PTSTR)pLang->manager_btnImport_tooltip.c_str());
-        updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_EXPORT], IDC_MNG_BTN_EXPORT, m_hPage, (PTSTR)pLang->manager_btnExport_tooltip.c_str());
+        WinToolbox::updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_ADD], IDC_MNG_BTN_ADD, m_hPage, (PTSTR)pLang->manager_btnAdd_tooltip.c_str());
+        WinToolbox::updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_EDIT], IDC_MNG_BTN_EDIT, m_hPage, (PTSTR)pLang->manager_btnEdit_tooltip.c_str());
+        WinToolbox::updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_REMOVE], IDC_MNG_BTN_REMOVE, m_hPage, (PTSTR)pLang->manager_btnRemove_tooltip.c_str());
+        WinToolbox::updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_IMPORT], IDC_MNG_BTN_IMPORT, m_hPage, (PTSTR)pLang->manager_btnImport_tooltip.c_str());
+        WinToolbox::updateToolTip(res_tooltips[PMANAGER_TOOLTIP_BTN_EXPORT], IDC_MNG_BTN_EXPORT, m_hPage, (PTSTR)pLang->manager_btnExport_tooltip.c_str());
     }
 }
 /// <summary>Copy UI settings to global configuration</summary>
@@ -167,11 +160,11 @@ void ConfigPageManagerView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
         SendDlgItemMessage(m_hPage, IDC_MNG_BTN_EXPORT, WM_SETTEXT, 0, (LPARAM)L"Out");
     // set tooltips
     LanguageDialogResource* pLang = m_pController->getLangResource();
-    res_tooltips[PMANAGER_TOOLTIP_BTN_ADD] = createToolTip(IDC_MNG_BTN_ADD, m_hPage, phInstance, (PTSTR)pLang->manager_btnAdd_tooltip.c_str());
-    res_tooltips[PMANAGER_TOOLTIP_BTN_EDIT] = createToolTip(IDC_MNG_BTN_EDIT, m_hPage, phInstance, (PTSTR)pLang->manager_btnEdit_tooltip.c_str());
-    res_tooltips[PMANAGER_TOOLTIP_BTN_REMOVE] = createToolTip(IDC_MNG_BTN_REMOVE, m_hPage, phInstance, (PTSTR)pLang->manager_btnRemove_tooltip.c_str());
-    res_tooltips[PMANAGER_TOOLTIP_BTN_IMPORT] = createToolTip(IDC_MNG_BTN_IMPORT, m_hPage, phInstance, (PTSTR)pLang->manager_btnImport_tooltip.c_str());
-    res_tooltips[PMANAGER_TOOLTIP_BTN_EXPORT] = createToolTip(IDC_MNG_BTN_EXPORT, m_hPage, phInstance, (PTSTR)pLang->manager_btnExport_tooltip.c_str());
+    res_tooltips[PMANAGER_TOOLTIP_BTN_ADD] = WinToolbox::createToolTip(IDC_MNG_BTN_ADD, m_hPage, phInstance, (PTSTR)pLang->manager_btnAdd_tooltip.c_str());
+    res_tooltips[PMANAGER_TOOLTIP_BTN_EDIT] = WinToolbox::createToolTip(IDC_MNG_BTN_EDIT, m_hPage, phInstance, (PTSTR)pLang->manager_btnEdit_tooltip.c_str());
+    res_tooltips[PMANAGER_TOOLTIP_BTN_REMOVE] = WinToolbox::createToolTip(IDC_MNG_BTN_REMOVE, m_hPage, phInstance, (PTSTR)pLang->manager_btnRemove_tooltip.c_str());
+    res_tooltips[PMANAGER_TOOLTIP_BTN_IMPORT] = WinToolbox::createToolTip(IDC_MNG_BTN_IMPORT, m_hPage, phInstance, (PTSTR)pLang->manager_btnImport_tooltip.c_str());
+    res_tooltips[PMANAGER_TOOLTIP_BTN_EXPORT] = WinToolbox::createToolTip(IDC_MNG_BTN_EXPORT, m_hPage, phInstance, (PTSTR)pLang->manager_btnExport_tooltip.c_str());
 
     // set data table
     res_dataTable = CreateWindow(WC_LISTVIEWW, L"blabla", WS_VISIBLE | WS_CHILD | LVS_REPORT | WS_VSCROLL,
@@ -241,43 +234,8 @@ void ConfigPageManagerView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
 /// <returns>Action code</returns>
 INT_PTR CALLBACK ConfigPageManagerView::eventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    static HBRUSH hBrushColor = NULL;
     switch (msg)
     {
-        case WM_PAINT: // page background color
-        {
-            PAINTSTRUCT paint;
-            HDC hDC = BeginPaint(hWindow, &paint);
-            RECT rect;
-            if (!hBrushColor)
-                hBrushColor = CreateSolidBrush(COLOR_PAGE);
-            if (hBrushColor)
-            {
-                GetClientRect(hWindow, &rect);
-                FillRect(hDC, &rect, hBrushColor);
-            }
-            EndPaint(hWindow, &paint);
-            if (hDC)
-                ReleaseDC(hWindow, hDC);
-            return (INT_PTR)TRUE; break;
-        }
-        case WM_CTLCOLORSTATIC: // controls text color
-        {
-            HDC hdcStatic = (HDC)wParam;
-            SetTextColor(hdcStatic, RGB(0, 0, 0));
-            SetBkColor(hdcStatic, COLOR_PAGE);
-            if (!hBrushColor)
-                hBrushColor = CreateSolidBrush(COLOR_PAGE);
-            return (LRESULT)hBrushColor; break;
-        }
-        case WM_DESTROY:
-        {
-            if (hBrushColor)
-                DeleteObject(hBrushColor);
-            hBrushColor = NULL;
-            return (INT_PTR)TRUE; break;
-        }
-
         // selection changed
         case WM_NOTIFY:
             if (lParam)
@@ -338,7 +296,7 @@ INT_PTR CALLBACK ConfigPageManagerView::eventHandler(HWND hWindow, UINT msg, WPA
                     busy = false;
                 }
             }
-            break;
+            return (INT_PTR)FALSE; break;
 
         // controls interaction
         case WM_COMMAND:
@@ -356,12 +314,11 @@ INT_PTR CALLBACK ConfigPageManagerView::eventHandler(HWND hWindow, UINT msg, WPA
                     case IDC_MNG_BTN_EXPORT:  break;// return onProfileExport(hWindow); break;
                 }
             }
-            break;
+            return (INT_PTR)FALSE; break;
         } // WM_COMMAND
-
-        default: return DefWindowProc(hWindow, msg, wParam, lParam); break;
     }
-    return (INT_PTR)FALSE;
+    // drawing events
+    return WinToolbox::pageDrawingEventHandler(hWindow, msg, wParam, lParam, COLOR_PAGE);
 }
 
 /// <summary>Update table header checkbox</summary>

@@ -114,6 +114,7 @@
     <ClCompile Include="config\views\win\config_pgeneral_winview.cpp" />
     <ClCompile Include="config\views\win\config_pmanager_winview.cpp" />
     <ClCompile Include="config\views\win\config_pprofile_winview.cpp" />
+    <ClCompile Include="config\views\win\win_toolbox.cpp" />
     <ClCompile Include="control\display_state.cpp" />
     <ClCompile Include="control\framerate_manager.cpp" />
     <ClCompile Include="control\core_memory.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="config\views\win\config_pgeneral_winview.h" />
     <ClInclude Include="config\views\win\config_pmanager_winview.h" />
     <ClInclude Include="config\views\win\config_pprofile_winview.h" />
+    <ClInclude Include="config\views\win\win_toolbox.hpp" />
     <ClInclude Include="control\core_memory_commands.h" />
     <ClInclude Include="control\core_memory_inline.hpp" />
     <ClInclude Include="control\display_state.h" />

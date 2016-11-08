@@ -120,6 +120,9 @@
     <ClCompile Include="config\views\win\config_pprofile_winview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="config\views\win\win_toolbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.h">
@@ -237,6 +240,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="config\views\win\config_pprofile_winview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config\views\win\win_toolbox.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

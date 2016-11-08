@@ -80,7 +80,7 @@ void Config::setDefaultValues()
     dsp_isWindowResizable = false;
     dsp_isColorDepth32 = true;
 
-    sync_isFrameSkip = true;
+    sync_isFrameSkip = false;
     sync_isFrameLimit = true;
     sync_framerateLimit = FRAMELIMIT_Auto;
     sync_isVerticalSync = true;

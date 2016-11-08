@@ -10,7 +10,7 @@ Description : configuration dialog - view
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_WIN32
 using namespace std;
-#include <windowsx.h>
+#include "win_toolbox.hpp"
 #include "config_dialog_winview.h"
 #include "config.h"
 #include "pandoraGS.h"
@@ -46,6 +46,7 @@ ConfigDialogView::~ConfigDialogView()
     if (m_pPages != NULL)
         delete[] m_pPages; //sub-pages items are deleted by sub-controllers
     m_pPages = NULL;
+    WinToolbox::destroyPageBackgroundBrush();
     onClose(); // remove allocated items
 }
 
@@ -336,19 +337,13 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
     HWND hProfileList = GetDlgItem(hWindow, IDC_PROFILE_LIST);
     if (hProfileList)
     {
-        std::wstring* profileNames = pThis->getController()->getProfileNames();
-        for (uint32_t pf = 0; pf < Config::countProfiles(); ++pf)
-        {
-            ComboBox_AddString(hProfileList, (LPCTSTR)profileNames[pf].c_str());
-        }
-        ComboBox_SetCurSel(hProfileList, 0);
+        WinToolbox::setComboboxValues(hProfileList, 0, pThis->getController()->getProfileNames(), (int)Config::countProfiles());
         ShowWindow(hProfileList, SW_HIDE);
     }
     else
         MessageBox(hWindow, (LPCWSTR)L"Could not load profile selector. Please reload this window.",
                    (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
-    HWND hProfileLabel = GetDlgItem(hWindow, IDS_PROFILE);
-    if (hProfileLabel)
+    if (HWND hProfileLabel = GetDlgItem(hWindow, IDS_PROFILE))
         ShowWindow(hProfileLabel, SW_HIDE);
 
     // load pages
@@ -360,26 +355,12 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
     }
 
     // language choice combobox
-    HWND hLangList = GetDlgItem(hWindow, IDC_LANG_LIST);
-    if (hLangList)
-    {
-        ComboBox_AddString(hLangList, _T(" English"));
-        ComboBox_AddString(hLangList, _T(" Español"));
-        ComboBox_AddString(hLangList, _T(" Français"));
-        ComboBox_AddString(hLangList, _T(" Deutsch"));
-        ComboBox_AddString(hLangList, _T(" External file..."));
-        switch (Config::gen_langCode)
-        {
-            case LangCode_English:
-            case LangCode_Spanish:
-            case LangCode_French:
-            case LangCode_German:
-            case LangCode_CustomFile: ComboBox_SetCurSel(hLangList, Config::gen_langCode); break;
-            default: ComboBox_SetCurSel(hLangList, 0); break;
-        }
-    }
-    else
+    if (Config::gen_langCode > LANG_LAST_INTERNAL && Config::gen_langCode != LangCode_CustomFile)
+        Config::gen_langCode = LangCode_English;
+    std::wstring pLangList[] = LANG_NAMES_LIST;
+    if (WinToolbox::setComboboxValues(GetDlgItem(hWindow, IDC_LANG_LIST), Config::gen_langCode, pLangList, (int)LANG_LAST_INTERNAL + 2) == false)
         MessageBox(hWindow, (LPCWSTR)L"Could not load language selector.", (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
+    pLangList->clear();
 
     // main dialog buttons language
     SetDlgItemText(hWindow, IDOK, (LPCWSTR)pThis->getController()->getLangResource()->dialog_ok.c_str());
@@ -400,50 +381,15 @@ INT_PTR ConfigDialogView::onInitDialog(HWND hWindow, LPARAM lParam)
         MessageBox(hWindow, (LPCWSTR)L"Could not create main menu. Please reload this window.",
                    (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
 
-    // menu - tab icons
+    // menu - tab icons and text
     pThis->res_tabIcons = (HBITMAP)LoadBitmap(ConfigDialogView::s_pCurrentWindow->m_hInstance, MAKEINTRESOURCE(IDB_CONFIG_ICONS));
     if (!pThis->res_tabIcons)
         MessageBox(hWindow, (LPCWSTR)L"Could not load menu bitmap.", (LPCWSTR)L"Initialization error...", MB_ICONWARNING | MB_OK);
-
     HDC hDC = GetDC(hWindow);
     if (hDC)
     {
-        if (pThis->res_tabIcons)
-        {
-            // prepare icons - set information
-            BITMAPINFO bmi;
-            ZeroMemory(&bmi, sizeof(BITMAPINFO));
-            bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-            bmi.bmiHeader.biWidth = CONFIG_DIALOG_PAGES_NB*ICONS_SIZE;
-            bmi.bmiHeader.biHeight = ICONS_SIZE;
-            bmi.bmiHeader.biPlanes = 1;
-            bmi.bmiHeader.biBitCount = 32;
-            bmi.bmiHeader.biCompression = BI_RGB;
-            bmi.bmiHeader.biSizeImage = bmi.bmiHeader.biWidth * bmi.bmiHeader.biHeight * 4;
-            // prepare icons - pre-multiply alpha channel
-            BITMAP bm = { 0 };
-            GetObject(pThis->res_tabIcons, sizeof(bm), &bm);
-            GetDIBits(hDC, pThis->res_tabIcons, 0, bm.bmHeight, NULL, &bmi, DIB_RGB_COLORS); // pass effective dimensions to bmi
-            LPBYTE pBitData = (LPBYTE)LocalAlloc(LPTR, bm.bmWidth * bm.bmHeight * sizeof(DWORD));
-            if (pBitData != NULL)
-            {
-                LPBYTE pData = pBitData;
-                GetDIBits(hDC, pThis->res_tabIcons, 0, bm.bmHeight, pData, &bmi, DIB_RGB_COLORS); // copy image to array
-                for (int y = 0; y < bm.bmHeight; y++)
-                {
-                    for (int x = 0; x < bm.bmWidth; x++)
-                    {
-                        pData[0] = (BYTE)((DWORD)pData[0] * pData[3] / 255); // for AlphaBlend
-                        pData[1] = (BYTE)((DWORD)pData[1] * pData[3] / 255);
-                        pData[2] = (BYTE)((DWORD)pData[2] * pData[3] / 255);
-                        pData += 4;
-                    }
-                }
-                SetDIBits(hDC, pThis->res_tabIcons, 0, bm.bmHeight, pBitData, &bmi, DIB_RGB_COLORS); // copy array to image
-                LocalFree(pBitData);
-            }
-        }
-
+        // menu - icons transparency
+        WinToolbox::prepareBitmapAlphaChannel(hDC, pThis->res_tabIcons, CONFIG_DIALOG_PAGES_NB*ICONS_SIZE, ICONS_SIZE);
         // menu - font
         LOGFONT logFont = { 0 };
         logFont.lfHeight = -MulDiv(10, GetDeviceCaps(hDC, LOGPIXELSY), 72);
@@ -706,43 +652,5 @@ void ConfigDialogView::drawMenuContent(HWND hWindow, HDC* phDC, RECT* pTitleRect
         DeleteDC(hMemDC);
     }
 }
-
-/// <summary>Grab a part of a sprite-sheet</summary>
-/*HBRUSH ConfigDialogView::getSpriteBrush(HDC* phDC, HBITMAP* phSheet, int coordX, int coordY, int sizeX, int sizeY)
-{
-    // define bitmap contexts
-    HDC memDC = NULL, dstDC = NULL;
-    HBITMAP oldMemBmp = NULL, oldDstBmp = NULL, dstBmp = NULL;
-    if ((memDC = CreateCompatibleDC(NULL)) == NULL) 
-        return NULL;
-    if ((dstDC = CreateCompatibleDC(NULL)) == NULL)
-    {
-        DeleteDC(memDC); return NULL;
-    }
-
-    // create bitmap icon
-    if ((dstBmp = CreateCompatibleBitmap(*phDC, sizeX, sizeY)) == NULL)
-    {
-        DeleteDC(memDC); DeleteDC(dstDC); return NULL;
-    }
-    // get part of sprite-sheet image
-    oldMemBmp = (HBITMAP)SelectObject(memDC, *phSheet);
-    oldDstBmp = (HBITMAP)SelectObject(dstDC, dstBmp);
-    if (oldMemBmp && oldDstBmp)
-        BitBlt(dstDC, 0, 0, sizeX, sizeY, memDC, coordX, coordY, SRCCOPY);
-
-    // remove contexts
-    if (oldMemBmp)
-        SelectObject(memDC, oldMemBmp);
-    if (oldDstBmp)
-        SelectObject(dstDC, oldDstBmp);
-    DeleteDC(memDC);
-    DeleteDC(dstDC);
-
-    // create image-pattern brush
-    HBRUSH result = CreatePatternBrush(dstBmp);
-    DeleteObject(dstBmp);
-    return result;
-}*/
 
 #endif

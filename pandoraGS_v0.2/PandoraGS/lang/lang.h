@@ -23,6 +23,8 @@ enum LangCode : uint32_t
     LangCode_CustomFile = 1000 // external file 'pandoraGS.lang'
 };
 #define LANG_DEFAULT LangCode_English
+#define LANG_LAST_INTERNAL LangCode_German
+#define LANG_NAMES_LIST {L" English",L" Español",L" Français",L" Deutsch",L" External file..."}
 
 
 // Ingame menu language resource (static)

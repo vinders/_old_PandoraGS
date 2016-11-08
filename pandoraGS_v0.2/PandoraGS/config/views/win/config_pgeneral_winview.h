@@ -12,6 +12,8 @@ Description : configuration dialog page - general - view
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_WIN32
 
+#include <windows.h>
+#include <windowsx.h>
 #include "config_page_winview.h"
 
 #define PGENERAL_TOOLTIPS_NB 1
@@ -49,6 +51,26 @@ public:
     /// <param name="isVisible">Visibility (show/hide)</param>
     /// <exception cref="std::exception">Creation failure</exception>
     virtual void loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* pPageSize, bool isVisible);
+    /// <summary>Load resolutions list</summary>
+    void loadResolutions();
+    /// <summary>Add custom resolution to combobox</summary>
+    /// <param name="hResList">Combobox handle</param>
+    /// <param name="pText">Displayed resolution</param>
+    /// <param name="width">Resolution width</param>
+    /// <param name="height">Resolution height</param>
+    /// <param name="pCurrentIndex">Current list index</param>
+    /// <param name="pSelectedIndex">List selection</param>
+    static inline void addCustomResolution(HWND hResList, WCHAR* pText, uint32_t width, uint32_t height,
+        uint32_t* pCurrentIndex, uint32_t* pSelectedIndex)
+    {
+        if (ComboBox_FindString(hResList, -1, pText) == CB_ERR)
+        {
+            ComboBox_AddString(hResList, pText);
+            if (Config::dsp_fullscnResX == width && Config::dsp_fullscnResY == height)
+                *pSelectedIndex = *pCurrentIndex;
+            *pCurrentIndex += 1;
+        }
+    }
 
     /// <summary>Page event handler</summary>
     /// <param name="hWindow">Window handle</param>

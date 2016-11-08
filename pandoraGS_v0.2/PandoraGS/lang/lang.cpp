@@ -177,5 +177,5 @@ void LanguageDialogResource::setLanguage_German()
 void LanguageDialogResource::setLanguageFromFile()
 {
     setLanguage_English();
-    //...lire fichier
+    //...read file Config::gen_langFilePath
 }
