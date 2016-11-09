@@ -10,6 +10,7 @@ Description : configuration dialog page - general - view
 #include "globals.h"
 #if _DIALOGAPI == DIALOGAPI_WIN32
 using namespace std;
+#include "pandoraGS.h"
 #include "win_toolbox.hpp"
 #include "config_pgeneral_winview.h"
 
@@ -195,14 +196,108 @@ INT_PTR CALLBACK ConfigPageGeneralView::eventHandler(HWND hWindow, UINT msg, WPA
             switch (LOWORD(wParam))
             {
                 //open popup dialogs
-            case IDC_GEN_BTN_KEYBINDING: break;// return onKeyBinding(hWindow); break;
-            case IDC_GEN_BTN_ADVANCED:   break;// return onAdvancedSettings(hWindow); break;
+                case IDC_GEN_BTN_KEYBINDING: // key bindings
+                {
+                    HINSTANCE hInst = PandoraGS::getInstance();
+                    if (hInst == (HINSTANCE)INVALID_HANDLE_VALUE)
+                        hInst = GetModuleHandle(NULL);
+                    if (DialogBox(hInst, MAKEINTRESOURCE(IDD_KEYBINDING_DIALOG), hWindow, (DLGPROC)keyBindingEventHandler) <= 0)
+                    {
+                        MessageBox(hWindow, (LPCWSTR)L"Could not open sub-dialog.", (LPCWSTR)L"Dialog error...", MB_ICONWARNING | MB_OK);
+                        return (INT_PTR)FALSE;
+                    }
+                    return (INT_PTR)TRUE; break;
+                }
+                case IDC_GEN_BTN_ADVANCED: // advanced settings
+                {
+                    HINSTANCE hInst = PandoraGS::getInstance();
+                    if (hInst == (HINSTANCE)INVALID_HANDLE_VALUE)
+                        hInst = GetModuleHandle(NULL);
+                    if (DialogBox(hInst, MAKEINTRESOURCE(IDD_ADVANCED_DIALOG), hWindow, (DLGPROC)advancedSettingsEventHandler) <= 0)
+                    {
+                        MessageBox(hWindow, (LPCWSTR)L"Could not open sub-dialog.", (LPCWSTR)L"Dialog error...", MB_ICONWARNING | MB_OK);
+                        return (INT_PTR)FALSE;
+                    }
+                    return (INT_PTR)TRUE; break;
+                }
             }
         }
         return (INT_PTR)FALSE;
     }
     // drawing events
     return WinToolbox::pageDrawingEventHandler(hWindow, msg, wParam, lParam, COLOR_PAGE);
+}
+
+// DIALOGS ---------------------------------------------------------------------
+
+/// <summary>Advanced settings dialog event handler</summary>
+/// <param name="hWindow">Dialog handle</param>
+/// <param name="msg">Event message</param>
+/// <param name="wParam">Command</param>
+/// <param name="lParam">Informations</param>
+/// <returns>Action code</returns>
+INT_PTR CALLBACK ConfigPageGeneralView::advancedSettingsEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+        // dialog controls
+        case WM_COMMAND:
+        {
+            switch (LOWORD(wParam))
+            {
+                // save and close button
+                case IDOK:
+                    //if (onAdvancedSettingsValidation(hWindow))
+                    EndDialog(hWindow, TRUE);
+                    return (INT_PTR)TRUE;
+                // cancel and close button
+                case IDCANCEL:
+                    EndDialog(hWindow, TRUE);
+                    return (INT_PTR)TRUE;
+            }
+            break;
+        }
+        case WM_CLOSE: // close button/shortcut
+            EndDialog(hWindow, TRUE);
+            return (INT_PTR)TRUE; break;
+        default: return DefWindowProc(hWindow, msg, wParam, lParam); break;
+    }
+    return (INT_PTR)FALSE;
+}
+
+/// <summary>Key binding dialog event handler</summary>
+/// <param name="hWindow">Dialog handle</param>
+/// <param name="msg">Event message</param>
+/// <param name="wParam">Command</param>
+/// <param name="lParam">Informations</param>
+/// <returns>Action code</returns>
+INT_PTR CALLBACK ConfigPageGeneralView::keyBindingEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+        // dialog controls
+        case WM_COMMAND:
+        {
+            switch (LOWORD(wParam))
+            {
+                // save and close button
+                case IDOK:
+                    //if (onKeyBindingValidation(hWindow))
+                    EndDialog(hWindow, TRUE);
+                    return (INT_PTR)TRUE;
+                // cancel and close button
+                case IDCANCEL:
+                    EndDialog(hWindow, TRUE);
+                    return (INT_PTR)TRUE;
+            }
+            break;
+        }
+        case WM_CLOSE: // close button/shortcut
+            EndDialog(hWindow, TRUE);
+            return (INT_PTR)TRUE; break;
+        default: return DefWindowProc(hWindow, msg, wParam, lParam); break;
+    }
+    return (INT_PTR)FALSE;
 }
 
 #endif

@@ -81,6 +81,16 @@ public:
     /// <param name="lParam">Informations</param>
     /// <returns>Action code</returns>
     static INT_PTR CALLBACK tabEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
+
+    // DIALOGS ---------------------------------------------------------------------
+
+    /// <summary>Custom fixes dialog event handler</summary>
+    /// <param name="hWindow">Dialog handle</param>
+    /// <param name="msg">Event message</param>
+    /// <param name="wParam">Command</param>
+    /// <param name="lParam">Informations</param>
+    /// <returns>Action code</returns>
+    static INT_PTR CALLBACK fixesEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

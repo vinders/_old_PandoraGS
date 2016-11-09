@@ -115,9 +115,6 @@
 #define IDC_PRO_BTN_SCANLINES           423
 #define IDC_PRO_CURSOR_CHECK            424
 #define IDC_PRO_BTN_CURSOR              425
-#define IDC_PRO_SHADER_CHECK            426
-#define IDC_PRO_SHADER_EDIT             427
-#define IDC_PRO_BTN_SHADER              428
 
 #define IDS_ADD_NAME                    450
 #define IDC_ADD_NAME_EDIT               451
@@ -182,6 +179,7 @@
 
 #define IDS_PROCPT_GROUP1               580
 #define IDS_PROCPT_GROUP2               581
+#define IDC_PROCPT_BTN_FIXES            582
 
 #define IDS_KEY_0                       600
 #define IDS_KEY_1                       601

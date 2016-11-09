@@ -12,6 +12,7 @@ Description : configuration dialog page - profile settings - view
 using namespace std;
 #include "win_toolbox.hpp"
 #include "config_pprofile_winview.h"
+#include "pandoraGS.h"
 
 ConfigPageProfileView* ConfigPageProfileView::s_pCurrentPage = NULL; // current page (static access)
 static HBRUSH gs_hBrushColor = NULL;
@@ -171,14 +172,13 @@ void ConfigPageProfileView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
 /// <summary>Load page config</summary>
 void ConfigPageProfileView::loadConfig()
 {
-    // set language-independant controls
     ConfigProfile* pProfile = Config::getCurrentProfile();
     std::wstring* pList = NULL;
     int listLength = 0;
     uint32_t selection = 0u;
     // texture upscaling
     selection = WinToolbox::setUpscalingFactors(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_TXUPSCALE_FACTOR), 
-                                                pProfile->scl_texUpscaleVal, 2u, 5u);
+                                                pProfile->scl_texUpscaleVal, 2u, 4u);
     selection = ConfigPageProfile::setUpscalingList(&pList, &listLength, selection, pProfile->scl_texUpscaleType);
     WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_TXUPSCALE_LIST), selection, pList, listLength);
     // sprite upscaling
@@ -198,6 +198,10 @@ void ConfigPageProfileView::loadConfig()
         pList[0] = L"normal";
     }
     WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_SCRUPSCALE_LIST), selection, pList, listLength);
+    // texture/screen misc
+    if(pProfile->scl_mdecFilter != 0u)
+        CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_MDEC_CHECK, BST_CHECKED);
+
     // anti-aliasing
     HWND hControl = NULL;
     if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_FXAA_LIST))
@@ -210,13 +214,31 @@ void ConfigPageProfileView::loadConfig()
         ComboBox_AddString(hControl, (LPCTSTR)L"SMAA 8x");
         ComboBox_SetCurSel(hControl, (pProfile->shd_antiAliasing <= 6u) ? pProfile->shd_antiAliasing - 1u : 0u);
     }
+    if (pProfile->shd_antiAliasing != 0u)
+        CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_FXAA_CHECK, BST_CHECKED);
 
-    // set language
-    resetLanguage(true);
+    // screen position
+    if (pProfile->dsp_isScreenMirror)
+        CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_MIRROR, BST_CHECKED);
+    if (pProfile->dsp_ratioType != 0u)
+        CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_PXRATIO_CHECK, BST_CHECKED);
+    // black borders
+    std::wstring border = std::to_wstring(pProfile->dsp_borderSizeX);
+    SetDlgItemText(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_BLACKBORDERSX_EDIT, (LPCTSTR)border.c_str());
+    border = std::to_wstring(pProfile->dsp_borderSizeY);
+    SetDlgItemText(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_BLACKBORDERSY_EDIT, (LPCTSTR)border.c_str());
+    if (pProfile->dsp_borderSizeX != 0u || pProfile->dsp_borderSizeY != 0u)
+        CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_BLACKBORDERS_CHECK, BST_CHECKED);
+    // curvature
+    if (pProfile->dsp_screenCurved != 0u)
+        CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_CURVATURE_CHECK, BST_CHECKED);
 
     if (pList != NULL)
         delete[] pList;
     pList = NULL;
+
+    // set language dependant controls
+    resetLanguage(true);
 }
 
 // EVENTS ----------------------------------------------------------------------
@@ -252,38 +274,15 @@ INT_PTR ConfigPageProfileView::onTabChange(HWND hWindow, HWND hTabControl)
 /// <returns>Action code</returns>
 INT_PTR CALLBACK ConfigPageProfileView::eventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch (msg)
+    // tab change
+    if (msg == WM_NOTIFY)
     {
-        // tab change
-        case WM_NOTIFY:
+        switch (((LPNMHDR)lParam)->code)
         {
-            switch (((LPNMHDR)lParam)->code)
-            {
-                case TCN_SELCHANGE: 
-                    return ConfigPageProfileView::s_pCurrentPage->onTabChange(hWindow, ((LPNMHDR)lParam)->hwndFrom); break;
-            }
-            return (INT_PTR)TRUE;
+            case TCN_SELCHANGE: 
+                return ConfigPageProfileView::s_pCurrentPage->onTabChange(hWindow, ((LPNMHDR)lParam)->hwndFrom); break;
         }
-
-        // controls interaction
-        case WM_COMMAND:
-        {
-            // combobox
-            if (HIWORD(wParam) == CBN_SELCHANGE)
-            {
-                //switch (LOWORD(wParam))
-                {
-                }
-            }
-            // button
-            else
-            {
-                //switch (LOWORD(wParam))
-                {
-                }
-            }
-            return (INT_PTR)FALSE; break;
-        } // WM_COMMAND
+        return (INT_PTR)TRUE;
     }
     // drawing events
     return WinToolbox::pageDrawingEventHandler(hWindow, msg, wParam, lParam, COLOR_PAGE);
@@ -303,21 +302,133 @@ INT_PTR CALLBACK ConfigPageProfileView::tabEventHandler(HWND hWindow, UINT msg, 
         // combobox
         if (HIWORD(wParam) == CBN_SELCHANGE)
         {
-            //switch (LOWORD(wParam))
+            switch (LOWORD(wParam))
             {
+                case IDC_PRO_TXUPSCALE_FACTOR: // texture upscaling
+                    if (HIWORD(wParam) == CBN_SELCHANGE)
+                    {
+                        int selection = SendMessage(GetDlgItem(hWindow, IDC_PRO_TXUPSCALE_FACTOR), CB_GETCURSEL, NULL, NULL);
+                        if (selection != CB_ERR)
+                        {
+                            selection = (selection >= 5) ? 8 : selection+1;
+                            std::wstring* pList = NULL;
+                            int listLength = 0;
+                            ConfigPageProfile::setUpscalingList(&pList, &listLength, selection, 0u);
+                            WinToolbox::setComboboxValues(GetDlgItem(hWindow, IDC_PRO_TXUPSCALE_LIST), 0u, pList, listLength);
+                            if (pList != NULL)
+                                delete[] pList;
+                        }
+                    }
+                    break;
+                case IDC_PRO_2DUPSCALE_FACTOR: // 2D/sprite upscaling
+                    if (HIWORD(wParam) == CBN_SELCHANGE)
+                    {
+                        int selection = SendMessage(GetDlgItem(hWindow, IDC_PRO_2DUPSCALE_FACTOR), CB_GETCURSEL, NULL, NULL);
+                        if (selection != CB_ERR)
+                        {
+                            selection = (selection >= 5) ? 8 : selection+1;
+                            std::wstring* pList = NULL;
+                            int listLength = 0;
+                            ConfigPageProfile::setUpscalingList(&pList, &listLength, selection, 0u);
+                            WinToolbox::setComboboxValues(GetDlgItem(hWindow, IDC_PRO_2DUPSCALE_LIST), 0u, pList, listLength);
+                            if (pList != NULL)
+                                delete[] pList;
+                        }
+                    }
+                    break;
+                case IDC_PRO_SCRUPSCALE_FACTOR: // screen upscaling
+                    if (HIWORD(wParam) == CBN_SELCHANGE)
+                    {
+                        int selection = SendMessage(GetDlgItem(hWindow, IDC_PRO_SCRUPSCALE_FACTOR), CB_GETCURSEL, NULL, NULL);
+                        if (selection != CB_ERR)
+                        {
+                            std::wstring* pList = NULL;
+                            int listLength = 0;
+                            if (selection > 0)
+                            {
+                                selection = (selection >= 5) ? 8 : selection + 1;
+                                ConfigPageProfile::setUpscalingList(&pList, &listLength, selection, 0u);
+                            }
+                            else
+                            {
+                                listLength = 1;
+                                pList = new std::wstring[1];
+                                pList[0] = L"normal";
+                            }
+                            WinToolbox::setComboboxValues(GetDlgItem(hWindow, IDC_PRO_SCRUPSCALE_LIST), 0u, pList, listLength);
+                            if (pList != NULL)
+                                delete[] pList;
+                        }
+                    }
+                    break;
+                case IDC_PROSTR_PRESET_LIST: // screen stretching
+                    if (HIWORD(wParam) == CBN_SELCHANGE)
+                    {
+                        //...
+                    }
+                    break;
             }
         }
         // button
         else
         {
-            //switch (LOWORD(wParam))
+            switch (LOWORD(wParam))
             {
+                case IDC_PROCPT_BTN_FIXES: // custom game fixes
+                {
+                    HINSTANCE hInst = PandoraGS::getInstance();
+                    if (hInst == (HINSTANCE)INVALID_HANDLE_VALUE)
+                        hInst = GetModuleHandle(NULL);
+                    if (DialogBox(hInst, MAKEINTRESOURCE(IDD_FIXES_DIALOG), hWindow, (DLGPROC)fixesEventHandler) <= 0)
+                    {
+                        MessageBox(hWindow, (LPCWSTR)L"Could not open sub-dialog.", (LPCWSTR)L"Dialog error...", MB_ICONWARNING | MB_OK);
+                        return (INT_PTR)FALSE;
+                    }
+                    return (INT_PTR)TRUE; break;
+                }
             }
         }
         return (INT_PTR)FALSE;
     }
     // drawing events
     return WinToolbox::pageDrawingEventHandler(hWindow, msg, wParam, lParam, COLOR_PAGE);
+}
+
+// DIALOGS ---------------------------------------------------------------------
+
+/// <summary>Custom fixes dialog event handler</summary>
+/// <param name="hWindow">Dialog handle</param>
+/// <param name="msg">Event message</param>
+/// <param name="wParam">Command</param>
+/// <param name="lParam">Informations</param>
+/// <returns>Action code</returns>
+INT_PTR CALLBACK ConfigPageProfileView::fixesEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+        // dialog controls
+        case WM_COMMAND:
+        {
+            switch (LOWORD(wParam))
+            {
+                // save and close button
+                case IDOK:
+                    //if (onFixesValidation(hWindow))
+                        EndDialog(hWindow, TRUE);
+                    return (INT_PTR)TRUE;
+                // cancel and close button
+                case IDCANCEL:
+                    EndDialog(hWindow, TRUE);
+                    return (INT_PTR)TRUE;
+            }
+            break;
+        }
+        case WM_CLOSE: // close button/shortcut
+            EndDialog(hWindow, TRUE);
+            return (INT_PTR)TRUE; break;
+        default: return DefWindowProc(hWindow, msg, wParam, lParam); break;
+    }
+    return (INT_PTR)FALSE;
 }
 
 #endif

@@ -90,7 +90,8 @@ public:
     uint32_t dsp_stretchRatio;    // screen "keep ratio" (0) / "full stretch" (8) - ratio (0 - 8)
     uint32_t dsp_cropStrength;    // screen "black sides" (0) / "cropping" (8) - strength (0 - 8)
     bool     dsp_isScreenMirror;  // screen mirroring (mirrored/normal)
-    uint32_t dsp_borderSize;      // add black borders (0 = none)
+    uint32_t dsp_borderSizeX;     // add black borders to sides (0 = none)
+    uint32_t dsp_borderSizeY;     // add black borders to top/bottom (0 = none)
     uint32_t dsp_screenCurved;    // emulate curved CRT screen (0 to 2 ; 0 = none)
     
     // rendering corrections

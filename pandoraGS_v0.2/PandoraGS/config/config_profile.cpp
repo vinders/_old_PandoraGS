@@ -50,7 +50,8 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     dsp_stretchRatio = copy.dsp_stretchRatio;
     dsp_cropStrength = copy.dsp_cropStrength;
     dsp_isScreenMirror = copy.dsp_isScreenMirror;
-    dsp_borderSize = copy.dsp_borderSize;
+    dsp_borderSizeX = copy.dsp_borderSizeX;
+    dsp_borderSizeY = copy.dsp_borderSizeY;
     dsp_screenCurved = copy.dsp_screenCurved;
     //...
 
@@ -170,7 +171,8 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
 
     // common values
     dsp_isScreenMirror = false;
-    dsp_borderSize = 0u;
+    dsp_borderSizeX = 0u;
+    dsp_borderSizeY = 0u;
     dsp_screenCurved = 0u;
     //...
     misc_fixBits = 0u;

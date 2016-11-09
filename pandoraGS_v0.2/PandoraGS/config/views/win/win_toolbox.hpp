@@ -82,9 +82,12 @@ public:
             ComboBox_AddString(hCombobox, (LPCTSTR)L"2x");
             ComboBox_AddString(hCombobox, (LPCTSTR)L"3x");
             ComboBox_AddString(hCombobox, (LPCTSTR)L"4x");
-            ComboBox_AddString(hCombobox, (LPCTSTR)L"5x");
-            if (maxFactor >= 8u)
-                ComboBox_AddString(hCombobox, (LPCTSTR)L"8x");
+            if (maxFactor >= 5u)
+            {
+                ComboBox_AddString(hCombobox, (LPCTSTR)L"5x");
+                if (maxFactor >= 8u)
+                    ComboBox_AddString(hCombobox, (LPCTSTR)L"8x");
+            }
             ComboBox_SetCurSel(hCombobox, (selection == 8) ? 5 : (selection - 1));
         }
         return selection;

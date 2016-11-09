@@ -79,6 +79,23 @@ public:
     /// <param name="lParam">Informations</param>
     /// <returns>Action code</returns>
     static INT_PTR CALLBACK eventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
+
+    // DIALOGS ---------------------------------------------------------------------
+
+    /// <summary>Advanced settings dialog event handler</summary>
+    /// <param name="hWindow">Dialog handle</param>
+    /// <param name="msg">Event message</param>
+    /// <param name="wParam">Command</param>
+    /// <param name="lParam">Informations</param>
+    /// <returns>Action code</returns>
+    static INT_PTR CALLBACK advancedSettingsEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
+    /// <summary>Key binding dialog event handler</summary>
+    /// <param name="hWindow">Dialog handle</param>
+    /// <param name="msg">Event message</param>
+    /// <param name="wParam">Command</param>
+    /// <param name="lParam">Informations</param>
+    /// <returns>Action code</returns>
+    static INT_PTR CALLBACK keyBindingEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 };
 
 #endif
