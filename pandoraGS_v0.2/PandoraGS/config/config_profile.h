@@ -65,7 +65,6 @@ public:
     uint32_t scl_screenUpscaleType;// global screen upscaling - type (blur, algorithm, ..)
     bool     scl_isShaderUpscale; // upscaling algorithm using shader (faster, less precision)
     uint32_t scl_mdecFilter;      // MDEC video filter
-    //ajout bruit aux textures (pour les rendre plus précises -> voir doomsday)
     //smooth texture transitions ('texture splatting' avec textures de polygones voisins)
                 //-> essayer de ne le faire qu'une fois par association de textures (tableau avec ID textures ?)
                 //-> paramètre étendue : léger dégradé / moyen dégradé / moyen distribué / fort dégradé / fort distribué

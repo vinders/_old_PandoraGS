@@ -83,10 +83,10 @@
 #define IDC_PRO_2DUPSCALE_LIST          368
 #define IDS_PRO_SCRFILTER               369
 #define IDC_PRO_SCRFILTER_LIST          370
-#define IDC_PRO_TRANSITION_CHECK        371
-#define IDC_PRO_TRANSITION_LIST         372
-#define IDC_PRO_NOISE_CHECK             373
-#define IDC_PRO_NOISE_SLIDER            374
+#define IDC_PRO_SCRUPSCALE_FACTOR       371
+#define IDC_PRO_SCRUPSCALE_LIST         372
+#define IDC_PRO_TRANSITION_CHECK        373
+#define IDC_PRO_TRANSITION_LIST         374
 #define IDS_PRO_GROUP2                  380
 #define IDC_PRO_FXAA_CHECK              381
 #define IDC_PRO_FXAA_LIST               382

@@ -66,6 +66,30 @@ public:
         return true;
     }
 
+    /// <summary>Set upscaling factors list</summary>
+    /// <param name="hCombobox">Combobox handle</param>
+    /// <param name="selection">Selected index</param>
+    /// <param name="defaultSelection">Default index to select (if no selection)</param>
+    /// <param name="maxFactor">Max factor value</param>
+    /// <returns>Selected index</returns>
+    static inline uint32_t setUpscalingFactors(HWND hCombobox, uint32_t selection, uint32_t defaultSelection, uint32_t maxFactor)
+    {
+        if (hCombobox)
+        {
+            if (selection < 1 || selection > maxFactor || selection == 6 || selection == 7)
+                selection = defaultSelection;
+            ComboBox_AddString(hCombobox, (LPCTSTR)L"1x");
+            ComboBox_AddString(hCombobox, (LPCTSTR)L"2x");
+            ComboBox_AddString(hCombobox, (LPCTSTR)L"3x");
+            ComboBox_AddString(hCombobox, (LPCTSTR)L"4x");
+            ComboBox_AddString(hCombobox, (LPCTSTR)L"5x");
+            if (maxFactor >= 8u)
+                ComboBox_AddString(hCombobox, (LPCTSTR)L"8x");
+            ComboBox_SetCurSel(hCombobox, (selection == 8) ? 5 : (selection - 1));
+        }
+        return selection;
+    }
+
     /// <summary>Window event handler</summary>
     /// <param name="hDC">Context handle</param>
     /// <param name="img">Bitmap handle</param>

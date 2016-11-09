@@ -132,7 +132,7 @@ void ConfigPageGeneralView::loadResolutions()
     if (hResList != NULL)
     {
         // desktop resolution
-        std::wstring desktopRes = std::wstring(L" Desktop resolution");
+        std::wstring desktopRes = std::wstring(L"desktop resolution");
         ComboBox_AddString(hResList, (LPCTSTR)desktopRes.c_str());
         if (Config::dsp_fullscnResX == RESOLUTION_AUTODETECT)
             selectedIndex = currentIndex;

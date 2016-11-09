@@ -130,7 +130,7 @@ uint32_t ConfigPageProfile::setUpscalingList(std::wstring** ppTypeList, int* len
         {
             *length = 1;
             *ppTypeList = new std::wstring[*length];
-            (*ppTypeList)[0] = L"Native";
+            (*ppTypeList)[0] = L"native";
             return 0u; break;
         }
     }

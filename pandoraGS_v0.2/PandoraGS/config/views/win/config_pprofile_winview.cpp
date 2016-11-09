@@ -69,9 +69,43 @@ void ConfigPageProfileView::resetLanguage(bool isFirstInit)
     LanguageDialogResource* pLang = m_pController->getLangResource();
 
     // set labels
-    //
-    if (isFirstInit == false)
+
+    if (isFirstInit)
     {
+        ConfigProfile* pProfile = Config::getCurrentProfile();
+        // internal resolution
+        WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_INTRESX_LIST),
+                                      (pProfile->dsp_internalResX <= 8u) ? pProfile->dsp_internalResX/2u : 1u, 
+                                      pLang->profile_internal_resx, LANG_PROFILE_INTERNAL_RESX);
+        WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_INTRESY_LIST),
+                                      (pProfile->dsp_internalResY <= 4u) ? pProfile->dsp_internalResY/2u : (pProfile->dsp_internalResY - 2u)/2u, 
+                                      pLang->profile_internal_resy, LANG_PROFILE_INTERNAL_RESY);
+        // stretching presets
+        uint32_t selection = 0u;
+        if (pProfile->dsp_stretchRatio == CFG_RATIO_STRETCH_FullWindow && pProfile->dsp_cropStrength == CFG_RATIO_CROP_FullWindow)
+            selection = 1u;
+        else if (pProfile->dsp_stretchRatio == CFG_RATIO_STRETCH_Orig && pProfile->dsp_cropStrength == CFG_RATIO_CROP_Orig)
+            selection = 2u;
+        else if (pProfile->dsp_stretchRatio == CFG_RATIO_STRETCH_OrigFill && pProfile->dsp_cropStrength == CFG_RATIO_CROP_OrigFill)
+            selection = 3u;
+        else if (pProfile->dsp_stretchRatio == CFG_RATIO_STRETCH_CloseToOrig && pProfile->dsp_cropStrength == CFG_RATIO_CROP_CloseToOrig)
+            selection = 4u;
+        else
+            selection = 0u;
+        WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_PRESET_LIST),
+                                      selection, pLang->profile_stretch_presets, LANG_PROFILE_STRETCH_PRESETS);
+    }
+    else
+    {
+        // internal resolution
+        WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_INTRESX_LIST),
+                                      COMBOBOX_USE_PREVIOUS_INDEX, pLang->profile_internal_resx, LANG_PROFILE_INTERNAL_RESX);
+        WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_INTRESY_LIST),
+                                      COMBOBOX_USE_PREVIOUS_INDEX, pLang->profile_internal_resy, LANG_PROFILE_INTERNAL_RESY);
+        // stretching presets
+        WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_PRESET_LIST),
+                                      COMBOBOX_USE_PREVIOUS_INDEX, pLang->profile_stretch_presets, LANG_PROFILE_STRETCH_PRESETS);
+
         // set tooltips
         //
     }
@@ -138,43 +172,34 @@ void ConfigPageProfileView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
 void ConfigPageProfileView::loadConfig()
 {
     // set language-independant controls
+    ConfigProfile* pProfile = Config::getCurrentProfile();
     std::wstring* pList = NULL;
     int listLength = 0;
-    uint32_t selection = 0;
-    HWND hControl = NULL;
-    if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_TXUPSCALE_FACTOR))
-    {
-        selection = Config::getCurrentProfile()->scl_texUpscaleVal;
-        if (selection < 1 || selection > 5)
-            selection = 2;
-        ComboBox_AddString(hControl, (LPCTSTR)L"1x");
-        ComboBox_AddString(hControl, (LPCTSTR)L"2x");
-        ComboBox_AddString(hControl, (LPCTSTR)L"3x");
-        ComboBox_AddString(hControl, (LPCTSTR)L"4x");
-        ComboBox_AddString(hControl, (LPCTSTR)L"5x");
-        ComboBox_SetCurSel(hControl, selection - 1);
-    }
-    selection = ConfigPageProfile::setUpscalingList(&pList, &listLength, selection, Config::getCurrentProfile()->scl_texUpscaleType);
+    uint32_t selection = 0u;
+    // texture upscaling
+    selection = WinToolbox::setUpscalingFactors(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_TXUPSCALE_FACTOR), 
+                                                pProfile->scl_texUpscaleVal, 2u, 5u);
+    selection = ConfigPageProfile::setUpscalingList(&pList, &listLength, selection, pProfile->scl_texUpscaleType);
     WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_TXUPSCALE_LIST), selection, pList, listLength);
-
-    hControl = NULL;
-    if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_2DUPSCALE_FACTOR))
-    {
-        selection = Config::getCurrentProfile()->scl_sprUpscaleVal;
-        if (selection < 1 || selection > 8 || selection == 6 || selection == 7)
-            selection = 2;
-        ComboBox_AddString(hControl, (LPCTSTR)L"1x");
-        ComboBox_AddString(hControl, (LPCTSTR)L"2x");
-        ComboBox_AddString(hControl, (LPCTSTR)L"3x");
-        ComboBox_AddString(hControl, (LPCTSTR)L"4x");
-        ComboBox_AddString(hControl, (LPCTSTR)L"5x");
-        ComboBox_AddString(hControl, (LPCTSTR)L"8x");
-        ComboBox_SetCurSel(hControl, (selection == 8) ? 8 : (selection - 1));
-    }
-    selection = ConfigPageProfile::setUpscalingList(&pList, &listLength, selection, Config::getCurrentProfile()->scl_sprUpscaleType);
+    // sprite upscaling
+    selection = WinToolbox::setUpscalingFactors(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_2DUPSCALE_FACTOR), 
+                                                pProfile->scl_sprUpscaleVal, 2u, 8u);
+    selection = ConfigPageProfile::setUpscalingList(&pList, &listLength, selection, pProfile->scl_sprUpscaleType);
     WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_2DUPSCALE_LIST), selection, pList, listLength);
-
-    hControl = NULL;
+    // screen upscaling
+    selection = WinToolbox::setUpscalingFactors(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_SCRUPSCALE_FACTOR), 
+                                                pProfile->scl_screenUpscaleVal, 1u, 8u);
+    if (selection > 1u)
+        selection = ConfigPageProfile::setUpscalingList(&pList, &listLength, selection, pProfile->scl_screenUpscaleType);
+    else
+    {
+        selection = 0u;
+        listLength = 1;
+        pList[0] = L"normal";
+    }
+    WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_SCRUPSCALE_LIST), selection, pList, listLength);
+    // anti-aliasing
+    HWND hControl = NULL;
     if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_FXAA_LIST))
     {
         ComboBox_AddString(hControl, (LPCTSTR)L"FXAA");
@@ -183,7 +208,7 @@ void ConfigPageProfileView::loadConfig()
         ComboBox_AddString(hControl, (LPCTSTR)L"MSAA 8x");
         ComboBox_AddString(hControl, (LPCTSTR)L"SMAA 4x");
         ComboBox_AddString(hControl, (LPCTSTR)L"SMAA 8x");
-        ComboBox_SetCurSel(hControl, 0L);
+        ComboBox_SetCurSel(hControl, (pProfile->shd_antiAliasing <= 6u) ? pProfile->shd_antiAliasing - 1u : 0u);
     }
 
     // set language

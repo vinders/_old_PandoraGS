@@ -74,6 +74,13 @@ public:
     std::wstring manager_preset_enhanced2d;
     std::wstring manager_preset_enhanced3d;
 
+#define LANG_PROFILE_INTERNAL_RESX 5
+#define LANG_PROFILE_INTERNAL_RESY 6
+#define LANG_PROFILE_STRETCH_PRESETS 5
+    std::wstring profile_internal_resx[LANG_PROFILE_INTERNAL_RESX];
+    std::wstring profile_internal_resy[LANG_PROFILE_INTERNAL_RESY];
+    std::wstring profile_stretch_presets[LANG_PROFILE_STRETCH_PRESETS];
+
 public:
     /// <summary>Create uninitialized instance</summary>
     LanguageDialogResource();

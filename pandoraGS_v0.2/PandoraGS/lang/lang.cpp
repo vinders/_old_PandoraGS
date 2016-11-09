@@ -101,6 +101,23 @@ void LanguageDialogResource::setLanguage_English()
     manager_preset_standard = L"Standard";
     manager_preset_enhanced2d = L"Enhanced 2D";
     manager_preset_enhanced3d = L"Enhanced 3D";
+
+    profile_internal_resx[0] = L"X: native (1x)";
+    profile_internal_resx[1] = L"X: standard (2x)";
+    profile_internal_resx[2] = L"X: high (4x)";
+    profile_internal_resx[3] = L"X: higher (6x, slow)";
+    profile_internal_resx[4] = L"X: ultra (8x, slow)";
+    profile_internal_resy[0] = L"Y: native (1x)";
+    profile_internal_resy[1] = L"Y: standard (2x)";
+    profile_internal_resy[2] = L"Y: medium (4x)";
+    profile_internal_resy[3] = L"Y: high (8x)";
+    profile_internal_resy[4] = L"Y: higher (10x, slow)";
+    profile_internal_resy[5] = L"Y: ultra (12x, slow)";
+    profile_stretch_presets[0] = L"Custom settings";
+    profile_stretch_presets[1] = L"Full window (stretched)";
+    profile_stretch_presets[2] = L"Keep ratio (best with 2D)";
+    profile_stretch_presets[3] = L"Keep ratio & crop (fill)";
+    profile_stretch_presets[4] = L"Half stretched/cropped";
 }
 /// <summary>Set spanish values</summary>
 void LanguageDialogResource::setLanguage_Spanish()
@@ -124,6 +141,23 @@ void LanguageDialogResource::setLanguage_Spanish()
     manager_preset_standard = L"Standard";
     manager_preset_enhanced2d = L"Enhanced 2D";
     manager_preset_enhanced3d = L"Enhanced 3D";
+
+    profile_internal_resx[0] = L"X: native (1x)";
+    profile_internal_resx[1] = L"X: standard (2x)";
+    profile_internal_resx[2] = L"X: high (4x)";
+    profile_internal_resx[3] = L"X: higher (6x, slow)";
+    profile_internal_resx[4] = L"X: ultra (8x, slow)";
+    profile_internal_resy[0] = L"Y: native (1x)";
+    profile_internal_resy[1] = L"Y: standard (2x)";
+    profile_internal_resy[2] = L"Y: medium (4x)";
+    profile_internal_resy[3] = L"Y: high (8x)";
+    profile_internal_resy[4] = L"Y: higher (10x, slow)";
+    profile_internal_resy[5] = L"Y: ultra (12x, slow)";
+    profile_stretch_presets[0] = L"Custom settings";
+    profile_stretch_presets[1] = L"Full window (stretched)";
+    profile_stretch_presets[2] = L"Keep ratio (best with 2D)";
+    profile_stretch_presets[3] = L"Keep ratio & crop (fill)";
+    profile_stretch_presets[4] = L"Half stretched/cropped";
 }
 /// <summary>Set french values</summary>
 void LanguageDialogResource::setLanguage_French()
@@ -147,6 +181,23 @@ void LanguageDialogResource::setLanguage_French()
     manager_preset_standard = L"Standard";
     manager_preset_enhanced2d = L"2D améliorée";
     manager_preset_enhanced3d = L"3D améliorée";
+
+    profile_internal_resx[0] = L"X: native (1x)";
+    profile_internal_resx[1] = L"X: standard (2x)";
+    profile_internal_resx[2] = L"X: haute (4x)";
+    profile_internal_resx[3] = L"X: haute+ (6x, lent)";
+    profile_internal_resx[4] = L"X: ultra (8x, lent)";
+    profile_internal_resy[0] = L"Y: native (1x)";
+    profile_internal_resy[1] = L"Y: standard (2x)";
+    profile_internal_resy[2] = L"Y: medium (4x)";
+    profile_internal_resy[3] = L"Y: haute (8x)";
+    profile_internal_resy[4] = L"Y: haute+ (10x, lent)";
+    profile_internal_resy[5] = L"Y: ultra (12x, lent)";
+    profile_stretch_presets[0] = L"Personnalisé";
+    profile_stretch_presets[1] = L"Remplir fenêtre (étirer)";
+    profile_stretch_presets[2] = L"Conserver ratio (idéal 2D)";
+    profile_stretch_presets[3] = L"Conserver ratio & tronquer";
+    profile_stretch_presets[4] = L"Semi étiré/tronqué";
 }
 /// <summary>Set german values</summary>
 void LanguageDialogResource::setLanguage_German()
@@ -170,6 +221,23 @@ void LanguageDialogResource::setLanguage_German()
     manager_preset_standard = L"Standard";
     manager_preset_enhanced2d = L"Enhanced 2D";
     manager_preset_enhanced3d = L"Enhanced 3D";
+
+    profile_internal_resx[0] = L"X: native (1x)";
+    profile_internal_resx[1] = L"X: standard (2x)";
+    profile_internal_resx[2] = L"X: high (4x)";
+    profile_internal_resx[3] = L"X: higher (6x, slow)";
+    profile_internal_resx[4] = L"X: ultra (8x, slow)";
+    profile_internal_resy[0] = L"Y: native (1x)";
+    profile_internal_resy[1] = L"Y: standard (2x)";
+    profile_internal_resy[2] = L"Y: medium (4x)";
+    profile_internal_resy[3] = L"Y: high (8x)";
+    profile_internal_resy[4] = L"Y: higher (10x, slow)";
+    profile_internal_resy[5] = L"Y: ultra (12x, slow)";
+    profile_stretch_presets[0] = L"Custom settings";
+    profile_stretch_presets[1] = L"Full window (stretched)";
+    profile_stretch_presets[2] = L"Keep ratio (best with 2D)";
+    profile_stretch_presets[3] = L"Keep ratio & crop (fill)";
+    profile_stretch_presets[4] = L"Half stretched/cropped";
 }
 
 /// <summary>Read values from file</summary>
