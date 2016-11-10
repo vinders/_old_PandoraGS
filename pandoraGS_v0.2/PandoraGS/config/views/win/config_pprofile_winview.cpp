@@ -232,6 +232,21 @@ void ConfigPageProfileView::loadConfig()
     // curvature
     if (pProfile->dsp_screenCurved != 0u)
         CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_CURVATURE_CHECK, BST_CHECKED);
+    // trackbars
+    if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_STRETCH_SLIDER))
+    {
+        SendMessageW(hControl, TBM_SETRANGE, TRUE, MAKELONG(0, 8));
+        SendMessageW(hControl, TBM_SETPAGESIZE, 0, 8);
+        SendMessageW(hControl, TBM_SETTICFREQ, 1, 0);
+        SendMessageW(hControl, TBM_SETPOS, TRUE, (int)pProfile->dsp_stretchRatio);
+    }
+    if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_CUT_SLIDER))
+    {
+        SendMessageW(hControl, TBM_SETRANGE, TRUE, MAKELONG(0, 8));
+        SendMessageW(hControl, TBM_SETPAGESIZE, 0, 8);
+        SendMessageW(hControl, TBM_SETTICFREQ, 1, 0);
+        SendMessageW(hControl, TBM_SETPOS, TRUE, (int)pProfile->dsp_cropStrength);
+    }
 
     if (pList != NULL)
         delete[] pList;
@@ -364,7 +379,27 @@ INT_PTR CALLBACK ConfigPageProfileView::tabEventHandler(HWND hWindow, UINT msg, 
                 case IDC_PROSTR_PRESET_LIST: // screen stretching
                     if (HIWORD(wParam) == CBN_SELCHANGE)
                     {
-                        //...
+                        int selection = SendMessage(GetDlgItem(hWindow, IDC_PROSTR_PRESET_LIST), CB_GETCURSEL, NULL, NULL);
+                        switch (selection)
+                        {
+                            case 1: 
+                                SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_STRETCH_FullWindow);
+                                SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_CUT_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_CROP_FullWindow);
+                                break;
+                            case 2:
+                                SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_STRETCH_Orig);
+                                SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_CUT_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_CROP_Orig);
+                                break;
+                            case 3:
+                                SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_STRETCH_OrigFill);
+                                SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_CUT_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_CROP_OrigFill);
+                                break;
+                            case 4:
+                                SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_STRETCH_CloseToOrig);
+                                SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_CUT_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_CROP_CloseToOrig);
+                                break;
+                        }
+                        return (INT_PTR)TRUE;
                     }
                     break;
             }
@@ -389,6 +424,29 @@ INT_PTR CALLBACK ConfigPageProfileView::tabEventHandler(HWND hWindow, UINT msg, 
             }
         }
         return (INT_PTR)FALSE;
+    }
+    // trackbar / scrollbar
+    else if (msg == WM_HSCROLL && LOWORD(wParam) == TB_ENDTRACK)
+    {
+        int controlId = GetDlgCtrlID((HWND)lParam);
+        // screen stretching
+        if (controlId == IDC_PROSTR_STRETCH_SLIDER || controlId == IDC_PROSTR_CUT_SLIDER)
+        {
+            uint32_t presetIndex = 0u;
+            uint32_t stretchVal = SendMessage(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_GETPOS, 0, 0);
+            uint32_t cropVal = SendMessage(GetDlgItem(hWindow, IDC_PROSTR_CUT_SLIDER), TBM_GETPOS, 0, 0);
+            if (stretchVal == CFG_RATIO_STRETCH_FullWindow && cropVal == CFG_RATIO_CROP_FullWindow)
+                presetIndex = 1u;
+            else if (stretchVal == CFG_RATIO_STRETCH_Orig && cropVal == CFG_RATIO_CROP_Orig)
+                presetIndex = 2u;
+            else if (stretchVal == CFG_RATIO_STRETCH_OrigFill && cropVal == CFG_RATIO_CROP_OrigFill)
+                presetIndex = 3u;
+            else if (stretchVal == CFG_RATIO_STRETCH_CloseToOrig && cropVal == CFG_RATIO_CROP_CloseToOrig)
+                presetIndex = 4u;
+            if (HWND hCombobox = GetDlgItem(hWindow, IDC_PROSTR_PRESET_LIST))
+                ComboBox_SetCurSel(hCombobox, presetIndex);
+            return (INT_PTR)TRUE;
+        }
     }
     // drawing events
     return WinToolbox::pageDrawingEventHandler(hWindow, msg, wParam, lParam, COLOR_PAGE);
