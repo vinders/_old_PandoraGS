@@ -217,11 +217,6 @@ void ConfigPageProfileView::loadConfig()
     if (pProfile->shd_antiAliasing != 0u)
         CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_FXAA_CHECK, BST_CHECKED);
 
-    // screen position
-    if (pProfile->dsp_isScreenMirror)
-        CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_MIRROR, BST_CHECKED);
-    if (pProfile->dsp_ratioType != 0u)
-        CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_PXRATIO_CHECK, BST_CHECKED);
     // black borders
     std::wstring border = std::to_wstring(pProfile->dsp_borderSizeX);
     SetDlgItemText(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_BLACKBORDERSX_EDIT, (LPCTSTR)border.c_str());
@@ -232,6 +227,11 @@ void ConfigPageProfileView::loadConfig()
     // curvature
     if (pProfile->dsp_screenCurved != 0u)
         CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_CURVATURE_CHECK, BST_CHECKED);
+    // screen position
+    if (pProfile->dsp_isScreenMirror)
+        CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_MIRROR, BST_CHECKED);
+    if (pProfile->dsp_ratioType != 0u)
+        CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_PXRATIO_CHECK, BST_CHECKED);
     // trackbars
     if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_STRETCH_SLIDER))
     {
@@ -247,6 +247,10 @@ void ConfigPageProfileView::loadConfig()
         SendMessageW(hControl, TBM_SETTICFREQ, 1, 0);
         SendMessageW(hControl, TBM_SETPOS, TRUE, (int)pProfile->dsp_cropStrength);
     }
+    // preview
+    WinToolbox::drawScreenStretchingPreview(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], 
+                GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_PICTUREBOX), 
+                pProfile->dsp_stretchRatio, pProfile->dsp_cropStrength, pProfile->dsp_isScreenMirror);
 
     if (pList != NULL)
         delete[] pList;
@@ -379,24 +383,34 @@ INT_PTR CALLBACK ConfigPageProfileView::tabEventHandler(HWND hWindow, UINT msg, 
                 case IDC_PROSTR_PRESET_LIST: // screen stretching
                     if (HIWORD(wParam) == CBN_SELCHANGE)
                     {
+                        bool isMirrored = (SendMessage(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_GETPOS, 0, 0) == BST_CHECKED);
+
                         int selection = SendMessage(GetDlgItem(hWindow, IDC_PROSTR_PRESET_LIST), CB_GETCURSEL, NULL, NULL);
                         switch (selection)
                         {
                             case 1: 
                                 SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_STRETCH_FullWindow);
                                 SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_CUT_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_CROP_FullWindow);
+                                WinToolbox::drawScreenStretchingPreview(hWindow, GetDlgItem(hWindow, IDC_PROSTR_PICTUREBOX), 
+                                                                        CFG_RATIO_STRETCH_FullWindow, CFG_RATIO_CROP_FullWindow, isMirrored);
                                 break;
                             case 2:
                                 SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_STRETCH_Orig);
                                 SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_CUT_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_CROP_Orig);
+                                WinToolbox::drawScreenStretchingPreview(hWindow, GetDlgItem(hWindow, IDC_PROSTR_PICTUREBOX), 
+                                                                        CFG_RATIO_STRETCH_Orig, CFG_RATIO_CROP_Orig, isMirrored);
                                 break;
                             case 3:
                                 SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_STRETCH_OrigFill);
                                 SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_CUT_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_CROP_OrigFill);
+                                WinToolbox::drawScreenStretchingPreview(hWindow, GetDlgItem(hWindow, IDC_PROSTR_PICTUREBOX), 
+                                                                        CFG_RATIO_STRETCH_OrigFill, CFG_RATIO_CROP_OrigFill, isMirrored);
                                 break;
                             case 4:
                                 SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_STRETCH_CloseToOrig);
                                 SendMessageW(GetDlgItem(hWindow, IDC_PROSTR_CUT_SLIDER), TBM_SETPOS, TRUE, CFG_RATIO_CROP_CloseToOrig);
+                                WinToolbox::drawScreenStretchingPreview(hWindow, GetDlgItem(hWindow, IDC_PROSTR_PICTUREBOX), 
+                                                                        CFG_RATIO_STRETCH_CloseToOrig, CFG_RATIO_CROP_CloseToOrig, isMirrored);
                                 break;
                         }
                         return (INT_PTR)TRUE;
@@ -404,7 +418,7 @@ INT_PTR CALLBACK ConfigPageProfileView::tabEventHandler(HWND hWindow, UINT msg, 
                     break;
             }
         }
-        // button
+        // button / checkbox
         else
         {
             switch (LOWORD(wParam))
@@ -420,6 +434,17 @@ INT_PTR CALLBACK ConfigPageProfileView::tabEventHandler(HWND hWindow, UINT msg, 
                         return (INT_PTR)FALSE;
                     }
                     return (INT_PTR)TRUE; break;
+                }
+                case IDC_PROSTR_MIRROR: // mirror screen
+                {
+                    if (HIWORD(wParam) == BN_CLICKED)
+                    {
+                        uint32_t stretchVal = SendMessage(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_GETPOS, 0, 0);
+                        uint32_t cropVal = SendMessage(GetDlgItem(hWindow, IDC_PROSTR_CUT_SLIDER), TBM_GETPOS, 0, 0);
+                        bool isMirrored = (SendMessage(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_GETPOS, 0, 0) == BST_CHECKED);
+                        WinToolbox::drawScreenStretchingPreview(hWindow, GetDlgItem(hWindow, IDC_PROSTR_PICTUREBOX), stretchVal, cropVal, isMirrored);
+                    }
+                    break;
                 }
             }
         }
@@ -445,8 +470,20 @@ INT_PTR CALLBACK ConfigPageProfileView::tabEventHandler(HWND hWindow, UINT msg, 
                 presetIndex = 4u;
             if (HWND hCombobox = GetDlgItem(hWindow, IDC_PROSTR_PRESET_LIST))
                 ComboBox_SetCurSel(hCombobox, presetIndex);
+
+            bool isMirrored = (SendMessage(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_GETPOS, 0, 0) == BST_CHECKED);
+            WinToolbox::drawScreenStretchingPreview(hWindow, GetDlgItem(hWindow, IDC_PROSTR_PICTUREBOX), stretchVal, cropVal, isMirrored);
             return (INT_PTR)TRUE;
         }
+    }
+    // stretching preview drawing
+    else if (msg == WM_DRAWITEM && (int)wParam == IDC_PROSTR_PICTUREBOX)
+    {
+        uint32_t stretchVal = SendMessage(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_GETPOS, 0, 0);
+        uint32_t cropVal = SendMessage(GetDlgItem(hWindow, IDC_PROSTR_CUT_SLIDER), TBM_GETPOS, 0, 0);
+        bool isMirrored = (SendMessage(GetDlgItem(hWindow, IDC_PROSTR_STRETCH_SLIDER), TBM_GETPOS, 0, 0) == BST_CHECKED);
+        WinToolbox::drawScreenStretchingPreview(hWindow, GetDlgItem(hWindow, IDC_PROSTR_PICTUREBOX), stretchVal, cropVal, isMirrored);
+        return (INT_PTR)TRUE;
     }
     // drawing events
     return WinToolbox::pageDrawingEventHandler(hWindow, msg, wParam, lParam, COLOR_PAGE);

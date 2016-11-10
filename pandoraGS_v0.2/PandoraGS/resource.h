@@ -7,6 +7,7 @@
 #define IDB_MAIN_LOGO                   104
 #define IDD_ABOUT_DIALOG                105
 #define IDC_ABOUT_TECH                  106
+#define IDB_RATIO                       107
 
 #define IDD_CONFIG_DIALOG               110
 #define IDC_LANG_LIST                   111

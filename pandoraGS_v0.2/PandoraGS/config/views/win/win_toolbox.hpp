@@ -24,6 +24,7 @@ class WinToolbox
 {
 private: 
     static HBRUSH s_hBackgroundBrush;
+    static HBITMAP s_hPreviewStretchingBitmap;
 public:
     /// <summary>Show/hide page</summary>
     /// <param name="itemId">Item associated with tooltip (ID)</param>
@@ -180,6 +181,14 @@ public:
     }
     /// <summary>Delete page background brush</summary>
     static void destroyPageBackgroundBrush();
+
+    /// <summary>Screen stretching preview drawing</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="hDrawItem">Drawing destination box</param>
+    /// <param name="stretching">Stretching value</param>
+    /// <param name="cropping">Cropping value</param>
+    /// <param name="isMirrored">Mirror indicator</param>
+    static void drawScreenStretchingPreview(HWND hWindow, HWND hDrawItem, uint32_t stretching, uint32_t cropping, bool isMirrored);
 };
 
 #endif
