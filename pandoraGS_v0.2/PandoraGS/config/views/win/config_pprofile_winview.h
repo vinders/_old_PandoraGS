@@ -81,6 +81,13 @@ public:
     /// <param name="lParam">Informations</param>
     /// <returns>Action code</returns>
     static INT_PTR CALLBACK tabEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
+    /// <summary>Screen stretching sub-tab event handler</summary>
+    /// <param name="hWindow">Window handle</param>
+    /// <param name="msg">Event message</param>
+    /// <param name="wParam">Command</param>
+    /// <param name="lParam">Informations</param>
+    /// <returns>Action code</returns>
+    static INT_PTR CALLBACK screenStretchingTabEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 
     // DIALOGS ---------------------------------------------------------------------
 

@@ -182,13 +182,15 @@ public:
     /// <summary>Delete page background brush</summary>
     static void destroyPageBackgroundBrush();
 
-    /// <summary>Screen stretching preview drawing</summary>
+    /// <summary>Screen stretching page drawing</summary>
     /// <param name="hWindow">Window handle</param>
-    /// <param name="hDrawItem">Drawing destination box</param>
+    /// <param name="color">Background color (global to all pages)</param>
+    /// <param name="lParam">Informations</param>
     /// <param name="stretching">Stretching value</param>
     /// <param name="cropping">Cropping value</param>
     /// <param name="isMirrored">Mirror indicator</param>
-    static void drawScreenStretchingPreview(HWND hWindow, HWND hDrawItem, uint32_t stretching, uint32_t cropping, bool isMirrored);
+    /// <returns>Action code</returns>
+    static INT_PTR drawScreenStretchingPage(HWND hWindow, COLORREF color, LPARAM lParam, uint32_t stretching, uint32_t cropping, bool isMirrored);
 };
 
 #endif

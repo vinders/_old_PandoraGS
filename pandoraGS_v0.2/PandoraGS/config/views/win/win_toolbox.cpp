@@ -15,7 +15,7 @@ using namespace std;
 #include "pandoraGS.h"
 
 #define PREVIEW_BORDER_COLOR      RGB(74,90,106)
-#define PREVIEW_BORDER_CROP_COLOR RGB(176,79,79)
+#define PREVIEW_BORDER_CROP_COLOR RGB(196,79,79)
 
 HBRUSH WinToolbox::s_hBackgroundBrush = NULL;
 HBITMAP WinToolbox::s_hPreviewStretchingBitmap = NULL;
@@ -87,168 +87,164 @@ void WinToolbox::destroyPageBackgroundBrush()
     s_hPreviewStretchingBitmap = NULL;
 }
 
-/// <summary>Screen stretching preview drawing</summary>
+/// <summary>Screen stretching page drawing</summary>
 /// <param name="hWindow">Window handle</param>
-/// <param name="hDrawItem">Drawing destination box</param>
+/// <param name="color">Background color (global to all pages)</param>
+/// <param name="lParam">Informations</param>
 /// <param name="stretching">Stretching value</param>
 /// <param name="cropping">Cropping value</param>
 /// <param name="isMirrored">Mirror indicator</param>
-void WinToolbox::drawScreenStretchingPreview(HWND hWindow, HWND hDrawItem, uint32_t stretching, uint32_t cropping, bool isMirrored)
+/// <returns>Action code</returns>
+INT_PTR WinToolbox::drawScreenStretchingPage(HWND hWindow, COLORREF color, LPARAM lParam, uint32_t stretching, uint32_t cropping, bool isMirrored)
 {
-    static bool isBusy = false;
-    if (isBusy || !hDrawItem || stretching > CFG_RATIO_MAX || cropping > CFG_RATIO_MAX)
-        return;
-    // load bitmap
+    LPDRAWITEMSTRUCT pDraw = (LPDRAWITEMSTRUCT)lParam;
+    if (!lParam || pDraw->CtlID != IDC_PROSTR_PICTUREBOX || stretching > CFG_RATIO_MAX || cropping > CFG_RATIO_MAX)
+        return (INT_PTR)FALSE;
+
+    // load preview bitmap
     if (!s_hPreviewStretchingBitmap)
     {
         HINSTANCE hInst = PandoraGS::getInstance();
-        if (hInst == NULL)
-            hInst = GetModuleHandle(NULL);
-        if (hInst == NULL)
-            return;
-        HBITMAP s_hPreviewStretchingBitmap = (HBITMAP)LoadImage(NULL, MAKEINTRESOURCE(IDB_RATIO), 0, 180, 135, LR_DEFAULTCOLOR);
+        if (hInst == NULL) hInst = GetModuleHandle(NULL);
+        if (hInst)
+            s_hPreviewStretchingBitmap = LoadBitmap(hInst, MAKEINTRESOURCE(IDB_RATIO));
         if (!s_hPreviewStretchingBitmap)
-            return;
+            return (INT_PTR)TRUE;
     }
-    isBusy = true;
+
+    // prepare draw components
+    HDC hDC = pDraw->hDC;
+    HBRUSH brushBorder = CreateSolidBrush(PREVIEW_BORDER_COLOR);
+    if (hDC == NULL || brushBorder == NULL)
+        return (INT_PTR)TRUE;
+    RECT itemRect = pDraw->rcItem;
+    RECT drawZone = { 0 };
+    drawZone.top = itemRect.top + 2;
+    drawZone.left = itemRect.left + 2;
+    drawZone.right = drawZone.left + 180;
+    drawZone.bottom = drawZone.top + 135;
+    SetBkMode(hDC, TRANSPARENT);
+    // draw page background
+    if (s_hBackgroundBrush)
+        FillRect(hDC, &itemRect, s_hBackgroundBrush);
 
     // set preview settings - stretching
-    int imgWidth = 140 + 5 * (int)stretching;
+    int imgWidth = 140 + (5 * stretching);
     int imgHeight = 105;
     // set preview settings - cropping
     if (cropping > 0u)
     {
         double factor = 180.0 / (double)imgWidth;
-        if (factor > 0.01) // not fully stretched
+        if (factor > 1.005) // > 1 (+ rounding error)
         {
             if ((int)cropping < CFG_RATIO_MAX)
-                factor = (((double)cropping / 8.0f) * (factor - 1.0f)) + 1.0f;
-            double dWidth = factor * (double)imgWidth;;
-            double dHeight = factor * (double)imgHeight;;
-            imgWidth = (int)dWidth;
-            imgHeight = (int)dHeight;
-            imgWidth = (imgWidth >> 1) << 1; // even
-            imgHeight = 1 + ((imgHeight >> 1) << 1); // odd
+            {
+                factor = (((double)cropping / (double)CFG_RATIO_MAX) * (factor - 1.0)) + 1.0;
+                double dWidth = factor * (double)imgWidth;
+                imgWidth = ((int)dWidth >> 1) << 1; // even
+            }
+            else
+                imgWidth = 180;
+            double dHeight = factor * (double)imgHeight;
+            imgHeight = 1 + (((int)dHeight >> 1) << 1); // odd
         }
     }
-    // set preview settings - mirroring
-    if (isMirrored)
-        imgWidth *= -1;
     // set preview settings - position
     int offsetX = (180 - imgWidth) >> 1;
     int offsetY = (135 - imgHeight) >> 1;
 
-    // drawing - settings
-    RECT drawZone;
-    GetClientRect(hDrawItem, &drawZone);
-    // drawing - resources
-    HDC hDC = GetDC(hWindow);
-    // drawing bitmap
-    BITMAPINFO bmi;
-    ZeroMemory(&bmi, sizeof(BITMAPINFO));
-    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biWidth = imgWidth;
-    bmi.bmiHeader.biHeight = imgHeight;
-    bmi.bmiHeader.biPlanes = 1;
-    bmi.bmiHeader.biBitCount = 24;
-    bmi.bmiHeader.biCompression = BI_RGB;
-    bmi.bmiHeader.biSizeImage = bmi.bmiHeader.biWidth * bmi.bmiHeader.biHeight * 3;
-    VOID* pvBits = NULL;
-    HDC hMemDC = CreateCompatibleDC(hDC);
-    HBITMAP hBmp = CreateDIBSection(hMemDC, &bmi, DIB_RGB_COLORS, &pvBits, NULL, 0);
-    SelectObject(hMemDC, hBmp);
-    if (StretchBlt(hMemDC, 0, 0, imgWidth, imgHeight, hDC, 0, 0, 180, 135, 0u) == FALSE)
+    // draw preview image
+    HDC dstDC = CreateCompatibleDC(hDC);
+    if (dstDC)
     {
-        DeleteObject(hBmp);
-        DeleteDC(hMemDC);
-        ReleaseDC(hWindow, hDC);
-        isBusy = false; return;
-    }
-    BITMAP bm = { 0 };
-    GetObject(hBmp, sizeof(bm), &bm);
-    LPBYTE pBitData = (LPBYTE)LocalAlloc(LPTR, bm.bmWidth * bm.bmHeight * sizeof(DWORD));
-    if (pBitData != NULL)
-    {
-        LPBYTE pData = pBitData;
-        GetDIBits(hDC, hBmp, 0, bm.bmHeight, pData, &bmi, DIB_RGB_COLORS); // copy image to array
-        int maxTop = 15 - offsetY;
-        int minBottom = bm.bmHeight - offsetY;
-        for (int x = 0; x < bm.bmWidth; x++)
+        // display resized screen image
+        HDC memDC = CreateCompatibleDC(hDC);
+        if (memDC)
         {
-            for (int y = 0; y < maxTop; y++)
+            SelectObject(memDC, s_hPreviewStretchingBitmap);
+            HBITMAP dstBmp = CreateCompatibleBitmap(memDC, imgWidth, imgHeight); // create empty bitmap
+            if (dstBmp)
             {
-                pData[0] = (BYTE)(((DWORD)pData[0] + 255) / 2);
-                pData[1] = (BYTE)(((DWORD)pData[1] + 255) / 2);
-                pData[2] = (BYTE)(((DWORD)pData[2] + 255) / 2);
-                pData += 3;
+                // copy resized bitmap
+                SelectObject(dstDC, dstBmp);
+                StretchBlt(dstDC, (isMirrored) ? imgWidth : 0, 0, (isMirrored) ? -imgWidth - 1 : imgWidth, imgHeight, memDC, 0, 0, 140, 105, SRCCOPY);
+
+                // create image-pattern brush
+                HBRUSH ratioImgBrush = CreatePatternBrush(dstBmp);
+                if (ratioImgBrush)
+                {
+                    RECT imgRect = { 0 };
+                    imgRect.left = drawZone.left + offsetX;
+                    imgRect.right = drawZone.right - offsetX;
+                    imgRect.top = drawZone.top + offsetY;
+                    imgRect.bottom = drawZone.bottom - offsetY;
+                    // draw at appropriate position
+                    SetBrushOrgEx(hDC, imgRect.left, imgRect.top, NULL);
+                    FillRect(hDC, &imgRect, ratioImgBrush);
+                    DeleteObject(ratioImgBrush);
+                }
+                DeleteObject(dstBmp);
             }
-            for (int y = minBottom; y < bm.bmHeight; y++)
-            {
-                pData[0] = (BYTE)(((DWORD)pData[0] + 255) / 2);
-                pData[1] = (BYTE)(((DWORD)pData[1] + 255) / 2);
-                pData[2] = (BYTE)(((DWORD)pData[2] + 255) / 2);
-                pData += 3;
-            }
+            DeleteDC(memDC);
         }
-        SetDIBits(hDC, hBmp, 0, bm.bmHeight, pBitData, &bmi, DIB_RGB_COLORS); // copy array to image
-        LocalFree(pBitData);
-        SendDlgItemMessage(hWindow, IDC_PROSTR_PICTUREBOX, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hBmp);
-    }
-    DeleteObject(hBmp);
-    DeleteDC(hMemDC);
 
-    if (offsetX > 0) // gray background
+        DeleteDC(dstDC);
+    }
+
+    if (offsetX > 0)
     {
-        RECT emptyZone;
-        emptyZone.top = drawZone.top + 15;
-        emptyZone.bottom = drawZone.bottom - 15;
-        HBRUSH brushBack = CreateSolidBrush(RGB(40, 40, 40));
-        emptyZone.left = drawZone.left;
-        emptyZone.right = drawZone.left + offsetX;
-        FillRect(hDC, &emptyZone, brushBack);
-        emptyZone.right = drawZone.right;
-        emptyZone.left = drawZone.right - offsetX;
-        FillRect(hDC, &emptyZone, brushBack);
-        DeleteObject(brushBack);
+        // lighten cropped zones
+        int height = (imgHeight - 105) >> 1;
+        if (height)
+        {
+            //...
+        }
+
+        // draw preview empty background
+        HBRUSH brushBack = CreateSolidBrush(RGB(70, 70, 70));
+        if (brushBack)
+        {
+            RECT emptyZone;
+            emptyZone.top = drawZone.top + 15;
+            emptyZone.bottom = drawZone.bottom - 15;
+            // left empty space
+            emptyZone.left = drawZone.left;
+            emptyZone.right = drawZone.left + offsetX;
+            FillRect(hDC, &emptyZone, brushBack);
+            // right empty space
+            emptyZone.right = drawZone.right;
+            emptyZone.left = drawZone.right - offsetX;
+            FillRect(hDC, &emptyZone, brushBack);
+            DeleteObject(brushBack);
+        }
     }
 
-    RECT line; // side borders
-    line.top = drawZone.top + 16;
-    line.bottom = drawZone.top - 16;
-    HBRUSH brushBorder = CreateSolidBrush(PREVIEW_BORDER_COLOR);
-    line.left = drawZone.left;
-    line.right = line.left + 1;
-    FillRect(hDC, &line, brushBorder);
-    line.right = drawZone.right;
-    line.left = line.right - 1;
-    FillRect(hDC, &line, brushBorder);
-
-    line.left = drawZone.left; // top/bottom borders
-    line.right = drawZone.right;
-    line.top = drawZone.top + 15; 
-    line.bottom = line.top + 1;
-    if (cropping == 0)
-    {
-        FillRect(hDC, &line, brushBorder);
-        line.bottom = drawZone.bottom - 15;
-        line.top = line.bottom - 1;
-        FillRect(hDC, &line, brushBorder);
-    }
-    else
+    // draw preview rectangle
+    RECT screenZone = { 0 };
+    screenZone.top = drawZone.top + 15;
+    screenZone.left = drawZone.left;
+    screenZone.right = drawZone.right;
+    screenZone.bottom = drawZone.bottom - 15;
+    FrameRect(hDC, &screenZone, brushBorder);  // border
+    if (cropping > 0 && stretching < CFG_RATIO_MAX)
     {
         HBRUSH brushBorderCrop = CreateSolidBrush(PREVIEW_BORDER_CROP_COLOR);
-        FillRect(hDC, &line, brushBorderCrop);
-        line.bottom = drawZone.bottom - 15;
-        line.top = line.bottom - 1;
-        FillRect(hDC, &line, brushBorderCrop);
-        DeleteObject(brushBorderCrop);
+        if (brushBorderCrop)
+        {
+            LONG bottom = screenZone.bottom;
+            screenZone.bottom = screenZone.top + 1;
+            FillRect(hDC, &screenZone, brushBorderCrop);
+            screenZone.top = bottom - 1;
+            screenZone.bottom = bottom;
+            FillRect(hDC, &screenZone, brushBorderCrop);
+            DeleteObject(brushBorderCrop);
+        }
     }
-    DeleteObject(brushBorder);
 
-    InvalidateRect(hDrawItem, NULL, FALSE);
-    UpdateWindow(hDrawItem);
+    // end painting
+    DeleteObject(brushBorder);
     ReleaseDC(hWindow, hDC);
-    isBusy = false;
+    return (INT_PTR)TRUE;
 }
 
 #endif

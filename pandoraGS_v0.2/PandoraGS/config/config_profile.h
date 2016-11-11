@@ -174,7 +174,7 @@ enum CFG_ScreenRatio : uint32_t
 #define CFG_RATIO_STRETCH_OrigFill    0              // keep ratio & crop - strong top/bottom cut
 #define CFG_RATIO_CROP_OrigFill       CFG_RATIO_MAX
 #define CFG_RATIO_STRETCH_CloseToOrig CFG_RATIO_HALF // half stretch & slight cropping - best with 3D
-#define CFG_RATIO_CROP_CloseToOrig    CFG_RATIO_MAX
+#define CFG_RATIO_CROP_CloseToOrig    CFG_RATIO_HALF
 
 // off-screen drawing modes
 enum CFG_OffScreenDrawing : uint32_t
