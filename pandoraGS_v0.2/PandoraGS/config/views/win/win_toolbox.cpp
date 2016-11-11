@@ -15,7 +15,9 @@ using namespace std;
 #include "pandoraGS.h"
 
 #define PREVIEW_BORDER_COLOR      RGB(74,90,106)
-#define PREVIEW_BORDER_CROP_COLOR RGB(196,79,79)
+#define PREVIEW_EMPTY_COLOR       RGB(70, 70, 70)
+#define PREVIEW_CROPPED_COLOR     RGB(210,220,230)
+#define PREVIEW_CROPPED_BORDER_COLOR RGB(170,180,190)
 
 HBRUSH WinToolbox::s_hBackgroundBrush = NULL;
 HBITMAP WinToolbox::s_hPreviewStretchingBitmap = NULL;
@@ -152,6 +154,11 @@ INT_PTR WinToolbox::drawScreenStretchingPage(HWND hWindow, COLORREF color, LPARA
     // set preview settings - position
     int offsetX = (180 - imgWidth) >> 1;
     int offsetY = (135 - imgHeight) >> 1;
+    RECT imgRect = { 0 };
+    imgRect.left = drawZone.left + offsetX;
+    imgRect.right = drawZone.right - offsetX;
+    imgRect.top = drawZone.top + offsetY;
+    imgRect.bottom = drawZone.bottom - offsetY;
 
     // draw preview image
     HDC dstDC = CreateCompatibleDC(hDC);
@@ -173,12 +180,6 @@ INT_PTR WinToolbox::drawScreenStretchingPage(HWND hWindow, COLORREF color, LPARA
                 HBRUSH ratioImgBrush = CreatePatternBrush(dstBmp);
                 if (ratioImgBrush)
                 {
-                    RECT imgRect = { 0 };
-                    imgRect.left = drawZone.left + offsetX;
-                    imgRect.right = drawZone.right - offsetX;
-                    imgRect.top = drawZone.top + offsetY;
-                    imgRect.bottom = drawZone.bottom - offsetY;
-                    // draw at appropriate position
                     SetBrushOrgEx(hDC, imgRect.left, imgRect.top, NULL);
                     FillRect(hDC, &imgRect, ratioImgBrush);
                     DeleteObject(ratioImgBrush);
@@ -187,21 +188,44 @@ INT_PTR WinToolbox::drawScreenStretchingPage(HWND hWindow, COLORREF color, LPARA
             }
             DeleteDC(memDC);
         }
-
         DeleteDC(dstDC);
     }
 
+    // cropped zones
+    if (offsetY < 15)
+    {
+        HBRUSH brushCrop = CreateSolidBrush(PREVIEW_CROPPED_COLOR);
+        HBRUSH brushCropBorder = CreateSolidBrush(PREVIEW_CROPPED_BORDER_COLOR);
+        if (brushCrop && brushCropBorder)
+        {
+            int cropHeight = 1 + ((imgHeight - 105) >> 1);
+            RECT cropRect = { 0 };
+            cropRect.left = imgRect.left;
+            cropRect.right = imgRect.right;
+            // top cropping
+            cropRect.top = imgRect.top;
+            cropRect.bottom = cropRect.top + cropHeight;
+            FillRect(hDC, &cropRect, brushCrop);
+            FrameRect(hDC, &cropRect, brushCropBorder);
+            // bottom cropping
+            cropRect.bottom = imgRect.bottom;
+            cropRect.top = imgRect.bottom - cropHeight;
+            FillRect(hDC, &cropRect, brushCrop);
+            FrameRect(hDC, &cropRect, brushCropBorder);
+            DeleteObject(brushCrop);
+            DeleteObject(brushCropBorder);
+        }
+        else
+        {
+            if (brushCrop) DeleteObject(brushCrop);
+            if (brushCropBorder) DeleteObject(brushCropBorder);
+        }
+    }
+
+    // draw preview empty background
     if (offsetX > 0)
     {
-        // lighten cropped zones
-        int height = (imgHeight - 105) >> 1;
-        if (height)
-        {
-            //...
-        }
-
-        // draw preview empty background
-        HBRUSH brushBack = CreateSolidBrush(RGB(70, 70, 70));
+        HBRUSH brushBack = CreateSolidBrush(PREVIEW_EMPTY_COLOR);
         if (brushBack)
         {
             RECT emptyZone;
@@ -225,21 +249,7 @@ INT_PTR WinToolbox::drawScreenStretchingPage(HWND hWindow, COLORREF color, LPARA
     screenZone.left = drawZone.left;
     screenZone.right = drawZone.right;
     screenZone.bottom = drawZone.bottom - 15;
-    FrameRect(hDC, &screenZone, brushBorder);  // border
-    if (cropping > 0 && stretching < CFG_RATIO_MAX)
-    {
-        HBRUSH brushBorderCrop = CreateSolidBrush(PREVIEW_BORDER_CROP_COLOR);
-        if (brushBorderCrop)
-        {
-            LONG bottom = screenZone.bottom;
-            screenZone.bottom = screenZone.top + 1;
-            FillRect(hDC, &screenZone, brushBorderCrop);
-            screenZone.top = bottom - 1;
-            screenZone.bottom = bottom;
-            FillRect(hDC, &screenZone, brushBorderCrop);
-            DeleteObject(brushBorderCrop);
-        }
-    }
+    FrameRect(hDC, &screenZone, brushBorder); // border
 
     // end painting
     DeleteObject(brushBorder);
