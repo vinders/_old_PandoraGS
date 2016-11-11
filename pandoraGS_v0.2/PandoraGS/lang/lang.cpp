@@ -116,8 +116,8 @@ void LanguageDialogResource::setLanguage_English()
     profile_stretch_presets[0] = L"Custom settings";
     profile_stretch_presets[1] = L"Full window (stretched)";
     profile_stretch_presets[2] = L"Keep ratio (best with 2D)";
-    profile_stretch_presets[3] = L"Keep ratio & crop (fill)";
-    profile_stretch_presets[4] = L"Half stretched/cropped";
+    profile_stretch_presets[3] = L"Keep ratio & fill (cropped)";
+    profile_stretch_presets[4] = L"Semi stretched/cropped";
 }
 /// <summary>Set spanish values</summary>
 void LanguageDialogResource::setLanguage_Spanish()
@@ -156,8 +156,8 @@ void LanguageDialogResource::setLanguage_Spanish()
     profile_stretch_presets[0] = L"Custom settings";
     profile_stretch_presets[1] = L"Full window (stretched)";
     profile_stretch_presets[2] = L"Keep ratio (best with 2D)";
-    profile_stretch_presets[3] = L"Keep ratio & crop (fill)";
-    profile_stretch_presets[4] = L"Half stretched/cropped";
+    profile_stretch_presets[3] = L"Keep ratio & fill (cropped)";
+    profile_stretch_presets[4] = L"Semi stretched/cropped";
 }
 /// <summary>Set french values</summary>
 void LanguageDialogResource::setLanguage_French()
@@ -236,8 +236,8 @@ void LanguageDialogResource::setLanguage_German()
     profile_stretch_presets[0] = L"Custom settings";
     profile_stretch_presets[1] = L"Full window (stretched)";
     profile_stretch_presets[2] = L"Keep ratio (best with 2D)";
-    profile_stretch_presets[3] = L"Keep ratio & crop (fill)";
-    profile_stretch_presets[4] = L"Half stretched/cropped";
+    profile_stretch_presets[3] = L"Keep ratio & fill (cropped)";
+    profile_stretch_presets[4] = L"Semi stretched/cropped";
 }
 
 /// <summary>Read values from file</summary>
