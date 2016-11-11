@@ -68,12 +68,28 @@ ConfigPageProfileView* ConfigPageProfileView::createPage(ConfigPageProfile* pCon
 void ConfigPageProfileView::resetLanguage(bool isFirstInit)
 {
     LanguageDialogResource* pLang = m_pController->getLangResource();
+    ConfigProfile* pProfile = Config::getCurrentProfile();
 
-    // set labels
+    // anti-aliasing
+    int selection = COMBOBOX_USE_PREVIOUS_INDEX;
+    if (isFirstInit)
+    {
+        selection = pProfile->shd_antiAliasing - 1;
+        if (selection < 0)
+            selection = 0;
+    }
+    WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_FXAA_LIST),
+                selection, pLang->profile_antialiasing, LANG_PROFILE_AA);
+    // smoothing
+    WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_TXFILTER_LIST),
+                (isFirstInit) ? pProfile->scl_texSmooth : COMBOBOX_USE_PREVIOUS_INDEX, pLang->profile_interpolation, LANG_PROFILE_INTERPOLATION);
+    WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_2DFILTER_LIST),
+                (isFirstInit) ? pProfile->scl_sprSmooth : COMBOBOX_USE_PREVIOUS_INDEX, pLang->profile_interpolation, LANG_PROFILE_INTERPOLATION);
+    WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_SCRFILTER_LIST),
+                (isFirstInit) ? pProfile->scl_screenSmooth : COMBOBOX_USE_PREVIOUS_INDEX, pLang->profile_screenSmooth, LANG_PROFILE_SCREENSMOOTH);
 
     if (isFirstInit)
     {
-        ConfigProfile* pProfile = Config::getCurrentProfile();
         // internal resolution
         WinToolbox::setComboboxValues(GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_INTRESX_LIST),
                                       (pProfile->dsp_internalResX <= 8u) ? pProfile->dsp_internalResX/2u : 1u, 
@@ -201,19 +217,7 @@ void ConfigPageProfileView::loadConfig()
     // texture/screen misc
     if(pProfile->scl_mdecFilter != 0u)
         CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_MDEC_CHECK, BST_CHECKED);
-
-    // anti-aliasing
-    HWND hControl = NULL;
-    if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_FXAA_LIST))
-    {
-        ComboBox_AddString(hControl, (LPCTSTR)L"FXAA");
-        ComboBox_AddString(hControl, (LPCTSTR)L"NFAA");
-        ComboBox_AddString(hControl, (LPCTSTR)L"MSAA 4x");
-        ComboBox_AddString(hControl, (LPCTSTR)L"MSAA 8x");
-        ComboBox_AddString(hControl, (LPCTSTR)L"SMAA 4x");
-        ComboBox_AddString(hControl, (LPCTSTR)L"SMAA 8x");
-        ComboBox_SetCurSel(hControl, (pProfile->shd_antiAliasing <= 6u) ? pProfile->shd_antiAliasing - 1u : 0u);
-    }
+    // antialiasing
     if (pProfile->shd_antiAliasing != 0u)
         CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_FILTERS], IDC_PRO_FXAA_CHECK, BST_CHECKED);
 
@@ -233,6 +237,7 @@ void ConfigPageProfileView::loadConfig()
     if (pProfile->dsp_ratioType != 0u)
         CheckDlgButton(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_PXRATIO_CHECK, BST_CHECKED);
     // trackbars
+    HWND hControl = NULL;
     if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_STRETCH_SLIDER))
     {
         SendMessageW(hControl, TBM_SETRANGE, TRUE, MAKELONG(0, 8));

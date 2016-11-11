@@ -233,10 +233,10 @@ enum CFG_AntiAliasing : uint32_t
     CFG_AA_None = 0,
     CFG_AA_FXAA = 1, // fast
     CFG_AA_NFAA = 2, // good with 2D
-    CFG_AA_MSAA4 = 3,
-    CFG_AA_MSAA8 = 4,
-    CFG_AA_SMAA4 = 5,
-    CFG_AA_SMAA8 = 6
+    CFG_AA_SMAA4 = 3,
+    CFG_AA_SMAA8 = 4,
+    CFG_AA_MSAA4 = 5,
+    CFG_AA_MSAA8 = 6
 };
 #define CFG_AntiAliasing_LENGTH 7
 
