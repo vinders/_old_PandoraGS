@@ -102,6 +102,22 @@ void LanguageDialogResource::setLanguage_English()
     manager_preset_enhanced2d = L"Enhanced 2D";
     manager_preset_enhanced3d = L"Enhanced 3D";
 
+    profile_interpolation[0] = L"None - nearest neighbor";
+    profile_interpolation[1] = L"Standard - bilinear";
+    profile_interpolation[2] = L"Enhanced - bilinear";
+    profile_interpolation[3] = L"Bicubic (slow)";
+    profile_interpolation[4] = L"Gaussian (slow)";
+    profile_screenSmooth[0] = L"None";
+    profile_screenSmooth[1] = L"Slight blur";
+    profile_screenSmooth[2] = L"Blur";
+    profile_screenSmooth[3] = L"Blur & add grain";
+    profile_antialiasing[0] = L"FXAA (fast, slight blur)";
+    profile_antialiasing[1] = L"NFAA (subtle, 3D only)";
+    profile_antialiasing[2] = L"SMAA 4x (fast & nice)";
+    profile_antialiasing[3] = L"SMAA 8x (fast & nice)";
+    profile_antialiasing[4] = L"MSAA 4x (slow)";
+    profile_antialiasing[5] = L"MSAA 8x (very slow)";
+
     profile_internal_resx[0] = L"X: native (1x)";
     profile_internal_resx[1] = L"X: standard (2x)";
     profile_internal_resx[2] = L"X: high (4x)";
@@ -141,6 +157,22 @@ void LanguageDialogResource::setLanguage_Spanish()
     manager_preset_standard = L"Standard";
     manager_preset_enhanced2d = L"Enhanced 2D";
     manager_preset_enhanced3d = L"Enhanced 3D";
+
+    profile_interpolation[0] = L"None - nearest neighbor";
+    profile_interpolation[1] = L"Standard - bilinear";
+    profile_interpolation[2] = L"Enhanced - bilinear";
+    profile_interpolation[3] = L"Bicubic (slow)";
+    profile_interpolation[4] = L"Gaussian (slow)";
+    profile_screenSmooth[0] = L"None";
+    profile_screenSmooth[1] = L"Slight blur";
+    profile_screenSmooth[2] = L"Blur";
+    profile_screenSmooth[3] = L"Blur & add grain";
+    profile_antialiasing[0] = L"FXAA (fast, slight blur)";
+    profile_antialiasing[1] = L"NFAA (subtle, 3D only)";
+    profile_antialiasing[2] = L"SMAA 4x (fast & nice)";
+    profile_antialiasing[3] = L"SMAA 8x (fast & nice)";
+    profile_antialiasing[4] = L"MSAA 4x (slow)";
+    profile_antialiasing[5] = L"MSAA 8x (very slow)";
 
     profile_internal_resx[0] = L"X: native (1x)";
     profile_internal_resx[1] = L"X: standard (2x)";
@@ -182,6 +214,22 @@ void LanguageDialogResource::setLanguage_French()
     manager_preset_enhanced2d = L"2D améliorée";
     manager_preset_enhanced3d = L"3D améliorée";
 
+    profile_interpolation[0] = L"Aucun - au plus proche";
+    profile_interpolation[1] = L"Standard - bilinéaire";
+    profile_interpolation[2] = L"Enhanced - bilinéaire";
+    profile_interpolation[3] = L"Bicubique (lent)";
+    profile_interpolation[4] = L"Gaussien (lent)";
+    profile_screenSmooth[0] = L"Aucun";
+    profile_screenSmooth[1] = L"Léger flou";
+    profile_screenSmooth[2] = L"Flou";
+    profile_screenSmooth[3] = L"Flou & ajout de grain";
+    profile_antialiasing[0] = L"FXAA (rapide, léger flou)";
+    profile_antialiasing[1] = L"NFAA (subtil, pour 3D)";
+    profile_antialiasing[2] = L"SMAA 4x (rapide & bon)";
+    profile_antialiasing[3] = L"SMAA 8x (rapide & bon)";
+    profile_antialiasing[4] = L"MSAA 4x (lent)";
+    profile_antialiasing[5] = L"MSAA 8x (très lent)";
+
     profile_internal_resx[0] = L"X: native (1x)";
     profile_internal_resx[1] = L"X: standard (2x)";
     profile_internal_resx[2] = L"X: haute (4x)";
@@ -221,6 +269,22 @@ void LanguageDialogResource::setLanguage_German()
     manager_preset_standard = L"Standard";
     manager_preset_enhanced2d = L"Enhanced 2D";
     manager_preset_enhanced3d = L"Enhanced 3D";
+
+    profile_interpolation[0] = L"None - nearest neighbor";
+    profile_interpolation[1] = L"Standard - bilinear";
+    profile_interpolation[2] = L"Enhanced - bilinear";
+    profile_interpolation[3] = L"Bicubic (slow)";
+    profile_interpolation[4] = L"Gaussian (slow)";
+    profile_screenSmooth[0] = L"None";
+    profile_screenSmooth[1] = L"Slight blur";
+    profile_screenSmooth[2] = L"Blur";
+    profile_screenSmooth[3] = L"Blur & add grain";
+    profile_antialiasing[0] = L"FXAA (fast, slight blur)";
+    profile_antialiasing[1] = L"NFAA (subtle, 3D only)";
+    profile_antialiasing[2] = L"SMAA 4x (fast & nice)";
+    profile_antialiasing[3] = L"SMAA 8x (fast & nice)";
+    profile_antialiasing[4] = L"MSAA 4x (slow)";
+    profile_antialiasing[5] = L"MSAA 8x (very slow)";
 
     profile_internal_resx[0] = L"X: native (1x)";
     profile_internal_resx[1] = L"X: standard (2x)";

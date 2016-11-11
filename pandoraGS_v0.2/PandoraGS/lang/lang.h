@@ -74,6 +74,12 @@ public:
     std::wstring manager_preset_enhanced2d;
     std::wstring manager_preset_enhanced3d;
 
+#define LANG_PROFILE_INTERPOLATION 5
+#define LANG_PROFILE_SCREENSMOOTH 4
+#define LANG_PROFILE_AA 6
+    std::wstring profile_interpolation[LANG_PROFILE_INTERPOLATION];
+    std::wstring profile_screenSmooth[LANG_PROFILE_SCREENSMOOTH];
+    std::wstring profile_antialiasing[LANG_PROFILE_AA];
 #define LANG_PROFILE_INTERNAL_RESX 5
 #define LANG_PROFILE_INTERNAL_RESY 6
 #define LANG_PROFILE_STRETCH_PRESETS 5
