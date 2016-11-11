@@ -241,14 +241,14 @@ void ConfigPageProfileView::loadConfig()
     if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_STRETCH_SLIDER))
     {
         SendMessageW(hControl, TBM_SETRANGE, TRUE, MAKELONG(0, 8));
-        SendMessageW(hControl, TBM_SETPAGESIZE, 0, 8);
+        SendMessageW(hControl, TBM_SETPAGESIZE, 0, 4);
         SendMessageW(hControl, TBM_SETTICFREQ, 1, 0);
         SendMessageW(hControl, TBM_SETPOS, TRUE, (int)pProfile->dsp_stretchRatio);
     }
     if (hControl = GetDlgItem(res_tabPages[CONFIG_PROFILE_TAB_STRETCH], IDC_PROSTR_CUT_SLIDER))
     {
         SendMessageW(hControl, TBM_SETRANGE, TRUE, MAKELONG(0, 8));
-        SendMessageW(hControl, TBM_SETPAGESIZE, 0, 8);
+        SendMessageW(hControl, TBM_SETPAGESIZE, 0, 4);
         SendMessageW(hControl, TBM_SETTICFREQ, 1, 0);
         SendMessageW(hControl, TBM_SETPOS, TRUE, (int)pProfile->dsp_cropStrength);
     }
