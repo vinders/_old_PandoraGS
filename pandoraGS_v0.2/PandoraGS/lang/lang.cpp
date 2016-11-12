@@ -216,7 +216,7 @@ void LanguageDialogResource::setLanguage_French()
 
     profile_interpolation[0] = L"Aucun - au plus proche";
     profile_interpolation[1] = L"Standard - bilinéaire";
-    profile_interpolation[2] = L"Enhanced - bilinéaire";
+    profile_interpolation[2] = L"Amélioré - bilinéaire";
     profile_interpolation[3] = L"Bicubique (lent)";
     profile_interpolation[4] = L"Gaussien (lent)";
     profile_screenSmooth[0] = L"Aucun";
