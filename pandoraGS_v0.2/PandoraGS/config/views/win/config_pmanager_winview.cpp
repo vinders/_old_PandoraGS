@@ -167,7 +167,7 @@ void ConfigPageManagerView::loadPage(HWND hWindow, HINSTANCE* phInstance, RECT* 
     res_tooltips[PMANAGER_TOOLTIP_BTN_EXPORT] = WinToolbox::createToolTip(IDC_MNG_BTN_EXPORT, m_hPage, phInstance, (PTSTR)pLang->manager_btnExport_tooltip.c_str());
 
     // set data table
-    res_dataTable = CreateWindow(WC_LISTVIEWW, L"blabla", WS_VISIBLE | WS_CHILD | LVS_REPORT | WS_VSCROLL,
+    res_dataTable = CreateWindow(WC_LISTVIEWW, NULL, WS_VISIBLE | WS_CHILD | LVS_REPORT | WS_VSCROLL,
                                 30, 54, LISTVIEW_WIDTH, 287, m_hPage, (HMENU)IDC_MNG_LISTVIEW, *phInstance, 0);
     if (res_dataTable)
     {
