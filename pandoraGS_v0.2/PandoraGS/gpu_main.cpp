@@ -52,8 +52,7 @@ long CALLBACK GPUinit()
     }
     catch (std::exception exc) // init failure
     {
-        try { LogUtility::getInstance()->writeErrorEntry("GPUinit",exc.what()); } catch(...) {}
-        
+        logError("GPUinit", exc.what());
         GPUshutdown();
         return PSE_INIT_ERR_NOHARDWARE;
     }
@@ -115,7 +114,7 @@ long CALLBACK GPUopen_PARAM_
     }
     catch (std::exception exc) // allocation failure
     {
-        try { LogUtility::getInstance()->writeErrorEntry("GPUopen", exc.what()); } catch (...) {}
+        logError("GPUopen", exc.what());
         return PSE_ERR_FATAL;
     }
     return PSE_SUCCESS;

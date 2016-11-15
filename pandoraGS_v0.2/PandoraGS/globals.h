@@ -28,10 +28,10 @@ Description : global constants and definitions + PSEmu Pro specification
 #define PLUGIN_ABOUT_TITLE "About PandoraGS..."
 #ifdef _WINDOWS
 #define PLUGIN_THANKS      "Tapeq - for providing useful docs\r\nPete - for sharing public sources\
- \r\nCalb and ePSXe - for adding exe-name support\r\nThe OpenGL SuperBible book"
+ \r\nCalb/ePSXe - for allowing plugins to get game IDs\r\nThe OpenGL SuperBible book"
 #else
 #define PLUGIN_THANKS      "Tapeq - for providing useful docs\nPete - for sharing public sources\
- \nCalb and ePSXe - for adding exe-name support\nThe OpenGL SuperBible book"
+ \nCalb/ePSXe - for allowing plugins to get game IDs\nThe OpenGL SuperBible book"
 #endif
 
 // compilation settings
@@ -144,6 +144,8 @@ This file can be used only to develop PSEmu Plugins. Other usage is highly prohi
 #define HIWORD(l)   ((unsigned short)(((unsigned long)(l) >> 16) & 0xFFFF))
 #define max(a,b)    (((a) > (b)) ? (a) : (b))
 #define min(a,b)    (((a) < (b)) ? (a) : (b))
+#define strcpy_s(a,size,b) strcpy(a,b)
+#define strcpy_s(a,b)      strcpy(a,b)
 #endif
 
 #ifndef CALLBACK
@@ -155,5 +157,9 @@ This file can be used only to develop PSEmu Plugins. Other usage is highly prohi
 
 #include <stdint.h>
 #include <inttypes.h>
+
+// -- COMMON MACROS -- ---------------------------------------------------------
+
+#define logError(origin, msg) try{LogUtility::getInstance()->writeErrorEntry((origin),(msg));}catch(...){}
 
 #endif
