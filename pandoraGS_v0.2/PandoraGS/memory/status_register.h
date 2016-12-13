@@ -38,9 +38,9 @@ class StatusRegister
 {
 private:
     // emulated gpu status
-    static int32_t m_statusReg;       // GPU status register
-    static std::string m_gameId;      // game executable ID
-    static long m_selectedSaveSlot;   // selected save-state slot
+    static int32_t s_statusReg;       // GPU status register
+    static std::string s_gameId;      // game executable ID
+    static long s_selectedSaveSlot;   // selected save-state slot
 
     
 public:
@@ -54,59 +54,59 @@ public:
     /// <param name="statusBits">Bits mask to set</param>
     static inline void setStatus(int32_t statusBits)
     {
-        m_statusReg |= statusBits;
+        s_statusReg |= statusBits;
     }
     /// <summary>Remove specific status bit(s) in status register</summary>
     /// <param name="statusBits">Bits mask to remove</param>
     static inline void unsetStatus(int32_t statusBits)
     {
-        m_statusReg &= ~statusBits;
+        s_statusReg &= ~statusBits;
     }
     /// <summary>Check if status bit is active in status register</summary>
     /// <param name="statusBits">Bit(s) mask</param>
     /// <returns>True if at least one bit is active</returns>
     static inline bool getStatus(int32_t statusBit)
     {
-        return ((m_statusReg & statusBit) != 0);
+        return ((s_statusReg & statusBit) != 0);
     }
     /// <summary>Get specific status bit(s) from status register</summary>
     /// <param name="statusBits">Bits mask</param>
     /// <returns>Bit map</returns>
     static inline int32_t getStatusBits(int32_t statusBits)
     {
-        return (m_statusReg & statusBits);
+        return (s_statusReg & statusBits);
     }
     /// <summary>Get full status register</summary>
     /// <returns>Status register</returns>
     static inline int32_t getStatus()
     {
-        return m_statusReg;
+        return s_statusReg;
     }
 
     /// <summary>Set game executable identifier</summary>
     /// <param name="pGameId">Game ID</param>
     static inline void setGameId(char* pGameId)
     {
-        m_gameId = (pGameId != NULL) ? std::string(pGameId) : std::string("");
+        s_gameId = (pGameId != NULL) ? std::string(pGameId) : std::string("");
     }
     /// <summary>Get game executable identifier</summary>
     /// <returns>Game ID</returns>
     static inline std::string getGameId()
     {
-        return m_gameId;
+        return s_gameId;
     }
 
     /// <summary>Set save-state slot index</summary>
     /// <param name="slotIndex">Slot index</param>
     static inline void setSaveSlot(long slotIndex)
     {
-        m_selectedSaveSlot = slotIndex;
+        s_selectedSaveSlot = slotIndex;
     }
     /// <summary>Get save-state slot index</summary>
     /// <returns>Slot index</returns>
     static inline long getSaveSlot()
     {
-        return m_selectedSaveSlot;
+        return s_selectedSaveSlot;
     }
 };
 

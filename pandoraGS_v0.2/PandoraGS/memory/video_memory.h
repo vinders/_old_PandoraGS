@@ -117,7 +117,12 @@ public:
     /// <summary>Create iterator at the beginning of the effective memory zone</summary>
     /// <returns>New iterator</returns>
     /// <exception cref="std::exception">Uninitialized memory</exception>
-    VideoMemory::iterator begin();
+    inline VideoMemory::iterator begin()
+    {
+        if (m_pVramImage == NULL)
+            throw std::exception("VideoMemory.begin: can't get iterator from uninitialized memory");
+        return VideoMemory::iterator(*this);
+    }
     /// <summary>Get pointer after the end of the effective memory zone</summary>
     /// <returns>End of memory</returns>
     inline uint16_t* end()
@@ -171,7 +176,7 @@ inline void VideoMemory::resetDmaCheck()
     m_dmaAddresses[1] = THREEBYTES_MASK;
     m_dmaAddresses[2] = THREEBYTES_MASK;
 }
-/// <summary>Check DMA chain for endless loop (Pete's fix)</summary>
+/// <summary>Check DMA chain for endless loop</summary>
 /// <param name="addr">Memory address to check</param>
 inline bool VideoMemory::checkDmaEndlessChain(unsigned long addr)
 {

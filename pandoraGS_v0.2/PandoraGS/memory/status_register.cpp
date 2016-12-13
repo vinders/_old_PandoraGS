@@ -11,13 +11,13 @@ using namespace std;
 #include "status_register.h"
 
 // emulated gpu status
-int32_t StatusRegister::m_statusReg = 0;       // GPU status register
-std::string StatusRegister::m_gameId("");      // game executable ID
-long StatusRegister::m_selectedSaveSlot = 0L;  // selected save-state slot
+int32_t StatusRegister::s_statusReg = 0;       // GPU status register
+std::string StatusRegister::s_gameId("");      // game executable ID
+long StatusRegister::s_selectedSaveSlot = 0L;  // selected save-state slot
 
 /// <summary>Initialize status</summary>
 void StatusRegister::init()
 {
-    m_statusReg = GPUSTATUS_INIT;
+    s_statusReg = GPUSTATUS_INIT;
     setStatus(GPUSTATUS_IDLE | GPUSTATUS_READYFORCOMMANDS);
 }

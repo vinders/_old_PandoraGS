@@ -60,16 +60,3 @@ void VideoMemory::close()
         m_pVramImage = NULL;
     }
 }
-
-
-// -- MEMORY ITERATION -- --------------------------------------------------
-
-/// <summary>Create iterator at the beginning of the effective memory zone</summary>
-/// <returns>New iterator</returns>
-/// <exception cref="std::exception">Uninitialized memory</exception>
-VideoMemory::iterator VideoMemory::begin()
-{
-    if (m_pVramImage == NULL)
-        throw std::exception("VideoMemory.begin: can't get iterator from uninitialized memory");
-    return VideoMemory::iterator(*this);
-}
