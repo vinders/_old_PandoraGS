@@ -12,7 +12,6 @@ Description : video memory (vram) image
 #include <cstddef>
 #include <cstdint>
 #include <string>
-#include "globals.h"
 
 // data types
 typedef int8_t gpuversion_t;
@@ -152,6 +151,12 @@ public:
     inline gpuversion_t version()
     {
         return m_gpuVersion;
+    }
+    /// <summary>Get GPU version</summary>
+    /// <param name="ver">GPU version</param>
+    inline void setVersion(gpuversion_t ver)
+    {
+        m_gpuVersion = ver;
     }
 
 

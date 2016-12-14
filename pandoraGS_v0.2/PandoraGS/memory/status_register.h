@@ -9,7 +9,6 @@ Description : status register and status information
 *******************************************************************************/
 #ifndef _STATUS_REGISTER_H
 #define _STATUS_REGISTER_H
-#include "globals.h"
 #include <cstddef>
 #include <cstdint>
 #include <string>

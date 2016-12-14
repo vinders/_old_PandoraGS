@@ -16,6 +16,7 @@ using namespace std;
 VideoMemory::VideoMemory()
 {
     m_pVramImage = NULL;
+    m_gpuVersion = 1;
 }
 
 /// <summary>Release memory allocations</summary>
@@ -32,9 +33,7 @@ void VideoMemory::init(bool isDoubledBufSize = false)
     if (m_pVramImage != NULL)
         close();
 
-    //...
-
-    // alloc double buffered PSX VRAM image
+    // allocate VRAM image
     m_isDoubledBufSize = isDoubledBufSize;
     m_vramBufferSize = (isDoubledBufSize) ? VRAM_SIZE * 2048 : VRAM_SIZE * 1024;
     m_vramTotalSize = (m_vramBufferSize * 2) + (VRAM_SECURITY_OFFSET * 2048); // extra security for drawing API
@@ -47,8 +46,7 @@ void VideoMemory::init(bool isDoubledBufSize = false)
     m_pWord = (uint16_t*)m_pByte;
     m_pDword = (uint32_t*)m_pByte;
     m_pEnd = m_pWord + m_vramBufferSize; // end limit
-
-    //...
+    resetDmaCheck();
 }
 
 /// <summary>Release memory allocations</summary>
