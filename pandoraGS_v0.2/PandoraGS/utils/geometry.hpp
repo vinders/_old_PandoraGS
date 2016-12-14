@@ -52,7 +52,7 @@ typedef struct HRECTTAG
     HRECTTAG(short sx0, short sx1, short sy0, short sy1) : x0(sx0), x1(sx1), y0(sy0), y1(sy1) {}
 } rect_t;
 
-// geometry quad (word)
+// wide geometry quad (dword)
 typedef struct LQUADTAG
 {
     long x;

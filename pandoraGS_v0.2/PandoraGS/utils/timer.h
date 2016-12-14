@@ -22,7 +22,7 @@ enum timemode_t : uint32_t // timing modes
     Timemode_multimediaClock = 0u, // low res, steady
     Timemode_highResCounter = 1u   // high res, unstable
 };
-enum regionmode_t : int32_t // regional sync modes
+enum regionsync_t : int32_t // regional sync modes
 {
     Regionmode_undefined = -1,
     Regionmode_ntsc = 0,
@@ -70,7 +70,7 @@ public:
     /// <param name="freqLimit">Frequency max limit</param>
     /// <param name="regMode">Regional sync mode</param>
     /// <param name="isInterlaced">Interlacing</param>
-    static void setFrequency(float freqLimit, regionmode_t regMode, bool isInterlaced);
+    static void setFrequency(float freqLimit, regionsync_t regMode, bool isInterlaced);
 
     /// <summary>Reset time reference</summary>
     static inline void resetTimeReference()

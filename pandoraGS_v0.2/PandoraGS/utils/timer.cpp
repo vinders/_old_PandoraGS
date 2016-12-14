@@ -60,7 +60,7 @@ void Timer::setTimeMode(timemode_t type)
 /// <param name="freqLimit">Frequency max limit</param>
 /// <param name="regMode">Regional sync mode</param>
 /// <param name="isInterlaced">Interlacing</param>
-void Timer::setFrequency(float freqLimit, regionmode_t regMode, bool isInterlaced)
+void Timer::setFrequency(float freqLimit, regionsync_t regMode, bool isInterlaced)
 {
     s_isInterlaced = isInterlaced;
     
