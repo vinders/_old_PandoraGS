@@ -54,5 +54,6 @@ EXPORTS
     ZN_GPUmakeSnapshot  @48
     ZN_GPUgetScreenPic  @49
     ZN_GPUshowScreenPic @50
-
-
+    
+    GPUgetVramRef   	@51
+    GPUtestUnits   	    @52
