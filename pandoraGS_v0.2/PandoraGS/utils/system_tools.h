@@ -11,6 +11,7 @@ Description : system management toolbox
 #define _SYSTEM_TOOLS_H
 #include <cstdint>
 
+// data types
 typedef int32_t buffer_t;
 typedef uint32_t ubuffer_t;
 enum change_t : int32_t // pending change
@@ -20,6 +21,8 @@ enum change_t : int32_t // pending change
     Change_enable = 2
 };
 
+
+// System management toolbox
 namespace SystemTools
 {
 #ifdef _WINDOWS

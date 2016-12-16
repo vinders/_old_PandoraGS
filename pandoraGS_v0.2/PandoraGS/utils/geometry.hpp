@@ -15,11 +15,10 @@ typedef struct LPOINTTAG
 {
     long x;
     long y;
-    LPOINTTAG() : x(0), y(0) {}
+    LPOINTTAG() : x(0L), y(0L) {}
     LPOINTTAG(long lx, long ly) : x(lx), y(ly) {}
 } wpoint_t;
 typedef wpoint_t wdimension_t;
-
 // geometry point (word)
 typedef struct HPOINTTAG
 {
@@ -29,6 +28,14 @@ typedef struct HPOINTTAG
     HPOINTTAG(short sx, short sy) : x(sx), y(sy) {}
 } point_t;
 typedef point_t dimension_t;
+// geometry point (float)
+typedef struct FPOINTTAG
+{
+    float x;
+    float y;
+    FPOINTTAG() : x(0.0f), y(0.0f) {}
+    FPOINTTAG(float fx, float fy) : x(fx), y(fy) {}
+} fpoint_t;
 
 // wide geometry rectangle (dword)
 typedef struct LRECTTAG
@@ -37,10 +44,9 @@ typedef struct LRECTTAG
     long x1; // X end
     long y0; // Y start
     long y1; // Y end
-    LRECTTAG() : x0(0), x1(0), y0(0), y1(0) {}
+    LRECTTAG() : x0(0L), x1(0L), y0(0L), y1(0L) {}
     LRECTTAG(long lx0, long lx1, long ly0, long ly1) : x0(lx0), x1(lx1), y0(ly0), y1(ly1) {}
 } wrect_t;
-
 // geometry rectangle (word)
 typedef struct HRECTTAG
 {
@@ -59,10 +65,9 @@ typedef struct LQUADTAG
     long y;
     long width;
     long height;
-    LQUADTAG() : x(0), y(0), width(0), height(0) {}
+    LQUADTAG() : x(0L), y(0L), width(0L), height(0L) {}
     LQUADTAG(long lx, long ly, long lw, long lh) : x(lx), y(ly), width(lw), height(lh) {}
 } wquad_t;
-
 // geometry quad (word)
 typedef struct HQUADTAG
 {

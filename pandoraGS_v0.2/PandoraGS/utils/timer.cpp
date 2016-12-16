@@ -66,7 +66,7 @@ void Timer::setFrequency(float freqLimit, regionsync_t regMode, bool isInterlace
     
     // set fixed framerate limit
     s_targetFreq = 59.94f;
-    if (freqLimit > 0.02f) // == 0 (+ float error offset) -> enabled
+    if (freqLimit > 0.02f) // != 0 (+ float error offset) -> enabled
     {
         s_targetFreq = freqLimit;
     }
