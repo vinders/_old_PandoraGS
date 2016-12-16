@@ -14,20 +14,15 @@ Description : video memory (vram) image
 #include <string>
 
 // data types
-typedef int8_t gpuversion_t;
 enum loadmode_t : int32_t
 {
-    Loadmode_read = 0x1,
-    Loadmode_write = 0x2,
-    Loadmode_readwrite = 0x3,
+    Loadmode_normal = 0,
+    Loadmode_vramTransfer = 1
 };
 
 // VRAM size (kilobytes)
 #define VRAM_SIZE             512
 #define VRAM_SECURITY_OFFSET  512 // offset before and after vram
-// data transfer modes
-#define DR_NORMAL             0
-#define DR_VRAMTRANSFER       1
 // dma access masks
 #define THREEBYTES_MASK       0x0FFFFFF
 #define PSXVRAM_MASK          0x1FFFFC // 2097148
@@ -49,7 +44,6 @@ private:
     bool      m_isDoubledBufSize;// doubled buffer size (for Zinc) or not
     size_t    m_vramBufferSize;  // single vram buffer size
     size_t    m_vramTotalSize;   // total allocated memory
-    gpuversion_t m_gpuVersion;   // GPU version type (for Zinc)
 
     // memory access
     uint8_t*  m_pByte;   // 8 bits access mode
@@ -146,54 +140,31 @@ public:
     {
         return m_isDoubledBufSize;
     }
-    /// <summary>Get GPU version</summary>
-    /// <returns>GPU version</returns>
-    inline gpuversion_t version()
-    {
-        return m_gpuVersion;
-    }
-    /// <summary>Get GPU version</summary>
-    /// <param name="ver">GPU version</param>
-    inline void setVersion(gpuversion_t ver)
-    {
-        m_gpuVersion = ver;
-    }
 
 
     // -- MEMORY IO -- -------------------------------------------------------------
 
     /// <summary>Initialize check values for DMA chains</summary>
-    inline void resetDmaCheck();
+    inline void resetDmaCheck()
+    {
+        m_dmaAddresses[0] = THREEBYTES_MASK;
+        m_dmaAddresses[1] = THREEBYTES_MASK;
+        m_dmaAddresses[2] = THREEBYTES_MASK;
+    }
     /// <summary>Check DMA chain for endless loop (Pete's fix)</summary>
     /// <param name="addr">Memory address to check</param>
-    inline bool checkDmaEndlessChain(unsigned long addr);
+    inline bool checkDmaEndlessChain(unsigned long addr)
+    {
+        if (addr == m_dmaAddresses[1] || addr == m_dmaAddresses[2])
+            return true;
+        if (addr < m_dmaAddresses[0])
+            m_dmaAddresses[1] = addr;
+        else
+            m_dmaAddresses[2] = addr;
+        m_dmaAddresses[0] = addr;
+        return false;
+    }
 };
-
-
-// --------------
-// INLINE METHODS
-// --------------
-
-/// <summary>Initialize check values for DMA chains</summary>
-inline void VideoMemory::resetDmaCheck()
-{
-    m_dmaAddresses[0] = THREEBYTES_MASK;
-    m_dmaAddresses[1] = THREEBYTES_MASK;
-    m_dmaAddresses[2] = THREEBYTES_MASK;
-}
-/// <summary>Check DMA chain for endless loop</summary>
-/// <param name="addr">Memory address to check</param>
-inline bool VideoMemory::checkDmaEndlessChain(unsigned long addr)
-{
-    if (addr == m_dmaAddresses[1] || addr == m_dmaAddresses[2])
-        return true;
-    if (addr < m_dmaAddresses[0])
-        m_dmaAddresses[1] = addr;
-    else
-        m_dmaAddresses[2] = addr;
-    m_dmaAddresses[0] = addr;
-    return false;
-}
 
 #include "video_memory_iterator.hpp" // inline iterator definitions
 #endif

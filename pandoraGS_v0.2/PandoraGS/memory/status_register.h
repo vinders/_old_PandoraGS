@@ -39,12 +39,14 @@ private:
     // emulated gpu status
     static int32_t s_statusReg;       // GPU status register
     static std::string s_gameId;      // game executable ID
-    static long s_selectedSaveSlot;   // selected save-state slot
 
     
 public:
     /// <summary>Initialize status</summary>
-    static void init();
+    static inline void init()
+    {
+        s_statusReg = GPUSTATUS_INIT;
+    }
 
 
     // -- GETTERS / SETTERS -- -------------------------------------------------
@@ -93,19 +95,6 @@ public:
     static inline std::string getGameId()
     {
         return s_gameId;
-    }
-
-    /// <summary>Set save-state slot index</summary>
-    /// <param name="slotIndex">Slot index</param>
-    static inline void setSaveSlot(long slotIndex)
-    {
-        s_selectedSaveSlot = slotIndex;
-    }
-    /// <summary>Get save-state slot index</summary>
-    /// <returns>Slot index</returns>
-    static inline long getSaveSlot()
-    {
-        return s_selectedSaveSlot;
     }
 };
 

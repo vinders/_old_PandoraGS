@@ -16,7 +16,7 @@ using namespace std;
 VideoMemory::VideoMemory()
 {
     m_pVramImage = NULL;
-    m_gpuVersion = 1;
+    m_vramBufferSize = VRAM_SIZE;
 }
 
 /// <summary>Release memory allocations</summary>

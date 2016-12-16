@@ -11,10 +11,12 @@ Description : display state, data and settings
 #define _DISPLAY_STATE_H
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include "geometry.hpp"
 #include "system_tools.h"
 
 // data types
+typedef unsigned short gpuversion_t;
 enum colormode_t : int32_t // color depth
 {
     Colormode_rgb15 = 0,
@@ -63,6 +65,7 @@ private:
     buffer_t m_pDrawInfo[DRAWINFO_SIZE]; // draw status
     regionmode_t m_region;      // region display mode (NTSC/PAL)
     bool m_isInterlaced;        // interlacing (on/off)
+    gpuversion_t m_gpuVersion;  // GPU version type (for Zinc)
 
     // display flags
     bool m_isDisplaySet;
@@ -87,6 +90,14 @@ public:
 
 
 public:
+    /// <summary>Display state container creation</summary>
+    DisplayState()
+    {
+        m_gpuVersion = 1;
+        m_isDisplaySet = false;
+        m_firstPositionFlag = 2L;
+        m_displayFlags = 0u;
+    }
     /// <summary>Initialize display state</summary>
     void init();
 
@@ -110,12 +121,15 @@ public:
     inline void setDisplayPos(point_t pos);
 
     /// <summary>Get GPU information (version, draw info, ...)</summary>
-    /// <param name="gdata">Type of request (8 bits request ID)</param>
+    /// <param name="gdata">Type of request</param>
     /// <returns>Information value</returns>
     inline buffer_t getDrawInfo(ubuffer_t gdata);
     /// <summary>Update display state</summary>
     /// <param name="gdata">Display data</param>
     inline void setDisplayState(ubuffer_t gdata);
+
+
+    // -- BASIC GETTERS / SETTERS -- -----------------------------------------------
 
     /// <summary>Change even/odd frame status</summary>
     inline void toggleOddFrameFlag()
@@ -128,6 +142,26 @@ public:
     {
         return m_oddFrameFlag;
     }
+    /// <summary>Set even/odd frame status</summary>
+    /// <param name="val">Odd frame flag value</returns>
+    inline void setOddFrameFlag(int val)
+    {
+        m_oddFrameFlag = val;
+    }
+
+    /// <summary>Get GPU version</summary>
+    /// <returns>GPU version</returns>
+    inline gpuversion_t version()
+    {
+        return m_gpuVersion;
+    }
+    /// <summary>Get GPU version</summary>
+    /// <param name="ver">GPU version</param>
+    inline void setVersion(gpuversion_t ver)
+    {
+        m_gpuVersion = ver;
+    }
 };
 
+#include "display_state.cpp" // inline definitions
 #endif

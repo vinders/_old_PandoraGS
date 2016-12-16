@@ -14,8 +14,8 @@ Description : display memory manager and dispatcher
 #include <cstdint>
 #include "video_memory.h"
 #include "display_state.h"
-#include "geometry.hpp"
 #include "system_tools.h"
+#include "geometry.hpp"
 
 // data types
 typedef uint8_t gpucmd_t;
@@ -26,7 +26,18 @@ typedef struct MEMLOAD // memory I/O
     short  rowsRemaining;
     short  colsRemaining;
     VideoMemory::iterator vramPos;
+    MEMLOAD()
+    {
+        mode = Loadmode_normal;
+    }
 } memoryload_t;
+typedef struct GPUFREEZETAG // save-state structure
+{
+    unsigned long freezeVersion;    // system version = 1 (set by emulator)
+    unsigned long status;           // current virtual GPU status
+    unsigned long pControlReg[256]; // latest control register values
+    unsigned char pPsxVram[1024*1024 * 2]; // current video memory image
+} GPUFreeze_t;
 
 // control register
 #define CTRLREG_SIZE            256
@@ -44,7 +55,8 @@ typedef struct MEMLOAD // memory I/O
 // Display memory manager and dispatcher
 class MemoryDispatcher
 {
-private:
+public: // treat PSEmu memory functions as member methods
+
     // video memory management
     static VideoMemory  mem_vram;               // emulated console video memory
     static memoryload_t mem_vramReader;         // output memory load
@@ -57,6 +69,7 @@ private:
     static bool st_isFirstOpen;      // first call to GPUopen()
     static bool st_isUploadPending;  // image needs to be uploaded to VRAM
     static long st_busyEmuSequence;  // 'GPU busy' emulation hack - sequence value
+    static long s_selectedSaveSlot;  // selected save-state slot
 
     // gpu operations
     static gpucmd_t  gpu_command;
@@ -64,8 +77,8 @@ private:
     static buffer_t  gpu_dataColor;
     static buffer_t  gpu_dataPoly;
 
-public:
 #ifdef _WINDOWS
+public:
     static HWND  s_hWindow;    // main emulator window handle
     static HMENU s_hMenu;      // emulator menu handle
     static DWORD s_origStyle;  // original window style
@@ -74,14 +87,55 @@ public:
 
 public:
     /// <summary>Initialize memory, status and dispatcher</summary>
-    void init();
+    static inline void init()
+    {
+        // initialize control data
+        st_displayState.init();
+        mem_dataExchangeBuffer = GPUDATA_INIT;
+        memset(st_pControlReg, 0x0, CTRLREG_SIZE * sizeof(unsigned long));
+        // initialize VRAM
+        mem_vram.init();
+        memset(&mem_vramReader, 0x0, sizeof(memoryload_t)); // mode = Loadmode_normal = 0
+        memset(&mem_vramWriter, 0x0, sizeof(memoryload_t)); // mode = Loadmode_normal = 0
+        // initialize status
+        StatusRegister::init();
+        StatusRegister::setStatus(GPUSTATUS_IDLE | GPUSTATUS_READYFORCOMMANDS);
+    }
 
-    /// <summary>Set fake busy/idle status sequence</summary>
-    inline void fakeBusySequence();
+    /// <summary>Reset GPU information</summary>
+    static inline void reset()
+    {
+        StatusRegister::init();
+        mem_vramReader.mode = Loadmode_normal;
+        mem_vramWriter.mode = Loadmode_normal;
+        st_displayState.reset();
+    }
+
+    /// <summary>Set fake busy/idle sequence step</summary>
+    static inline void setFakeBusyStep()
+    {
+        // busy/idle sequence (while drawing)
+        if (st_busyEmuSequence)
+        {
+            --st_busyEmuSequence;
+            if (st_busyEmuSequence & 0x1) // busy if odd number
+                StatusRegister::unsetStatus(GPUSTATUS_IDLE | GPUSTATUS_READYFORCOMMANDS);
+            else // idle
+                StatusRegister::setStatus(GPUSTATUS_IDLE | GPUSTATUS_READYFORCOMMANDS);
+        }
+    }
 
     /// <summary>Set VRAM data transfer mode</summary>
-    /// <param name="gdata">Status info</param>
-    static inline void setDataTransferMode(ubuffer_t gdata);
+    /// <param name="gdata">Status command</param>
+    static inline void setDataTransferMode(ubuffer_t gdata)
+    {
+        gdata &= 0x3; // extract last 2 bits (LSB+1, LSB)
+        mem_vramWriter.mode = (gdata == 0x2) ? Loadmode_vramTransfer : Loadmode_normal;
+        mem_vramReader.mode = (gdata == 0x3) ? Loadmode_vramTransfer : Loadmode_normal;
+        // set direct memory access bits
+        StatusRegister::unsetStatus(GPUSTATUS_DMABITS); // clear current DMA settings
+        StatusRegister::setStatus(gdata << 29); // set DMA (MSB-1, MSB-2)
+    }
 
     
     // -- COMMAND EXTRACTION -- ----------------------------------------------------
@@ -102,11 +156,11 @@ public:
     }
     /// <summary>Extract small display position (Y) from raw data</summary>
     /// <param name="raw">Display bits</param>
-    /// <param name="isZincSupport">Zinc alternative enabled</param>
+    /// <param name="isZincSupport">Zinc emu support enabled</param>
     /// <returns>Coordinates</returns>
     static inline point_t extractSmallPos(buffer_t raw, bool isZincSupport)
     {
-        if (isZincSupport && mem_vram.isDoubledSize() && mem_vram.version() == 2)
+        if (isZincSupport && mem_vram.isDoubledSize() && st_displayState.version() == 2)
             return point_t((short)(raw & 0x3FF), (short)((raw >> 12) & 0x3FF));
         return point_t((short)(raw & 0x3FF), (short)((raw >> 10) & 0x3FF));
     }
@@ -144,5 +198,18 @@ void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size);
 /// <param name="offset">Memory offset</param>
 /// <returns>Success indicator</returns>
 long CALLBACK GPUdmaChain(unsigned long* pDwBaseAddress, unsigned long offset);
+
+
+// -- LOAD/SAVE MEMORY STATE -- ------------------------------------------------
+
+/// <summary>Save/load current state</summary>
+/// <param name="dataMode">Transaction type (0 = setter / 1 = getter / 2 = slot selection)</param>
+/// <param name="pMem">Save-state structure pointer (to read or write)</param>
+/// <returns>Success/compatibility indicator</returns>
+long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem);
+/// <summary>Get VRAM access pointer</summary>
+/// <param name="pPtrToMem">Destination pointer (for memory access)</param>
+/// <returns>Memory size (bytes)</returns>
+unsigned long CALLBACK GPUgetVramRef(uint8_t** pPtrToMem);
 
 #endif
