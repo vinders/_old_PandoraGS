@@ -57,9 +57,9 @@ long CALLBACK GPUtestUnits(void* pWinData)
         && testUnit(Unit_input_reader, pWinData)
         && testUnit(Unit_status_register)
         && testUnit(Unit_video_memory)
-        && testUnit(Unit_config_io)
         && testUnit(Unit_config_profile)
         && testUnit(Unit_config)
+        && testUnit(Unit_config_io)
         && testUnit(Unit_lang)
         && testUnit(Unit_drawing_prim)
         && testUnit(Unit_line_prim)
@@ -67,7 +67,8 @@ long CALLBACK GPUtestUnits(void* pWinData)
         && testUnit(Unit_poly_prim)
         && testUnit(Unit_display_state)
         && testUnit(Unit_shader)
-        && testUnit(Unit_render_api);
+        && testUnit(Unit_render_api)
+        && testUnit(Unit_memory_dispatcher);
 
     // unit testing - execution
     if (isSuccess)
@@ -100,8 +101,7 @@ long CALLBACK GPUtestUnits(void* pWinData)
         }
 
         // execution
-        bool isSuccess = testUnit(Unit_memory_dispatcher)
-                      && testUnit(Unit_gpu_main);
+        bool isSuccess = testUnit(Unit_gpu_main);
 
         // close plugin
         printf("GPUclose(): ");
@@ -217,23 +217,23 @@ bool testUnit(unit_id_t unit, void* pWinData = NULL)
                 printSuccess();
 
                 printf("\t* setFrequency(60.0f, Regionmode_undefined, false): ");
-                Timer::setFrequency(60.0f, Regionmode_undefined, false);
+                Timer::setFrequency(60.0f, Regionsync_undefined, false);
                 printSuccess();
 
                 printf("\t* setFrequency(0.0f, Regionmode_ntsc_pcfix, true): ");
-                Timer::setFrequency(0.0f, Regionmode_ntsc_pcfix, true);
+                Timer::setFrequency(0.0f, Regionsync_ntsc_pcfix, true);
                 printSuccess();
 
                 printf("\t* setFrequency(0.0f, Regionmode_pal_pcfix, false): ");
-                Timer::setFrequency(0.0f, Regionmode_pal_pcfix, false);
+                Timer::setFrequency(0.0f, Regionsync_pal_pcfix, false);
                 printSuccess();
 
                 printf("\t* setFrequency(0.0f, Regionmode_ntsc, false): ");
-                Timer::setFrequency(0.0f, Regionmode_ntsc, false);
+                Timer::setFrequency(0.0f, Regionsync_ntsc, false);
                 printSuccess();
 
                 printf("\t* setFrequency(0.0f, Regionmode_pal, true): ");
-                Timer::setFrequency(0.0f, Regionmode_pal, true);
+                Timer::setFrequency(0.0f, Regionsync_pal, true);
                 printSuccess();
 
                 printf("\t* resetTimeReference(): ");
@@ -380,15 +380,15 @@ bool testUnit(unit_id_t unit, void* pWinData = NULL)
             }
             break;
         }
-        case Unit_config_io:
-        {
-            break;
-        }
         case Unit_config_profile:
         {
             break;
         }
         case Unit_config:
+        {
+            break;
+        }
+        case Unit_config_io:
         {
             break;
         }
@@ -399,11 +399,11 @@ bool testUnit(unit_id_t unit, void* pWinData = NULL)
             try
             {
                 printf("\t* LanguageGameMenuResource::setLanguage(Langcode_english): ");
-                LanguageGameMenuResource::setLanguage(LangCode_English);
+                LanguageGameMenuResource::setLanguage(Langcode_english);
                 printSuccess();
 
                 printf("\t* LanguageGameMenuResource::setLanguage(Langcode_customFile): ");
-                LanguageGameMenuResource::setLanguage(LangCode_CustomFile);
+                LanguageGameMenuResource::setLanguage(Langcode_customFile);
                 printSuccess();
 
                 printf("\t* LanguageDialogResource(): ");
