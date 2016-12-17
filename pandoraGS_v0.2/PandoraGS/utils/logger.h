@@ -32,7 +32,14 @@ public:
     ///<returns>Log utility singleton instance</returns>
     static Logger* getInstance();
     ///<summary>Close log utility singleton instance</summary>
-    static void closeInstance();
+    static inline void closeInstance()
+    {
+        if (s_pInstance != NULL)
+        {
+            delete s_pInstance;
+            s_pInstance = NULL;
+        }
+    }
 
 
     // -- GETTERS / SETTERS -- -------------------------------------------------

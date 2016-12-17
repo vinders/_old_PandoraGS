@@ -81,14 +81,6 @@ Logger* Logger::getInstance()
     return s_pInstance;
 }
 
-///<summary>Close log utility singleton instance</summary>
-void Logger::closeInstance()
-{
-    if (s_pInstance != NULL)
-        delete s_pInstance;
-    s_pInstance = NULL;
-}
-
 
 // -- GETTERS / SETTERS -- -------------------------------------------------
 

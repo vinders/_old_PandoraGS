@@ -24,11 +24,11 @@ enum timemode_t : uint32_t // timing modes
 };
 enum regionsync_t : int32_t // regional sync modes
 {
-    Regionmode_undefined = -1,
-    Regionmode_ntsc = 0,
-    Regionmode_pal = 1,
-    Regionmode_ntsc_pcfix = 2,
-    Regionmode_pal_pcfix = 3
+    Regionsync_undefined = -1,
+    Regionsync_ntsc = 0,
+    Regionsync_pal = 1,
+    Regionsync_ntsc_pcfix = 2,
+    Regionsync_pal_pcfix = 3
 };
 enum speed_t : int32_t // speed changes
 {
