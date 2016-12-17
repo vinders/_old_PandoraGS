@@ -106,6 +106,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case IDM_START:
             ProcessTest(hWnd);
             break;
+        case IDM_UNIT:
+            UnitTest(hWnd);
+            break;
         case IDM_EXIT:
             DestroyWindow(hWnd);
             break;
@@ -116,7 +119,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_PAINT: // WM_PAINT  - Paint the main window
         hdc = BeginPaint(hWnd, &ps);
-        // ...
         EndPaint(hWnd, &ps);
         break;
 

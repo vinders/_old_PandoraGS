@@ -10,6 +10,7 @@
 #define IDD_ABOUTBOX			103
 #define IDM_ABOUT				104
 #define IDM_START               200
+#define IDM_UNIT                202
 #define IDM_EXIT				105
 #define IDI_TESTFLOW			107
 #define IDI_SMALL				108

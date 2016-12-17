@@ -27,6 +27,9 @@
     <ClInclude Include="windowManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="psemu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
