@@ -15,16 +15,17 @@ using namespace std;
 
 /// <summary>Set game language values (necessary)</summary>
 /// <param name="code">Language code</param>
-void LanguageGameMenuResource::setLanguage(LangCode code) 
+/// <param name="filePath">Language file path (optional)</param>
+void LanguageGameMenuResource::setLanguage(langcode_t code, std::wstring filePath)
 {
     // language factory
     switch (code)
     {
-        case LangCode_English: setLanguage_English(); break;
-        case LangCode_Spanish: setLanguage_Spanish(); break;
-        case LangCode_French:  setLanguage_French();  break;
-        case LangCode_German:  setLanguage_German();  break;
-        case LangCode_CustomFile: setLanguageFromFile(); break;
+        case Langcode_english: setLanguage_English(); break;
+        case Langcode_spanish: setLanguage_Spanish(); break;
+        case Langcode_french:  setLanguage_French();  break;
+        case Langcode_german:  setLanguage_German();  break;
+        case Langcode_customFile: setLanguageFromFile(filePath); break;
         default: setLanguage_English(); break;
     }
 }
@@ -51,7 +52,8 @@ void LanguageGameMenuResource::setLanguage_German()
 }
 
 /// <summary>Read values from file (english if not found)</summary>
-void LanguageGameMenuResource::setLanguageFromFile()
+/// <param name="filePath">Language file path</param>
+void LanguageGameMenuResource::setLanguageFromFile(std::wstring filePath)
 {
 
 }
@@ -59,22 +61,19 @@ void LanguageGameMenuResource::setLanguageFromFile()
 
 // -- DIALOG LANGUAGE RESOURCE -- ----------------------------------------------
 
-/// <summary>Create uninitialized instance</summary>
-LanguageDialogResource::LanguageDialogResource() 
-{
-}
 /// <summary>Set dialog language values (necessary)</summary>
 /// <param name="code">Language code</param>
-void LanguageDialogResource::setLanguage(LangCode code) 
+/// <param name="filePath">Language file path (optional)</param>
+void LanguageDialogResource::setLanguage(langcode_t code, std::wstring filePath)
 {
     // language factory
     switch (code)
     {
-        case LangCode_English: setLanguage_English(); break;
-        case LangCode_Spanish: setLanguage_Spanish(); break;
-        case LangCode_French:  setLanguage_French();  break;
-        case LangCode_German:  setLanguage_German();  break;
-        case LangCode_CustomFile: setLanguageFromFile(); break;
+        case Langcode_english: setLanguage_English(); break;
+        case Langcode_spanish: setLanguage_Spanish(); break;
+        case Langcode_french:  setLanguage_French();  break;
+        case Langcode_german:  setLanguage_German();  break;
+        case Langcode_customFile: setLanguageFromFile(filePath); break;
         default: setLanguage_English(); break;
     }
 }
@@ -305,8 +304,9 @@ void LanguageDialogResource::setLanguage_German()
 }
 
 /// <summary>Read values from file</summary>
+/// <param name="filePath">Language file path</param>
 /// <exception cref="std::exception">File not found</exception>
-void LanguageDialogResource::setLanguageFromFile()
+void LanguageDialogResource::setLanguageFromFile(std::wstring filePath)
 {
     setLanguage_English();
     //...read file Config::gen_langFilePath

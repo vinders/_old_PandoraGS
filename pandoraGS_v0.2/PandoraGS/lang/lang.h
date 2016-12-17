@@ -13,17 +13,17 @@ Description : language resources
 #include <stdint.h>
 #include <string>
 
-// languages
-enum LangCode : uint32_t
+// data types
+enum langcode_t : uint32_t // languages
 {
-    LangCode_English = 0,
-    LangCode_Spanish = 1,
-    LangCode_French = 2,
-    LangCode_German = 3,
-    LangCode_CustomFile = 1000 // external file 'pandoraGS.lang'
+    Langcode_english = 0,
+    Langcode_spanish = 1,
+    Langcode_french = 2,
+    Langcode_german = 3,
+    Langcode_customFile = 1000 // external file
 };
-#define LANG_DEFAULT LangCode_English
-#define LANG_LAST_INTERNAL LangCode_German
+#define LANG_DEFAULT Langcode_english
+#define LANG_LAST_INTERNAL Langcode_german
 #define LANG_NAMES_LIST {L" English",L" Español",L" Français",L" Deutsch",L" External file..."}
 
 
@@ -36,7 +36,8 @@ public:
 public:
     /// <summary>Set game language values (necessary)</summary>
     /// <param name="code">Language code</param>
-    static void setLanguage(LangCode code);
+    /// <param name="filePath">Language file path</param>
+    static void setLanguage(langcode_t code, std::wstring filePath = L"pandoraGS.lang");
     /// <summary>Set english values</summary>
     static void setLanguage_English();
     /// <summary>Set spanish values</summary>
@@ -46,7 +47,8 @@ public:
     /// <summary>Set german values</summary>
     static void setLanguage_German();
     /// <summary>Read values from file (english if not found)</summary>
-    static void setLanguageFromFile();
+    /// <param name="filePath">Language file path (optional)</param>
+    static void setLanguageFromFile(std::wstring filePath);
 };
 
 
@@ -89,11 +91,12 @@ public:
 
 public:
     /// <summary>Create uninitialized instance</summary>
-    LanguageDialogResource();
+    LanguageDialogResource() {}
 
     /// <summary>Set dialog language values (necessary)</summary>
     /// <param name="code">Language code</param>
-    void setLanguage(LangCode code);
+    /// <param name="filePath">Language file path (optional)</param>
+    void setLanguage(langcode_t code, std::wstring filePath = L"pandoraGS.lang");
     /// <summary>Set english values</summary>
     void setLanguage_English();
     /// <summary>Set spanish values</summary>
@@ -103,8 +106,9 @@ public:
     /// <summary>Set german values</summary>
     void setLanguage_German();
     /// <summary>Read values from file</summary>
+    /// <param name="filePath">Language file path</param>
     /// <exception cref="std::exception">File not found</exception>
-    void setLanguageFromFile();
+    void setLanguageFromFile(std::wstring filePath);
 };
 
 #endif
