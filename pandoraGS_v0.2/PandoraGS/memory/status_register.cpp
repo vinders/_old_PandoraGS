@@ -9,5 +9,5 @@ Description : status register and status information
 *******************************************************************************/
 using namespace std;
 #include "status_register.h"
-int32_t StatusRegister::s_statusReg = 0;   // GPU status register
+uint32_t StatusRegister::s_statusReg = 0;   // GPU status register
 std::string StatusRegister::s_gameId("");  // game executable ID

@@ -39,6 +39,12 @@ typedef struct GPUFREEZETAG // save-state structure
     unsigned char pPsxVram[1024*1024 * 2]; // current video memory image
 } GPUFreeze_t;
 
+// save-states
+#define SAVESTATE_LOAD          0
+#define SAVESTATE_SAVE          1
+#define SAVESTATE_INFO          2
+#define GPUFREEZE_SUCCESS       1
+#define GPUFREEZE_ERR           0
 // control register
 #define CTRLREG_SIZE            256
 // commands
@@ -61,15 +67,15 @@ public: // treat PSEmu memory functions as member methods
     static VideoMemory  mem_vram;               // emulated console video memory
     static memoryload_t mem_vramReader;         // output memory load
     static memoryload_t mem_vramWriter;         // input memory load
-    static buffer_t     mem_dataExchangeBuffer; // data buffer read/written by emulator
+    static unsigned long mem_dataExchangeBuffer; // data buffer read/written by emulator
 
     // execution and display status
     static DisplayState st_displayState;
-    static ubuffer_t st_pControlReg[CTRLREG_SIZE]; // GPU status control
+    static unsigned long st_pControlReg[CTRLREG_SIZE]; // GPU status control
     static bool st_isFirstOpen;      // first call to GPUopen()
     static bool st_isUploadPending;  // image needs to be uploaded to VRAM
     static long st_busyEmuSequence;  // 'GPU busy' emulation hack - sequence value
-    static long s_selectedSaveSlot;  // selected save-state slot
+    static long st_selectedSaveSlot;  // selected save-state slot
 
     // gpu operations
     static gpucmd_t  gpu_command;
@@ -111,6 +117,52 @@ public:
         st_displayState.reset();
     }
 
+    /// <summary>Close memory</summary>
+    static inline void close()
+    {
+        mem_vram.close();
+    }
+
+
+    // -- SET SYNC/TRANSFER INFORMATION -- -----------------------------------------
+
+    /// <summary>Set VRAM data transfer mode</summary>
+    /// <param name="gdata">Status command</param>
+    static inline void setDataTransferMode(ubuffer_t gdata)
+    {
+        gdata &= 0x3u; // extract last 2 bits (LSB+1, LSB)
+        mem_vramWriter.mode = (gdata == 0x2) ? Loadmode_vramTransfer : Loadmode_normal;
+        mem_vramReader.mode = (gdata == 0x3) ? Loadmode_vramTransfer : Loadmode_normal;
+        // set direct memory access bits
+        StatusRegister::unsetStatus(GPUSTATUS_DMABITS); // clear current DMA settings
+        StatusRegister::setStatus(gdata << 29); // set DMA (MSB-1, MSB-2)
+    }
+
+    /// <summary>Initialize time mode and frame rate</summary>
+    static inline void initFrameRate()
+    {
+        Timer::setTimeMode((timemode_t)Config::sync_timeMode);
+        if (Config::getCurrentProfile()->getFix(CFG_FIX_PC_FPSLIMIT))
+            Timer::setFrequency(Config::sync_framerateLimit, Regionsync_undefined, st_displayState.isInterlaced());
+        else
+            Timer::setFrequency(Config::sync_framerateLimit, Regionsync_undefined, StatusRegister::getStatus(GPUSTATUS_INTERLACED));
+    }
+    /// <summary>Set frame rate with region info</summary>
+    static inline void setFrameRate()
+    {
+        regionsync_t timerReg;
+        if (Config::getCurrentProfile()->getFix(CFG_FIX_PC_FPSLIMIT))
+        {
+            timerReg = (st_displayState.getRegionmode() == Region_pal) ? Regionsync_pal_pcfix : Regionsync_ntsc_pcfix;
+            Timer::setFrequency(Config::sync_framerateLimit, timerReg, st_displayState.isInterlaced());
+        }
+        else
+        {
+            timerReg = (st_displayState.getRegionmode() == Region_pal) ? Regionsync_pal : Regionsync_ntsc;
+            Timer::setFrequency(Config::sync_framerateLimit, timerReg, StatusRegister::getStatus(GPUSTATUS_INTERLACED));
+        }
+    }
+
     /// <summary>Set fake busy/idle sequence step</summary>
     static inline void setFakeBusyStep()
     {
@@ -125,18 +177,6 @@ public:
         }
     }
 
-    /// <summary>Set VRAM data transfer mode</summary>
-    /// <param name="gdata">Status command</param>
-    static inline void setDataTransferMode(ubuffer_t gdata)
-    {
-        gdata &= 0x3; // extract last 2 bits (LSB+1, LSB)
-        mem_vramWriter.mode = (gdata == 0x2) ? Loadmode_vramTransfer : Loadmode_normal;
-        mem_vramReader.mode = (gdata == 0x3) ? Loadmode_vramTransfer : Loadmode_normal;
-        // set direct memory access bits
-        StatusRegister::unsetStatus(GPUSTATUS_DMABITS); // clear current DMA settings
-        StatusRegister::setStatus(gdata << 29); // set DMA (MSB-1, MSB-2)
-    }
-
     
     // -- COMMAND EXTRACTION -- ----------------------------------------------------
 
@@ -145,24 +185,28 @@ public:
     /// <returns>Command identifier</returns>
     static inline ubuffer_t extractGpuCommandType(ubuffer_t raw)
     {
-        return ((raw >> 24) & 0x0FF); // extract bits 25 and 26
+        return ((raw >> 24) & 0x0FFu); // extract bits 25 and 26
     }
     /// <summary>Extract display position (X) from raw data</summary>
     /// <param name="raw">Display bits</param>
     /// <returns>Coordinates</returns>
-    static inline point_t extractPos(buffer_t raw)
+    static inline point_t extractPos(ubuffer_t raw)
     {
-        return point_t((short)(raw & 0x7FF), (short)((raw >> 12) & 0xFFF));
+        uint32_t x = (raw & 0x7FFu);
+        uint32_t y = ((raw >> 12) & 0xFFFu);
+        return point_t((short)x, (short)y);
     }
     /// <summary>Extract small display position (Y) from raw data</summary>
     /// <param name="raw">Display bits</param>
     /// <param name="isZincSupport">Zinc emu support enabled</param>
     /// <returns>Coordinates</returns>
-    static inline point_t extractSmallPos(buffer_t raw, bool isZincSupport)
+    static inline point_t extractSmallPos(ubuffer_t raw, bool isZincSupport)
     {
+        uint32_t x = (raw & 0x3FFu);
+        uint32_t y = ((raw >> 10) & 0x3FFu);
         if (isZincSupport && mem_vram.isDoubledSize() && st_displayState.version() == 2)
-            return point_t((short)(raw & 0x3FF), (short)((raw >> 12) & 0x3FF));
-        return point_t((short)(raw & 0x3FF), (short)((raw >> 10) & 0x3FF));
+            y = ((raw >> 12) & 0x3FFu);
+        return point_t((short)x, (short)y);
     }
 };
 
@@ -176,7 +220,14 @@ unsigned long CALLBACK GPUreadStatus();
 void CALLBACK GPUwriteStatus(unsigned long gdata);
 
 
-// -- DATA TRANSFER INTERFACE -- -----------------------------------------------
+// -- DATA TRANSFER -- ---------------------------------------------------------
+
+/// <summary>Get data transfer mode</summary>
+/// <returns>Image transfer mode</returns>
+long CALLBACK GPUgetMode();
+/// <summary>Set data transfer mode (deprecated)</summary>
+/// <param name="gdataMode">Image transfer mode</param>
+void CALLBACK GPUsetMode(unsigned long gdataMode);
 
 /// <summary>Read data from video memory (vram)</summary>
 /// <returns>Raw GPU data</returns>
@@ -193,7 +244,7 @@ void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size);
 /// <param name="pDwMem">Pointer to chunk of data (source)</param>
 /// <param name="size">Memory chunk size</param>
 void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size);
-/// <summary>Give a direct core memory access chain to GPU driver</summary>
+/// <summary>Direct core memory chain transfer to GPU driver</summary>
 /// <param name="pDwBaseAddress">Pointer to memory chain</param>
 /// <param name="offset">Memory offset</param>
 /// <returns>Success indicator</returns>

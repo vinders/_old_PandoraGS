@@ -41,14 +41,14 @@ typedef struct FRAMESTATUS // current/previous frame state
 } framestatus_t;
 
 // draw info - request codes
-#define REQ_TW                  0x02
-#define REQ_DRAWSTART           0x03
-#define REQ_DRAWEND             0x04
-#define REQ_DRAWOFFSET1         0x05
-#define REQ_DRAWOFFSET2         0x06
-#define REQ_GPUTYPE             0x07
-#define REQ_BIOSADDR1           0x08
-#define REQ_BIOSADDR2           0x0F
+#define REQ_TW                  0x02u
+#define REQ_DRAWSTART           0x03u
+#define REQ_DRAWEND             0x04u
+#define REQ_DRAWOFFSET1         0x05u
+#define REQ_DRAWOFFSET2         0x06u
+#define REQ_GPUTYPE             0x07u
+#define REQ_BIOSADDR1           0x08u
+#define REQ_BIOSADDR2           0x0Fu
 // draw info - array
 #define DRAWINFO_SIZE           16
 #define DRAWINFO_TW             0
@@ -62,7 +62,7 @@ class DisplayState
 {
 private:
     // general draw status and draw mode
-    buffer_t m_pDrawInfo[DRAWINFO_SIZE]; // draw status
+    ubuffer_t m_pDrawInfo[DRAWINFO_SIZE]; // draw status
     regionmode_t m_region;      // region display mode (NTSC/PAL)
     bool m_isInterlaced;        // interlacing (on/off)
     gpuversion_t m_gpuVersion;  // GPU version type (for Zinc)
@@ -123,13 +123,38 @@ public:
     /// <summary>Get GPU information (version, draw info, ...)</summary>
     /// <param name="gdata">Type of request</param>
     /// <returns>Information value</returns>
-    inline buffer_t getDrawInfo(ubuffer_t gdata);
+    inline ubuffer_t getDrawInfo(ubuffer_t gdata);
     /// <summary>Update display state</summary>
     /// <param name="gdata">Display data</param>
     inline void setDisplayState(ubuffer_t gdata);
 
 
     // -- BASIC GETTERS / SETTERS -- -----------------------------------------------
+
+    /// <summary>Get GPU version</summary>
+    /// <returns>GPU version</returns>
+    inline gpuversion_t version()
+    {
+        return m_gpuVersion;
+    }
+    /// <summary>Get GPU version</summary>
+    /// <param name="ver">GPU version</param>
+    inline void setVersion(gpuversion_t ver)
+    {
+        m_gpuVersion = ver;
+    }
+    /// <summary>Get region mode (PAL / NTSC)</summary>
+    /// <returns>Region mode</returns>
+    inline regionmode_t getRegionmode()
+    {
+        return m_region;
+    }
+    /// <summary>Get interlacing mode</summary>
+    /// <returns>Interlaced or not</returns>
+    inline bool isInterlaced()
+    {
+        return m_isInterlaced;
+    }
 
     /// <summary>Change even/odd frame status</summary>
     inline void toggleOddFrameFlag()
@@ -149,17 +174,23 @@ public:
         m_oddFrameFlag = val;
     }
 
-    /// <summary>Get GPU version</summary>
-    /// <returns>GPU version</returns>
-    inline gpuversion_t version()
+    /// <summary>Get main display size</summary>
+    /// <returns>Display size (x, y)</returns>
+    inline wdimension_t getDisplaySize()
     {
-        return m_gpuVersion;
+        return dsp_dispSize;
     }
-    /// <summary>Get GPU version</summary>
-    /// <param name="ver">GPU version</param>
-    inline void setVersion(gpuversion_t ver)
+    /// <summary>Get height multiplier</summary>
+    /// <returns>Simple / double</returns>
+    inline long getHeightMultiplier()
     {
-        m_gpuVersion = ver;
+        return dsp_heightMultiplier;
+    }
+    /// <summary>Get current frame state</summary>
+    /// <returns>Frame state</returns>
+    inline framestatus_t getCurrentFrame()
+    {
+        return dsp_curFrame;
     }
 };
 

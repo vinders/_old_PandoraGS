@@ -110,9 +110,9 @@ inline void DisplayState::setDisplayPos(point_t pos)
 /// <summary>Get GPU information (version, draw info, ...)</summary>
 /// <param name="gdata">Type of request</param>
 /// <returns>Information value</returns>
-inline buffer_t DisplayState::getDrawInfo(ubuffer_t gdata)
+inline ubuffer_t DisplayState::getDrawInfo(ubuffer_t gdata)
 {
-    gdata &= 0x0FF; // get type (extract last 8 bits)
+    gdata &= 0x0FFu; // get type (extract last 8 bits)
     switch (gdata)
     {
         case REQ_TW:          return m_pDrawInfo[DRAWINFO_TW]; return;
@@ -124,6 +124,7 @@ inline buffer_t DisplayState::getDrawInfo(ubuffer_t gdata)
         case REQ_BIOSADDR1:
         case REQ_BIOSADDR2:   return PSX_BIOSADDR; return;
     }
+    return 0;
 }
 
 /// <summary>Update display state</summary>

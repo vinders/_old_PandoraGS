@@ -24,9 +24,9 @@ enum loadmode_t : int32_t
 #define VRAM_SIZE             512
 #define VRAM_SECURITY_OFFSET  512 // offset before and after vram
 // dma access masks
-#define THREEBYTES_MASK       0x0FFFFFF
-#define PSXVRAM_MASK          0x1FFFFC // 2097148
-#define PSXVRAM_THRESHOLD     2000000
+#define THREEBYTES_MASK       0x0FFFFFFu
+#define PSXVRAM_MASK          0x1FFFFCu // 2097148
+#define PSXVRAM_THRESHOLD     2000000u
 // data transaction codes
 #define GPUDATA_INIT          0x400
 #define GPUINFO_TW            0
@@ -123,10 +123,16 @@ public:
         return m_pEnd;
     }
     /// <summary>Get pointer to the beginning of the effective memory zone</summary>
-    /// <returns>End of memory</returns>
+    /// <returns>Start of memory</returns>
     inline uint16_t* rend()
     {
         return m_pWord;
+    }
+    /// <summary>Get pointer to the beginning of the effective memory zone</summary>
+    /// <returns>Start of memory</returns>
+    inline uint8_t* get()
+    {
+        return m_pByte;
     }
     /// <summary>Get the size of a single memory buffer</summary>
     /// <returns>New iterator</returns>
