@@ -21,11 +21,11 @@ enum unit_id_t : unsigned long // unit IDs
     Unit_input_reader,
     Unit_status_register,
     Unit_video_memory,
-    Unit_drawing_prim,
-    Unit_lang,
     Unit_config_io,
     Unit_config_profile,
     Unit_config,
+    Unit_lang,
+    Unit_drawing_prim,
     Unit_line_prim,
     Unit_sprite_prim,
     Unit_poly_prim,
@@ -43,7 +43,8 @@ long CALLBACK GPUtestUnits(void* pWinData);
 
 /// <summary>Test one unit</summary>
 /// <param name="unit">Unit to test</param>
+/// <param name="pWinData">Window handle reference</param>
 /// <returns>Success indicator</returns>
-bool testUnit(unit_id_t unit);
+bool testUnit(unit_id_t unit, void* pWinData);
 
 #endif
