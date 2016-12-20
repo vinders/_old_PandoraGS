@@ -77,6 +77,7 @@ void UnitTest(HWND hWindow)
     else
         printf("\nWARNING: some tests have failed...");
 
+    fflush(stdout);
     system("pause");
     fclose(hfOut);
     FreeConsole(); // close console
