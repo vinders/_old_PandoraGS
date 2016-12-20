@@ -25,8 +25,6 @@ typedef struct GPUOTAG
 } GPUConfiguration_t;
 
 // global data
-uint32_t zincGPUVersion = 0u;
-bool     g_isZincEmu = false;   // zinc interface emulation
 int32_t  zincTileFix = 0;
 
 
@@ -36,7 +34,7 @@ int32_t  zincTileFix = 0;
 /// <returns>Success indicator</returns>
 long CALLBACK ZN_GPUinit() // we always set the vram size to 2MB, if the ZN interface is used
 {
-    g_isZincEmu = true;
+    MemoryDispatcher::s_isZincEmu = true;
     return GPUinit();
 }
 /// <summary>Driver shutdown (called once)</summary>
@@ -56,7 +54,7 @@ long CALLBACK ZN_GPUopen(void* pCfg)
         return -1L;
 
     zincTileFix = 1; // tile erase bug fix
-    zincGPUVersion = cfg->gpuVersion;
+    MemoryDispatcher::st_displayState.setVersion((gpuversion_t)cfg->gpuVersion);
 
     #ifdef _WINDOWS
     return GPUopen((HWND)cfg->hWindow);

@@ -30,9 +30,6 @@ static char* s_pLibName = PLUGIN_NAME;
 #ifndef _WINDOWS
 static char* s_pLibInfo = PLUGIN_INFO;
 #endif
-extern bool     g_isZincEmu;
-extern uint32_t zincGPUVersion;
-DisplayState g_displayData;
 
 
 // -- DRIVER INIT INTERFACE -- -------------------------------------------------
