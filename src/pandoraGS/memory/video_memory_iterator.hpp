@@ -36,8 +36,6 @@ inline void VideoMemory::iterator::setValue(uint16_t val)
 inline VideoMemory::iterator& VideoMemory::iterator::operator++()
 {
     ++(this->it_pWord);
-    if (this->it_pWord >= it_pTarget->end())
-        this->it_pWord -= it_pTarget->size();
     return *this;
 }
 /// <summary>Post-increment (slower)</summary>
@@ -46,8 +44,6 @@ inline VideoMemory::iterator VideoMemory::iterator::operator++(int)
 {
     VideoMemory::iterator copy(*this);
     ++(this->it_pWord);
-    if (this->it_pWord >= it_pTarget->end())
-        this->it_pWord -= it_pTarget->size();
     return copy;
 }
 /// <summary>Pre-decrement</summary>
@@ -55,8 +51,6 @@ inline VideoMemory::iterator VideoMemory::iterator::operator++(int)
 inline VideoMemory::iterator& VideoMemory::iterator::operator--()
 {
     --(this->it_pWord);
-    if (this->it_pWord < it_pTarget->rend())
-        this->it_pWord += it_pTarget->size();
     return *this;
 }
 /// <summary>Post-decrement (slower)</summary>
@@ -65,8 +59,6 @@ inline VideoMemory::iterator VideoMemory::iterator::operator--(int)
 {
     VideoMemory::iterator copy(*this);
     --(this->it_pWord);
-    if (this->it_pWord < it_pTarget->rend())
-        this->it_pWord += it_pTarget->size();
     return copy;
 }
 /// <summary>Add offset</summary>
