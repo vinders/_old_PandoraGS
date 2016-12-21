@@ -49,7 +49,7 @@ long CALLBACK GPUtestUnits(void* pWinData)
         phWindow = static_cast<HWND*>(pWinData);
     #endif
 
-    // unit testing - tools
+    // unit testing
     bool isSuccess = testUnit(Unit_geometry)
         && testUnit(Unit_logger)
         && testUnit(Unit_system_tools)
@@ -68,62 +68,8 @@ long CALLBACK GPUtestUnits(void* pWinData)
         && testUnit(Unit_display_state)
         && testUnit(Unit_shader)
         && testUnit(Unit_render_api)
-        && testUnit(Unit_memory_dispatcher);
-
-    // unit testing - execution
-    if (isSuccess)
-    {
-        // init plugin
-        printf("GPUinit(): ");
-        if (GPUinit() != PSE_SUCCESS)
-        {
-            printError("init failure");
-            return false;
-        }
-        else
-            printSuccess();
-        // open plugin
-        #ifdef _WINDOWS
-        printf("GPUopen(hWindow): ");
-        if (GPUopen(*phWindow) != PSE_SUCCESS)
-        #else
-        printf("GPUopen(NULL,NULL,NULL): ");
-        if (GPUopen(NULL,NULL,NULL) != PSE_SUCCESS)
-        #endif
-        {
-            printError("open failure");
-            GPUshutdown();
-            return false;
-        }
-        else
-        {
-            printSuccess();
-        }
-
-        // execution
-        bool isSuccess = testUnit(Unit_gpu_main);
-
-        // close plugin
-        printf("GPUclose(): ");
-        if (GPUclose() != PSE_SUCCESS)
-        {
-            printError("close failure");
-        }
-        else
-        {
-            printSuccess();
-        }
-        // shutdown plugin
-        printf("GPUshutdown(): ");
-        if (GPUshutdown() != PSE_SUCCESS)
-        {
-            printError("close failure");
-        }
-        else
-        {
-            printSuccess();
-        }
-    }
+        && testUnit(Unit_memory_dispatcher)
+        && testUnit(Unit_gpu_main);
     return isSuccess;
 }
 
@@ -143,7 +89,7 @@ bool testUnit(unit_id_t unit, void* pWinData)
             {
                 printf("\t* nothing to test...\n");
             }
-            catch (std::exception exc)
+            catch (const std::exception& exc)
             {
                 printError(exc.what());
                 isSuccess = false;
@@ -174,7 +120,7 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 Logger::closeInstance();
                 printSuccess();
             }
-            catch (std::exception exc)
+            catch (const std::exception& exc)
             {
                 printError(exc.what());
                 isSuccess = false;
@@ -196,7 +142,7 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 SystemTools::setScreensaver(true);
                 printSuccess();
             }
-            catch (std::exception exc)
+            catch (const std::exception& exc)
             {
                 printError(exc.what());
                 isSuccess = false;
@@ -261,7 +207,7 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 Timer::calcFrequency();
                 printSuccess();
             }
-            catch (std::exception exc)
+            catch (const std::exception& exc)
             {
                 printError(exc.what());
                 isSuccess = false;
@@ -290,7 +236,7 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 InputReader::stop();
                 printSuccess();
             }
-            catch (std::exception exc)
+            catch (const std::exception& exc)
             {
                 printError(exc.what());
                 isSuccess = false;
@@ -310,7 +256,7 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 StatusRegister::setGameId("UNIT.TEST.1");
                 printSuccess();
             }
-            catch (std::exception exc)
+            catch (const std::exception& exc)
             {
                 printError(exc.what());
                 isSuccess = false;
@@ -367,7 +313,7 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 delete pData;
                 printSuccess();
             }
-            catch (std::exception exc)
+            catch (const std::exception& exc)
             {
                 printError(exc.what());
                 isSuccess = false;
@@ -402,6 +348,10 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 LanguageGameMenuResource::setLanguage(Langcode_customFile);
                 printSuccess();
 
+                printf("\t* LanguageGameMenuResource::setLanguage(Langcode_customFile, L\"pandoraGS.lang\"): ");
+                LanguageGameMenuResource::setLanguage(Langcode_customFile, L"pandoraGS.lang");
+                printSuccess();
+
                 printf("\t* LanguageDialogResource(): ");
                 pData = new LanguageDialogResource();
                 if (pData == NULL)
@@ -415,9 +365,20 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 printf("\t* setLanguage(Langcode_customFile): ");
                 pData->setLanguage(Langcode_customFile);
                 printSuccess();
+
+                printf("\t* setLanguage(Langcode_customFile, L\"nonexistingfile\"): ");
+                try
+                {
+                    pData->setLanguage(Langcode_customFile, L"nonexistingfile");
+                    printError("non existing file: should throw exception");
+                }
+                catch (const std::exception& exc)
+                {
+                    printSuccess();
+                }
                 delete pData;
             }
-            catch (std::exception exc)
+            catch (const std::exception& exc)
             {
                 printError(exc.what());
                 isSuccess = false;
@@ -460,6 +421,50 @@ bool testUnit(unit_id_t unit, void* pWinData)
         }
         case Unit_gpu_main:
         {
+            printf("GPUinit(): ");
+            if (GPUinit() != PSE_SUCCESS)
+            {
+                printError("init failure");
+                return false;
+            }
+            else
+                printSuccess();
+
+            #ifdef _WINDOWS
+            printf("GPUopen(hWindow): ");
+            HWND* phWindow = NULL;
+            if (pWinData != NULL)
+                phWindow = static_cast<HWND*>(pWinData);
+            if (GPUopen(*phWindow) != PSE_SUCCESS)
+            #else
+            printf("GPUopen(NULL,NULL,NULL): ");
+            if (GPUopen(NULL,NULL,NULL) != PSE_SUCCESS)
+#endif
+            {
+                printError("open failure");
+                GPUshutdown();
+                return false;
+            }
+            else
+                printSuccess();
+
+            //...
+
+            printf("GPUclose(): ");
+            if (GPUclose() != PSE_SUCCESS)
+            {
+                printError("close failure");
+            }
+            else
+                printSuccess();
+
+            printf("GPUshutdown(): ");
+            if (GPUshutdown() != PSE_SUCCESS)
+            {
+                printError("close failure");
+            }
+            else
+                printSuccess();
             break;
         }
     }
