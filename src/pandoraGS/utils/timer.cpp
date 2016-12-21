@@ -151,6 +151,8 @@ void Timer::calcFrequency()
         ticks_t elapsedTicks = curTimeRef.LowPart - prevTimeRef.LowPart;
         if (elapsedTicks > (s_cpuFreq.LowPart >> 1)) // max value exceeded -> use low resolution counter
             elapsedTicks = (s_cpuFreq.LowPart * (curTicks - prevTicks)) / 1000;
+        if (elapsedTicks <= 0uL) // avoid division by zero
+            elapsedTicks = 1uL;
 
         // calculate frequency
         s_measuredFreq = (float)s_periodsSinceMeasure * ((float)s_cpuFreq.LowPart / (float)elapsedTicks);
@@ -165,6 +167,8 @@ void Timer::calcFrequency()
         // get current time reference
         curTicks = timeGetTime();
         ticks_t elapsedTicks = curTicks - prevTicks;
+        if (elapsedTicks <= 0uL) // avoid division by zero
+            elapsedTicks = 1uL;
         // calculate frequency
         s_measuredFreq = (float)s_periodsSinceMeasure * (1000.0f / (float)elapsedTicks);
     }
