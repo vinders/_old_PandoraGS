@@ -9,19 +9,17 @@ Description : advanced log utility (csv)
 *******************************************************************************/
 #include <cstdio>
 #include <cstdlib>
-#include <io.h>
 #include <fstream>
 #include <errno.h>
 #include <cstring>
 #include <ctime>
 using namespace std;
 #include "logger.h"
+#include "system_tools.h"
 
 #ifdef _WINDOWS
-#include <shlobj.h>
 #include "pandoraGS.h"
 #define _CRT_SECURE_NO_WARNINGS
-#define access(dir, rights) _access(dir, rights)
 #else
 #include <unistd.h>
 #include <sys/types.h>
@@ -34,39 +32,7 @@ Logger* Logger::s_pInstance = NULL; // singleton log instance
 ///<summary>Create logger instance</summary>
 Logger::Logger()
 {
-    // default file path (same as plugin)
-    if (access("./", 06) == 0)
-    {
-        m_filePath = "pandoraGS_log.csv";
-    }
-    else // default access denied
-    {
-        // get home folder path
-        std::string homePath;
-        #ifdef _WINDOWS
-        char outPath[MAX_PATH];
-        if (SHGetSpecialFolderPathA(NULL, outPath, CSIDL_APPDATA, 0)) 
-        {
-            homePath = outPath; // %AppData%/Roaming
-            if (homePath.length() > 0)
-                homePath += std::string("\\");
-        }
-        #else
-        char* buffer = getenv("HOME");
-        if (buffer != NULL) 
-            homePath = buffer;
-        else
-        {
-            char* homedir = getpwuid(getuid())->pw_dir;
-            homePath = buffer;
-        }
-        homePath += std::string("/");
-        #endif
-
-        // set home file path
-        m_filePath = homePath + std::string("pandoraGS_log.csv");
-        errno = 0;
-    }
+    m_filePath = SystemTools::getWritableFilePath() + std::string("pandoraGS_log.csv");
 }
 
 
@@ -149,9 +115,10 @@ void Logger::writeEntry(const std::string origin, const std::string type, const 
         out << curDate << ";" << curTime << ";" << type << ";" << origin << ";" << message << endl;
         out.close();
     }
-    catch (exception exc)
+    catch (...)
     {
-        // log error
+        // output in terminal (debug mode only)
+        printf("%s", (std::string("LOG not written (") + type + std::string("): ") + origin + std::string(": ") + message).c_str());
     }
     m_hMtxInstance.unlock();
 }
