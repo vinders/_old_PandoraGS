@@ -73,9 +73,9 @@ void UnitTest(HWND hWindow)
 
     // unit tests
     if (GPUtestUnits((void*)&hWindow))
-        printf("\nSUCCESS: all the tests were successful.");
+        printf("\nSUCCESS: all the tests were successful.\n");
     else
-        printf("\nWARNING: some tests have failed...");
+        printf("\nWARNING: some tests have failed...\n");
 
     fflush(stdout);
     system("pause");
