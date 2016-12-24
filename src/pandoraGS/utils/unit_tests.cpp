@@ -141,6 +141,10 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 printf("\t* setScreensaver(true): ");
                 SystemTools::setScreensaver(true);
                 printSuccess();
+
+                printf("\t* getWritableFilePath(): ");
+                SystemTools::getWritableFilePath();
+                printSuccess();
             }
             catch (const std::exception& exc)
             {
@@ -370,12 +374,9 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 try
                 {
                     pData->setLanguage(Langcode_customFile, L"nonexistingfile");
-                    printError("non existing file: should throw exception");
+                    printError("Non existing file: should throw exception");
                 }
-                catch (const std::exception& exc)
-                {
-                    printSuccess();
-                }
+                catch (...) { printSuccess(); }
                 delete pData;
             }
             catch (const std::exception& exc)
