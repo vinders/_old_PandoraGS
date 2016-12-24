@@ -73,7 +73,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    HWND hWnd;
    hInst = hInstance; // Store instance handle in our global variable
    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-       CW_USEDEFAULT, 200, 480, 120, NULL, NULL, hInstance, NULL);
+       CW_USEDEFAULT, 200, 260, 70, NULL, NULL, hInstance, NULL);
    if (!hWnd)
       return FALSE;
 
@@ -108,6 +108,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
         case IDM_UNIT:
             UnitTest(hWnd);
+            break;
+        case IDM_PRIM:
+            PrimitivesTest(hWnd);
             break;
         case IDM_EXIT:
             DestroyWindow(hWnd);

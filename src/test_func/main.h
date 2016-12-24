@@ -14,3 +14,7 @@ void ProcessTest(HWND hWindow);
 ///<summary>Complete plugin unit testing</summary>
 ///<param name="hWindow">Main window handle</param>
 void UnitTest(HWND hWindow);
+
+///<summary>Custom drawing primitives testing</summary>
+///<param name="hWindow">Main window handle</param>
+void PrimitivesTest(HWND hWindow);
