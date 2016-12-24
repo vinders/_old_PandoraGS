@@ -98,6 +98,7 @@ public:
     /// <summary>Initialize memory, status and dispatcher</summary>
     static inline void init()
     {
+        st_isFirstOpen = true;
         // initialize control data
         st_displayState.init();
         mem_dataExchangeBuffer = GPUDATA_INIT;
