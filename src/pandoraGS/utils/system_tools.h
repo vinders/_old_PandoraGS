@@ -9,7 +9,10 @@ Description : system management toolbox
 *******************************************************************************/
 #ifndef _SYSTEM_TOOLS_H
 #define _SYSTEM_TOOLS_H
+#include <cstdio>
+#include <cstdlib>
 #include <cstdint>
+#include <string>
 
 // data types
 typedef int32_t buffer_t;
@@ -29,7 +32,24 @@ namespace SystemTools
     /// <summary>Enable or disable screen-saver</summary>
     /// <param name="isEnabled">Enabled/disabled</param>
     void setScreensaver(bool isEnabled);
+
+    /// <summary>Create a new output console window</summary>
+    /// <returns>Output stream descriptor</returns>
+    FILE* createOutputWindow();
+    /// <summary>Close current output console window</summary>
+    /// <param name="hfOut">Output stream descriptor</param>
+    void closeOutputWindow(FILE* hfOut);
+
+#else
+    /// <summary>Create a new output console window</summary>
+    void createOutputWindow();
+    /// <summary>Close current output console window</summary>
+    void closeOutputWindow();
 #endif
+
+    /// <summary>Get file path with write access (same as plugin or home path)</summary>
+    /// <returns>File path</returns>
+    std::string getWritableFilePath();
 }
 
 #endif

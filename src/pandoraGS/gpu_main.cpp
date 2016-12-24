@@ -26,9 +26,11 @@ using namespace std;
 #include "gpu_main.h"
 
 // global data
-static char* s_pLibName = PLUGIN_NAME;
+static char* g_pLibName = PLUGIN_NAME;
 #ifndef _WINDOWS
-static char* s_pLibInfo = PLUGIN_INFO;
+static char* g_pLibInfo = PLUGIN_INFO;
+#else
+FILE* g_hfOutDebug; // debug output descriptor
 #endif
 
 
@@ -47,6 +49,10 @@ long CALLBACK GPUinit()
         // initialize memory container
         MemoryDispatcher::init();
         LanguageGameMenuResource::setLanguage((langcode_t)Config::gen_langCode, Config::gen_langFilePath);
+
+        // open debug window
+        if (Config::rnd_isDebugMode)
+            g_hfOutDebug = SystemTools::createOutputWindow();
     }
     catch (const std::exception& exc) // init failure
     {
@@ -61,6 +67,10 @@ long CALLBACK GPUinit()
 /// <returns>Success indicator</returns>
 long CALLBACK GPUshutdown()
 {
+    // close debug window
+    if (Config::rnd_isDebugMode)
+        SystemTools::closeOutputWindow(g_hfOutDebug);
+
     // stop renderer
     RenderApi::close();
     Logger::closeInstance();
@@ -129,6 +139,13 @@ long CALLBACK GPUclose()
     // stop user input tracker
     InputReader::stop();
 
+    // debug output
+    if (Config::rnd_isDebugMode)
+    {
+        MemoryDispatcher::printDebugSummary();
+        MemoryDispatcher::exportData();
+    }
+
     // close window
     RenderApi::setWindow(false);
     #ifdef _WINDOWS
@@ -153,6 +170,17 @@ void CALLBACK GPUupdateLace()
     // interlacing (if CC game fix, done in GPUreadStatus)
     if (Config::getCurrentProfile()->getNotFix(CFG_FIX_STATUS_INTERLACE))
         MemoryDispatcher::st_displayState.toggleOddFrameFlag();
+
+    // debug output
+    if (Config::rnd_isDebugMode)
+    {
+        static int debugFrameCount = 0;
+        if (++debugFrameCount >= 16) // every 16 frames, refresh debug data
+        {
+            MemoryDispatcher::printDebugSummary();
+            debugFrameCount = 0;
+        }
+    }
 
     // user input event
     if (InputReader::isEvent())
@@ -315,7 +343,7 @@ unsigned long CALLBACK PSEgetLibType()
 /// <returns>Library name</returns>
 char* CALLBACK PSEgetLibName() 
 { 
-    return s_pLibName;
+    return g_pLibName;
 }
 
 /// <summary>Get library version</summary>
@@ -329,7 +357,7 @@ unsigned long CALLBACK PSEgetLibVersion()
 /// <summary>Get library infos</summary>
 char* GPUgetLibInfos()
 {
-    return s_pLibInfo;
+    return g_pLibInfo;
 }
 #endif
 

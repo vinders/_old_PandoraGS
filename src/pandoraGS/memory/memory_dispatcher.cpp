@@ -7,10 +7,16 @@ License :     GPLv2
 File name :   memory_dispatcher.cpp
 Description : display memory manager and dispatcher
 *******************************************************************************/
+#include <cstdio>
+#include <cstdlib>
+#include <iomanip>
+#include <fstream>
 #include "globals.h"
 using namespace std;
 #include "timer.h"
 #include "config.h"
+#include "logger.h"
+#include "system_tools.h"
 #include "status_register.h"
 #include "memory_dispatcher.h"
 #define This MemoryDispatcher
@@ -41,6 +47,70 @@ HWND  MemoryDispatcher::s_hWindow = NULL;   // main emulator window handle
 HMENU MemoryDispatcher::s_hMenu = NULL;     // emulator menu handle
 DWORD MemoryDispatcher::s_origStyle = 0uL;  // original window style
 #endif
+bool MemoryDispatcher::s_isZincEmu = false; // Zinc emulation
+
+
+/// <summary>Display data summary in debug window</summary>
+void MemoryDispatcher::printDebugSummary()
+{
+    system("@cls||clear"); // clear screen
+    printf("Status register : 0x%08x\n", StatusRegister::getStatusRegister());
+    printf("\nVRAM : hit ESC and check 'pandoraGS_memdump.txt'\n");
+    printf("\nState control register :\n");
+    for (int i = 0; i < CTRLREG_SIZE; ++i)
+        printf("%lu ", st_pControlReg[i]);
+}
+
+/// <summary>Export full status and VRAM data</summary>
+void MemoryDispatcher::exportData()
+{
+    try
+    {
+        // create output file
+        std::string filePath = SystemTools::getWritableFilePath() + std::string("pandoraGS_memdump.txt");
+        std::ofstream out;
+        out.open(filePath, std::ios_base::trunc); // overwrite
+        if (!out.is_open())
+        {
+            Logger::getInstance()->writeErrorEntry("MemoryDispatcher.exportData", "Data file not created");
+            return;
+        }
+
+        uint32_t index = 0u;
+        // status register
+        out << "Status register : 0x" << hex << setw(8) << setfill('0') << StatusRegister::getStatusRegister() << endl;
+        // VRAM state
+        out << "\nVRAM :\n" << endl;
+        for (VideoMemory::iterator it = mem_vram.begin(); it.getPos() < mem_vram.end(); ++it)
+        {
+            out << hex << setw(4) << setfill('0') << it.getValue();
+            if (++index >= 16u)
+            {
+                out << endl;
+                index = 0u;
+            }
+        }
+        // state control register
+        index = 0u;
+        out << "\nState Control Register :\n" << endl;
+        for (int i = 0; i < CTRLREG_SIZE; ++i)
+        {
+            out << hex << setw(8) << setfill('0') << st_pControlReg[i];
+            if (++index >= 8u)
+            {
+                out << endl;
+                index = 0u;
+            }
+        }
+
+        out << endl;
+        out.close();
+    }
+    catch (const exception& exc)
+    {
+        Logger::getInstance()->writeErrorEntry("MemoryDispatcher.exportData", exc.what());
+    }
+}
 
 
 // -- DISPLAY STATUS CONTROL -- ------------------------------------------------

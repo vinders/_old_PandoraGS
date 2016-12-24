@@ -12,6 +12,7 @@ Description : display memory manager and dispatcher
 #include "globals.h"
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include "video_memory.h"
 #include "display_state.h"
 #include "system_tools.h"
@@ -90,6 +91,7 @@ public:
     static HMENU s_hMenu;      // emulator menu handle
     static DWORD s_origStyle;  // original window style
 #endif
+    static bool s_isZincEmu;   // Zinc emulation
 
 
 public:
@@ -102,7 +104,7 @@ public:
         memset(st_pControlReg, 0x0, CTRLREG_SIZE * sizeof(unsigned long));
         st_displayDevFlags = 0u;
         // initialize VRAM
-        mem_vram.init();
+        mem_vram.init(s_isZincEmu);
         memset(&mem_vramReader, 0x0, sizeof(memoryload_t)); // mode = Loadmode_normal = 0
         memset(&mem_vramWriter, 0x0, sizeof(memoryload_t)); // mode = Loadmode_normal = 0
         // initialize status
@@ -124,6 +126,11 @@ public:
     {
         mem_vram.close();
     }
+
+    /// <summary>Display data summary in debug window</summary>
+    static void printDebugSummary();
+    /// <summary>Export full status and VRAM data</summary>
+    static void MemoryDispatcher::exportData();
 
     /// <summary>Process and send chunk of display data (normal mode)</summary>
     /// <param name="pDwMem">Pointer to chunk of data (source)</param>
