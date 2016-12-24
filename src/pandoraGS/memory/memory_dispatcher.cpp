@@ -69,7 +69,7 @@ void MemoryDispatcher::exportData()
         // create output file
         std::string filePath = SystemTools::getWritableFilePath() + std::string("pandoraGS_memdump.txt");
         std::ofstream out;
-        out.open(filePath, std::ios_base::trunc); // overwrite
+        out.open(filePath, std::ofstream::trunc); // overwrite
         if (!out.is_open())
         {
             Logger::getInstance()->writeErrorEntry("MemoryDispatcher.exportData", "Data file not created");

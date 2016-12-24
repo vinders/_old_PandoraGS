@@ -7,8 +7,11 @@ License :     GPLv2
 File name :   lang.h
 Description : language resources
 *******************************************************************************/
+#include <iostream>
+#include <fstream>
 using namespace std;
 #include "lang.h"
+#include "logger.h"
 
 
 // -- INGAME MENU LANGUAGE RESOURCE -- -----------------------------------------
@@ -55,7 +58,27 @@ void LanguageGameMenuResource::setLanguage_German()
 /// <param name="filePath">Language file path</param>
 void LanguageGameMenuResource::setLanguageFromFile(std::wstring filePath)
 {
+    try
+    {
+        setLanguage_English(); // default values
 
+        // open language file
+        std::ifstream in;
+        in.open(filePath, std::ifstream::in);
+        if (!in.is_open())
+        {
+            Logger::getInstance()->writeErrorEntry("LanguageGameMenuResource.setLanguageFromFile", "File not found or not accessible.");
+            return;
+        }
+
+        //...read file
+
+        in.close();
+    }
+    catch (const exception& exc) // ingame -> no exception
+    {
+        Logger::getInstance()->writeErrorEntry("LanguageGameMenuResource.setLanguageFromFile", exc.what());
+    }
 }
 
 
@@ -308,6 +331,15 @@ void LanguageDialogResource::setLanguage_German()
 /// <exception cref="std::exception">File not found</exception>
 void LanguageDialogResource::setLanguageFromFile(std::wstring filePath)
 {
-    setLanguage_English();
-    //...read file Config::gen_langFilePath
+    setLanguage_English(); // default values
+
+    // open language file
+    std::ifstream in;
+    in.open(filePath, std::ifstream::in); // overwrite
+    if (!in.is_open())
+        throw std::exception("File not found or not accessible.");
+
+    //...read file
+
+    in.close();
 }

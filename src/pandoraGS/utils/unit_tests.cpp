@@ -35,7 +35,7 @@ using namespace std;
 
 // result messages
 #define printSuccess() printf("SUCCESS\n");
-#define printError(error) printf("FAILED : %s\n", error);
+#define printError(error) printf("\n\t  FAILED : %s\n", error);
 
 
 /// <summary>Plugin - full unit testing</summary>
@@ -68,8 +68,7 @@ long CALLBACK GPUtestUnits(void* pWinData)
         && testUnit(Unit_display_state)
         && testUnit(Unit_shader)
         && testUnit(Unit_render_api)
-        && testUnit(Unit_memory_dispatcher)
-        && testUnit(Unit_gpu_main);
+        && testUnit(Unit_memory_dispatcher);
     return isSuccess;
 }
 
@@ -223,7 +222,7 @@ bool testUnit(unit_id_t unit, void* pWinData)
             printf("\nINPUT_READER UNIT\n---\n");
             try
             {
-                printf("\t* start(*phWindow, ctrlKeys, 0, false, false): ");
+                printf("\t* start(handle, ctrlKeys, 0, false, false): ");
                 char ctrlKeys[CTRLKEYS_LENGTH];
                 memset(ctrlKeys, 0x0, CTRLKEYS_LENGTH);
                 #ifdef _WINDOWS
@@ -344,15 +343,15 @@ bool testUnit(unit_id_t unit, void* pWinData)
             LanguageDialogResource* pData = NULL;
             try
             {
-                printf("\t* LanguageGameMenuResource::setLanguage(Langcode_english): ");
+                printf("\t* LanguageGameMenuResource::setLanguage(internal): ");
                 LanguageGameMenuResource::setLanguage(Langcode_english);
                 printSuccess();
 
-                printf("\t* LanguageGameMenuResource::setLanguage(Langcode_customFile): ");
+                printf("\t* LanguageGameMenuResource::setLanguage(external): ");
                 LanguageGameMenuResource::setLanguage(Langcode_customFile);
                 printSuccess();
 
-                printf("\t* LanguageGameMenuResource::setLanguage(Langcode_customFile, L\"pandoraGS.lang\"): ");
+                printf("\t* LanguageGameMenuResource::setLanguage(external, L\"valid\"): ");
                 LanguageGameMenuResource::setLanguage(Langcode_customFile, L"pandoraGS.lang");
                 printSuccess();
 
@@ -366,15 +365,12 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 pData->setLanguage(Langcode_english);
                 printSuccess();
 
-                printf("\t* setLanguage(Langcode_customFile): ");
-                pData->setLanguage(Langcode_customFile);
-                printSuccess();
-
-                printf("\t* setLanguage(Langcode_customFile, L\"nonexistingfile\"): ");
+                printf("\t* setLanguage(Langcode_customFile, L\"invalid\"): ");
                 try
                 {
                     pData->setLanguage(Langcode_customFile, L"nonexistingfile");
                     printError("Non existing file: should throw exception");
+                    isSuccess = false;
                 }
                 catch (...) { printSuccess(); }
                 delete pData;
@@ -418,54 +414,6 @@ bool testUnit(unit_id_t unit, void* pWinData)
         }
         case Unit_memory_dispatcher:
         {
-            break;
-        }
-        case Unit_gpu_main:
-        {
-            printf("GPUinit(): ");
-            if (GPUinit() != PSE_SUCCESS)
-            {
-                printError("init failure");
-                return false;
-            }
-            else
-                printSuccess();
-
-            #ifdef _WINDOWS
-            printf("GPUopen(hWindow): ");
-            HWND* phWindow = NULL;
-            if (pWinData != NULL)
-                phWindow = static_cast<HWND*>(pWinData);
-            if (GPUopen(*phWindow) != PSE_SUCCESS)
-            #else
-            printf("GPUopen(NULL,NULL,NULL): ");
-            if (GPUopen(NULL,NULL,NULL) != PSE_SUCCESS)
-#endif
-            {
-                printError("open failure");
-                GPUshutdown();
-                return false;
-            }
-            else
-                printSuccess();
-
-            //...
-
-            printf("GPUclose(): ");
-            if (GPUclose() != PSE_SUCCESS)
-            {
-                printError("close failure");
-            }
-            else
-                printSuccess();
-
-            printf("GPUshutdown(): ");
-            if (GPUshutdown() != PSE_SUCCESS)
-            {
-                printError("close failure");
-            }
-            else
-                printSuccess();
             break;
         }
     }
