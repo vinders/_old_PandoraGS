@@ -14,117 +14,127 @@ using namespace std;
 // primitive table ("length"+"data")
 char* primTestTable[MAX_PRIMITIVE_ID] =
 {
-    "\x1\x1\0\0\0", // 01 clear txtr cache - 1x32 - Cm000000
-    "\x3\x2\x17\x77\0\0\x20\0\x10\x1\0\x1\0", // 02 fill blank rect - 3x32 - CmBbGgRr YtopXlft YhgtXwid 
+    // Cm = command
+    // BbGgRr = color code
+    // YtopXlft = top-left coords (Y/X)
+    // YhgtXwid = size (height/width)
+    // YsrcXsrc = source coords (Y/X)
+    // YdstXdst = destination coords (Y/X)
+    // YvtxXvtx = vertex XY coords (Y/X)
+    // YcXc = texture XY coords (Y/X)
+    // Clut = color lookup table (palette)
+    // Txpg = texture page
+    "\x1\x1\0\0\0",                           // 01 clear txtr cache - 1x32 - Cm000000
+    "\x3\x2\x17\x77\0\0\x20\0\x10\x1\0\x1\0", // 02 fill blank rect  - 3x32 - CmBbGgRr YtopXlft YhgtXwid 
     "\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0", // unused (03 to 1F)
-    "\x4                ", // 20 3pt mono opaque - 4x32 - 
-    "\x4                ", // 21 3pt mono opaque n-b - 4x32 - 
-    "\x4                ", // 22 3pt mono transp - 4x32 - 
-    "\x4                ", // 23 3pt mono transp n-b - 4x32 - 
-    "\x7                            ", // 24 3pt txtr opaque bld - 7x32 - 
-    "\x7                            ", // 25 3pt txtr opaque raw - 7x32 - 
-    "\x7                            ", // 26 3pt txtr transp bld - 7x32 - 
-    "\x7                            ", // 27 3pt txtr transp raw - 7x32 - 
-    "\x5                    ", // 28 4pt mono opaque - 5x32 - 
-    "\x5                    ", // 29 4pt mono opaque n-b - 5x32 - 
-    "\x5                    ", // 2A 4pt mono transp - 5x32 - 
-    "\x5                    ", // 2B 4pt mono transp n-b - 5x32 - 
-    "\x9                                    ", // 2C 4pt txtr opaque bld - 9x32 - 
-    "\x9                                    ", // 2D 4pt txtr opaque raw - 9x32 - 
-    "\x9                                    ", // 2E 4pt txtr transp bld - 9x32 - 
-    "\x9                                    ", // 2F 4pt txtr transp raw - 9x32 - 
-    "\x6                        ", // 30 3pt shad opaque - 6x32 - 
-    "\x6                        ", // 31 3pt shad opaque n-b - 6x32 - 
-    "\x6                        ", // 32 3pt shad transp - 6x32 - 
-    "\x6                        ", // 33 3pt shad transp n-b - 6x32 - 
-    "\x9                                    ", // 34 3pt shtx opaque bld - 9x32 - 
-    "\x9                                    ", // 35 3pt shtx opaque raw - 9x32 - 
-    "\x9                                    ", // 36 3pt shtx transp bld - 9x32 - 
-    "\x9                                    ", // 37 3pt shtx transp raw - 9x32 - 
-    "\x8                                ", // 38 4pt shad opaque - 8x32 - 
-    "\x8                                ", // 39 4pt shad opaque n-b - 8x32 - 
-    "\x8                                ", // 3A 4pt shad transp - 8x32 - 
-    "\x8                                ", // 3B 4pt shad transp n-b - 8x32 - 
-    "\xC                                                ", // 3C 4pt shtx opaque bld - 12x32 - 
-    "\xC                                                ", // 3D 4pt shtx opaque raw - 12x32 - 
-    "\xC                                                ", // 3E 4pt shtx transp bld - 12x32 - 
-    "\xC                                                ", // 3F 4pt shtx transp raw - 12x32 - 
-    "\x3            ", // 40 line mono opaque - 3x32 - 
+    "\x4                ", // 20 3pt mono opaque     - 4x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx
+    "\x4                ", // 21 3pt mono opaque n-b - 4x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx
+    "\x4                ", // 22 3pt mono transp     - 4x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx
+    "\x4                ", // 23 3pt mono transp n-b - 4x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx
+    "\x7                            ", // 24 3pt txtr opaque bld - 7x32 - CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc
+    "\x7                            ", // 25 3pt txtr opaque raw - 7x32 - CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc
+    "\x7                            ", // 26 3pt txtr transp bld - 7x32 - CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc
+    "\x7                            ", // 27 3pt txtr transp raw - 7x32 - CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc
+    "\x5                    ", // 28 4pt mono opaque     - 5x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx YvtxXvtx
+    "\x5                    ", // 29 4pt mono opaque n-b - 5x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx YvtxXvtx
+    "\x5                    ", // 2A 4pt mono transp     - 5x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx YvtxXvtx
+    "\x5                    ", // 2B 4pt mono transp n-b - 5x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx YvtxXvtx
+    "\x9                                    ", // 2C 4pt txtr opaque bld - 9x32 - CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc YvtxXvtx 0000YcXc
+    "\x9                                    ", // 2D 4pt txtr opaque raw - 9x32 - CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc YvtxXvtx 0000YcXc
+    "\x9                                    ", // 2E 4pt txtr transp bld - 9x32 - CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc YvtxXvtx 0000YcXc
+    "\x9                                    ", // 2F 4pt txtr transp raw - 9x32 - CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc YvtxXvtx 0000YcXc
+    "\x6                        ", // 30 3pt shad opaque     - 6x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
+    "\x6                        ", // 31 3pt shad opaque n-b - 6x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
+    "\x6                        ", // 32 3pt shad transp     - 6x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
+    "\x6                        ", // 33 3pt shad transp n-b - 6x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
+    "\x9                                    ", // 34 3pt shtx opaque bld - 9x32 - CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc
+    "\x9                                    ", // 35 3pt shtx opaque raw - 9x32 - CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc
+    "\x9                                    ", // 36 3pt shtx transp bld - 9x32 - CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc
+    "\x9                                    ", // 37 3pt shtx transp raw - 9x32 - CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc
+    "\x8                                ", // 38 4pt shad opaque     - 8x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
+    "\x8                                ", // 39 4pt shad opaque n-b - 8x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
+    "\x8                                ", // 3A 4pt shad transp     - 8x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
+    "\x8                                ", // 3B 4pt shad transp n-b - 8x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
+    "\xC                                                ", // 3C 4pt shtx opaque bld - 12x32 - CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc 00BbGgRr YvtxXvtx 0000YcXc
+    "\xC                                                ", // 3D 4pt shtx opaque raw - 12x32 - CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc 00BbGgRr YvtxXvtx 0000YcXc
+    "\xC                                                ", // 3E 4pt shtx transp bld - 12x32 - CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc 00BbGgRr YvtxXvtx 0000YcXc
+    "\xC                                                ", // 3F 4pt shtx transp raw - 12x32 - CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc 00BbGgRr YvtxXvtx 0000YcXc
+    "\x3            ", // 40 line mono opaque     - 3x32 - 
     "\x3            ", // 41 line mono opaque n-b - 3x32 - 
-    "\x3            ", // 42 line mono transp - 3x32 - 
+    "\x3            ", // 42 line mono transp     - 3x32 - 
     "\x3            ", // 43 line mono transp n-b - 3x32 - 
-    "\x3            ", // 44 line mono opaque - 3x32 - 
+    "\x3            ", // 44 line mono opaque     - 3x32 - 
     "\x3            ", // 45 line mono opaque n-b - 3x32 - 
-    "\x3            ", // 46 line mono transp - 3x32 - 
+    "\x3            ", // 46 line mono transp     - 3x32 - 
     "\x3            ", // 47 line mono transp n-b - 3x32 - 
-    "\xFE                                    ", // 48 plin mono opaque - var.x32 - 
+    "\xFE                                    ", // 48 plin mono opaque     - var.x32 - 
     "\xFE                                    ", // 49 plin mono opaque n-b - var.x32 - 
-    "\xFE                                    ", // 4A plin mono transp - var.x32 - 
+    "\xFE                                    ", // 4A plin mono transp     - var.x32 - 
     "\xFE                                    ", // 4B plin mono transp n-b - var.x32 - 
     "\xFE                                    ", // 4C plin mono opaque bld - var.x32 - 
     "\xFE                                    ", // 4D plin mono opaque raw - var.x32 - 
     "\xFE                                    ", // 4E plin mono transp bld - var.x32 - 
     "\xFE                                    ", // 4F plin mono transp raw - var.x32 - 
-    "\x4                ", // 50 line shad opaque - 4x32 - 
+    "\x4                ", // 50 line shad opaque     - 4x32 - 
     "\x4                ", // 51 line shad opaque n-b - 4x32 - 
-    "\x4                ", // 52 line shad transp - 4x32 - 
+    "\x4                ", // 52 line shad transp     - 4x32 - 
     "\x4                ", // 53 line shad transp n-b - 4x32 - 
-    "\x4                ", // 54 line shad opaque - 4x32 - 
+    "\x4                ", // 54 line shad opaque     - 4x32 - 
     "\x4                ", // 55 line shad opaque n-b - 4x32 - 
-    "\x4                ", // 56 line shad transp - 4x32 - 
+    "\x4                ", // 56 line shad transp     - 4x32 - 
     "\x4                ", // 57 line shad transp n-b - 4x32 - 
-    "\xFF                                    ", // 58 plin shad opaque - var.x32 - 
+    "\xFF                                    ", // 58 plin shad opaque     - var.x32 - 
     "\xFF                                    ", // 59 plin shad opaque n-b - var.x32 - 
-    "\xFF                                    ", // 5A plin shad transp - var.x32 - 
+    "\xFF                                    ", // 5A plin shad transp     - var.x32 - 
     "\xFF                                    ", // 5B plin shad transp n-b - var.x32 - 
     "\xFF                                    ", // 5C plin shad opaque bld - var.x32 - 
     "\xFF                                    ", // 5D plin shad opaque raw - var.x32 - 
     "\xFF                                    ", // 5E plin shad transp bld - var.x32 - 
     "\xFF                                    ", // 5F plin shad transp raw - var.x32 - 
-    "\x3            ", // 60 var mono opaque - 3x32 - 
+    "\x3            ", // 60 var mono opaque     - 3x32 - 
     "\x3            ", // 61 var mono opaque n-b - 3x32 - 
-    "\x3            ", // 62 var mono transp - 3x32 - 
+    "\x3            ", // 62 var mono transp     - 3x32 - 
     "\x3            ", // 63 var mono transp n-b - 3x32 - 
     "\x4                ", // 64 var txtr opaque bld - 4x32 - 
     "\x4                ", // 65 var txtr opaque raw - 4x32 - 
     "\x4                ", // 66 var txtr transp bld - 4x32 - 
     "\x4                ", // 67 var txtr transp raw - 4x32 - 
-    "\x2        ", // 68 1x1 mono opaque - 2x32 - 
+    "\x2        ", // 68 1x1 mono opaque     - 2x32 - 
     "\x2        ", // 69 1x1 mono opaque n-b - 2x32 - 
-    "\x2        ", // 6A 1x1 mono transp - 2x32 - 
+    "\x2        ", // 6A 1x1 mono transp     - 2x32 - 
     "\x2        ", // 6B 1x1 mono transp n-b - 2x32 - 
     "\x3            ", // 6C 1x1 txtr opaque bld - 3x32 - 
     "\x3            ", // 6D 1x1 txtr opaque raw - 3x32 - 
     "\x3            ", // 6E 1x1 txtr transp bld - 3x32 - 
     "\x3            ", // 6F 1x1 txtr transp raw - 3x32 - 
-    "\x2        ", // 70 8x8 mono opaque - 2x32 - 
+    "\x2        ", // 70 8x8 mono opaque     - 2x32 - 
     "\x2        ", // 71 8x8 mono opaque n-b - 2x32 - 
-    "\x2        ", // 72 8x8 mono transp - 2x32 - 
+    "\x2        ", // 72 8x8 mono transp     - 2x32 - 
     "\x2        ", // 73 8x8 mono transp n-b - 2x32 - 
     "\x3            ", // 74 8x8 txtr opaque bld - 3x32 - 
     "\x3            ", // 75 8x8 txtr opaque raw - 3x32 - 
     "\x3            ", // 76 8x8 txtr transp bld - 3x32 - 
     "\x3            ", // 77 8x8 txtr transp raw - 3x32 - 
-    "\x2        ", // 78 16x mono opaque - 2x32 - 
+    "\x2        ", // 78 16x mono opaque     - 2x32 - 
     "\x2        ", // 79 16x mono opaque n-b - 2x32 - 
-    "\x2        ", // 7A 16x mono transp - 2x32 - 
+    "\x2        ", // 7A 16x mono transp     - 2x32 - 
     "\x2        ", // 7B 16x mono transp n-b - 2x32 - 
     "\x3            ", // 7C 16x txtr opaque bld - 3x32 - 
     "\x3            ", // 7D 16x txtr opaque raw - 3x32 - 
     "\x3            ", // 7E 16x txtr transp bld - 3x32 - 
     "\x3            ", // 7F 16x txtr transp raw - 3x32 - 
-    "\x4                ", // 80 move image - 4x32 - 
+    "\x4\x80\0\0\0\0\0\0\0\0\x10\0\x10\0\x20\0\x20", // 80 move image - 4x32 - Cm000000 YsrcXsrc YdstXdst YhgtXwid
     "\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0", // unused (81 to 9F)
-    "\x3            ", // A0 load image - 3x32 - 
+    "\x3\xA0\0\0\0\0\0\0\0\0\0\0\0", // A0 load image  - 3x32 - Cm000000 YdstXdst YhgtXwid [data]
     "\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0", // unused (A1 to BF)
-    "\x3            ", // C0 store image - 3x32 - 
+    "\x3\xC0\0\0\0\0\0\0\0\0\0\0\0", // C0 store image - 3x32 - Cm000000 YsrcXsrc YhgtXwid [data]
     "\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0", // unused (C1 to E0)
-    "\x1    ", // E1 texture page draw - 1x32 - 
-    "\x1    ", // E2 texture window - 1x32 - 
-    "\x1    ", // E3 draw area top left - 1x32 - 
-    "\x1    ", // E4 draw area btm right - 1x32 - 
-    "\x1    ", // E5 draw offset - 1x32 - 
-    "\x1    " // E6 mask bit - 1x32 - 
+    "\x1\xE1\0\x3\x40",   // E1 texture page        - 1x32 - CmConfig
+    "\x1\xE2\x2\x10\x1",  // E2 texture window      - 1x32 - CmConfig
+    "\x1\xE3\0\x20\x8",   // E3 draw area top left  - 1x32 - CmConfig
+    "\x1\xE4\x3\x21\x10", // E4 draw area btm right - 1x32 - CmConfig
+    "\x1\xE5\x2\0\x40",   // E5 draw offset         - 1x32 - CmConfig
+    "\x1\xE6\0\0\x3"      // E6 mask bit            - 1x32 - Cm00000B
 };
 
 
@@ -234,7 +244,7 @@ void listPrimitives()
     printf(" ATTR                      ");
     printf("MISC                      ");
     printf(" * plin = poly-line       \n");
-    printf("  E1: texture page draw    ");
+    printf("  E1: texture page         ");
     printf(" 01: clear texture cache  ");
     printf(" * txtr = textured        \n");
     printf("  E2: texture window       ");
