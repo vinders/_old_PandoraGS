@@ -32,8 +32,7 @@ enum unit_id_t : unsigned long // unit IDs
     Unit_shader,
     Unit_render_api,
     Unit_display_state,
-    Unit_memory_dispatcher,
-    Unit_gpu_main
+    Unit_memory_dispatcher
 };
 
 /// <summary>Plugin - full unit testing</summary>
@@ -46,5 +45,11 @@ long CALLBACK GPUtestUnits(void* pWinData);
 /// <param name="pWinData">Window handle reference (optional)</param>
 /// <returns>Success indicator</returns>
 bool testUnit(unit_id_t unit, void* pWinData = NULL);
+
+/// <summary>Plugin - primitive testing</summary>
+/// <param name="pData">Primitive raw data</param>
+/// <param name="len">Primitive data length (number of 32bits blocks)</param>
+/// <param name="isFlipped">Flip indicator (only for rectangles)</param>
+void CALLBACK GPUtestPrimitive(unsigned char* pData, int len, bool isFlipped);
 
 #endif

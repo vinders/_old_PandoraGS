@@ -56,3 +56,4 @@ EXPORTS
     ZN_GPUshowScreenPic @50
     
     GPUtestUnits   	    @51
+    GPUtestPrimitive   	@52

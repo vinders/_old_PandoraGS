@@ -38,6 +38,17 @@ using namespace std;
 #define printError(error) printf("\n\t  FAILED : %s\n", error);
 
 
+/// <summary>Plugin - primitive testing</summary>
+/// <param name="pData">Primitive raw data</param>
+/// <param name="len">Primitive data length (number of 32bits blocks)</param>
+/// <param name="isFlipped">Flip indicator (only for rectangles)</param>
+void CALLBACK GPUtestPrimitive(unsigned char* pData, int len, bool isFlipped)
+{
+    //... reset draw area/offsets/size/...
+    //... process primitive (if textured primitive, generate checker texture)
+    //... display
+}
+
 /// <summary>Plugin - full unit testing</summary>
 /// <param name="pWinData">Window handle reference</param>
 /// <returns>Success indicator</returns>
@@ -255,8 +266,8 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 StatusRegister::init();
                 printSuccess();
 
-                printf("\t* setGameId(\"UNIT.TEST.1\"): ");
-                StatusRegister::setGameId("UNIT.TEST.1");
+                printf("\t* setGameId(\"UNITTEST.001\"): ");
+                StatusRegister::setGameId("UNITTEST.001");
                 printSuccess();
             }
             catch (const std::exception& exc)
