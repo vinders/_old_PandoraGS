@@ -28,6 +28,60 @@ using namespace std;
 #include "system_tools.h"
 
 #ifdef _WINDOWS
+FILE* g_hfConsoleOut = NULL; // console output stream descriptor
+
+/// <summary>Create a new output console window</summary>
+void SystemTools::createOutputWindow()
+{
+    // open output console
+    if (g_hfConsoleOut != NULL)
+        closeOutputWindow();
+    AllocConsole();
+    SetConsoleTitle(L"PandoraGS - Debug console");
+
+    // resize
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD coord;
+    coord.X = 80;
+    coord.Y = 40;
+    BOOL isResizeAbs = SetConsoleScreenBufferSize(hConsole, coord);
+    SMALL_RECT winPos;
+    winPos.Left = 0;
+    winPos.Top = 0;
+    winPos.Right = coord.X - 1;
+    winPos.Bottom = coord.Y - 1;
+    SetConsoleWindowInfo(hConsole, isResizeAbs, &winPos);
+
+    // redirect output stream
+    HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    int hCrtOut = _open_osfhandle((long)hOutput, _O_TEXT);
+    FILE* hfOut = _fdopen(hCrtOut, "w");
+    setvbuf(hfOut, NULL, _IONBF, 1);
+    *stdout = *hfOut;
+    g_hfConsoleOut = hfOut;
+}
+
+/// <summary>Close current output console window</summary>
+void SystemTools::closeOutputWindow()
+{
+    if (g_hfConsoleOut != NULL)
+    {
+        fflush(stdout);
+        fclose(g_hfConsoleOut); // close output stream
+        FreeConsole(); // close console
+        g_hfConsoleOut = NULL;
+    }
+}
+
+/// <summary>Set cursor position in output console window</summary>
+/// <param name="line">Line number</param>
+void SystemTools::setConsoleCursorPos(int line)
+{
+    HANDLE hStream = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD pos = { 0, line };
+    SetConsoleCursorPosition(hStream, pos);
+}
+
 /// <summary>Enable or disable screen saver</summary>
 /// <param name="isEnabled">Enabled/disabled</param>
 void SystemTools::setScreensaver(bool isEnabled)
@@ -52,30 +106,6 @@ void SystemTools::setScreensaver(bool isEnabled)
     }
 }
 
-/// <summary>Create a new output console window</summary>
-/// <returns>Output stream descriptor</returns>
-FILE* SystemTools::createOutputWindow()
-{
-    AllocConsole(); // open output console
-
-    // redirect output stream
-    HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-    int hCrtOut = _open_osfhandle((long)hOutput, _O_TEXT);
-    FILE* hfOut = _fdopen(hCrtOut, "w");
-    setvbuf(hfOut, NULL, _IONBF, 1);
-    *stdout = *hfOut;
-    return hfOut;
-}
-
-/// <summary>Close current output console window</summary>
-/// <param name="hfOut">Output stream descriptor</param>
-void SystemTools::closeOutputWindow(FILE* hfOut)
-{
-    fflush(stdout);
-    fclose(hfOut); // close output stream
-    FreeConsole(); // close console
-}
-
 #else
 /// <summary>Create a new output console window</summary>
 void SystemTools::createOutputWindow()
@@ -85,6 +115,13 @@ void SystemTools::createOutputWindow()
 /// <summary>Close current output console window</summary>
 void SystemTools::closeOutputWindow()
 {
+}
+
+/// <summary>Set cursor position in output console window</summary>
+/// <param name="line">Line number</param>
+void SystemTools::setConsoleCursorPos(int line)
+{
+    printf("%c[%d;%df", 0x1B, line, 0);
 }
 #endif
 

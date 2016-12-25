@@ -53,12 +53,17 @@ bool MemoryDispatcher::s_isZincEmu = false; // Zinc emulation
 /// <summary>Display data summary in debug window</summary>
 void MemoryDispatcher::printDebugSummary()
 {
-    system("@cls||clear"); // clear screen
+    SystemTools::setConsoleCursorPos(0);
     printf("Status register : 0x%08x\n", StatusRegister::getStatusRegister());
     printf("\nVRAM : hit ESC and check 'pandoraGS_memdump.txt'\n");
     printf("\nState control register :\n");
     for (int i = 0; i < CTRLREG_SIZE; ++i)
-        printf("%lu ", st_pControlReg[i]);
+    {
+        printf("%08x ", st_pControlReg[i]);
+        if ((i + 1) % 8 == 0)
+            printf("\n");
+    }
+    printf("\n");
 }
 
 /// <summary>Export full status and VRAM data</summary>

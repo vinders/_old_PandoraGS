@@ -32,20 +32,15 @@ namespace SystemTools
     /// <summary>Enable or disable screen-saver</summary>
     /// <param name="isEnabled">Enabled/disabled</param>
     void setScreensaver(bool isEnabled);
+#endif
 
-    /// <summary>Create a new output console window</summary>
-    /// <returns>Output stream descriptor</returns>
-    FILE* createOutputWindow();
-    /// <summary>Close current output console window</summary>
-    /// <param name="hfOut">Output stream descriptor</param>
-    void closeOutputWindow(FILE* hfOut);
-
-#else
     /// <summary>Create a new output console window</summary>
     void createOutputWindow();
     /// <summary>Close current output console window</summary>
     void closeOutputWindow();
-#endif
+    /// <summary>Set cursor position in output console window</summary>
+    /// <param name="line">Line number</param>
+    void setConsoleCursorPos(int line);
 
     /// <summary>Get file path with write access (same as plugin or home path)</summary>
     /// <returns>File path</returns>

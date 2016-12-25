@@ -29,8 +29,6 @@ using namespace std;
 static char* g_pLibName = PLUGIN_NAME;
 #ifndef _WINDOWS
 static char* g_pLibInfo = PLUGIN_INFO;
-#else
-FILE* g_hfOutDebug; // debug output descriptor
 #endif
 
 
@@ -52,7 +50,7 @@ long CALLBACK GPUinit()
 
         // open debug window
         if (Config::rnd_isDebugMode)
-            g_hfOutDebug = SystemTools::createOutputWindow();
+            SystemTools::createOutputWindow();
     }
     catch (const std::exception& exc) // init failure
     {
@@ -69,7 +67,7 @@ long CALLBACK GPUshutdown()
 {
     // close debug window
     if (Config::rnd_isDebugMode)
-        SystemTools::closeOutputWindow(g_hfOutDebug);
+        SystemTools::closeOutputWindow();
 
     // stop renderer
     RenderApi::close();
@@ -90,11 +88,17 @@ long CALLBACK GPUopen_PARAM_
     try
     {
         // reload framerate values (may have changed in previous session)
-        ConfigIO::loadFrameLimitConfig();
+        //ConfigIO::loadFrameLimitConfig(); // ne pas le faire ? si on l'a changé, ce n'est pas pour que ça s'annule chaque fois qu'on fait ESC
         // load associated profile (if not already loaded)
         if (MemoryDispatcher::st_isFirstOpen || Config::getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
         {
             Config::useProfile(ConfigIO::getGameAssociation(StatusRegister::getGameId()));
+            if (StatusRegister::getGameId().compare("UNITTEST.001") == 0) // testing -> force window mode
+            {
+                Config::dsp_isFullscreen = false;
+                Config::dsp_windowResX = 800u;
+                Config::dsp_windowResX = 600u;
+            }
             MemoryDispatcher::st_isFirstOpen = false;
 
             if (Config::getCurrentProfile()->getFix(CFG_FIX_EXPAND_SCREEN))
