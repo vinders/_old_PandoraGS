@@ -12,15 +12,18 @@ Description : test app - flow/unit tests -- entry point and test functions
 #include <Windows.h>
 #include <tchar.h>
 #include <string>
+using namespace std;
 #include "windowManager.h"
+#include "primitive.h"
 #include "main.h"
 
 #include "psemu.h" // plugin PSEmu interface
+#define OUTPUT_CONSOLE_HEIGHT 50
 
-FILE* openTestConsole();
+FILE* openTestConsole(LPCWSTR title, short bufferHeight);
 void closeTestConsole(FILE* hfOut);
 void listPrimitives();
-void renderPrimitive(int id);
+bool renderPrimitive(int id, bool isFlipped);
 
 
 ///<summary>Test app to check plugin execution</summary>
@@ -41,7 +44,7 @@ void ProcessTest(HWND hWindow)
         return;
 
     // start renderer
-    GPUsetExeName("SCEE_TEST.001");
+    GPUsetExeName("UNITTEST.001");
     if (GPUopen(hWindow) == 0)
     {
         // flow tests
@@ -61,7 +64,7 @@ void ProcessTest(HWND hWindow)
 ///<param name="hWindow">Main window handle</param>
 void UnitTest(HWND hWindow)
 {
-    FILE* hfOut = openTestConsole(); // output console
+    FILE* hfOut = openTestConsole(L"Unit testing - console", 500); // output console
 
     // unit tests
     if (GPUtestUnits((void*)&hWindow))
@@ -83,29 +86,39 @@ void PrimitivesTest(HWND hWindow)
         return;
 
     // start renderer
-    GPUsetExeName("SCEE_TEST.001");
+    GPUsetExeName("UNITTEST.001");
     if (GPUopen(hWindow) == 0)
     {
         // primitive testing
-        FILE* hfOut = openTestConsole(); // test console
+        FILE* hfOut = openTestConsole(L"Primitives testing - console", 0); // test console
         int primitiveId = 0;
+        listPrimitives();
         do
         {
-            listPrimitives();
-
             // choose primitive type
             primitiveId = 0;
             char inputBuffer = 0;
-            printf("\nPrimitive: ");
+            bool isFlipped = false;
+            printf("Primitive: ");
             fflush(stdin);
             while ((inputBuffer = getchar()) != EOF && inputBuffer != '\n')
             {
                 if (inputBuffer >= '0' && inputBuffer <= '9')
-                    primitiveId = primitiveId * 10 + (inputBuffer - '0');
+                    primitiveId = (primitiveId << 4) + (inputBuffer - '0');
+                else if (inputBuffer >= 'A' && inputBuffer <= 'F')
+                    primitiveId = (primitiveId << 4) + ((inputBuffer - 'A') + 10);
+                else if (inputBuffer == '-')
+                    isFlipped = true;
             }
 
             // display primitive
-            renderPrimitive(primitiveId);
+            if (primitiveId != 0)
+            {
+                if (renderPrimitive(primitiveId, isFlipped))
+                    listPrimitives();
+                else
+                    printf("Unknown primitive type: %d\n", primitiveId);
+            }
         }
         while (primitiveId != 0);
         closeTestConsole(hfOut);
@@ -121,11 +134,14 @@ void PrimitivesTest(HWND hWindow)
 // ---
 
 ///<summary>Create test console</summary>
+///<param name="title">Console window title</param>
+///<param name="bufferHeight">Output buffer height (lines)</param>
 ///<returns>Output stream descriptor</returns>
-FILE* openTestConsole()
+FILE* openTestConsole(LPCWSTR title, short bufferHeight)
 {
     // output console
     AllocConsole();
+    SetConsoleTitle(title);
 
     // set output stream
     HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -139,6 +155,19 @@ FILE* openTestConsole()
     FILE* hfIn = _fdopen(hCrtIn, "r");
     setvbuf(hfIn, NULL, _IONBF, 128);
     *stdin = *hfIn;
+
+    // resize
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD coord;
+    coord.X = 80;
+    coord.Y = (bufferHeight > 0) ? bufferHeight : OUTPUT_CONSOLE_HEIGHT;
+    BOOL isResizeAbs = SetConsoleScreenBufferSize(hConsole, coord);
+    SMALL_RECT winPos;
+    winPos.Left = 0;
+    winPos.Top = 0;
+    winPos.Right = coord.X - 1;
+    winPos.Bottom = OUTPUT_CONSOLE_HEIGHT - 1;
+    SetConsoleWindowInfo(hConsole, isResizeAbs, &winPos);
 
     return hfOut;
 }
@@ -154,31 +183,21 @@ void closeTestConsole(FILE* hfOut)
 
 // ---
 
-///<summary>Show full list of available primitives</summary>
-void listPrimitives()
-{
-    printf("01 - ???\n");
-    //...
-    printf("Enter 0 to exit.\n");
-}
-
 ///<summary>Ask the plugin to render a primitive</summary>
 ///<param name="id">Primitive ID (type)</param>
-void renderPrimitive(int id)
+///<param name="isFlipped">Flip indicator (only for rectangles)</param>
+///<returns>Valid primitive</returns>
+bool renderPrimitive(int id, bool isFlipped)
 {
     // create primitive description
-    int primLen = 0;
-    uint16_t pPrim[12];
-    switch (id)
-    {
-        case 1: // ???
-            primLen = 0;
-            break;
-        //...
-        default: printf("Unknown primitive type: %d", id); return;
-    }
+    unsigned char* pPrim = NULL;
+    int primLen = createPrimitive(id, &pPrim);
+    if (primLen == -1)
+        return false;
+    if (isFlipped && !isPrimitiveFlippable(id))
+        isFlipped = false;
 
     // render primitive
-    printf("Rendering primitive %d...\n\n", id);
-    //...
+    GPUtestPrimitive(pPrim, primLen, isFlipped);
+    return true;
 }

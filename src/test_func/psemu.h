@@ -171,5 +171,10 @@ long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem);
 /// <param name="pWinData">Window handle reference</param>
 /// <returns>Success indicator</returns>
 long CALLBACK GPUtestUnits(void* pWinData);
+/// <summary>Plugin - primitive testing</summary>
+/// <param name="pData">Primitive raw data</param>
+/// <param name="len">Primitive data length (number of 32bits blocks)</param>
+/// <param name="isFlipped">Flip indicator (only for rectangles)</param>
+void CALLBACK GPUtestPrimitive(unsigned char* pData, int len, bool isFlipped);
 
 #endif
