@@ -126,6 +126,7 @@
     <ClCompile Include="render\drawing_prim.cpp" />
     <ClCompile Include="render\line_prim.cpp" />
     <ClCompile Include="render\poly_prim.cpp" />
+    <ClCompile Include="render\primitive_factory.cpp" />
     <ClCompile Include="render\render_api.cpp" />
     <ClCompile Include="render\shader\shader.cpp" />
     <ClCompile Include="render\sprite_prim.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="render\drawing_prim.h" />
     <ClInclude Include="render\line_prim.h" />
     <ClInclude Include="render\poly_prim.h" />
+    <ClInclude Include="render\primitive_factory.h" />
     <ClInclude Include="render\render_api.h" />
     <ClInclude Include="render\shader\shader.h" />
     <ClInclude Include="render\sprite_prim.h" />

@@ -19,6 +19,7 @@ using namespace std;
 #include "system_tools.h"
 #include "status_register.h"
 #include "memory_dispatcher.h"
+#include "primitive_factory.h"
 #define This MemoryDispatcher
 
 // video memory management
@@ -35,12 +36,6 @@ bool MemoryDispatcher::st_isFirstOpen = true;      // first call to GPUopen()
 bool MemoryDispatcher::st_isUploadPending = false; // image needs to be uploaded to VRAM
 long MemoryDispatcher::st_busyEmuSequence = 0L;    // 'GPU busy' emulation hack - sequence value
 long MemoryDispatcher::st_selectedSaveSlot = 0L;   // selected save-state slot
-
-// gpu operations
-gpucmd_t  MemoryDispatcher::s_gpuCommand = 0u;
-ubuffer_t MemoryDispatcher::s_gpuMemCache[256];
-long MemoryDispatcher::s_gpuDataCount = 0;
-long MemoryDispatcher::s_gpuDataProcessed = 0;
 
 #ifdef _WINDOWS
 HWND  MemoryDispatcher::s_hWindow = NULL;   // main emulator window handle
@@ -430,89 +425,10 @@ void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
                 This::mem_vramWriter.rowsRemaining = 0;
             }
         }
-    } while (This::writeCachedDataChunk(pDwMem, size, &gdata, &i)); // true = VRAM transfer again
+    } while (PrimitiveFactory::processDisplayData(pDwMem, size, &gdata, &i)); // true = VRAM transfer again
 
     This::mem_dataExchangeBuffer = gdata;
     StatusRegister::setStatus(GPUSTATUS_READYFORCOMMANDS | GPUSTATUS_IDLE); // ready + idle
-}
-
-/// <summary>Process and send chunk of display data (normal mode)</summary>
-/// <param name="pDwMem">Pointer to chunk of data (source)</param>
-/// <param name="size">Memory chunk size</param>
-/// <param name="pDest">Destination gdata pointer</param>
-/// <param name="pI">Counter pointer</param>
-/// <returns>Indicator if VRAM data to write</returns>
-bool MemoryDispatcher::writeCachedDataChunk(unsigned long* pDwMem, int size, unsigned long* pDest, int* pI)
-{
-    unsigned long gdata = 0;
-    unsigned char command;
-    int i = *pI;
-
-    if (mem_vramWriter.mode == Loadmode_normal) // no VRAM transfer
-    {
-        // copy and process data
-        while (i < size)
-        {
-            // back to VRAM transfer mode -> end function
-            if (mem_vramWriter.mode == Loadmode_vramTransfer)
-            {
-                *pDest = gdata;
-                *pI = i;
-                return true; // more data to process
-            }
-
-            gdata = *pDwMem++;
-            i++;
-            // new data set -> identify command + copy first value
-            if (s_gpuDataCount == 0) 
-            {
-                command = (unsigned char)((gdata >> 24) & 0x0FF);
-                if (0)//... identify primitive (based on command code)
-                {
-                    s_gpuDataCount = 0;//... = identified primitive nb of blocks
-                    s_gpuCommand = command;
-                    s_gpuMemCache[0] = gdata;
-                    s_gpuDataProcessed = 1;
-                }
-                else
-                    continue;
-            }
-            // same data set -> copy current value
-            else 
-            {
-                s_gpuMemCache[s_gpuDataProcessed] = gdata;
-                if (s_gpuDataCount > 128)
-                {
-                    if ((s_gpuDataCount == 254 && s_gpuDataProcessed >= 3)
-                     || (s_gpuDataCount == 255 && s_gpuDataProcessed >= 4 && !(s_gpuDataProcessed & 1)))
-                    {
-                        // termination code for poly-lines -> force ending of data set
-                        if ((s_gpuMemCache[s_gpuDataProcessed] & 0xF000F000) == 0x50005000) // code should be 0x55555555, but wild arms 2 uses 0x50005000
-                            s_gpuDataProcessed = s_gpuDataCount - 1;
-                    }
-                }
-                s_gpuDataProcessed++;
-            }
-            // end of data set -> process cached data
-            if (s_gpuDataProcessed == s_gpuDataCount) 
-            {
-                s_gpuDataCount = s_gpuDataProcessed = 0;
-
-                // process data set
-                if (Timer::isPeriodSkipped())
-                    ;//... ignore, unless important primitive
-                else
-                    ;//... create primitive
-
-                // 'GPU busy' hack (while processing data)
-                if (Config::misc_emuFixBits & 0x0001 || Config::getCurrentProfile()->getFix(CFG_FIX_FAKE_GPU_BUSY))
-                    st_busyEmuSequence = 4;
-            }
-        }
-    }
-
-    *pDest = gdata;
-    return false; // no more data
 }
 
 

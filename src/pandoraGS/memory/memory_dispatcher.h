@@ -19,7 +19,6 @@ Description : display memory manager and dispatcher
 #include "geometry.hpp"
 
 // data types
-typedef uint8_t gpucmd_t;
 typedef struct MEMLOAD // memory I/O
 {
     loadmode_t mode;
@@ -79,12 +78,6 @@ public: // treat PSEmu memory functions as member methods
     static long st_busyEmuSequence;  // 'GPU busy' emulation hack - sequence value
     static long st_selectedSaveSlot;  // selected save-state slot
 
-    // gpu operation
-    static gpucmd_t  s_gpuCommand;
-    static ubuffer_t s_gpuMemCache[256]; // memory cache
-    static long s_gpuDataCount;          // data set length
-    static long s_gpuDataProcessed;      // current number of values cached
-
 #ifdef _WINDOWS
 public:
     static HWND  s_hWindow;    // main emulator window handle
@@ -132,14 +125,6 @@ public:
     static void printDebugSummary();
     /// <summary>Export full status and VRAM data</summary>
     static void MemoryDispatcher::exportData();
-
-    /// <summary>Process and send chunk of display data (normal mode)</summary>
-    /// <param name="pDwMem">Pointer to chunk of data (source)</param>
-    /// <param name="size">Memory chunk size</param>
-    /// <param name="pDest">Destination gdata reference</param>
-    /// <param name="pI">Counter reference</param>
-    /// <returns>Indicator if VRAM data to write</returns>
-    static bool writeCachedDataChunk(unsigned long* pDwMem, int size, unsigned long* pDest, int* pI);
 
 
     // -- SET SYNC/TRANSFER INFORMATION -- -----------------------------------------
