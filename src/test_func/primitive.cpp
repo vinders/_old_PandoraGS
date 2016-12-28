@@ -11,7 +11,7 @@ using namespace std;
 
 #define MAX_PRIMITIVE_ID 0xE6
 
-// primitive table ("length"+"data")
+// primitive table (length, data)
 unsigned long primTestTable[MAX_PRIMITIVE_ID][16] =
 {
     // Cm = command
@@ -24,7 +24,7 @@ unsigned long primTestTable[MAX_PRIMITIVE_ID][16] =
     // YcXc = texture XY coords (Y/X)
     // Clut = color lookup table (palette)
     // Txpg = texture page
-    { 0x1, 0x01000000 },                         // 01 clear txtr cache - 1x32 - Cm000000
+    { 0x1, 0x01000000 },                       // 01 clear txtr cache - 1x32 - Cm000000
     { 0x3, 0x02177700,0x00200010,0x01000100 }, // 02 fill blank rect  - 3x32 - CmBbGgRr YtopXlft YhgtXwid 
     {0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}, // unused (03 to 1F)
     // POLY
@@ -57,7 +57,7 @@ unsigned long primTestTable[MAX_PRIMITIVE_ID][16] =
     { 0x9, 0x357700AA, 0, 0, 0, 0, 0, 0, 0, 0 }, // 35 3pt shtx opaque raw - 9x32
     { 0x9, 0x36AA4400, 0, 0, 0, 0, 0, 0, 0, 0 }, // 36 3pt shtx transp bld - 9x32
     { 0x9, 0x3744AA00, 0, 0, 0, 0, 0, 0, 0, 0 }, // 37 3pt shtx transp raw - 9x32
-        //CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc
+        // CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc
     { 0x8, 0x380000AA, 0, 0, 0, 0, 0, 0, 0 }, // 38 4pt shad opaque     - 8x32
     { 0x8, 0x397700AA, 0, 0, 0, 0, 0, 0, 0 }, // 39 4pt shad opaque n-b - 8x32
     { 0x8, 0x3AAA4400, 0, 0, 0, 0, 0, 0, 0 }, // 3A 4pt shad transp     - 8x32
