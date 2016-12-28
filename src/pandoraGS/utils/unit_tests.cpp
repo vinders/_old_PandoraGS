@@ -27,6 +27,7 @@ using namespace std;
 #include "line_prim.h"
 #include "sprite_prim.h"
 #include "poly_prim.h"
+#include "primitive_factory.h"
 #include "shader.h"
 #include "render_api.h"
 #include "display_state.h"
@@ -45,8 +46,15 @@ using namespace std;
 void CALLBACK GPUtestPrimitive(unsigned char* pData, int len, bool isFlipped)
 {
     //... reset draw area/offsets/size/...
-    //... process primitive (if textured primitive, generate checker texture)
-    //... display
+
+    if (isFlipped)
+        ;//... flip XY
+    PrimitiveFactory::processSinglePrimitive(pData, len);
+
+    if (pData[0] < 0x80)
+        ;//... display
+    else
+        ;//... fill draw zone with white blank rectangle
 }
 
 /// <summary>Plugin - full unit testing</summary>
