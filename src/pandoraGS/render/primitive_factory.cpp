@@ -73,7 +73,7 @@ namespace PrimitiveFactory
     void cmMaskBit(unsigned char* pData);      // ATTR - mask bit
 
 
-    // primitive factory table
+    // primitive factory table (size, command, skip_action)
     const primcmd_row_t c_pPrimTable[PRIMITIVE_NUMBER] =
     {
         // GENERAL : 00 - 03
@@ -251,13 +251,13 @@ void PrimitiveFactory::processSinglePrimitive(unsigned char* pData, int len)
     {
         g_gpuCommand = command;
         memset(g_gpuMemCache, 0, 256 * sizeof(unsigned long));
-        unsigned long* srcMem = (unsigned long*)pData;
+        unsigned long* pSrcMem = (unsigned long*)pData;
         for (int i = 0; i < len; ++i) // test functions may pass data shorter than 256 -> no memcpy
         {
-            g_gpuMemCache[i] = *srcMem;
-            if ((*srcMem & 0xF000F000) == 0x50005000) 
+            g_gpuMemCache[i] = *pSrcMem;
+            if ((*pSrcMem & 0xF000F000) == 0x50005000)
                 break; // termination code for poly-lines
-            ++srcMem;
+            ++pSrcMem;
         }
         g_gpuDataProcessed = len;
         c_pPrimTable[command].command((unsigned char*)g_gpuMemCache);
@@ -266,6 +266,12 @@ void PrimitiveFactory::processSinglePrimitive(unsigned char* pData, int len)
 
 
 // -- PRIMITIVE GENERAL COMMANDS -- --------------------------------------------
+// Cm = command code (0x00 - 0xE7)
+// BbGgRr = color code (R: 0-7 ; G: 8-15 ; B: 16-23)
+// YtopXlft = top-left coords
+// YhgtXwid = horizontal/vertical size
+// YsrcXsrc = source coords
+// YdstXdst = destination coords
 
 /// <summary>Non-implemented command</summary>
 void PrimitiveFactory::cmVoid(unsigned char* pData)
@@ -275,209 +281,292 @@ void PrimitiveFactory::cmVoid(unsigned char* pData)
 /// <summary>Clear texture cache</summary>
 void PrimitiveFactory::cmClearCache(unsigned char* pData)
 {
-
+    //... vider cache de textures -> dans vram (et aussi dans openGL ???)
 }
 
 /// <summary>Fill space (without checking draw areas)</summary>
 void PrimitiveFactory::cmBlankFill(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YtopXlft YhgtXwid
 
 }
 
 /// <summary>Move image (vram to vram)</summary>
 void PrimitiveFactory::cmImageMove(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 4x32 - Cm000000 YsrcXsrc YdstXdst YhgtXwid
 
 }
 
 /// <summary>Load image (cpu to vram)</summary>
 void PrimitiveFactory::cmImageLoad(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - Cm000000 YdstXdst YhgtXwid [data->DMA]
 
 }
 
 /// <summary>Store image (vram to central memory)</summary>
 void PrimitiveFactory::cmImageStore(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - Cm000000 YsrcXsrc YhgtXwid [data->DMA]
 
 }
 
 
 // -- DRAWING ATTRIBUTE COMMANDS -- --------------------------------------------
+// Cm = command code (0x00 - 0xE7)
 
 /// <summary>Set texture page</summary>
 void PrimitiveFactory::cmTexPage(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 1x32 - CmBBBBBB
+    // bits 0-3: texture page X base (N*64)
+    // bit 4   : texture page Y base (N*256)
+    // bits 5-6: transparency (0 = B/2+F/2 ; 1 = B+F ; 2 = B-F ; 3 = B+F/4)
+    // bits 7-8: colors (0 = 4bit ; 1 = 8bit ; 2 = 15bit ; 3 = reserved)
+    // bit 9   : dither 24bit to 15bit (0 = off (strip LSBs) ; 1 = enabled)
+    // bit 10  : drawing to display area (0 = forbidden ; 1 = allowed)
+    // bit 11  : texture disable (0 = normal ; 1 = disable if bit0==1)
+    // bit 12  : textured rectangle X-flip
+    // bit 13  : textured rectangle Y-flip
 
 }
 
 /// <summary>Set texture window</summary>
 void PrimitiveFactory::cmTexWindow(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 1x32 - CmBBBBBB
+    // bits 0-4  : mask X (in 8 pixel steps)
+    // bits 5-9  : mask Y (in 8 pixel steps)
+    // bits 10-14: offset X (in 8 pixel steps)
+    // bits 15-19: offset Y (in 8 pixel steps)
+    // texcoord = (texcoord AND (NOT (mask*8))) OR ((offset AND mask)*8)
 
 }
 
 /// <summary>Set draw area start</summary>
 void PrimitiveFactory::cmDrawAreaStart(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 1x32 - CmBBBBBB
+    // bits 0-9  : X coord
+    // bits 10-19: Y coord
 
 }
 
 /// <summary>Set draw area end</summary>
 void PrimitiveFactory::cmDrawAreaEnd(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 1x32 - CmBBBBBB
+    // bits 0-9  : X coord
+    // bits 10-19: Y coord
 
 }
 
 /// <summary>Set draw offset</summary>
 void PrimitiveFactory::cmDrawOffset(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 1x32 - CmBBBBBB
+    // bits 0-10 : X offset
+    // bits 11-21: Y offset
 
 }
 
 /// <summary>Set mask bit info</summary>
 void PrimitiveFactory::cmMaskBit(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 1x32 - Cm00000B
+    // bit 0: mask while drawing (0 = texture with bit 15 ; 1 = force bit15=1)
+    // bit 1: check mask before drawing (0 = always draw ; 1 = draw if bit15==0)
 
 }
 
 
 // -- PRIMITIVE POLYGON COMMANDS -- --------------------------------------------
+// Cm = command code (0x00 - 0xE7)
+// BbGgRr = color code (R: 0-7 ; G: 8-15 ; B: 16-23)
+// YvtxXvtx = vertex coords (X: 0-10 ; Y: 16-26)
+// YcXc = texture coords
+// Clut = color lookup table, for 4bit/8bit textures only (X coord (N*16): 0-5 ; Y coord (line): 6-14)
+// Txpg = texture page
+       // 0-3: X base (N*64)
+       // 4  : Y base (N*256)
+       // 5-6: transparency (0 = B/2+F/2 ; 1 = B+F ; 2 = B-F ; 3 = B+F/4)
+       // 7-8: colors (0 = 4bit ; 1 = 8bit ; 2 = 15bit ; 3 = reserved)
+       // 11 : texture disable (0 = normal ; 1 = disable if bit0==1)
 
 /// <summary>Draw flat triangle</summary>
 void PrimitiveFactory::cmTriangle(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 4x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx
 
 }
 
 /// <summary>Draw shaded triangle</summary>
 void PrimitiveFactory::cmTriangleS(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 6x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
 
 }
 
 /// <summary>Draw textured triangle</summary>
 void PrimitiveFactory::cmTriangleTx(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 7x32 - CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc
 
+    //... si texture 4bit ou 8bit, lire Clut, sinon ignorer
+    //... si raw, ignorer couleur
 }
 
 /// <summary>Draw shaded-textured triangle</summary>
 void PrimitiveFactory::cmTriangleSTx(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 9x32 - CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc
 
 }
 
 /// <summary>Draw flat quad</summary>
 void PrimitiveFactory::cmQuad(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 5x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx YvtxXvtx
 
 }
 
 /// <summary>Draw shaded quad</summary>
 void PrimitiveFactory::cmQuadS(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 8x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
 
 }
 
 /// <summary>Draw textured quad</summary>
 void PrimitiveFactory::cmQuadTx(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 9x32 - CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc YvtxXvtx 0000YcXc
 
 }
 
 /// <summary>Draw shaded-textured quad</summary>
 void PrimitiveFactory::cmQuadSTx(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 12x32 - CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc 00BbGgRr YvtxXvtx 0000YcXc
 
 }
 
 
 // -- PRIMITIVE LINE COMMANDS -- -----------------------------------------------
+// Cm = command code (0x00 - 0xE7)
+// BbGgRr = color code (R: 0-7 ; G: 8-15 ; B: 16-23)
+// YvtxXvtx = vertex coords (X: 0-10 ; Y: 16-26)
 
 /// <summary>Draw flat line</summary>
 void PrimitiveFactory::cmLine(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YvtxXvtx YvtxXvtx
 
 }
 
 /// <summary>Draw shaded line</summary>
 void PrimitiveFactory::cmLineS(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 4x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
 
 }
 
 /// <summary>Draw flat poly-line</summary>
 void PrimitiveFactory::cmPolyLine(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // [3-254]x32 - CmBbGgRr YvtxXvtx YvtxXvtx [...] 55555555
 
 }
 
 /// <summary>Draw shaded poly-line</summary>
 void PrimitiveFactory::cmPolyLineS(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // [4-255]x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx [...] 55555555
 
 }
 
 /// <summary>Skip poly-line</summary>
 void PrimitiveFactory::skipPolyLine(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // [4-254]x32 - CmBbGgRr YvtxXvtx YvtxXvtx [...] 55555555
 
 }
 
 /// <summary>Skip poly-line</summary>
 void PrimitiveFactory::skipPolyLineS(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // [5-255]x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx [...] 55555555
 
 }
 
 
 // -- PRIMITIVE RECTANGLE COMMANDS -- ------------------------------------------
+// Cm = command code (0x00 - 0xE7)
+// BbGgRr = color code (R: 0-7 ; G: 8-15 ; B: 16-23)
+// YhgtXwid = horizontal/vertical size
+// YvtxXvtx = vertex coords (X: 0-10 ; Y: 16-26)
+// YcXc = texture coords
+// Clut = color lookup table, for 4bit/8bit textures only (X coord (N*16): 0-5 ; Y coord (line): 6-14)
+// Txpg = texture page
+       // 0-3: X base (N*64)
+       // 4  : Y base (N*256)
+       // 5-6: transparency (0 = B/2+F/2 ; 1 = B+F ; 2 = B-F ; 3 = B+F/4)
+       // 7-8: colors (0 = 4bit ; 1 = 8bit ; 2 = 15bit ; 3 = reserved)
+       // 11 : texture disable (0 = normal ; 1 = disable if bit0==1)
 
 /// <summary>Draw custom-sized rectangle</summary>
 void PrimitiveFactory::cmTile(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YvtxXvtx YhgtXwid
 
 }
 
 /// <summary>Draw 1x1 rectangle</summary>
 void PrimitiveFactory::cmTile1(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 2x32 - CmBbGgRr YvtxXvtx
 
 }
 
 /// <summary>Draw 8x8 rectangle</summary>
 void PrimitiveFactory::cmTile8(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 2x32 - CmBbGgRr YvtxXvtx
 
 }
 
 /// <summary>Draw 16x16 rectangle</summary>
 void PrimitiveFactory::cmTile16(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 2x32 - CmBbGgRr YvtxXvtx
 
 }
 
 /// <summary>Draw custom-sized sprite</summary>
 void PrimitiveFactory::cmSprite(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 4x32 - CmBbGgRr YvtxXvtx ClutYcXc YhgtXwid
 
 }
 
 /// <summary>Draw 1x1 sprite</summary>
 void PrimitiveFactory::cmSprite1(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YvtxXvtx ClutYcXc
 
 }
 
 /// <summary>Draw 8x8 sprite</summary>
 void PrimitiveFactory::cmSprite8(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YvtxXvtx ClutYcXc
 
 }
 
 /// <summary>Draw 16x16 sprite</summary>
 void PrimitiveFactory::cmSprite16(unsigned char* pData)
 {
+    unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YvtxXvtx ClutYcXc
 
 }
