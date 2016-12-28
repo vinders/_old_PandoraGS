@@ -28,6 +28,8 @@ using namespace std;
 #include "system_tools.h"
 
 #ifdef _WINDOWS
+HMENU g_hMenu = NULL;        // emulator menu handle
+DWORD g_origStyle = 0uL;     // original window style
 FILE* g_hfConsoleOut = NULL; // console output stream descriptor
 
 /// <summary>Create a new output console window</summary>
@@ -82,6 +84,51 @@ void SystemTools::setConsoleCursorPos(int line)
     SetConsoleCursorPosition(hStream, pos);
 }
 
+
+/// <summary>Create a new output console window</summary>
+/// <param name="hWindow">Main window handle</param>
+/// <param name="isFullscreen">Fullscreen or not</param>
+/// <param name="isResizable">Resizable window (if window mode) or not</param>
+void SystemTools::createDisplayWindow(HWND hWindow, bool isFullscreen, bool isResizable)
+{
+    if (g_hMenu != NULL)
+        closeDisplayWindow(hWindow);
+
+    // save style backup to restore it
+    DWORD dwStyle = GetWindowLong(hWindow, GWL_STYLE);
+    g_origStyle = dwStyle;
+
+    // set new window style
+    if (isFullscreen) // fullscreen mode
+    {
+        dwStyle = CS_OWNDC;
+    }
+    else // window mode
+    {
+        if (isResizable == false)
+            dwStyle &= ~WS_THICKFRAME;
+        dwStyle |= (WS_BORDER | WS_CAPTION | CS_OWNDC);
+    }
+    SetWindowLong(hWindow, GWL_STYLE, dwStyle);
+
+    // hide emulator menu
+    g_hMenu = GetMenu(hWindow);
+    if (g_hMenu)
+        SetMenu(hWindow, NULL);
+}
+
+/// <summary>Close current output console window</summary>
+/// <param name="hWindow">Main window handle</param>
+void SystemTools::closeDisplayWindow(HWND hWindow)
+{
+    // restore window style
+    SetWindowLong(hWindow, GWL_STYLE, g_origStyle);
+    // restore emulator menu
+    if (g_hMenu)
+        SetMenu(hWindow, g_hMenu);
+    g_hMenu = NULL;
+}
+
 /// <summary>Enable or disable screen saver</summary>
 /// <param name="isEnabled">Enabled/disabled</param>
 void SystemTools::setScreensaver(bool isEnabled)
@@ -122,6 +169,17 @@ void SystemTools::closeOutputWindow()
 void SystemTools::setConsoleCursorPos(int line)
 {
     printf("%c[%d;%df", 0x1B, line, 0);
+}
+
+
+/// <summary>Create a new output console window</summary>
+void createDisplayWindow()
+{
+}
+
+/// <summary>Close current output console window</summary>
+void closeDisplayWindow()
+{
 }
 #endif
 

@@ -80,8 +80,6 @@ public: // treat PSEmu memory functions as member methods
 #ifdef _WINDOWS
 public:
     static HWND  s_hWindow;    // main emulator window handle
-    static HMENU s_hMenu;      // emulator menu handle
-    static DWORD s_origStyle;  // original window style
 #endif
     static bool s_isZincEmu;   // Zinc emulation
 

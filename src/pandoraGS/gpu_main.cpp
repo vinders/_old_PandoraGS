@@ -110,8 +110,10 @@ long CALLBACK GPUopen_PARAM_
         // create rendering window
         #ifdef _WINDOWS
         MemoryDispatcher::s_hWindow = hWindow;
+        SystemTools::createDisplayWindow(MemoryDispatcher::s_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
+        #else
+        SystemTools::createDisplayWindow();
         #endif
-        RenderApi::setWindow(true);
         MemoryDispatcher::st_displayState.set(false);
 
         // disable screensaver (if possible)
@@ -150,12 +152,14 @@ long CALLBACK GPUclose()
         MemoryDispatcher::exportData();
     }
 
-    // close window
-    RenderApi::setWindow(false);
     #ifdef _WINDOWS
-    // enable screensaver (if disabled)
+    // close window
+    SystemTools::closeDisplayWindow(MemoryDispatcher::s_hWindow);
+    // re-enable screensaver (if disabled)
     if (Config::misc_isScreensaverDisabled)
         SystemTools::setScreensaver(true);
+    #else
+    SystemTools::closeDisplayWindow();
     #endif
 
     // save current game/profile association
@@ -240,7 +244,14 @@ void CALLBACK GPUupdateLace()
             MemoryDispatcher::st_displayState.set(false);
 
             Config::dsp_isFullscreen = !(Config::dsp_isFullscreen);
-            RenderApi::changeWindowMode();
+            #ifdef _WINDOWS
+            SystemTools::closeDisplayWindow(MemoryDispatcher::s_hWindow);
+            SystemTools::createDisplayWindow(MemoryDispatcher::s_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
+            #else
+            SystemTools::closeDisplayWindow();
+            SystemTools::createDisplayWindow();
+            #endif
+            //... choix fentre dans opengl //!
 
             // restart input tracker for new window
             #ifdef _WINDOWS

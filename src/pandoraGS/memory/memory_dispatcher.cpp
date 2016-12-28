@@ -38,8 +38,6 @@ long MemoryDispatcher::st_selectedSaveSlot = 0L;   // selected save-state slot
 
 #ifdef _WINDOWS
 HWND  MemoryDispatcher::s_hWindow = NULL;   // main emulator window handle
-HMENU MemoryDispatcher::s_hMenu = NULL;     // emulator menu handle
-DWORD MemoryDispatcher::s_origStyle = 0uL;  // original window style
 #endif
 bool MemoryDispatcher::s_isZincEmu = false; // Zinc emulation
 

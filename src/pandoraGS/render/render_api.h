@@ -66,11 +66,6 @@ public:
     /// <summary>Draw current frame to the screen</summary>
     static void drawFrame();
 
-    /// <summary>Set display window</summary>
-    /// <param name="isOpened">Open or close window</param>
-    static void setWindow(bool isOpened);
-    /// <summary>Change window mode, depending on current settings</summary>
-    static void changeWindowMode();
     /// <summary>Change window size or set stretching mode</summary>
     /// <param name="isWindowResized">Check new window size</param>
     static void setDrawingSize(bool isWindowResized);
