@@ -284,6 +284,14 @@ void cmBlankFill(unsigned char* pData)
 {
     unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YtopXlft YhgtXwid
 
+    // coords
+    tile_t zone;//...
+    zone.x = (pPrimData[1] & 0x0FFFF);// no short* pointer used, to avoid little/big-endian potential problems
+    zone.y = (pPrimData[1] >> 16);
+    zone.width = (pPrimData[2] & 0x0FFFF);
+    zone.height = (pPrimData[2] >> 16);
+
+    //...
 }
 
 /// <summary>Move image (vram to vram)</summary>
@@ -395,7 +403,7 @@ void cmTriangle(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 4x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx
 
     // vertices
-    g_curTriangle.x0 = (pPrimData[1] & 0x0FFFF);
+    g_curTriangle.x0 = (pPrimData[1] & 0x0FFFF); // no short* pointer used, to avoid little/big-endian potential problems
     g_curTriangle.y0 = (pPrimData[1] >> 16);
     g_curTriangle.x1 = (pPrimData[2] & 0x0FFFF);
     g_curTriangle.y1 = (pPrimData[2] >> 16);
