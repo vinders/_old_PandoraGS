@@ -34,7 +34,6 @@ unsigned long MemoryDispatcher::st_pControlReg[CTRLREG_SIZE]; // GPU status cont
 uint32_t MemoryDispatcher::st_displayDevFlags = 0u; // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
 bool MemoryDispatcher::st_isFirstOpen = true;      // first call to GPUopen()
 bool MemoryDispatcher::st_isUploadPending = false; // image needs to be uploaded to VRAM
-long MemoryDispatcher::st_busyEmuSequence = 0L;    // 'GPU busy' emulation hack - sequence value
 long MemoryDispatcher::st_selectedSaveSlot = 0L;   // selected save-state slot
 
 #ifdef _WINDOWS
@@ -130,7 +129,7 @@ unsigned long CALLBACK GPUreadStatus()
         }
     }
     // fake busy status fix (while drawing)
-    This::setFakeBusyStep();
+    StatusRegister::setFakeBusyStep();
 
     // read status register
     return StatusRegister::getStatusRegister();
@@ -425,7 +424,7 @@ void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
                 This::mem_vramWriter.rowsRemaining = 0;
             }
         }
-    } while (PrimitiveFactory::processDisplayData(pDwMem, size, &gdata, &i)); // true = VRAM transfer again
+    } while (PrimitiveFactory::processDisplayData(This::mem_vramWriter.mode, pDwMem, size, &gdata, &i)); // true = VRAM transfer again
 
     This::mem_dataExchangeBuffer = gdata;
     StatusRegister::setStatus(GPUSTATUS_READYFORCOMMANDS | GPUSTATUS_IDLE); // ready + idle

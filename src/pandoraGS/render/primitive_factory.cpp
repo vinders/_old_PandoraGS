@@ -11,7 +11,7 @@ Description : drawing primitive factory
 using namespace std;
 #include "geometry.hpp"
 #include "config.h"
-#include "memory_dispatcher.h"
+#include "status_register.h"
 #include "primitive_factory.h"
 
 #define NI cmVoid // non-implemented commands
@@ -61,6 +61,7 @@ void cmSprite(unsigned char* pData);       // RECT - sprite custom
 void cmSprite1(unsigned char* pData);      // RECT - sprite 1x1
 void cmSprite8(unsigned char* pData);      // RECT - sprite 8x8
 void cmSprite16(unsigned char* pData);     // RECT - sprite 16x16
+
 void cmTexPage(unsigned char* pData);      // ATTR - texture page
 void cmTexWindow(unsigned char* pData);    // ATTR - texture window
 void cmDrawAreaStart(unsigned char* pData);// ATTR - draw area start
@@ -159,24 +160,25 @@ const primcmd_row_t c_pPrimTable[PRIMITIVE_NUMBER] =
 // -- PRIMITIVE FACTORY -- -----------------------------------------------------
 
 /// <summary>Process chunk of display data (normal mode)</summary>
+/// <param name="vramWriteMode">Reference to VRAM write mode</param>
 /// <param name="pDwMem">Pointer to chunk of data (source)</param>
 /// <param name="size">Memory chunk size</param>
 /// <param name="pDest">Destination gdata pointer</param>
 /// <param name="pI">Counter pointer</param>
 /// <returns>Indicator if VRAM data to write</returns>
-bool PrimitiveFactory::processDisplayData(unsigned long* pDwMem, int size, unsigned long* pDest, int* pI)
+bool PrimitiveFactory::processDisplayData(loadmode_t& writeModeRef, unsigned long* pDwMem, int size, unsigned long* pDest, int* pI)
 {
     unsigned long gdata = 0;
     gpucmd_t command;
     int i = *pI;
 
-    if (MemoryDispatcher::mem_vramWriter.mode == Loadmode_normal) // no VRAM transfer
+    if (writeModeRef == Loadmode_normal) // no VRAM transfer
     {
         // copy and process data
         while (i < size)
         {
             // back to VRAM transfer mode -> end function
-            if (MemoryDispatcher::mem_vramWriter.mode == Loadmode_vramTransfer)
+            if (writeModeRef == Loadmode_vramTransfer)
             {
                 *pDest = gdata;
                 *pI = i;
@@ -227,7 +229,7 @@ bool PrimitiveFactory::processDisplayData(unsigned long* pDwMem, int size, unsig
 
                 // 'GPU busy' hack (while processing data)
                 if (Config::misc_emuFixBits & 0x0001 || Config::getCurrentProfile()->getFix(CFG_FIX_FAKE_GPU_BUSY))
-                    MemoryDispatcher::st_busyEmuSequence = 4;
+                    StatusRegister::initFakeBusySequence();
             }
         }
     }

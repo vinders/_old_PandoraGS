@@ -10,6 +10,8 @@ Description : drawing primitive factory
 #ifndef _PRIMITIVE_FACTORY_H
 #define _PRIMITIVE_FACTORY_H
 
+#include "video_memory.h"
+
 #define PRIMITIVE_NUMBER 0xE8 // 0x00 - 0xE7
 
 // data types
@@ -34,12 +36,13 @@ private:
 
 public:
     /// <summary>Process chunk of display data (normal mode)</summary>
+    /// <param name="writeModeRef">Reference to VRAM write mode</param>
     /// <param name="pDwMem">Pointer to chunk of data (source)</param>
     /// <param name="size">Memory chunk size</param>
     /// <param name="pDest">Destination gdata pointer</param>
     /// <param name="pI">Counter pointer</param>
     /// <returns>Indicator if VRAM data to write</returns>
-    static bool processDisplayData(unsigned long* pDwMem, int size, unsigned long* pDest, int* pI);
+    static bool processDisplayData(loadmode_t& writeModeRef, unsigned long* pDwMem, int size, unsigned long* pDest, int* pI);
 
     /// <summary>Process single primitive</summary>
     /// <param name="pData">Primitive raw data</param>

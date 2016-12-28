@@ -75,7 +75,6 @@ public: // treat PSEmu memory functions as member methods
     static uint32_t st_displayDevFlags; // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
     static bool st_isFirstOpen;      // first call to GPUopen()
     static bool st_isUploadPending;  // image needs to be uploaded to VRAM
-    static long st_busyEmuSequence;  // 'GPU busy' emulation hack - sequence value
     static long st_selectedSaveSlot;  // selected save-state slot
 
 #ifdef _WINDOWS
@@ -163,20 +162,6 @@ public:
         {
             timerReg = (st_displayState.getRegionmode() == Region_pal) ? Regionsync_pal : Regionsync_ntsc;
             Timer::setFrequency(Config::sync_framerateLimit, timerReg, StatusRegister::getStatus(GPUSTATUS_INTERLACED));
-        }
-    }
-
-    /// <summary>Set fake busy/idle sequence step</summary>
-    static inline void setFakeBusyStep()
-    {
-        // busy/idle sequence (while drawing)
-        if (st_busyEmuSequence)
-        {
-            --st_busyEmuSequence;
-            if (st_busyEmuSequence & 0x1) // busy if odd number
-                StatusRegister::unsetStatus(GPUSTATUS_IDLE | GPUSTATUS_READYFORCOMMANDS);
-            else // idle
-                StatusRegister::setStatus(GPUSTATUS_IDLE | GPUSTATUS_READYFORCOMMANDS);
         }
     }
 
