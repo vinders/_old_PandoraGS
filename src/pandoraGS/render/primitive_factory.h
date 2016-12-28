@@ -22,21 +22,38 @@ typedef struct PRIMTABLEROW // primitive command
 } primcmd_row_t;
 
 
-// drawing primitive factory
-namespace PrimitiveFactory
+// Drawing primitive factory
+class PrimitiveFactory
 {
+private:
+    // GPU operations
+    static gpucmd_t s_gpuCommand;
+    static unsigned long s_gpuMemCache[256]; // memory cache
+    static long s_gpuDataCount;              // data set length
+    static long s_gpuDataProcessed;          // current number of values cached
+
+public:
     /// <summary>Process chunk of display data (normal mode)</summary>
     /// <param name="pDwMem">Pointer to chunk of data (source)</param>
     /// <param name="size">Memory chunk size</param>
     /// <param name="pDest">Destination gdata pointer</param>
     /// <param name="pI">Counter pointer</param>
     /// <returns>Indicator if VRAM data to write</returns>
-    bool processDisplayData(unsigned long* pDwMem, int size, unsigned long* pDest, int* pI);
+    static bool processDisplayData(unsigned long* pDwMem, int size, unsigned long* pDest, int* pI);
 
     /// <summary>Process single primitive</summary>
     /// <param name="pData">Primitive raw data</param>
     /// <param name="len">Primitive data length (number of 32bits blocks)</param>
-    void processSinglePrimitive(unsigned char* pData, int len);
-}
+    static void processSinglePrimitive(unsigned char* pData, int len);
+
+private:
+    /// <summary>Extract command bits from display data</summary>
+    /// <param name="gdata">Display data (first block)</param>
+    /// <returns>Command</returns>
+    static inline unsigned long extractPrimitiveCommand(unsigned long gdata)
+    {
+        return ((gdata >> 24) & 0x0FFu);
+    }
+};
 
 #endif

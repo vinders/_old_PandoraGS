@@ -22,7 +22,7 @@ Description : display memory manager and dispatcher
 typedef struct MEMLOAD // memory I/O
 {
     loadmode_t mode;
-    quad_t range;
+    tile_t range;
     short  rowsRemaining;
     short  colsRemaining;
     VideoMemory::iterator vramPos;
