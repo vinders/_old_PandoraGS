@@ -14,7 +14,8 @@ using namespace std;
 #include "status_register.h"
 #include "primitive_factory.h"
 
-#define NI cmVoid // non-implemented commands
+#define NI cmVoid   // non-implemented commands
+#define SKIP cmVoid // skipped commands
 
 // GPU operations
 gpucmd_t PrimitiveFactory::s_gpuCommand;
@@ -30,7 +31,7 @@ tile_t g_curRect;
 
 
 // private command functions
-void cmVoid(unsigned char* pData);         // not implemented
+void cmVoid(unsigned char* pData);         // no operation
 void cmClearCache(unsigned char* pData);   // GENERAL - clear cache
 void cmBlankFill(unsigned char* pData);    // GENERAL - fill
 void cmImageMove(unsigned char* pData);    // IMAGE - move
@@ -73,60 +74,60 @@ void cmMaskBit(unsigned char* pData);      // ATTR - mask bit
 // primitive factory table (size, command, skip_action)
 const primcmd_row_t c_pPrimTable[PRIMITIVE_NUMBER] =
 {
-    // GENERAL : 00 - 02
-    { 0, cmVoid, cmVoid }, { 0, cmClearCache, cmClearCache }, { 3, cmBlankFill, cmBlankFill },
-    // not implemented : 03 - 1F
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
+    // GENERAL : 00 - 03
+    { 0, cmVoid, cmVoid }, { 0, cmClearCache, cmClearCache }, { 3, cmBlankFill, cmBlankFill }, {0,NI,NI}/*?*/,
+    // not implemented : 04 - 1F
+    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
     {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
     {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
     {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
  
     // POLY - triangle monochrome : 20 - 23
-    { 4, cmTriangle, NI }, { 4, cmTriangle, NI }, { 4, cmTriangle, NI }, { 4, cmTriangle, NI },
+    { 4, cmTriangle, SKIP }, { 4, cmTriangle, SKIP }, { 4, cmTriangle, SKIP }, { 4, cmTriangle, SKIP },
     // POLY - triangle textured : 24 - 27
-    { 7, cmTriangleTx, NI }, { 7, cmTriangleTx, NI }, { 7, cmTriangleTx, NI }, { 7, cmTriangleTx, NI },
+    { 7, cmTriangleTx, SKIP }, { 7, cmTriangleTx, SKIP }, { 7, cmTriangleTx, SKIP }, { 7, cmTriangleTx, SKIP },
     // POLY - quad monochrome : 28 - 2B
-    { 5, cmQuad, NI }, { 5, cmQuad, NI }, { 5, cmQuad, NI }, { 5, cmQuad, NI },
+    { 5, cmQuad, SKIP }, { 5, cmQuad, SKIP }, { 5, cmQuad, SKIP }, { 5, cmQuad, SKIP },
     // POLY - quad textured : 2C - 2F
-    { 9, cmQuadTx, NI }, { 9, cmQuadTx, NI }, { 9, cmQuadTx, NI }, { 9, cmQuadTx, NI },
+    { 9, cmQuadTx, SKIP }, { 9, cmQuadTx, SKIP }, { 9, cmQuadTx, SKIP }, { 9, cmQuadTx, SKIP },
     // POLY - triangle shaded : 30 - 33
-    { 6, cmTriangleS, NI }, { 6, cmTriangleS, NI }, { 6, cmTriangleS, NI }, { 6, cmTriangleS, NI },
+    { 6, cmTriangleS, SKIP }, { 6, cmTriangleS, SKIP }, { 6, cmTriangleS, SKIP }, { 6, cmTriangleS, SKIP },
     // POLY - triangle shaded-textured : 34 - 37
-    { 9, cmTriangleSTx, NI }, { 9, cmTriangleSTx, NI }, { 9, cmTriangleSTx, NI }, { 9, cmTriangleSTx, NI },
+    { 9, cmTriangleSTx, SKIP }, { 9, cmTriangleSTx, SKIP }, { 9, cmTriangleSTx, SKIP }, { 9, cmTriangleSTx, SKIP },
     // POLY - quad shaded : 38 - 3B
-    { 8, cmQuadS, NI }, { 8, cmQuadS, NI }, { 8, cmQuadS, NI }, { 8, cmQuadS, NI },
+    { 8, cmQuadS, SKIP }, { 8, cmQuadS, SKIP }, { 8, cmQuadS, SKIP }, { 8, cmQuadS, SKIP },
     // POLY - quad shaded-textured : 3C - 3F
-    { 12, cmQuadSTx, NI }, { 12, cmQuadSTx, NI }, { 12, cmQuadSTx, NI }, { 12, cmQuadSTx, NI },
+    { 12, cmQuadSTx, SKIP }, { 12, cmQuadSTx, SKIP }, { 12, cmQuadSTx, SKIP }, { 12, cmQuadSTx, SKIP },
  
     // LINE - monochrome : 40 - 47
-    { 3, cmLine, NI }, { 3, cmLine, NI }, { 3, cmLine, NI }, { 3, cmLine, NI },
-    { 3, cmLine, NI }, { 3, cmLine, NI }, { 3, cmLine, NI }, { 3, cmLine, NI },
+    { 3, cmLine, SKIP }, { 3, cmLine, SKIP }, { 3, cmLine, SKIP }, { 3, cmLine, SKIP },
+    { 3, cmLine, SKIP }, { 3, cmLine, SKIP }, { 3, cmLine, SKIP }, { 3, cmLine, SKIP },
     // LINE - poly monochrome : 48 - 4F
     { 0xFE, cmPolyLine, skipPolyLine }, { 0xFE, cmPolyLine, skipPolyLine }, { 0xFE, cmPolyLine, skipPolyLine }, { 0xFE, cmPolyLine, skipPolyLine },
     { 0xFE, cmPolyLine, skipPolyLine }, { 0xFE, cmPolyLine, skipPolyLine }, { 0xFE, cmPolyLine, skipPolyLine }, { 0xFE, cmPolyLine, skipPolyLine },
     // LINE - shaded : 50 - 57
-    { 4, cmLineS, NI }, { 4, cmLineS, NI }, { 4, cmLineS, NI }, { 4, cmLineS, NI },
-    { 4, cmLineS, NI }, { 4, cmLineS, NI }, { 4, cmLineS, NI }, { 4, cmLineS, NI },
+    { 4, cmLineS, SKIP }, { 4, cmLineS, SKIP }, { 4, cmLineS, SKIP }, { 4, cmLineS, SKIP },
+    { 4, cmLineS, SKIP }, { 4, cmLineS, SKIP }, { 4, cmLineS, SKIP }, { 4, cmLineS, SKIP },
     // LINE - poly shaded : 58 - 5F
     { 0xFF, cmPolyLineS, skipPolyLineS }, { 0xFF, cmPolyLineS, skipPolyLineS }, { 0xFF, cmPolyLineS, skipPolyLineS }, { 0xFF, cmPolyLineS, skipPolyLineS },
     { 0xFF, cmPolyLineS, skipPolyLineS }, { 0xFF, cmPolyLineS, skipPolyLineS }, { 0xFF, cmPolyLineS, skipPolyLineS }, { 0xFF, cmPolyLineS, skipPolyLineS },
  
     // RECT - custom tile : 60 - 63
-    { 3, cmTile, NI }, { 3, cmTile, NI }, { 3, cmTile, NI }, { 3, cmTile, NI },
+    { 3, cmTile, SKIP }, { 3, cmTile, SKIP }, { 3, cmTile, SKIP }, { 3, cmTile, SKIP },
     // RECT - custom sprite : 64 - 67
-    { 4, cmSprite, NI }, { 4, cmSprite, NI }, { 4, cmSprite, NI }, { 4, cmSprite, NI },
+    { 4, cmSprite, SKIP }, { 4, cmSprite, SKIP }, { 4, cmSprite, SKIP }, { 4, cmSprite, SKIP },
     // RECT - 1x1 tile : 68 - 6B
-    { 2, cmTile1, NI }, { 2, cmTile1, NI }, { 2, cmTile1, NI }, { 2, cmTile1, NI },
+    { 2, cmTile1, SKIP }, { 2, cmTile1, SKIP }, { 2, cmTile1, SKIP }, { 2, cmTile1, SKIP },
     // RECT - 1x1 sprite : 6C - 6F
-    { 3, cmSprite1, NI }, { 3, cmSprite1, NI }, { 3, cmSprite1, NI }, { 3, cmSprite1, NI },
+    { 3, cmSprite1, SKIP }, { 3, cmSprite1, SKIP }, { 3, cmSprite1, SKIP }, { 3, cmSprite1, SKIP },
     // RECT - 8x8 tile : 70 - 73
-    { 2, cmTile8, NI }, { 2, cmTile8, NI }, { 2, cmTile8, NI }, { 2, cmTile8, NI },
+    { 2, cmTile8, SKIP }, { 2, cmTile8, SKIP }, { 2, cmTile8, SKIP }, { 2, cmTile8, SKIP },
     // RECT - 8x8 sprite : 74 - 77
-    { 3, cmSprite8, NI }, { 3, cmSprite8, NI }, { 3, cmSprite8, NI }, { 3, cmSprite8, NI },
+    { 3, cmSprite8, SKIP }, { 3, cmSprite8, SKIP }, { 3, cmSprite8, SKIP }, { 3, cmSprite8, SKIP },
     // RECT - 16x16 tile : 78 - 7B
-    { 2, cmTile16, NI }, { 2, cmTile16, NI }, { 2, cmTile16, NI }, { 2, cmTile16, NI },
+    { 2, cmTile16, SKIP }, { 2, cmTile16, SKIP }, { 2, cmTile16, SKIP }, { 2, cmTile16, SKIP },
     // RECT - 16x16 sprite : 7C - 7F
-    { 3, cmSprite16, NI }, { 3, cmSprite16, NI }, { 3, cmSprite16, NI }, { 3, cmSprite16, NI },
+    { 3, cmSprite16, SKIP }, { 3, cmSprite16, SKIP }, { 3, cmSprite16, SKIP }, { 3, cmSprite16, SKIP },
  
     // IMAGE - move : 80
     { 4, cmImageMove, cmImageMove },
@@ -153,8 +154,8 @@ const primcmd_row_t c_pPrimTable[PRIMITIVE_NUMBER] =
     {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
 
     // ATTRIBUTES : E0 - E7
-    {0,NI,NI}, { 1, cmTexPage, cmTexPage }, { 1, cmTexWindow, cmTexWindow }, { 1, cmDrawAreaStart, cmDrawAreaStart },
-    { 1, cmDrawAreaEnd, cmDrawAreaEnd }, { 1, cmDrawOffset, cmDrawOffset }, { 1, cmMaskBit, cmMaskBit }, {0,NI,NI}
+    {0,NI,NI}/*?*/, { 1, cmTexPage, cmTexPage }, { 1, cmTexWindow, cmTexWindow }, { 1, cmDrawAreaStart, cmDrawAreaStart },
+    { 1, cmDrawAreaEnd, cmDrawAreaEnd }, { 1, cmDrawOffset, cmDrawOffset }, { 1, cmMaskBit, cmMaskBit }, {0,NI,NI}/*?*/
 };
 
 // -- PRIMITIVE FACTORY -- -----------------------------------------------------
@@ -270,7 +271,7 @@ void PrimitiveFactory::processSinglePrimitive(unsigned char* pData, int len)
 // YsrcXsrc = source coords
 // YdstXdst = destination coords
 
-/// <summary>Non-implemented command</summary>
+/// <summary>No operation</summary>
 void cmVoid(unsigned char* pData)
 {
 }
