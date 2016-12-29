@@ -9,7 +9,7 @@ Description : test app - flow/unit tests -- primitive list/creation functions
 using namespace std;
 #include "primitive.h"
 
-#define MAX_PRIMITIVE_ID 0xE6
+#define MAX_PRIMITIVE_ID 0xE7
 
 // primitive table (length, data)
 unsigned long primTestTable[MAX_PRIMITIVE_ID][16] =
@@ -26,7 +26,8 @@ unsigned long primTestTable[MAX_PRIMITIVE_ID][16] =
     // Txpg = texture page
     { 0x1, 0x01000000 },                       // 01 clear txtr cache - 1x32 - Cm000000
     { 0x3, 0x02177700,0x00200010,0x01000100 }, // 02 fill blank rect  - 3x32 - CmBbGgRr YtopXlft YhgtXwid 
-    {0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}, // unused (03 to 1F)
+    { 0x1, 0x03000000 }, // 03 unknown command
+    {0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}, // unused (04 to 1F)
     // POLY
     { 0x4, 0x200000AA,0x00200080,0x01100010,0x01000200 }, // 20 3pt mono opaque     - 4x32
     { 0x4, 0x217700AA,0x00200080,0x01100010,0x01000200 }, // 21 3pt mono opaque n-b - 4x32
@@ -152,14 +153,16 @@ unsigned long primTestTable[MAX_PRIMITIVE_ID][16] =
     { 0x3, 0xA0000000,0x00000000,0x00000000 }, // A0 load image  - 3x32 - Cm000000 YdstXdst YhgtXwid [data]
     {0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}, // unused (A1 to BF)
     { 0x3, 0xC0000000,0x00000000,0x00000000 }, // C0 store image - 3x32 - Cm000000 YsrcXsrc YhgtXwid [data]
-    {0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}, // unused (C1 to E0)
+    {0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}, // unused (C1 to DF)
     // ATTR
-    { 0x1, 0xE1000340 },   // E1 texture page        - 1x32 - CmConfig
-    { 0x1, 0xE2021001 },  // E2 texture window      - 1x32 - CmConfig
-    { 0x1, 0xE3002008 },   // E3 draw area top left  - 1x32 - CmConfig
+    { 0x1, 0xE0000000 }, // E0 unknown attribute
+    { 0x1, 0xE1000340 }, // E1 texture page        - 1x32 - CmConfig
+    { 0x1, 0xE2021001 }, // E2 texture window      - 1x32 - CmConfig
+    { 0x1, 0xE3002008 }, // E3 draw area top left  - 1x32 - CmConfig
     { 0x1, 0xE4032110 }, // E4 draw area btm right - 1x32 - CmConfig
-    { 0x1, 0xE5020040 },   // E5 draw offset         - 1x32 - CmConfig
-    { 0x1, 0xE6000003 }      // E6 mask bit            - 1x32 - Cm00000B
+    { 0x1, 0xE5020040 }, // E5 draw offset         - 1x32 - CmConfig
+    { 0x1, 0xE6000003 }, // E6 mask bit            - 1x32 - Cm00000B
+    { 0x1, 0xE7000000 }  // E7 unknown attribute
 };
 
 
@@ -308,5 +311,5 @@ int createPrimitive(int id, unsigned char** pOut)
 ///<param name="id">Primitive ID (type)</param>
 bool isPrimitiveFlippable(int id)
 {
-    return (id >= 0x60 && id <= 0x7F);
+    return (id >= 0x60 && id <= 0x7F); // rectangle
 }
