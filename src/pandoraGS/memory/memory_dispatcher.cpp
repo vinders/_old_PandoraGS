@@ -19,7 +19,6 @@ using namespace std;
 #include "system_tools.h"
 #include "status_register.h"
 #include "memory_dispatcher.h"
-#include "primitive_factory.h"
 #define This MemoryDispatcher
 
 // video memory management

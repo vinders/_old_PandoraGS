@@ -15,6 +15,7 @@ Description : display memory manager and dispatcher
 #include <string>
 #include "video_memory.h"
 #include "display_state.h"
+#include "primitive_factory.h"
 #include "system_tools.h"
 #include "geometry.hpp"
 
@@ -94,6 +95,7 @@ public:
         mem_dataExchangeBuffer = GPUDATA_INIT;
         memset(st_pControlReg, 0x0, CTRLREG_SIZE * sizeof(unsigned long));
         st_displayDevFlags = 0u;
+        PrimitiveFactory::init();
         // initialize VRAM
         mem_vram.init(s_isZincEmu);
         memset(&mem_vramReader, 0x0, sizeof(memoryload_t)); // mode = Loadmode_normal = 0

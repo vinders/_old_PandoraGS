@@ -14,15 +14,9 @@ Description : system management toolbox
 #include <fcntl.h>
 #include <errno.h>
 #ifdef _WINDOWS
-#include <Windows.h>
-#include <tchar.h>
 #include <shlobj.h>
 #define _CRT_SECURE_NO_WARNINGS
 #define access(dir, rights) _access(dir, rights)
-#else
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
 #endif
 using namespace std;
 #include "system_tools.h"

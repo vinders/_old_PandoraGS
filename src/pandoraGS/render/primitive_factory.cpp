@@ -15,7 +15,8 @@ using namespace std;
 #include "primitive_factory.h"
 
 #define NI cmVoid   // non-implemented commands
-#define SKIP cmVoid // skipped commands
+#define PLINE_MAX_LEN 0xFE
+#define PLINE_S_MAX_LEN 0xFF
 
 // GPU operations
 gpucmd_t PrimitiveFactory::s_gpuCommand;
@@ -23,11 +24,14 @@ unsigned long PrimitiveFactory::s_gpuMemCache[256]; // memory cache
 long PrimitiveFactory::s_gpuDataCount;              // data set length
 long PrimitiveFactory::s_gpuDataProcessed;          // current number of values cached
 
-// pre-allocated data buffers (NOT thread-safe: display data will only ever come from one thread)
-line_t g_curLine;
-triangle_t g_curTriangle;
-quad_t g_curQuad;
-tile_t g_curRect;
+// fast pre-allocated data buffers (NOT thread-safe: display data will only ever come from one thread)
+wline_t g_curLine;
+wtriangle_t g_curTriangle;
+wtriangle_t g_curTriangleTxCoords;
+wquad_t g_curQuad;
+wquad_t g_curQuadTxCoords;
+wtile_t g_curRect;
+wpoint_t g_curRectTxCoords;
 
 
 // private command functions
@@ -51,8 +55,6 @@ void cmLine(unsigned char* pData);         // LINE - flat
 void cmLineS(unsigned char* pData);        // LINE - shaded
 void cmPolyLine(unsigned char* pData);     // LINE - poly-line - flat
 void cmPolyLineS(unsigned char* pData);    // LINE - poly-line - shaded
-void skipPolyLine(unsigned char* pData);   // LINE - skip poly-line - flat
-void skipPolyLineS(unsigned char* pData);  // LINE - skip poly-line - shaded
 
 void cmTile(unsigned char* pData);         // RECT - tile custom
 void cmTile1(unsigned char* pData);        // RECT - tile 1x1
@@ -75,87 +77,87 @@ void cmMaskBit(unsigned char* pData);      // ATTR - mask bit
 const primcmd_row_t c_pPrimTable[PRIMITIVE_NUMBER] =
 {
     // GENERAL : 00 - 03
-    { 0, cmVoid, cmVoid }, { 0, cmClearCache, cmClearCache }, { 3, cmBlankFill, cmBlankFill }, {0,NI,NI}/*?*/,
+    { 0, cmVoid }, { 0, cmClearCache }, { 3, cmBlankFill }, {0,NI}/*?*/,
     // not implemented : 04 - 1F
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
  
     // POLY - triangle monochrome : 20 - 23
-    { 4, cmTriangle, SKIP }, { 4, cmTriangle, SKIP }, { 4, cmTriangle, SKIP }, { 4, cmTriangle, SKIP },
+    { 4, cmTriangle }, { 4, cmTriangle }, { 4, cmTriangle }, { 4, cmTriangle },
     // POLY - triangle textured : 24 - 27
-    { 7, cmTriangleTx, SKIP }, { 7, cmTriangleTx, SKIP }, { 7, cmTriangleTx, SKIP }, { 7, cmTriangleTx, SKIP },
+    { 7, cmTriangleTx }, { 7, cmTriangleTx }, { 7, cmTriangleTx }, { 7, cmTriangleTx },
     // POLY - quad monochrome : 28 - 2B
-    { 5, cmQuad, SKIP }, { 5, cmQuad, SKIP }, { 5, cmQuad, SKIP }, { 5, cmQuad, SKIP },
+    { 5, cmQuad }, { 5, cmQuad }, { 5, cmQuad }, { 5, cmQuad },
     // POLY - quad textured : 2C - 2F
-    { 9, cmQuadTx, SKIP }, { 9, cmQuadTx, SKIP }, { 9, cmQuadTx, SKIP }, { 9, cmQuadTx, SKIP },
+    { 9, cmQuadTx }, { 9, cmQuadTx }, { 9, cmQuadTx }, { 9, cmQuadTx },
     // POLY - triangle shaded : 30 - 33
-    { 6, cmTriangleS, SKIP }, { 6, cmTriangleS, SKIP }, { 6, cmTriangleS, SKIP }, { 6, cmTriangleS, SKIP },
+    { 6, cmTriangleS }, { 6, cmTriangleS }, { 6, cmTriangleS }, { 6, cmTriangleS },
     // POLY - triangle shaded-textured : 34 - 37
-    { 9, cmTriangleSTx, SKIP }, { 9, cmTriangleSTx, SKIP }, { 9, cmTriangleSTx, SKIP }, { 9, cmTriangleSTx, SKIP },
+    { 9, cmTriangleSTx }, { 9, cmTriangleSTx }, { 9, cmTriangleSTx }, { 9, cmTriangleSTx },
     // POLY - quad shaded : 38 - 3B
-    { 8, cmQuadS, SKIP }, { 8, cmQuadS, SKIP }, { 8, cmQuadS, SKIP }, { 8, cmQuadS, SKIP },
+    { 8, cmQuadS }, { 8, cmQuadS }, { 8, cmQuadS }, { 8, cmQuadS },
     // POLY - quad shaded-textured : 3C - 3F
-    { 12, cmQuadSTx, SKIP }, { 12, cmQuadSTx, SKIP }, { 12, cmQuadSTx, SKIP }, { 12, cmQuadSTx, SKIP },
+    { 12, cmQuadSTx }, { 12, cmQuadSTx }, { 12, cmQuadSTx }, { 12, cmQuadSTx },
  
     // LINE - monochrome : 40 - 47
-    { 3, cmLine, SKIP }, { 3, cmLine, SKIP }, { 3, cmLine, SKIP }, { 3, cmLine, SKIP },
-    { 3, cmLine, SKIP }, { 3, cmLine, SKIP }, { 3, cmLine, SKIP }, { 3, cmLine, SKIP },
+    { 3, cmLine }, { 3, cmLine }, { 3, cmLine }, { 3, cmLine },
+    { 3, cmLine }, { 3, cmLine }, { 3, cmLine }, { 3, cmLine },
     // LINE - poly monochrome : 48 - 4F
-    { 0xFE, cmPolyLine, skipPolyLine }, { 0xFE, cmPolyLine, skipPolyLine }, { 0xFE, cmPolyLine, skipPolyLine }, { 0xFE, cmPolyLine, skipPolyLine },
-    { 0xFE, cmPolyLine, skipPolyLine }, { 0xFE, cmPolyLine, skipPolyLine }, { 0xFE, cmPolyLine, skipPolyLine }, { 0xFE, cmPolyLine, skipPolyLine },
+    { PLINE_MAX_LEN, cmPolyLine }, { PLINE_MAX_LEN, cmPolyLine }, { PLINE_MAX_LEN, cmPolyLine }, { PLINE_MAX_LEN, cmPolyLine },
+    { PLINE_MAX_LEN, cmPolyLine }, { PLINE_MAX_LEN, cmPolyLine }, { PLINE_MAX_LEN, cmPolyLine }, { PLINE_MAX_LEN, cmPolyLine },
     // LINE - shaded : 50 - 57
-    { 4, cmLineS, SKIP }, { 4, cmLineS, SKIP }, { 4, cmLineS, SKIP }, { 4, cmLineS, SKIP },
-    { 4, cmLineS, SKIP }, { 4, cmLineS, SKIP }, { 4, cmLineS, SKIP }, { 4, cmLineS, SKIP },
+    { 4, cmLineS }, { 4, cmLineS }, { 4, cmLineS }, { 4, cmLineS },
+    { 4, cmLineS }, { 4, cmLineS }, { 4, cmLineS }, { 4, cmLineS },
     // LINE - poly shaded : 58 - 5F
-    { 0xFF, cmPolyLineS, skipPolyLineS }, { 0xFF, cmPolyLineS, skipPolyLineS }, { 0xFF, cmPolyLineS, skipPolyLineS }, { 0xFF, cmPolyLineS, skipPolyLineS },
-    { 0xFF, cmPolyLineS, skipPolyLineS }, { 0xFF, cmPolyLineS, skipPolyLineS }, { 0xFF, cmPolyLineS, skipPolyLineS }, { 0xFF, cmPolyLineS, skipPolyLineS },
+    { PLINE_S_MAX_LEN,cmPolyLineS }, { PLINE_S_MAX_LEN,cmPolyLineS }, { PLINE_S_MAX_LEN,cmPolyLineS }, { PLINE_S_MAX_LEN,cmPolyLineS },
+    { PLINE_S_MAX_LEN,cmPolyLineS }, { PLINE_S_MAX_LEN,cmPolyLineS }, { PLINE_S_MAX_LEN,cmPolyLineS }, { PLINE_S_MAX_LEN,cmPolyLineS },
  
     // RECT - custom tile : 60 - 63
-    { 3, cmTile, SKIP }, { 3, cmTile, SKIP }, { 3, cmTile, SKIP }, { 3, cmTile, SKIP },
+    { 3, cmTile }, { 3, cmTile }, { 3, cmTile }, { 3, cmTile },
     // RECT - custom sprite : 64 - 67
-    { 4, cmSprite, SKIP }, { 4, cmSprite, SKIP }, { 4, cmSprite, SKIP }, { 4, cmSprite, SKIP },
+    { 4, cmSprite }, { 4, cmSprite }, { 4, cmSprite }, { 4, cmSprite },
     // RECT - 1x1 tile : 68 - 6B
-    { 2, cmTile1, SKIP }, { 2, cmTile1, SKIP }, { 2, cmTile1, SKIP }, { 2, cmTile1, SKIP },
+    { 2, cmTile1 }, { 2, cmTile1 }, { 2, cmTile1 }, { 2, cmTile1 },
     // RECT - 1x1 sprite : 6C - 6F
-    { 3, cmSprite1, SKIP }, { 3, cmSprite1, SKIP }, { 3, cmSprite1, SKIP }, { 3, cmSprite1, SKIP },
+    { 3, cmSprite1 }, { 3, cmSprite1 }, { 3, cmSprite1 }, { 3, cmSprite1 },
     // RECT - 8x8 tile : 70 - 73
-    { 2, cmTile8, SKIP }, { 2, cmTile8, SKIP }, { 2, cmTile8, SKIP }, { 2, cmTile8, SKIP },
+    { 2, cmTile8 }, { 2, cmTile8 }, { 2, cmTile8 }, { 2, cmTile8 },
     // RECT - 8x8 sprite : 74 - 77
-    { 3, cmSprite8, SKIP }, { 3, cmSprite8, SKIP }, { 3, cmSprite8, SKIP }, { 3, cmSprite8, SKIP },
+    { 3, cmSprite8 }, { 3, cmSprite8 }, { 3, cmSprite8 }, { 3, cmSprite8 },
     // RECT - 16x16 tile : 78 - 7B
-    { 2, cmTile16, SKIP }, { 2, cmTile16, SKIP }, { 2, cmTile16, SKIP }, { 2, cmTile16, SKIP },
+    { 2, cmTile16 }, { 2, cmTile16 }, { 2, cmTile16 }, { 2, cmTile16 },
     // RECT - 16x16 sprite : 7C - 7F
-    { 3, cmSprite16, SKIP }, { 3, cmSprite16, SKIP }, { 3, cmSprite16, SKIP }, { 3, cmSprite16, SKIP },
+    { 3, cmSprite16 }, { 3, cmSprite16 }, { 3, cmSprite16 }, { 3, cmSprite16 },
  
     // IMAGE - move : 80
-    { 4, cmImageMove, cmImageMove },
+    { 4, cmImageMove },
     // not implemented : 81 - 9F
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
  
     // IMAGE - load : A0
-    { 3, cmImageLoad, cmImageLoad },
+    { 3, cmImageLoad },
     // not implemented : A1 - BF
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
  
     // IMAGE - store : C0
-    { 3, cmImageStore, cmImageStore },
+    { 3, cmImageStore },
     // not implemented : C1 - DF
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
-    {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI}, {0,NI,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
+    {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI}, {0,NI},
 
     // ATTRIBUTES : E0 - E7
-    {0,NI,NI}/*?*/, { 1, cmTexPage, cmTexPage }, { 1, cmTexWindow, cmTexWindow }, { 1, cmDrawAreaStart, cmDrawAreaStart },
-    { 1, cmDrawAreaEnd, cmDrawAreaEnd }, { 1, cmDrawOffset, cmDrawOffset }, { 1, cmMaskBit, cmMaskBit }, {0,NI,NI}/*?*/
+    {0,NI}/*?*/, { 1, cmTexPage }, { 1, cmTexWindow }, { 1, cmDrawAreaStart },
+    { 1, cmDrawAreaEnd }, { 1, cmDrawOffset }, { 1, cmMaskBit }, {0,NI}/*?*/
 };
 
 // -- PRIMITIVE FACTORY -- -----------------------------------------------------
@@ -199,19 +201,23 @@ bool PrimitiveFactory::processDisplayData(loadmode_t& writeModeRef, unsigned lon
                     s_gpuDataProcessed = 1;
                 }
                 else
+                {
+                    s_gpuCommand = PRIM_NO_OPERATION_ID;
                     continue;
+                }
             }
             // same data set -> copy current value
             else
             {
                 s_gpuMemCache[s_gpuDataProcessed] = gdata;
-                if (s_gpuDataCount > 128)
+                // if poly-line, check for termination code
+                if (s_gpuDataCount >= PLINE_MAX_LEN)
                 {
-                    if ((s_gpuDataCount == 254 && s_gpuDataProcessed >= 3)
-                        || (s_gpuDataCount == 255 && s_gpuDataProcessed >= 4 && !(s_gpuDataProcessed & 1)))
+                    if ((s_gpuDataCount == PLINE_MAX_LEN && s_gpuDataProcessed >= 3) // flat line: at least 1 color + 2 vertices
+                        || (s_gpuDataCount == PLINE_S_MAX_LEN && s_gpuDataProcessed >= 4 && !(s_gpuDataProcessed & 1))) // shaded: N*(color+vertex), with N >= 2
                     {
-                        // termination code for poly-lines -> force ending of data set
-                        if ((s_gpuMemCache[s_gpuDataProcessed] & 0xF000F000) == 0x50005000) // code should be 0x55555555, but a few games (such as wild arms 2) use 0x50005000
+                        // termination code -> force ending of data set
+                        if ((s_gpuMemCache[s_gpuDataProcessed] & 0xF000F000) == 0x50005000) // should be 0x55555555, but some games (e.g. wild arms 2) use 0x50005000
                             s_gpuDataProcessed = s_gpuDataCount - 1;
                     }
                 }
@@ -223,10 +229,8 @@ bool PrimitiveFactory::processDisplayData(loadmode_t& writeModeRef, unsigned lon
                 s_gpuDataCount = s_gpuDataProcessed = 0;
 
                 // process data set
-                if (Timer::isPeriodSkipped())
-                    c_pPrimTable[command].skip((unsigned char*)s_gpuMemCache);
-                else
-                    c_pPrimTable[command].command((unsigned char*)s_gpuMemCache);
+                if (Timer::isPeriodSkipped() == false || s_gpuCommand < PRIM_GEOMETRY_MIN_ID || s_gpuCommand > PRIM_GEOMETRY_MAX_ID)
+                    c_pPrimTable[s_gpuCommand].command((unsigned char*)s_gpuMemCache);
 
                 // 'GPU busy' hack (while processing data)
                 if (Config::misc_emuFixBits & 0x0001 || Config::getCurrentProfile()->getFix(CFG_FIX_FAKE_GPU_BUSY))
@@ -239,7 +243,7 @@ bool PrimitiveFactory::processDisplayData(loadmode_t& writeModeRef, unsigned lon
     return false; // no more data
 }
 
-/// <summary>Process single primitive</summary>
+/// <summary>Process single primitive (for testing purpose)</summary>
 /// <param name="pData">Primitive raw data</param>
 /// <param name="len">Primitive data length (number of 32bits blocks)</param>
 void PrimitiveFactory::processSinglePrimitive(unsigned char* pData, int len)
@@ -288,11 +292,9 @@ void cmBlankFill(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YtopXlft YhgtXwid
 
     // coords
-    tile_t zone;//...
-    zone.x = (pPrimData[1] & 0x0FFFF);// no short* pointer used, to avoid little/big-endian potential problems
-    zone.y = (pPrimData[1] >> 16);
-    zone.width = (pPrimData[2] & 0x0FFFF);
-    zone.height = (pPrimData[2] >> 16);
+    wtile_t zone;//...
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], zone.x, zone.y);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[2], zone.width, zone.height);
 
     //...
 }
@@ -406,12 +408,9 @@ void cmTriangle(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 4x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx
 
     // vertices
-    g_curTriangle.x0 = (pPrimData[1] & 0x0FFFF); // no short* pointer used, to avoid little/big-endian potential problems
-    g_curTriangle.y0 = (pPrimData[1] >> 16);
-    g_curTriangle.x1 = (pPrimData[2] & 0x0FFFF);
-    g_curTriangle.y1 = (pPrimData[2] >> 16);
-    g_curTriangle.x2 = (pPrimData[3] & 0x0FFFF);
-    g_curTriangle.y2 = (pPrimData[3] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curTriangle.x0, g_curTriangle.y0);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curTriangle.x1, g_curTriangle.y1);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curTriangle.x2, g_curTriangle.y2);
 
     //...
 }
@@ -422,12 +421,9 @@ void cmTriangleS(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 6x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
 
     // vertices
-    g_curTriangle.x0 = (pPrimData[1] & 0x0FFFF);
-    g_curTriangle.y0 = (pPrimData[1] >> 16);
-    g_curTriangle.x1 = (pPrimData[3] & 0x0FFFF);
-    g_curTriangle.y1 = (pPrimData[3] >> 16);
-    g_curTriangle.x2 = (pPrimData[5] & 0x0FFFF);
-    g_curTriangle.y2 = (pPrimData[5] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curTriangle.x0, g_curTriangle.y0);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curTriangle.x1, g_curTriangle.y1);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[5], g_curTriangle.x2, g_curTriangle.y2);
 
     //...
 }
@@ -438,12 +434,13 @@ void cmTriangleTx(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 7x32 - CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc
 
     // vertices
-    g_curTriangle.x0 = (pPrimData[1] & 0x0FFFF);
-    g_curTriangle.y0 = (pPrimData[1] >> 16);
-    g_curTriangle.x1 = (pPrimData[3] & 0x0FFFF);
-    g_curTriangle.y1 = (pPrimData[3] >> 16);
-    g_curTriangle.x2 = (pPrimData[5] & 0x0FFFF);
-    g_curTriangle.y2 = (pPrimData[5] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curTriangle.x0, g_curTriangle.y0);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curTriangle.x1, g_curTriangle.y1);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[5], g_curTriangle.x2, g_curTriangle.y2);
+    // texture coords
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curTriangleTxCoords.x0, g_curTriangleTxCoords.y0);
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[4], g_curTriangleTxCoords.x1, g_curTriangleTxCoords.y1);
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[6], g_curTriangleTxCoords.x2, g_curTriangleTxCoords.y2);
 
     //...
 
@@ -457,12 +454,13 @@ void cmTriangleSTx(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 9x32 - CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc
 
     // vertices
-    g_curTriangle.x0 = (pPrimData[1] & 0x0FFFF);
-    g_curTriangle.y0 = (pPrimData[1] >> 16);
-    g_curTriangle.x1 = (pPrimData[4] & 0x0FFFF);
-    g_curTriangle.y1 = (pPrimData[4] >> 16);
-    g_curTriangle.x2 = (pPrimData[7] & 0x0FFFF);
-    g_curTriangle.y2 = (pPrimData[7] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curTriangle.x0, g_curTriangle.y0);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[4], g_curTriangle.x1, g_curTriangle.y1);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[7], g_curTriangle.x2, g_curTriangle.y2);
+    // texture coords
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curTriangleTxCoords.x0, g_curTriangleTxCoords.y0);
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[5], g_curTriangleTxCoords.x1, g_curTriangleTxCoords.y1);
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[8], g_curTriangleTxCoords.x2, g_curTriangleTxCoords.y2);
 
     //...
 }
@@ -473,14 +471,10 @@ void cmQuad(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 5x32 - CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx YvtxXvtx
 
     // vertices
-    g_curQuad.x0 = (pPrimData[1] & 0x0FFFF);
-    g_curQuad.y0 = (pPrimData[1] >> 16);
-    g_curQuad.x1 = (pPrimData[2] & 0x0FFFF);
-    g_curQuad.y1 = (pPrimData[2] >> 16);
-    g_curQuad.x2 = (pPrimData[3] & 0x0FFFF);
-    g_curQuad.y2 = (pPrimData[3] >> 16);
-    g_curQuad.x3 = (pPrimData[4] & 0x0FFFF);
-    g_curQuad.y3 = (pPrimData[4] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curQuad.x0, g_curQuad.y0);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curQuad.x1, g_curQuad.y1);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curQuad.x2, g_curQuad.y2);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[4], g_curQuad.x3, g_curQuad.y3);
 
     //...
 }
@@ -491,14 +485,10 @@ void cmQuadS(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 8x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
 
     // vertices
-    g_curQuad.x0 = (pPrimData[1] & 0x0FFFF);
-    g_curQuad.y0 = (pPrimData[1] >> 16);
-    g_curQuad.x1 = (pPrimData[3] & 0x0FFFF);
-    g_curQuad.y1 = (pPrimData[3] >> 16);
-    g_curQuad.x2 = (pPrimData[5] & 0x0FFFF);
-    g_curQuad.y2 = (pPrimData[5] >> 16);
-    g_curQuad.x3 = (pPrimData[7] & 0x0FFFF);
-    g_curQuad.y3 = (pPrimData[7] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curQuad.x0, g_curQuad.y0);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curQuad.x1, g_curQuad.y1);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[5], g_curQuad.x2, g_curQuad.y2);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[7], g_curQuad.x3, g_curQuad.y3);
 
     //...
 }
@@ -509,14 +499,15 @@ void cmQuadTx(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 9x32 - CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc YvtxXvtx 0000YcXc
 
     // vertices
-    g_curQuad.x0 = (pPrimData[1] & 0x0FFFF);
-    g_curQuad.y0 = (pPrimData[1] >> 16);
-    g_curQuad.x1 = (pPrimData[3] & 0x0FFFF);
-    g_curQuad.y1 = (pPrimData[3] >> 16);
-    g_curQuad.x2 = (pPrimData[5] & 0x0FFFF);
-    g_curQuad.y2 = (pPrimData[5] >> 16);
-    g_curQuad.x3 = (pPrimData[7] & 0x0FFFF);
-    g_curQuad.y3 = (pPrimData[7] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curQuad.x0, g_curQuad.y0);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curQuad.x1, g_curQuad.y1);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[5], g_curQuad.x2, g_curQuad.y2);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[7], g_curQuad.x3, g_curQuad.y3);
+    // texture coords
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curQuadTxCoords.x0, g_curQuadTxCoords.y0);
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[4], g_curQuadTxCoords.x1, g_curQuadTxCoords.y1);
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[6], g_curQuadTxCoords.x2, g_curQuadTxCoords.y2);
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[8], g_curQuadTxCoords.x3, g_curQuadTxCoords.y3);
 
     //...
 }
@@ -527,14 +518,15 @@ void cmQuadSTx(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 12x32 - CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc 00BbGgRr YvtxXvtx 0000YcXc
 
     // vertices
-    g_curQuad.x0 = (pPrimData[1] & 0x0FFFF);
-    g_curQuad.y0 = (pPrimData[1] >> 16);
-    g_curQuad.x1 = (pPrimData[4] & 0x0FFFF);
-    g_curQuad.y1 = (pPrimData[4] >> 16);
-    g_curQuad.x2 = (pPrimData[7] & 0x0FFFF);
-    g_curQuad.y2 = (pPrimData[7] >> 16);
-    g_curQuad.x3 = (pPrimData[10] & 0x0FFFF);
-    g_curQuad.y3 = (pPrimData[10] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curQuad.x0, g_curQuad.y0);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[4], g_curQuad.x1, g_curQuad.y1);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[7], g_curQuad.x2, g_curQuad.y2);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[10], g_curQuad.x3, g_curQuad.y3);
+    // texture coords
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curQuadTxCoords.x0, g_curQuadTxCoords.y0);
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[5], g_curQuadTxCoords.x1, g_curQuadTxCoords.y1);
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[8], g_curQuadTxCoords.x2, g_curQuadTxCoords.y2);
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[11], g_curQuadTxCoords.x3, g_curQuadTxCoords.y3);
 
     //...
 }
@@ -551,10 +543,8 @@ void cmLine(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YvtxXvtx YvtxXvtx
 
     // vertices
-    g_curLine.x0 = (pPrimData[1] & 0x0FFFF);
-    g_curLine.y0 = (pPrimData[1] >> 16);
-    g_curLine.x1 = (pPrimData[2] & 0x0FFFF);
-    g_curLine.y1 = (pPrimData[2] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curLine.x0, g_curLine.y0);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curLine.x1, g_curLine.y1);
 
     //...
 }
@@ -565,10 +555,10 @@ void cmLineS(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 4x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
 
     // vertices
-    g_curLine.x0 = (pPrimData[1] & 0x0FFFF);
-    g_curLine.y0 = (pPrimData[1] >> 16);
-    g_curLine.x1 = (pPrimData[3] & 0x0FFFF);
-    g_curLine.y1 = (pPrimData[3] >> 16);
+    //color = pPrimData[0];
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curLine.x0, g_curLine.y0);
+    //color = pPrimData[1];
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curLine.x1, g_curLine.y1);
 
     //...
 }
@@ -578,6 +568,19 @@ void cmPolyLine(unsigned char* pData)
 {
     unsigned long *pPrimData = ((unsigned long *)pData); // [3-254]x32 - CmBbGgRr YvtxXvtx YvtxXvtx [...] 55555555
 
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curLine.x0, g_curLine.y0);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curLine.x1, g_curLine.y1);
+    //... draw
+
+    pPrimData = &pPrimData[3]; // use pointer as iterator (faster than indexes)
+    for (int i = 3; i <= PLINE_MAX_LEN && (*pPrimData & 0xF000F000) != 0x50005000; ++i)
+    {
+        g_curLine.x0 = g_curLine.x1;
+        g_curLine.y0 = g_curLine.y1;
+        PrimitiveFactory::extractPrimitivePos32(*pPrimData, g_curLine.x1, g_curLine.y1);
+        ++pPrimData;
+        //... draw
+    }
 }
 
 /// <summary>Draw shaded poly-line</summary>
@@ -585,20 +588,25 @@ void cmPolyLineS(unsigned char* pData)
 {
     unsigned long *pPrimData = ((unsigned long *)pData); // [4-255]x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx [...] 55555555
 
-}
+    //color = pPrimData[0];
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curLine.x0, g_curLine.y0);
+    //color1 = pPrimData[1];
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curLine.x1, g_curLine.y1);
+    //... draw
 
-/// <summary>Skip poly-line</summary>
-void skipPolyLine(unsigned char* pData)
-{
-    unsigned long *pPrimData = ((unsigned long *)pData); // [4-254]x32 - CmBbGgRr YvtxXvtx YvtxXvtx [...] 55555555
+    pPrimData = &pPrimData[4]; // use pointer as iterator (faster than indexes)
+    for (int i = 4; i <= PLINE_S_MAX_LEN && (*pPrimData & 0xF000F000) != 0x50005000; i += 2)
+    {
+        //color = color1
+        //color1 = *pPrimData;
+        ++pPrimData;
 
-}
-
-/// <summary>Skip poly-line</summary>
-void skipPolyLineS(unsigned char* pData)
-{
-    unsigned long *pPrimData = ((unsigned long *)pData); // [5-255]x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx [...] 55555555
-
+        g_curLine.x0 = g_curLine.x1;
+        g_curLine.y0 = g_curLine.y1;
+        PrimitiveFactory::extractPrimitivePos32(*pPrimData, g_curLine.x1, g_curLine.y1);
+        ++pPrimData;
+        //... draw
+    }
 }
 
 
@@ -622,10 +630,8 @@ void cmTile(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YvtxXvtx YhgtXwid
 
     // coords
-    g_curRect.x = (pPrimData[1] & 0x0FFFF);
-    g_curRect.y = (pPrimData[1] >> 16);
-    g_curRect.width = (pPrimData[3] & 0x0FFFF);
-    g_curRect.height = (pPrimData[3] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curRect.width, g_curRect.height);
 
     //...
 }
@@ -636,8 +642,7 @@ void cmTile1(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 2x32 - CmBbGgRr YvtxXvtx
 
     // coords
-    g_curRect.x = (pPrimData[1] & 0x0FFFF);
-    g_curRect.y = (pPrimData[1] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     g_curRect.width = g_curRect.height = 1;
 
     //...
@@ -649,8 +654,7 @@ void cmTile8(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 2x32 - CmBbGgRr YvtxXvtx
 
     // coords
-    g_curRect.x = (pPrimData[1] & 0x0FFFF);
-    g_curRect.y = (pPrimData[1] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     g_curRect.width = g_curRect.height = 8;
 
     //...
@@ -662,8 +666,7 @@ void cmTile16(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 2x32 - CmBbGgRr YvtxXvtx
 
     // coords
-    g_curRect.x = (pPrimData[1] & 0x0FFFF);
-    g_curRect.y = (pPrimData[1] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     g_curRect.width = g_curRect.height = 16;
 
     //...
@@ -675,10 +678,10 @@ void cmSprite(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 4x32 - CmBbGgRr YvtxXvtx ClutYcXc YhgtXwid
 
     // coords
-    g_curRect.x = (pPrimData[1] & 0x0FFFF);
-    g_curRect.y = (pPrimData[1] >> 16);
-    g_curRect.width = (pPrimData[3] & 0x0FFFF);
-    g_curRect.height = (pPrimData[3] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curRect.width, g_curRect.height);
+    // texture coords
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curRectTxCoords.x, g_curRectTxCoords.y);
 
     //...
 }
@@ -689,9 +692,10 @@ void cmSprite1(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YvtxXvtx ClutYcXc
 
     // coords
-    g_curRect.x = (pPrimData[1] & 0x0FFFF);
-    g_curRect.y = (pPrimData[1] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     g_curRect.width = g_curRect.height = 1;
+    // texture coords
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curRectTxCoords.x, g_curRectTxCoords.y);
 
     //...
 }
@@ -702,9 +706,10 @@ void cmSprite8(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YvtxXvtx ClutYcXc
 
     // coords
-    g_curRect.x = (pPrimData[1] & 0x0FFFF);
-    g_curRect.y = (pPrimData[1] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     g_curRect.width = g_curRect.height = 8;
+    // texture coords
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curRectTxCoords.x, g_curRectTxCoords.y);
 
     //...
 }
@@ -715,9 +720,10 @@ void cmSprite16(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 3x32 - CmBbGgRr YvtxXvtx ClutYcXc
 
     // coords
-    g_curRect.x = (pPrimData[1] & 0x0FFFF);
-    g_curRect.y = (pPrimData[1] >> 16);
+    PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     g_curRect.width = g_curRect.height = 16;
+    // texture coords
+    PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curRectTxCoords.x, g_curRectTxCoords.y);
 
     //...
 }

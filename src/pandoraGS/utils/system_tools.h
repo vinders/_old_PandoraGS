@@ -13,6 +13,14 @@ Description : system management toolbox
 #include <cstdlib>
 #include <cstdint>
 #include <string>
+#ifdef _WINDOWS
+#include <Windows.h>
+#include <tchar.h>
+#else
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#endif
 
 // data types
 typedef int32_t buffer_t;
