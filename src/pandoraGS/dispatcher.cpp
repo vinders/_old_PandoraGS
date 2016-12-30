@@ -5,7 +5,7 @@ Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
 File name :   dispatcher.cpp
-Description : display memory manager and dispatcher
+Description : GPU manager and dispatcher
 *******************************************************************************/
 #include <cstdio>
 #include <cstdlib>
@@ -265,18 +265,7 @@ void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
     while (This::mem_vramReader.vramPos.getPos() < This::mem_vram.rend()) // min position
         This::mem_vramReader.vramPos += This::mem_vram.size();
 
-    //! //opengl
-    /*if((iFrameReadType&1 && iSize>1) &&
-        !(iDrawnSomething==2 &&
-        VRAMRead.x      == VRAMWrite.x     &&
-        VRAMRead.y      == VRAMWrite.y     &&
-        VRAMRead.Width  == VRAMWrite.Width &&
-        VRAMRead.Height == VRAMWrite.Height))
-            CheckVRamRead(VRAMRead.x,VRAMRead.y,
-                VRAMRead.x+VRAMRead.RowsRemaining,
-                VRAMRead.y+VRAMRead.ColsRemaining,
-                TRUE);//!
-                */
+    //...
 
     // read memory chunk of data
     int i = 0;
