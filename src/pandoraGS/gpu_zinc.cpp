@@ -11,7 +11,7 @@ Description : zinc specification interface
 using namespace std;
 #include "config.h"
 #include "gpu_main.h"
-#include "memory_dispatcher.h"
+#include "dispatcher.h"
 
 // zinc configuration structure
 typedef struct GPUOTAG
@@ -34,7 +34,7 @@ int32_t  zincTileFix = 0;
 /// <returns>Success indicator</returns>
 long CALLBACK ZN_GPUinit() // we always set the vram size to 2MB, if the ZN interface is used
 {
-    MemoryDispatcher::s_isZincEmu = true;
+    Dispatcher::s_isZincEmu = true;
     return GPUinit();
 }
 /// <summary>Driver shutdown (called once)</summary>
@@ -54,7 +54,7 @@ long CALLBACK ZN_GPUopen(void* pCfg)
         return -1L;
 
     zincTileFix = 1; // tile erase bug fix
-    MemoryDispatcher::st_displayState.setVersion((gpuversion_t)cfg->gpuVersion);
+    Dispatcher::st_displayState.setVersion((gpuversion_t)cfg->gpuVersion);
 
     #ifdef _WINDOWS
     return GPUopen((HWND)cfg->hWindow);

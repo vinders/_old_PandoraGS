@@ -4,8 +4,8 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-File name :   memory_dispatcher.h
-Description : display memory manager and dispatcher
+File name :   dispatcher.h
+Description : GPU manager and dispatcher
 *******************************************************************************/
 #ifndef _MEMORY_DISPATCHER_H
 #define _MEMORY_DISPATCHER_H
@@ -15,7 +15,7 @@ Description : display memory manager and dispatcher
 #include <string>
 #include "video_memory.h"
 #include "display_state.h"
-#include "primitive_factory.h"
+#include "primitive_builder.h"
 #include "system_tools.h"
 #include "geometry.hpp"
 
@@ -59,8 +59,8 @@ typedef struct GPUFREEZETAG // save-state structure
 #define CMD_GPUREQUESTINFO      0x10
 
 
-// Display memory manager and dispatcher
-class MemoryDispatcher
+// GPU manager and dispatcher
+class Dispatcher
 {
 public: // treat PSEmu memory functions as member methods
 
@@ -95,7 +95,7 @@ public:
         mem_dataExchangeBuffer = GPUDATA_INIT;
         memset(st_pControlReg, 0x0, CTRLREG_SIZE * sizeof(unsigned long));
         st_displayDevFlags = 0u;
-        PrimitiveFactory::init();
+        PrimitiveBuilder::init();
         // initialize VRAM
         mem_vram.init(s_isZincEmu);
         memset(&mem_vramReader, 0x0, sizeof(memoryload_t)); // mode = Loadmode_normal = 0
@@ -123,7 +123,7 @@ public:
     /// <summary>Display data summary in debug window</summary>
     static void printDebugSummary();
     /// <summary>Export full status and VRAM data</summary>
-    static void MemoryDispatcher::exportData();
+    static void exportData();
 
 
     // -- SET SYNC/TRANSFER INFORMATION -- -----------------------------------------

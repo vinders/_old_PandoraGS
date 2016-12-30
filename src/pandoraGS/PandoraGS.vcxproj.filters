@@ -108,28 +108,10 @@
     <ClCompile Include="render\render_api.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="render\drawing_prim.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="render\line_prim.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="render\poly_prim.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="render\sprite_prim.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="render\shader\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="memory\display_state.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utils\system_tools.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="memory\memory_dispatcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="memory\status_register.cpp">
@@ -138,7 +120,13 @@
     <ClCompile Include="utils\unit_tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="render\primitive_factory.cpp">
+    <ClCompile Include="render\primitive_builder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dispatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="render\display_state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -245,25 +233,10 @@
     <ClInclude Include="render\render_api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="render\drawing_prim.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="render\line_prim.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="render\poly_prim.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="render\sprite_prim.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="render\shader\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="memory\video_memory_iterator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="memory\display_state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils\geometry.hpp">
@@ -272,16 +245,19 @@
     <ClInclude Include="utils\system_tools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="memory\memory_dispatcher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="memory\status_register.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils\unit_tests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="render\primitive_factory.h">
+    <ClInclude Include="render\primitive_builder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dispatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render\display_state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

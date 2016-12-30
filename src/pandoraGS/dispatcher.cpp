@@ -4,7 +4,7 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-File name :   memory_dispatcher.cpp
+File name :   dispatcher.cpp
 Description : display memory manager and dispatcher
 *******************************************************************************/
 #include <cstdio>
@@ -18,31 +18,31 @@ using namespace std;
 #include "logger.h"
 #include "system_tools.h"
 #include "status_register.h"
-#include "memory_dispatcher.h"
-#define This MemoryDispatcher
+#include "dispatcher.h"
+#define This Dispatcher
 
 // video memory management
-VideoMemory  MemoryDispatcher::mem_vram;       // emulated console video memory
-memoryload_t MemoryDispatcher::mem_vramReader; // output memory load
-memoryload_t MemoryDispatcher::mem_vramWriter; // input memory load
-unsigned long MemoryDispatcher::mem_dataExchangeBuffer = GPUDATA_INIT; // data buffer read/written by emulator
+VideoMemory  Dispatcher::mem_vram;       // emulated console video memory
+memoryload_t Dispatcher::mem_vramReader; // output memory load
+memoryload_t Dispatcher::mem_vramWriter; // input memory load
+unsigned long Dispatcher::mem_dataExchangeBuffer = GPUDATA_INIT; // data buffer read/written by emulator
 
 // execution and display status
-DisplayState MemoryDispatcher::st_displayState;
-unsigned long MemoryDispatcher::st_pControlReg[CTRLREG_SIZE]; // GPU status control
-uint32_t MemoryDispatcher::st_displayDevFlags = 0u; // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
-bool MemoryDispatcher::st_isFirstOpen = true;      // first call to GPUopen()
-bool MemoryDispatcher::st_isUploadPending = false; // image needs to be uploaded to VRAM
-long MemoryDispatcher::st_selectedSaveSlot = 0L;   // selected save-state slot
+DisplayState Dispatcher::st_displayState;
+unsigned long Dispatcher::st_pControlReg[CTRLREG_SIZE]; // GPU status control
+uint32_t Dispatcher::st_displayDevFlags = 0u; // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
+bool Dispatcher::st_isFirstOpen = true;      // first call to GPUopen()
+bool Dispatcher::st_isUploadPending = false; // image needs to be uploaded to VRAM
+long Dispatcher::st_selectedSaveSlot = 0L;   // selected save-state slot
 
 #ifdef _WINDOWS
-HWND  MemoryDispatcher::s_hWindow = NULL;   // main emulator window handle
+HWND  Dispatcher::s_hWindow = NULL;   // main emulator window handle
 #endif
-bool MemoryDispatcher::s_isZincEmu = false; // Zinc emulation
+bool Dispatcher::s_isZincEmu = false; // Zinc emulation
 
 
 /// <summary>Display data summary in debug window</summary>
-void MemoryDispatcher::printDebugSummary()
+void Dispatcher::printDebugSummary()
 {
     SystemTools::setConsoleCursorPos(0);
     printf("Status register : 0x%08x\n", StatusRegister::getStatusRegister());
@@ -58,7 +58,7 @@ void MemoryDispatcher::printDebugSummary()
 }
 
 /// <summary>Export full status and VRAM data</summary>
-void MemoryDispatcher::exportData()
+void Dispatcher::exportData()
 {
     try
     {
@@ -68,7 +68,7 @@ void MemoryDispatcher::exportData()
         out.open(filePath, std::ofstream::trunc); // overwrite
         if (!out.is_open())
         {
-            Logger::getInstance()->writeErrorEntry("MemoryDispatcher.exportData", "Data file not created");
+            Logger::getInstance()->writeErrorEntry("Dispatcher.exportData", "Data file not created");
             return;
         }
 
@@ -104,7 +104,7 @@ void MemoryDispatcher::exportData()
     }
     catch (const exception& exc)
     {
-        Logger::getInstance()->writeErrorEntry("MemoryDispatcher.exportData", exc.what());
+        Logger::getInstance()->writeErrorEntry("Dispatcher.exportData", exc.what());
     }
 }
 
@@ -265,7 +265,18 @@ void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
     while (This::mem_vramReader.vramPos.getPos() < This::mem_vram.rend()) // min position
         This::mem_vramReader.vramPos += This::mem_vram.size();
 
-    //...
+    //! //opengl
+    /*if((iFrameReadType&1 && iSize>1) &&
+        !(iDrawnSomething==2 &&
+        VRAMRead.x      == VRAMWrite.x     &&
+        VRAMRead.y      == VRAMWrite.y     &&
+        VRAMRead.Width  == VRAMWrite.Width &&
+        VRAMRead.Height == VRAMWrite.Height))
+            CheckVRamRead(VRAMRead.x,VRAMRead.y,
+                VRAMRead.x+VRAMRead.RowsRemaining,
+                VRAMRead.y+VRAMRead.ColsRemaining,
+                TRUE);//!
+                */
 
     // read memory chunk of data
     int i = 0;
@@ -421,7 +432,8 @@ void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
                 This::mem_vramWriter.rowsRemaining = 0;
             }
         }
-    } while (PrimitiveFactory::processDisplayData(This::mem_vramWriter.mode, pDwMem, size, &gdata, &i)); // true = VRAM transfer again
+    } 
+    while (PrimitiveBuilder::processDisplayData(This::mem_vramWriter.mode, pDwMem, size, &gdata, &i)); // true = VRAM transfer again
 
     This::mem_dataExchangeBuffer = gdata;
     StatusRegister::setStatus(GPUSTATUS_READYFORCOMMANDS | GPUSTATUS_IDLE); // ready + idle

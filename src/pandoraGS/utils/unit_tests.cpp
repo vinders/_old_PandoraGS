@@ -23,15 +23,11 @@ using namespace std;
 #include "config_io.h"
 #include "config_profile.h"
 #include "config.h"
-#include "drawing_prim.h"
-#include "line_prim.h"
-#include "sprite_prim.h"
-#include "poly_prim.h"
-#include "primitive_factory.h"
+#include "primitive_builder.h"
 #include "shader.h"
 #include "render_api.h"
 #include "display_state.h"
-#include "memory_dispatcher.h"
+#include "dispatcher.h"
 #include "gpu_main.h"
 
 // result messages
@@ -49,7 +45,7 @@ void CALLBACK GPUtestPrimitive(unsigned char* pData, int len, bool isFlipped)
 
     if (isFlipped)
         ;//... flip XY
-    PrimitiveFactory::processSinglePrimitive(pData, len);
+    PrimitiveBuilder::processSinglePrimitive(pData, len);
 
     if (pData[0] < 0x80)
         ;//... display
@@ -80,14 +76,10 @@ long CALLBACK GPUtestUnits(void* pWinData)
         && testUnit(Unit_config)
         && testUnit(Unit_config_io)
         && testUnit(Unit_lang)
-        && testUnit(Unit_drawing_prim)
-        && testUnit(Unit_line_prim)
-        && testUnit(Unit_sprite_prim)
-        && testUnit(Unit_poly_prim)
         && testUnit(Unit_display_state)
         && testUnit(Unit_shader)
         && testUnit(Unit_render_api)
-        && testUnit(Unit_memory_dispatcher);
+        && testUnit(Unit_dispatcher);
     return isSuccess;
 }
 
@@ -403,22 +395,6 @@ bool testUnit(unit_id_t unit, void* pWinData)
             }
             break;
         }
-        case Unit_drawing_prim:
-        {
-            break;
-        }
-        case Unit_line_prim:
-        {
-            break;
-        }
-        case Unit_sprite_prim:
-        {
-            break;
-        }
-        case Unit_poly_prim:
-        {
-            break;
-        }
         case Unit_shader:
         {
             break;
@@ -431,7 +407,7 @@ bool testUnit(unit_id_t unit, void* pWinData)
         {
             break;
         }
-        case Unit_memory_dispatcher:
+        case Unit_dispatcher:
         {
             break;
         }

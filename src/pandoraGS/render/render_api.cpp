@@ -8,7 +8,6 @@ File name :   render_api.cpp
 Description : rendering api management - OpenGL 4.1
 *******************************************************************************/
 using namespace std;
-#include "memory_dispatcher.h"
 #include "system_tools.h"
 #include "render_api.h"
 

@@ -18,7 +18,7 @@ using namespace std;
 #include "config.h"
 #include "config_io.h"
 #include "status_register.h"
-#include "memory_dispatcher.h"
+#include "dispatcher.h"
 #include "render_api.h"
 
 #include "about_dialog.h"
@@ -45,7 +45,7 @@ long CALLBACK GPUinit()
         ConfigIO::loadConfig(true, false); // user config
 
         // initialize memory container
-        MemoryDispatcher::init();
+        Dispatcher::init();
         LanguageGameMenuResource::setLanguage((langcode_t)Config::gen_langCode, Config::gen_langFilePath);
 
         // open debug window
@@ -73,7 +73,7 @@ long CALLBACK GPUshutdown()
     RenderApi::close();
     Logger::closeInstance();
     // close memory container
-    MemoryDispatcher::close();
+    Dispatcher::close();
     // release config container
     Config::close();
 
@@ -90,7 +90,7 @@ long CALLBACK GPUopen_PARAM_
         // reload framerate values (may have changed in previous session)
         //ConfigIO::loadFrameLimitConfig(); // ne pas le faire ? si on l'a changé, ce n'est pas pour que ça s'annule chaque fois qu'on fait ESC
         // load associated profile (if not already loaded)
-        if (MemoryDispatcher::st_isFirstOpen || Config::getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
+        if (Dispatcher::st_isFirstOpen || Config::getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
         {
             Config::useProfile(ConfigIO::getGameAssociation(StatusRegister::getGameId()));
             if (StatusRegister::getGameId().compare("UNITTEST.001") == 0) // testing -> force window mode
@@ -99,7 +99,7 @@ long CALLBACK GPUopen_PARAM_
                 Config::dsp_windowResX = 800u;
                 Config::dsp_windowResX = 600u;
             }
-            MemoryDispatcher::st_isFirstOpen = false;
+            Dispatcher::st_isFirstOpen = false;
 
             if (Config::getCurrentProfile()->getFix(CFG_FIX_EXPAND_SCREEN))
                 DisplayState::s_displayWidths[4] = 384;
@@ -109,22 +109,22 @@ long CALLBACK GPUopen_PARAM_
 
         // create rendering window
         #ifdef _WINDOWS
-        MemoryDispatcher::s_hWindow = hWindow;
-        SystemTools::createDisplayWindow(MemoryDispatcher::s_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
+        Dispatcher::s_hWindow = hWindow;
+        SystemTools::createDisplayWindow(Dispatcher::s_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
         #else
         SystemTools::createDisplayWindow();
         #endif
-        MemoryDispatcher::st_displayState.set(false);
+        Dispatcher::st_displayState.set(false);
 
         // disable screensaver (if possible)
         if (Config::misc_isScreensaverDisabled)
             SystemTools::setScreensaver(false);
 
         // configure frame rate manager (default)
-        MemoryDispatcher::initFrameRate();
+        Dispatcher::initFrameRate();
         // start user input tracker
         #ifdef _WINDOWS
-        InputReader::start(MemoryDispatcher::s_hWindow, Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1, 
+        InputReader::start(Dispatcher::s_hWindow, Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1, 
                            Config::dsp_isFullscreen, Config::misc_isScreensaverDisabled);
         #else
         InputReader::start(Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1, Config::dsp_isFullscreen);
@@ -148,13 +148,13 @@ long CALLBACK GPUclose()
     // debug output
     if (Config::rnd_isDebugMode)
     {
-        MemoryDispatcher::printDebugSummary();
-        MemoryDispatcher::exportData();
+        Dispatcher::printDebugSummary();
+        Dispatcher::exportData();
     }
 
     #ifdef _WINDOWS
     // close window
-    SystemTools::closeDisplayWindow(MemoryDispatcher::s_hWindow);
+    SystemTools::closeDisplayWindow(Dispatcher::s_hWindow);
     // re-enable screensaver (if disabled)
     if (Config::misc_isScreensaverDisabled)
         SystemTools::setScreensaver(true);
@@ -177,7 +177,7 @@ void CALLBACK GPUupdateLace()
 {
     // interlacing (if CC game fix, done in GPUreadStatus)
     if (Config::getCurrentProfile()->getNotFix(CFG_FIX_STATUS_INTERLACE))
-        MemoryDispatcher::st_displayState.toggleOddFrameFlag();
+        Dispatcher::st_displayState.toggleOddFrameFlag();
 
     // debug output
     if (Config::rnd_isDebugMode)
@@ -185,7 +185,7 @@ void CALLBACK GPUupdateLace()
         static int debugFrameCount = 0;
         if (++debugFrameCount >= 16) // every 16 frames, refresh debug data
         {
-            MemoryDispatcher::printDebugSummary();
+            Dispatcher::printDebugSummary();
             debugFrameCount = 0;
         }
     }
@@ -202,7 +202,7 @@ void CALLBACK GPUupdateLace()
         {
             InputReader::lock();
             InputReader::resetEvents();
-            MemoryDispatcher::st_displayState.set(false);
+            Dispatcher::st_displayState.set(false);
 
             try
             {
@@ -228,7 +228,7 @@ void CALLBACK GPUupdateLace()
         else if (InputReader::getEvents(EVT_WINDOWSIZE | EVT_WINDOWRATIO))
         {
             InputReader::lock();
-            MemoryDispatcher::st_displayState.set(false);
+            Dispatcher::st_displayState.set(false);
 
             RenderApi::setDrawingSize(InputReader::getEvents(EVT_WINDOWSIZE));
 
@@ -241,12 +241,12 @@ void CALLBACK GPUupdateLace()
         else if (InputReader::getEvents(EVT_WINDOWMODE))
         {
             InputReader::stop();
-            MemoryDispatcher::st_displayState.set(false);
+            Dispatcher::st_displayState.set(false);
 
             Config::dsp_isFullscreen = !(Config::dsp_isFullscreen);
             #ifdef _WINDOWS
-            SystemTools::closeDisplayWindow(MemoryDispatcher::s_hWindow);
-            SystemTools::createDisplayWindow(MemoryDispatcher::s_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
+            SystemTools::closeDisplayWindow(Dispatcher::s_hWindow);
+            SystemTools::createDisplayWindow(Dispatcher::s_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
             #else
             SystemTools::closeDisplayWindow();
             SystemTools::createDisplayWindow();
@@ -255,7 +255,7 @@ void CALLBACK GPUupdateLace()
 
             // restart input tracker for new window
             #ifdef _WINDOWS
-            InputReader::start(MemoryDispatcher::s_hWindow, Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1,
+            InputReader::start(Dispatcher::s_hWindow, Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1,
                 Config::dsp_isFullscreen, Config::misc_isScreensaverDisabled);
             #else
             InputReader::start(Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1, Config::dsp_isFullscreen);
@@ -270,14 +270,14 @@ void CALLBACK GPUupdateLace()
     {
         if (Timer::isPeriodSkipped() == false) // drawing starts earlier + skipping is more effective
             RenderApi::drawFrame();
-        Timer::wait(InputReader::getSpeedStatus(), MemoryDispatcher::st_displayState.getOddFrameFlag() != 0);
+        Timer::wait(InputReader::getSpeedStatus(), Dispatcher::st_displayState.getOddFrameFlag() != 0);
     }
     else // steady display mode -> wait then draw
     {
         static bool isSkipped; //!!! mode mieux (si upscaling fait avant), car attend ce qu'il reste après avoir fait traitements upscaling
                                 //--> adapter frame skipping et virer autre mode, ou bien copier frame skipping Pete
         isSkipped = Timer::isPeriodSkipped();
-        Timer::wait(InputReader::getSpeedStatus(), MemoryDispatcher::st_displayState.getOddFrameFlag() != 0);
+        Timer::wait(InputReader::getSpeedStatus(), Dispatcher::st_displayState.getOddFrameFlag() != 0);
         if (isSkipped == false) // drawing starts at regular intervals
             RenderApi::drawFrame();
     }
@@ -391,7 +391,7 @@ void CALLBACK GPUsetExeName(char* pGameId)
 void CALLBACK GPUsetframelimit(unsigned long option)
 {
     Config::sync_isFrameLimit = (option == 1);
-    MemoryDispatcher::setFrameRate();
+    Dispatcher::setFrameRate();
 }
 
 /// <summary>Set custom fixes from emulator</summary>

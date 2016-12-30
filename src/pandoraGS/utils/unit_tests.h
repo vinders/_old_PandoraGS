@@ -25,14 +25,10 @@ enum unit_id_t : unsigned long // unit IDs
     Unit_config,
     Unit_config_io,
     Unit_lang,
-    Unit_drawing_prim,
-    Unit_line_prim,
-    Unit_sprite_prim,
-    Unit_poly_prim,
     Unit_shader,
     Unit_render_api,
     Unit_display_state,
-    Unit_memory_dispatcher
+    Unit_dispatcher
 };
 
 /// <summary>Plugin - full unit testing</summary>
