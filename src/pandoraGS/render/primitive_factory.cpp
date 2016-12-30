@@ -322,7 +322,7 @@ void cmImageStore(unsigned char* pData)
 
 
 // -- DRAWING ATTRIBUTE COMMANDS -- --------------------------------------------
-// Cm = command code (0x00 - 0xE7)
+// Cm = command code (0xE0 - 0xE7)
 
 /// <summary>Set texture page</summary>
 void cmTexPage(unsigned char* pData)
@@ -432,7 +432,7 @@ void cmMaskBit(unsigned char* pData)
 
 
 // -- PRIMITIVE POLYGON COMMANDS -- --------------------------------------------
-// Cm = command code (0x00 - 0xE7)
+// Cm = command code (0x20 - 0x3F) - odd number = no-blending
 // BbGgRr = color code (R: 0-7 ; G: 8-15 ; B: 16-23)
 // YvtxXvtx = vertex coords (X: 0-10 ; Y: 16-26)
 // YcXc = texture coords
@@ -454,6 +454,7 @@ void cmTriangle(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curTriangle.x1, g_curTriangle.y1);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curTriangle.x2, g_curTriangle.y2);
     //color = pPrimData[0];
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
 
     //...
 }
@@ -470,6 +471,7 @@ void cmTriangleS(unsigned char* pData)
     //color = pPrimData[0];
     //color1 = pPrimData[2];
     //color2 = pPrimData[4];
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
 
     //...
 }
@@ -487,12 +489,26 @@ void cmTriangleTx(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curTriangleTxCoords.x0, g_curTriangleTxCoords.y0);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[4], g_curTriangleTxCoords.x1, g_curTriangleTxCoords.y1);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[6], g_curTriangleTxCoords.x2, g_curTriangleTxCoords.y2);
-    //color = pPrimData[0];
+
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
+
+    unsigned long texpage = ((pPrimData[5] >> 4) & 0x0FFFFuL);//...
+    if (1/*colorMode < 2*/)//... créer enum
+    {
+        //... si texture 4bit ou 8bit, lire Clut
+        unsigned long clut = ((pPrimData[2] >> 4) & 0x0FFFFuL);//...
+    }
+
+    if (PrimitiveFactory::isShapeBlended(*pPrimData))
+    {
+        //color = pPrimData[0];
+    }
+    else
+    {
+        //... si raw, ignorer couleur
+    }
 
     //...
-
-    //... si texture 4bit ou 8bit, lire Clut, sinon ignorer
-    //... si raw, ignorer couleur
 }
 
 /// <summary>Draw shaded-textured triangle</summary>
@@ -508,9 +524,26 @@ void cmTriangleSTx(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curTriangleTxCoords.x0, g_curTriangleTxCoords.y0);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[5], g_curTriangleTxCoords.x1, g_curTriangleTxCoords.y1);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[8], g_curTriangleTxCoords.x2, g_curTriangleTxCoords.y2);
-    //color = pPrimData[0];
-    //color1 = pPrimData[3];
-    //color2 = pPrimData[6];
+
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
+
+    unsigned long texpage = ((pPrimData[5] >> 4) & 0x0FFFFuL);//...
+    if (1/*colorMode < 2*/)//... créer enum
+    {
+        //... si texture 4bit ou 8bit, lire Clut
+        unsigned long clut = ((pPrimData[2] >> 4) & 0x0FFFFuL);//...
+    }
+
+    if (PrimitiveFactory::isShapeBlended(*pPrimData))
+    {
+        //color = pPrimData[0];
+        //color1 = pPrimData[3];
+        //color2 = pPrimData[6];
+    }
+    else
+    {
+        //... si raw, ignorer couleur
+    }
 
     //...
 }
@@ -526,6 +559,7 @@ void cmQuad(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curQuad.x2, g_curQuad.y2);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[4], g_curQuad.x3, g_curQuad.y3);
     //color = pPrimData[0];
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
 
     //...
 }
@@ -544,6 +578,7 @@ void cmQuadS(unsigned char* pData)
     //color1 = pPrimData[2];
     //color2 = pPrimData[4];
     //color2 = pPrimData[6];
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
 
     //...
 }
@@ -563,7 +598,24 @@ void cmQuadTx(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos16(pPrimData[4], g_curQuadTxCoords.x1, g_curQuadTxCoords.y1);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[6], g_curQuadTxCoords.x2, g_curQuadTxCoords.y2);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[8], g_curQuadTxCoords.x3, g_curQuadTxCoords.y3);
-    //color = pPrimData[0];
+
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
+
+    unsigned long texpage = ((pPrimData[5] >> 4) & 0x0FFFFuL);//...
+    if (1/*colorMode < 2*/)//... créer enum
+    {
+        //... si texture 4bit ou 8bit, lire Clut
+        unsigned long clut = ((pPrimData[2] >> 4) & 0x0FFFFuL);//...
+    }
+    
+    if (PrimitiveFactory::isShapeBlended(*pPrimData))
+    {
+        //color = pPrimData[0];
+    }
+    else
+    {
+        //... si raw, ignorer couleur
+    }
 
     //...
 }
@@ -583,17 +635,34 @@ void cmQuadSTx(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos16(pPrimData[5], g_curQuadTxCoords.x1, g_curQuadTxCoords.y1);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[8], g_curQuadTxCoords.x2, g_curQuadTxCoords.y2);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[11], g_curQuadTxCoords.x3, g_curQuadTxCoords.y3);
-    //color = pPrimData[0];
-    //color1 = pPrimData[3];
-    //color2 = pPrimData[6];
-    //color2 = pPrimData[9];
+
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
+
+    unsigned long texpage = ((pPrimData[5] >> 4) & 0x0FFFFuL);//...
+    if (1/*colorMode < 2*/)//... créer enum
+    {
+        //... si texture 4bit ou 8bit, lire Clut
+        unsigned long clut = ((pPrimData[2] >> 4) & 0x0FFFFuL);//...
+    }
+    
+    if (PrimitiveFactory::isShapeBlended(*pPrimData))
+    {
+        //color = pPrimData[0];
+        //color1 = pPrimData[3];
+        //color2 = pPrimData[6];
+        //color3 = pPrimData[9];
+    }
+    else
+    {
+        //... si raw, ignorer couleur
+    }
 
     //...
 }
 
 
 // -- PRIMITIVE LINE COMMANDS -- -----------------------------------------------
-// Cm = command code (0x00 - 0xE7)
+// Cm = command code (0x40 - 0x5F)
 // BbGgRr = color code (R: 0-7 ; G: 8-15 ; B: 16-23)
 // YvtxXvtx = vertex coords (X: 0-10 ; Y: 16-26)
 
@@ -606,6 +675,7 @@ void cmLine(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curLine.x0, g_curLine.y0);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curLine.x1, g_curLine.y1);
     //color = pPrimData[0];
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
 
     //...
 }
@@ -620,6 +690,7 @@ void cmLineS(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curLine.x1, g_curLine.y1);
     //color = pPrimData[0];
     //color1 = pPrimData[2];
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
 
     //...
 }
@@ -632,6 +703,7 @@ void cmPolyLine(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curLine.x0, g_curLine.y0);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curLine.x1, g_curLine.y1);
     //color = pPrimData[0];
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
     //... draw
 
     pPrimData = &pPrimData[3]; // use pointer as iterator (faster than indexes)
@@ -654,6 +726,7 @@ void cmPolyLineS(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curLine.x1, g_curLine.y1);
     //color = pPrimData[0];
     //color1 = pPrimData[2];
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
     //... draw
 
     pPrimData = &pPrimData[4]; // use pointer as iterator (faster than indexes)
@@ -673,7 +746,7 @@ void cmPolyLineS(unsigned char* pData)
 
 
 // -- PRIMITIVE RECTANGLE COMMANDS -- ------------------------------------------
-// Cm = command code (0x00 - 0xE7)
+// Cm = command code (0x60 - 0x7F) - odd number = no-blending
 // BbGgRr = color code (R: 0-7 ; G: 8-15 ; B: 16-23)
 // YhgtXwid = horizontal/vertical size
 // YvtxXvtx = vertex coords (X: 0-10 ; Y: 16-26)
@@ -695,6 +768,7 @@ void cmTile(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curRect.width, g_curRect.height);
     //color = pPrimData[0];
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
 
     //...
 }
@@ -708,6 +782,7 @@ void cmTile1(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     g_curRect.width = g_curRect.height = 1;
     //color = pPrimData[0];
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
 
     //...
 }
@@ -721,6 +796,7 @@ void cmTile8(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     g_curRect.width = g_curRect.height = 8;
     //color = pPrimData[0];
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
 
     //...
 }
@@ -734,6 +810,7 @@ void cmTile16(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     g_curRect.width = g_curRect.height = 16;
     //color = pPrimData[0];
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
 
     //...
 }
@@ -748,7 +825,23 @@ void cmSprite(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curRect.width, g_curRect.height);
     // texture coords
     PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curRectTxCoords.x, g_curRectTxCoords.y);
-    //color = pPrimData[0];
+
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
+
+    if (1/*colorMode < 2*/)//... créer enum
+    {
+        //... si texture 4bit ou 8bit, lire Clut
+        unsigned long clut = ((pPrimData[2] >> 4) & 0x0FFFFuL);//...
+    }
+
+    if (PrimitiveFactory::isShapeBlended(*pPrimData))
+    {
+        //color = pPrimData[0];
+    }
+    else
+    {
+        //... si raw, ignorer couleur
+    }
 
     //...
 }
@@ -763,7 +856,23 @@ void cmSprite1(unsigned char* pData)
     g_curRect.width = g_curRect.height = 1;
     // texture coords
     PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curRectTxCoords.x, g_curRectTxCoords.y);
-    //color = pPrimData[0];
+
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
+
+    if (1/*colorMode < 2*/)//... créer enum
+    {
+        //... si texture 4bit ou 8bit, lire Clut
+        unsigned long clut = ((pPrimData[2] >> 4) & 0x0FFFFuL);//...
+    }
+    
+    if (PrimitiveFactory::isShapeBlended(*pPrimData))
+    {
+        //color = pPrimData[0];
+    }
+    else
+    {
+        //... si raw, ignorer couleur
+    }
 
     //...
 }
@@ -778,7 +887,23 @@ void cmSprite8(unsigned char* pData)
     g_curRect.width = g_curRect.height = 8;
     // texture coords
     PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curRectTxCoords.x, g_curRectTxCoords.y);
-    //color = pPrimData[0];
+
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
+
+    if (1/*colorMode < 2*/)//... créer enum
+    {
+        //... si texture 4bit ou 8bit, lire Clut
+        unsigned long clut = ((pPrimData[2] >> 4) & 0x0FFFFuL);//...
+    }
+    
+    if (PrimitiveFactory::isShapeBlended(*pPrimData))
+    {
+        //color = pPrimData[0];
+    }
+    else
+    {
+        //... si raw, ignorer couleur
+    }
 
     //...
 }
@@ -793,7 +918,23 @@ void cmSprite16(unsigned char* pData)
     g_curRect.width = g_curRect.height = 16;
     // texture coords
     PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curRectTxCoords.x, g_curRectTxCoords.y);
-    //color = pPrimData[0];
+
+    bool isOpaque = PrimitiveFactory::isShapeOpaque(*pPrimData);//...
+
+    if (1/*colorMode < 2*/)//... créer enum
+    {
+        //... si texture 4bit ou 8bit, lire Clut
+        unsigned long clut = ((pPrimData[2] >> 4) & 0x0FFFFuL);//...
+    }
+    
+    if (PrimitiveFactory::isShapeBlended(*pPrimData))
+    {
+        //color = pPrimData[0];
+    }
+    else
+    {
+        //... si raw, ignorer couleur
+    }
 
     //...
 }
