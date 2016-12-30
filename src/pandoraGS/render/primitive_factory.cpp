@@ -338,6 +338,19 @@ void cmTexPage(unsigned char* pData)
     // bit 12  : textured rectangle X-flip
     // bit 13  : textured rectangle Y-flip
     
+    wpoint_t baseCoord;//...
+    baseCoord.x = ((primData & 0x0FuL) << 6);
+    baseCoord.y = ((primData & 0x10uL) << 4);
+
+    short transpMode = ((primData >> 5) & 0x3uL);//...
+    short colorMode = ((primData >> 7) & 0x3uL);//...
+    bool is24bit = (primData & 0x200uL);//...
+    bool isDrawingToDisplay = (primData & 0x400uL);//...
+    bool isTextureDisabled = ((primData & 0x800uL) && (primData & 0x1uL));//...
+    bool isFlippedX = (primData & 0x1000uL);//...
+    bool isFlippedY = (primData & 0x2000uL);//...
+
+    //...
 }
 
 /// <summary>Set texture window</summary>
@@ -350,6 +363,16 @@ void cmTexWindow(unsigned char* pData)
     // bits 15-19: offset Y (in 8 pixel steps)
     // texcoord = (texcoord AND (NOT (mask*8))) OR ((offset AND mask)*8)
 
+    wpoint_t mask;//...
+    mask.x = ((primData << 3) & 0x0F8uL);
+    mask.y = ((primData >> 2) & 0x0F8uL);
+    wpoint_t off;//...
+    off.x = ((primData >> 7) & 0x0F8uL);
+    off.y = ((primData >> 12) & 0x0F8uL);
+
+    //texcoord.x = (texcoord.x & ~mask.x) | (off.x & mask.x)
+    //texcoord.y = (texcoord.y & ~mask.y) | (off.y & mask.y)
+    //...
 }
 
 /// <summary>Set draw area start</summary>
@@ -359,6 +382,11 @@ void cmDrawAreaStart(unsigned char* pData)
     // bits 0-9  : X coord
     // bits 10-19: Y coord
 
+    wpoint_t baseCoord;//...
+    baseCoord.x = (primData & 0x3FFuL);
+    baseCoord.y = ((primData >> 10) & 0x3FFuL);
+
+    //...
 }
 
 /// <summary>Set draw area end</summary>
@@ -368,6 +396,11 @@ void cmDrawAreaEnd(unsigned char* pData)
     // bits 0-9  : X coord
     // bits 10-19: Y coord
 
+    wpoint_t endCoord;//...
+    endCoord.x = (primData & 0x3FFuL);
+    endCoord.y = ((primData >> 10) & 0x3FFuL);
+
+    //...
 }
 
 /// <summary>Set draw offset</summary>
@@ -377,6 +410,11 @@ void cmDrawOffset(unsigned char* pData)
     // bits 0-10 : X offset
     // bits 11-21: Y offset
 
+    wpoint_t off;//...
+    off.x = (primData & 0x7FFuL);
+    off.y = ((primData >> 11) & 0x7FFuL);
+
+    //...
 }
 
 /// <summary>Set mask bit info</summary>
@@ -386,6 +424,10 @@ void cmMaskBit(unsigned char* pData)
     // bit 0: mask while drawing (0 = texture with bit 15 ; 1 = force bit15=1)
     // bit 1: check mask before drawing (0 = always draw ; 1 = draw if bit15==0)
 
+    bool isBit15Forced = (primData & 0x1uL);//...
+    bool isBit15Checked = (primData & 0x2uL);//...
+
+    //...
 }
 
 
@@ -411,6 +453,7 @@ void cmTriangle(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curTriangle.x0, g_curTriangle.y0);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curTriangle.x1, g_curTriangle.y1);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curTriangle.x2, g_curTriangle.y2);
+    //color = pPrimData[0];
 
     //...
 }
@@ -424,6 +467,9 @@ void cmTriangleS(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curTriangle.x0, g_curTriangle.y0);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curTriangle.x1, g_curTriangle.y1);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[5], g_curTriangle.x2, g_curTriangle.y2);
+    //color = pPrimData[0];
+    //color1 = pPrimData[2];
+    //color2 = pPrimData[4];
 
     //...
 }
@@ -441,6 +487,7 @@ void cmTriangleTx(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curTriangleTxCoords.x0, g_curTriangleTxCoords.y0);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[4], g_curTriangleTxCoords.x1, g_curTriangleTxCoords.y1);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[6], g_curTriangleTxCoords.x2, g_curTriangleTxCoords.y2);
+    //color = pPrimData[0];
 
     //...
 
@@ -461,6 +508,9 @@ void cmTriangleSTx(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curTriangleTxCoords.x0, g_curTriangleTxCoords.y0);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[5], g_curTriangleTxCoords.x1, g_curTriangleTxCoords.y1);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[8], g_curTriangleTxCoords.x2, g_curTriangleTxCoords.y2);
+    //color = pPrimData[0];
+    //color1 = pPrimData[3];
+    //color2 = pPrimData[6];
 
     //...
 }
@@ -475,6 +525,7 @@ void cmQuad(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curQuad.x1, g_curQuad.y1);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curQuad.x2, g_curQuad.y2);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[4], g_curQuad.x3, g_curQuad.y3);
+    //color = pPrimData[0];
 
     //...
 }
@@ -489,6 +540,10 @@ void cmQuadS(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curQuad.x1, g_curQuad.y1);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[5], g_curQuad.x2, g_curQuad.y2);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[7], g_curQuad.x3, g_curQuad.y3);
+    //color = pPrimData[0];
+    //color1 = pPrimData[2];
+    //color2 = pPrimData[4];
+    //color2 = pPrimData[6];
 
     //...
 }
@@ -508,6 +563,7 @@ void cmQuadTx(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos16(pPrimData[4], g_curQuadTxCoords.x1, g_curQuadTxCoords.y1);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[6], g_curQuadTxCoords.x2, g_curQuadTxCoords.y2);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[8], g_curQuadTxCoords.x3, g_curQuadTxCoords.y3);
+    //color = pPrimData[0];
 
     //...
 }
@@ -527,6 +583,10 @@ void cmQuadSTx(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos16(pPrimData[5], g_curQuadTxCoords.x1, g_curQuadTxCoords.y1);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[8], g_curQuadTxCoords.x2, g_curQuadTxCoords.y2);
     PrimitiveFactory::extractPrimitivePos16(pPrimData[11], g_curQuadTxCoords.x3, g_curQuadTxCoords.y3);
+    //color = pPrimData[0];
+    //color1 = pPrimData[3];
+    //color2 = pPrimData[6];
+    //color2 = pPrimData[9];
 
     //...
 }
@@ -545,6 +605,7 @@ void cmLine(unsigned char* pData)
     // vertices
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curLine.x0, g_curLine.y0);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curLine.x1, g_curLine.y1);
+    //color = pPrimData[0];
 
     //...
 }
@@ -555,10 +616,10 @@ void cmLineS(unsigned char* pData)
     unsigned long *pPrimData = ((unsigned long *)pData); // 4x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx
 
     // vertices
-    //color = pPrimData[0];
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curLine.x0, g_curLine.y0);
-    //color = pPrimData[1];
     PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curLine.x1, g_curLine.y1);
+    //color = pPrimData[0];
+    //color1 = pPrimData[2];
 
     //...
 }
@@ -570,6 +631,7 @@ void cmPolyLine(unsigned char* pData)
 
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curLine.x0, g_curLine.y0);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curLine.x1, g_curLine.y1);
+    //color = pPrimData[0];
     //... draw
 
     pPrimData = &pPrimData[3]; // use pointer as iterator (faster than indexes)
@@ -588,10 +650,10 @@ void cmPolyLineS(unsigned char* pData)
 {
     unsigned long *pPrimData = ((unsigned long *)pData); // [4-255]x32 - CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx [...] 55555555
 
-    //color = pPrimData[0];
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curLine.x0, g_curLine.y0);
-    //color1 = pPrimData[1];
     PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curLine.x1, g_curLine.y1);
+    //color = pPrimData[0];
+    //color1 = pPrimData[2];
     //... draw
 
     pPrimData = &pPrimData[4]; // use pointer as iterator (faster than indexes)
@@ -632,6 +694,7 @@ void cmTile(unsigned char* pData)
     // coords
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     PrimitiveFactory::extractPrimitivePos32(pPrimData[2], g_curRect.width, g_curRect.height);
+    //color = pPrimData[0];
 
     //...
 }
@@ -644,6 +707,7 @@ void cmTile1(unsigned char* pData)
     // coords
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     g_curRect.width = g_curRect.height = 1;
+    //color = pPrimData[0];
 
     //...
 }
@@ -656,6 +720,7 @@ void cmTile8(unsigned char* pData)
     // coords
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     g_curRect.width = g_curRect.height = 8;
+    //color = pPrimData[0];
 
     //...
 }
@@ -668,6 +733,7 @@ void cmTile16(unsigned char* pData)
     // coords
     PrimitiveFactory::extractPrimitivePos32(pPrimData[1], g_curRect.x, g_curRect.y);
     g_curRect.width = g_curRect.height = 16;
+    //color = pPrimData[0];
 
     //...
 }
@@ -682,6 +748,7 @@ void cmSprite(unsigned char* pData)
     PrimitiveFactory::extractPrimitivePos32(pPrimData[3], g_curRect.width, g_curRect.height);
     // texture coords
     PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curRectTxCoords.x, g_curRectTxCoords.y);
+    //color = pPrimData[0];
 
     //...
 }
@@ -696,6 +763,7 @@ void cmSprite1(unsigned char* pData)
     g_curRect.width = g_curRect.height = 1;
     // texture coords
     PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curRectTxCoords.x, g_curRectTxCoords.y);
+    //color = pPrimData[0];
 
     //...
 }
@@ -710,6 +778,7 @@ void cmSprite8(unsigned char* pData)
     g_curRect.width = g_curRect.height = 8;
     // texture coords
     PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curRectTxCoords.x, g_curRectTxCoords.y);
+    //color = pPrimData[0];
 
     //...
 }
@@ -724,6 +793,7 @@ void cmSprite16(unsigned char* pData)
     g_curRect.width = g_curRect.height = 16;
     // texture coords
     PrimitiveFactory::extractPrimitivePos16(pPrimData[2], g_curRectTxCoords.x, g_curRectTxCoords.y);
+    //color = pPrimData[0];
 
     //...
 }
