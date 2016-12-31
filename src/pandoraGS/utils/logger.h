@@ -63,6 +63,9 @@ public:
     ///<param name="origin">Message origin (ClassName.MethodName)</param>
     ///<param name="message">Message content (concatenated with errno message if available)</param>
     void writeErrorEntry(const std::string origin, std::string message);
+    ///<summary>Destroy logfile</summary>
+    ///<exception cref="std::exception>Removal failure</exception>
+    void removeLogFile();
 };
 
 #endif

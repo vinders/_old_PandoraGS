@@ -144,3 +144,14 @@ void Logger::writeErrorEntry(const std::string origin, std::string message)
 
     writeEntry(origin, type, message);
 }
+
+///<summary>Destroy logfile</summary>
+///<exception cref="std::exception>Removal failure</exception>
+void Logger::removeLogFile()
+{
+    m_hMtxInstance.lock();
+    int err = std::remove(getFilePath().c_str());
+    m_hMtxInstance.unlock();
+    if (err)
+        throw std::exception("Unable to remove log file");
+}

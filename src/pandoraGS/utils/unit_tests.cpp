@@ -134,6 +134,10 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 pData->writeErrorEntry("orig","message");
                 printSuccess();
 
+                printf("\t* removeLogFile(): ");
+                pData->removeLogFile();
+                printSuccess();
+
                 printf("\t* closeInstance(): ");
                 Logger::closeInstance();
                 printSuccess();
@@ -411,7 +415,12 @@ bool testUnit(unit_id_t unit, void* pWinData)
                     printError("Non existing file: should throw exception");
                     isSuccess = false;
                 }
-                catch (...) { printSuccess(); }
+                catch (...) 
+                { 
+                    printSuccess(); 
+                    Logger::getInstance()->removeLogFile();
+                    Logger::getInstance()->closeInstance();
+                }
                 delete pData;
             }
             catch (const std::exception& exc)
