@@ -80,10 +80,10 @@ long CALLBACK GPUtestUnits(void* pWinData)
         && testUnit(Unit_input_reader, pWinData)
         && testUnit(Unit_status_register)
         && testUnit(Unit_video_memory)
+        && testUnit(Unit_lang)
         && testUnit(Unit_config_profile)
         && testUnit(Unit_config)
         && testUnit(Unit_config_io)
-        && testUnit(Unit_lang)
         && testUnit(Unit_display_state)
         && testUnit(Unit_shader)
         && testUnit(Unit_render_api)
@@ -368,18 +368,6 @@ bool testUnit(unit_id_t unit, void* pWinData)
             }
             break;
         }
-        case Unit_config_profile:
-        {
-            break;
-        }
-        case Unit_config:
-        {
-            break;
-        }
-        case Unit_config_io:
-        {
-            break;
-        }
         case Unit_lang:
         {
             printf("\nLANG UNIT\n---\n");
@@ -415,9 +403,9 @@ bool testUnit(unit_id_t unit, void* pWinData)
                     printError("Non existing file: should throw exception");
                     isSuccess = false;
                 }
-                catch (...) 
-                { 
-                    printSuccess(); 
+                catch (...)
+                {
+                    printSuccess();
                     Logger::getInstance()->removeLogFile();
                     Logger::getInstance()->closeInstance();
                 }
@@ -430,6 +418,18 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 if (pData != NULL)
                     delete pData;
             }
+            break;
+        }
+        case Unit_config_profile:
+        {
+            break;
+        }
+        case Unit_config:
+        {
+            break;
+        }
+        case Unit_config_io:
+        {
             break;
         }
         case Unit_shader:
