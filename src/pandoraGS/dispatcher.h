@@ -7,14 +7,15 @@ License :     GPLv2
 File name :   dispatcher.h
 Description : GPU manager and dispatcher
 *******************************************************************************/
-#ifndef _MEMORY_DISPATCHER_H
-#define _MEMORY_DISPATCHER_H
+#ifndef _DISPATCHER_H
+#define _DISPATCHER_H
 #include "globals.h"
 #include <cstddef>
 #include <cstdint>
 #include <string>
 #include "video_memory.h"
 #include "display_state.h"
+#include "status_register.h"
 #include "primitive_builder.h"
 #include "system_tools.h"
 #include "geometry.hpp"
@@ -71,6 +72,7 @@ public: // treat PSEmu memory functions as member methods
     static unsigned long mem_dataExchangeBuffer; // data buffer read/written by emulator
 
     // execution and display status
+    static std::string s_gameId; // game executable ID
     static DisplayState st_displayState;
     static unsigned long st_pControlReg[CTRLREG_SIZE]; // GPU status control
     static uint32_t st_displayDevFlags; // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
@@ -89,7 +91,9 @@ public:
     /// <summary>Initialize memory, status and dispatcher</summary>
     static inline void init()
     {
+        // initialize status
         st_isFirstOpen = true;
+        StatusRegister::init();
         // initialize control data
         st_displayState.init();
         mem_dataExchangeBuffer = GPUDATA_INIT;
@@ -100,8 +104,7 @@ public:
         mem_vram.init(s_isZincEmu);
         memset(&mem_vramReader, 0x0, sizeof(memoryload_t)); // mode = Loadmode_normal = 0
         memset(&mem_vramWriter, 0x0, sizeof(memoryload_t)); // mode = Loadmode_normal = 0
-        // initialize status
-        StatusRegister::init();
+        
         StatusRegister::setStatus(GPUSTATUS_IDLE | GPUSTATUS_READYFORCOMMANDS);
     }
 
@@ -165,6 +168,22 @@ public:
         }
     }
 
+
+    // - OTHER SETTERS - -----------------------------------------------------------
+
+    /// <summary>Set game executable identifier</summary>
+    /// <param name="pGameId">Game ID</param>
+    static inline void setGameId(char* pGameId)
+    {
+        s_gameId = (pGameId != NULL) ? std::string(pGameId) : std::string("");
+    }
+    /// <summary>Get game executable identifier</summary>
+    /// <returns>Game ID</returns>
+    static inline std::string getGameId()
+    {
+        return s_gameId;
+    }
+
     
     // -- COMMAND EXTRACTION -- ----------------------------------------------------
 
@@ -200,16 +219,19 @@ public:
 
 // -- DISPLAY STATUS CONTROL -- ------------------------------------------------
 
-/// <summary>Set special display flags</summary>
-/// <param name="dwFlags">Display flags</param>
-void CALLBACK GPUdisplayFlags(unsigned long dwFlags);
-
 /// <summary>Read data from GPU status register</summary>
 /// <returns>GPU status register data</returns>
 unsigned long CALLBACK GPUreadStatus();
 /// <summary>Process data sent to GPU status register</summary>
 /// <param name="gdata">Status register command</param>
 void CALLBACK GPUwriteStatus(unsigned long gdata);
+
+/// <summary>Set special display flags</summary>
+/// <param name="dwFlags">Display flags</param>
+void CALLBACK GPUdisplayFlags(unsigned long dwFlags);
+/// <summary>Set game executable ID (for config profiles associations)</summary>
+/// <param name="pGameId">Newly started game identifier</param>
+void CALLBACK GPUsetExeName(char* pGameId);
 
 
 // -- DATA TRANSFER -- ---------------------------------------------------------

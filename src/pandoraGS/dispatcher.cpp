@@ -17,7 +17,6 @@ using namespace std;
 #include "config.h"
 #include "logger.h"
 #include "system_tools.h"
-#include "status_register.h"
 #include "dispatcher.h"
 #define This Dispatcher
 
@@ -28,6 +27,7 @@ memoryload_t Dispatcher::mem_vramWriter; // input memory load
 unsigned long Dispatcher::mem_dataExchangeBuffer = GPUDATA_INIT; // data buffer read/written by emulator
 
 // execution and display status
+std::string Dispatcher::s_gameId(""); // game executable ID
 DisplayState Dispatcher::st_displayState;
 unsigned long Dispatcher::st_pControlReg[CTRLREG_SIZE]; // GPU status control
 uint32_t Dispatcher::st_displayDevFlags = 0u; // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
@@ -178,6 +178,13 @@ void CALLBACK GPUdisplayFlags(unsigned long dwFlags)
 {
     // display flags for GPU menu
     This::st_displayDevFlags = dwFlags; // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
+}
+
+/// <summary>Set game executable ID (for config profiles associations)</summary>
+/// <param name="pGameId">Newly started game identifier</param>
+void CALLBACK GPUsetExeName(char* pGameId)
+{
+    This::setGameId(pGameId);
 }
 
 

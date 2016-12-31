@@ -39,7 +39,6 @@ private:
     // emulated gpu status
     static uint32_t s_statusReg;  // GPU status register
     static long s_busyEmuSequence;// 'GPU busy' emulation hack - sequence value
-    static std::string s_gameId;  // game executable ID
 
     
 public:
@@ -89,19 +88,6 @@ public:
     static inline uint32_t getStatusRegister()
     {
         return s_statusReg;
-    }
-
-    /// <summary>Set game executable identifier</summary>
-    /// <param name="pGameId">Game ID</param>
-    static inline void setGameId(char* pGameId)
-    {
-        s_gameId = (pGameId != NULL) ? std::string(pGameId) : std::string("");
-    }
-    /// <summary>Get game executable identifier</summary>
-    /// <returns>Game ID</returns>
-    static inline std::string getGameId()
-    {
-        return s_gameId;
     }
 
     /// <summary>Init fake busy/idle sequence sequence</summary>

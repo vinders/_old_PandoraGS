@@ -13,6 +13,7 @@ Description : display state, data and settings
 #include <cstdint>
 #include <string>
 #include "geometry.hpp"
+#include "status_register.h"
 #include "system_tools.h"
 
 // data types

@@ -17,7 +17,6 @@ using namespace std;
 #include "lang.h"
 #include "config.h"
 #include "config_io.h"
-#include "status_register.h"
 #include "dispatcher.h"
 #include "render_api.h"
 
@@ -92,8 +91,8 @@ long CALLBACK GPUopen_PARAM_
         // load associated profile (if not already loaded)
         if (Dispatcher::st_isFirstOpen || Config::getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
         {
-            Config::useProfile(ConfigIO::getGameAssociation(StatusRegister::getGameId()));
-            if (StatusRegister::getGameId().compare("UNITTEST.001") == 0) // testing -> force window mode
+            Config::useProfile(ConfigIO::getGameAssociation(Dispatcher::getGameId()));
+            if (Dispatcher::getGameId().compare("UNITTEST.001") == 0) // testing -> force window mode
             {
                 Config::dsp_isFullscreen = false;
                 Config::dsp_windowResX = 800u;
@@ -163,11 +162,11 @@ long CALLBACK GPUclose()
     #endif
 
     // save current game/profile association
-    ConfigIO::setGameAssocation(Config::getCurrentProfileId(), StatusRegister::getGameId());
+    ConfigIO::setGameAssocation(Config::getCurrentProfileId(), Dispatcher::getGameId());
     // restore default config profile for next use
     if (Config::getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
         Config::useDefaultProfile();
-    StatusRegister::setGameId("");
+    Dispatcher::setGameId("");
 
     return PSE_SUCCESS;
 }
@@ -377,14 +376,7 @@ char* GPUgetLibInfos()
 #endif
 
 
-// -- GETTERS - SETTERS -- -----------------------------------------------------
-
-/// <summary>Set game executable ID (for config profiles associations)</summary>
-/// <param name="pGameId">Newly started game identifier</param>
-void CALLBACK GPUsetExeName(char* pGameId)
-{
-    StatusRegister::setGameId(pGameId);
-}
+// -- SETTERS -- ---------------------------------------------------------------
 
 /// <summary>Enable/disable frame limit from emulator</summary>
 /// <param name="option">Status (1 = limit / 0 = none)</param>

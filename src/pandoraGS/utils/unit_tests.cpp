@@ -30,9 +30,17 @@ using namespace std;
 #include "dispatcher.h"
 #include "gpu_main.h"
 
-// result messages
-#define printSuccess() printf("SUCCESS\n");
-#define printError(error) printf("\n\t  FAILED : %s\n", error);
+/// <summary>Success result message</summary>
+inline void printSuccess()
+{
+    printf("SUCCESS\n");
+}
+/// <summary>Error result message</summary>
+/// <param name="error">Error message</param>
+inline void printError(const char* error)
+{
+    printf("\n\t  FAILED : %s\n", error);
+}
 
 
 /// <summary>Plugin - primitive testing</summary>
@@ -266,8 +274,28 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 StatusRegister::init();
                 printSuccess();
 
-                printf("\t* setGameId(\"UNITTEST.001\"): ");
-                StatusRegister::setGameId("UNITTEST.001");
+                printf("\t* setStatus(): ");
+                StatusRegister::setStatus(0x4);
+                if (StatusRegister::getStatus(0x4))
+                {
+                    printSuccess();
+
+                    printf("\t* unsetStatus(): ");
+                    StatusRegister::unsetStatus(0x4);
+                    if (StatusRegister::getStatus(0x4) == false)
+                        printSuccess();
+                    else
+                        printError("status not unset");
+                }
+                else
+                    printError("status not set");
+
+                printf("\t* initFakeBusySequence(): ");
+                StatusRegister::initFakeBusySequence();
+                printSuccess();
+
+                printf("\t* setFakeBusyStep(): ");
+                StatusRegister::setFakeBusyStep();
                 printSuccess();
             }
             catch (const std::exception& exc)

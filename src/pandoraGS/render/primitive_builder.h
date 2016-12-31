@@ -11,6 +11,7 @@ Description : drawing primitive factory
 #define _PRIMITIVE_BUILDER_H
 
 #include "video_memory.h"
+#include "status_register.h"
 
 #define PRIMITIVE_NUMBER 0xE8 // 0x00 - 0xE7
 #define PRIM_NO_OPERATION_ID 0

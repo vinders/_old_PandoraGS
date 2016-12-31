@@ -11,7 +11,6 @@ Description : drawing primitive factory
 using namespace std;
 #include "geometry.hpp"
 #include "config.h"
-#include "status_register.h"
 #include "primitive_builder.h"
 
 #define NI cmVoid   // non-implemented commands

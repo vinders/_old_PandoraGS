@@ -64,11 +64,8 @@ char* CALLBACK PSEgetLibName();
 unsigned long CALLBACK PSEgetLibVersion();
 
 
-// -- GETTERS - SETTERS -- -----------------------------------------------------
+// -- SETTERS -- ---------------------------------------------------------------
 
-/// <summary>Set game executable ID (for config profiles associations)</summary>
-/// <param name="pGameId">Newly started game identifier</param>
-void CALLBACK GPUsetExeName(char* pGameId);
 /// <summary>Enable/disable frame limit from emulator</summary>
 /// <param name="option">Status (1 = limit / 0 = none)</param>
 void CALLBACK GPUsetframelimit(unsigned long option);
