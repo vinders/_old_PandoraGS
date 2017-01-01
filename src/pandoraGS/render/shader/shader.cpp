@@ -50,7 +50,6 @@ void Shader::setVertexShader()
     glShaderSource(m_shader, 1, &shaderDef, NULL);
     glCompileShader(m_shader);
 
-    shaderDef = NULL;
     delete pShaderSource;
 }
 
@@ -70,6 +69,5 @@ void Shader::setFragmentShader()
     glShaderSource(m_shader, 1, &shaderDef, NULL);
     glCompileShader(m_shader);
 
-    shaderDef = NULL;
     delete pShaderSource;
 }
