@@ -55,10 +55,9 @@ void CALLBACK GPUtestPrimitive(unsigned char* pData, int len, bool isFlipped)
         ;//... flip XY
     PrimitiveBuilder::processSinglePrimitive(pData, len);
 
-    if (pData[0] < 0x80)
-        ;//... display
-    else
+    if (pData[0] >= 0x80) // drawing attributes
         ;//... fill draw zone with white blank rectangle
+    Engine::render();
 }
 
 /// <summary>Plugin - full unit testing</summary>
