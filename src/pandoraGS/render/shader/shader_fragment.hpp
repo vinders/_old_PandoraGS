@@ -14,7 +14,7 @@ Description : fragment shader builder (pixel management)
 namespace FragmentShader
 {
     /// <summary>Create shader source with headers and beginning of main function</summary>
-    inline std::string* startMain()
+    inline std::string* beginMain()
     {
         std::string* pShaderSource = new std::string( // alloc to avoid stack overflow
             "#version 410         \n"

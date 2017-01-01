@@ -38,7 +38,7 @@ Shader::~Shader()
 void Shader::setVertexShader()
 {
     // create shader definition
-    std::string* pShaderSource = VertexShader::startMain();
+    std::string* pShaderSource = VertexShader::beginMain();
     //... ajouts au main selon config
     VertexShader::endMain(*pShaderSource);
 
@@ -57,7 +57,7 @@ void Shader::setVertexShader()
 void Shader::setFragmentShader()
 {
     // create shader definition
-    std::string* pShaderSource = FragmentShader::startMain();
+    std::string* pShaderSource = FragmentShader::beginMain();
     //... ajouts au main selon config
     FragmentShader::endMain(*pShaderSource);
 
