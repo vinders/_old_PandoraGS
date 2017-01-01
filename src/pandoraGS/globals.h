@@ -26,10 +26,10 @@ Description : global constants and definitions + PSEmu Pro specification
 // other information
 #define PLUGIN_ABOUT_TITLE "About PandoraGS..."
 #ifdef _WINDOWS
-#define PLUGIN_THANKS      "Tapeq - for providing useful docs\r\nPete and Tapeq - for sharing public sources\
+#define PLUGIN_THANKS      "No$psx - for providing useful docs\r\nPete and Tapeq - for sharing public sources\
  \r\nCalb/ePSXe - for allowing plugins to get game IDs\r\nAsmodean - for his awesome HDR shaders\r\nThe OpenGL SuperBible"
 #else
-#define PLUGIN_THANKS      "Tapeq - for providing useful docs\nPete and Tapeq - for sharing public sources\
+#define PLUGIN_THANKS      "No$psx - for providing useful docs\nPete and Tapeq - for sharing public sources\
  \nCalb/ePSXe - for allowing plugins to get game IDs\nAsmodean - for his awesome HDR shaders\nThe OpenGL SuperBible"
 #endif
 
