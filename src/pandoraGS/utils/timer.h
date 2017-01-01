@@ -35,6 +35,12 @@ enum speed_t : int32_t // speed changes
     Speed_normal = 0,
     Speed_fast = 1
 };
+enum skipmode_t : uint32_t // skipping modes
+{
+    Skipmode_disabled = 0u,
+    Skipmode_standard = 1u,
+    Skipmode_half = 2u
+};
 
 
 // Frame time management
@@ -51,6 +57,7 @@ private:
     static float s_targetFreq;      // configured frequency
     static timemode_t s_timeMode;   // timing mode
     static bool s_isInterlaced;     // interlaced periods
+    static skipmode_t s_skipMode;   // period skipping mode
 
     // timer execution
     static bool s_isResetPending;     // time reference reset query
@@ -70,13 +77,23 @@ public:
     /// <param name="regMode">Regional sync mode</param>
     /// <param name="isInterlaced">Interlacing</param>
     static void setFrequency(float freqLimit, regionsync_t regMode, bool isInterlaced);
+    /// <summary>Set period skipping mode</summary>
+    /// <param name="isEnabled">Enable skipping</param>
+    /// <param name="isHalfSkip">Skip max one period out of two</param>
+    static void setSkippingMode(bool isEnabled, bool isHalfSkip)
+    {
+        if (isEnabled)
+            s_skipMode = (isHalfSkip) ? Skipmode_half : Skipmode_standard;
+        else
+            s_skipMode = Skipmode_disabled;
+    }
 
     /// <summary>Reset time reference</summary>
     static inline void resetTimeReference()
     {
         if (s_periodsToSkip > 0 && s_isInterlaced)
             s_periodsToSkip--;
-        else // current frame is skipped -> if interlaced, skip next too
+        else // current period is skipped -> if interlaced, skip next too
             s_periodsToSkip = (s_isInterlaced) ? 1 : 0;
         s_lateTicks = 0;
         s_isResetPending = true;
@@ -86,9 +103,10 @@ public:
     // -- TIME OPERATIONS -- ---------------------------------------------------
 
     /// <summary>Wait for one period (after previous time reference) + skipping</summary>
+    /// <param name="isLimited">Limit frequency</param>
     /// <param name="speedChange">Speed modifier (normal/slow/fast)</param>
     /// <param name="isOddPeriod">Odd period (if interlaced)</param>
-    static void wait(speed_t speedChange, bool isOddPeriod);
+    static void wait(bool isLimited, speed_t speedChange, bool isOddPeriod);
 
     /// <summary>Calculate current effective frequency</summary>
     static void calcFrequency();

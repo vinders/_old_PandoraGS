@@ -201,25 +201,29 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 Timer::setFrequency(0.0f, Regionsync_pal, true);
                 printSuccess();
 
+                printf("\t* setSkippingMode(true, false): ");
+                Timer::setSkippingMode(true, false);
+                printSuccess();
+
                 printf("\t* resetTimeReference(): ");
                 Timer::resetTimeReference();
                 printSuccess();
 
                 printf("\t* wait(Speed_normal): ");
-                Timer::wait(Speed_normal, true);
-                Timer::wait(Speed_normal, false);
-                Timer::wait(Speed_normal, true);
-                Timer::wait(Speed_normal, false);
+                Timer::wait(true, Speed_normal, true);
+                Timer::wait(true, Speed_normal, false);
+                Timer::wait(true, Speed_normal, true);
+                Timer::wait(true, Speed_normal, false);
                 printSuccess();
 
                 printf("\t* wait(Speed_slow): ");
-                Timer::wait(Speed_slow, true);
-                Timer::wait(Speed_slow, false);
+                Timer::wait(true, Speed_slow, true);
+                Timer::wait(true, Speed_slow, false);
                 printSuccess();
 
                 printf("\t* wait(Speed_fast): ");
-                Timer::wait(Speed_fast, true);
-                Timer::wait(Speed_fast, false);
+                Timer::wait(true, Speed_fast, true);
+                Timer::wait(true, Speed_fast, false);
                 printSuccess();
 
                 printf("\t* calcFrequency(): ");

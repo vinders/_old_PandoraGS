@@ -135,6 +135,7 @@ long CALLBACK GPUopen_PARAM_
         #endif
 
         // reset frame skipping
+        Timer::setSkippingMode(Config::sync_isFrameSkip, Config::getCurrentProfile()->getFix(CFG_FIX_HALF_SKIPPING));
         Timer::resetTimeReference();
     }
     catch (const std::exception& exc) // allocation failure
@@ -233,6 +234,7 @@ void CALLBACK GPUupdateLace()
             }
 
             InputReader::unlock();
+            Timer::setSkippingMode(Config::sync_isFrameSkip, Config::getCurrentProfile()->getFix(CFG_FIX_HALF_SKIPPING));
             Timer::resetTimeReference();
             return;
         }
@@ -285,8 +287,17 @@ void CALLBACK GPUupdateLace()
     }
 
     // frame limiting/skipping + display current frame (if not skipped)
+    if (Config::rnd_isFpsDisplayed)
+    {
+        static unsigned int laceCount = 16;
+        if (++laceCount >= 16)
+        {
+            Timer::calcFrequency();
+            laceCount = 0;
+        }
+    }
     bool isSkipped = Timer::isPeriodSkipped();
-    Timer::wait(InputReader::getSpeedStatus(), Dispatcher::st_displayState.getOddFrameFlag() != 0);
+    Timer::wait(Config::sync_isFrameLimit, InputReader::getSpeedStatus(), (Dispatcher::st_displayState.getOddFrameFlag() != 0));
     if (isSkipped == false)
         Engine::render();
 }
