@@ -22,8 +22,8 @@ using namespace std;
 
 #ifdef _WINDOWS
 extern HWND g_hWindow; // main emulator window handle
-HDC g_globalDeviceContext = 0;
-HGLRC g_openGlRenderContext = 0;
+HDC g_globalDeviceContext;
+HGLRC g_openGlRenderContext;
 #else
 GLFWwindow* g_openGlWindow = NULL;
 #endif
@@ -38,9 +38,8 @@ GLuint Engine::s_prog = 0; // rendering pipeline program identifier
 void Engine::initScreen()
 {
     #ifdef _WINDOWS
-    if (g_globalDeviceContext) // context already in use
-        return;
     HDC hDC = GetDC(g_hWindow);
+    s_isInitialized = false;
 
     // define pixel format
     PIXELFORMATDESCRIPTOR pxFD = { sizeof(PIXELFORMATDESCRIPTOR), 1,
@@ -94,7 +93,6 @@ void Engine::initGL()
     if (Config::dsp_isFullscreen == false) // window mode -> release context
     {
         ReleaseDC(g_hWindow, g_globalDeviceContext);
-        g_globalDeviceContext = 0;
     }
 
     #else // GLFW
@@ -150,9 +148,8 @@ void Engine::close()
     wglMakeCurrent(NULL, NULL);
     if(g_openGlRenderContext) 
         wglDeleteContext(g_openGlRenderContext);
-    if (Config::dsp_isFullscreen == false && g_globalDeviceContext) // fullscreen -> release device context
+    if (Config::dsp_isFullscreen == false) // fullscreen -> release device context
         ReleaseDC(g_hWindow, g_globalDeviceContext);
-    g_globalDeviceContext = 0;
     #else
     glfwDestroyWindow(g_openGlWindow);
     glfwTerminate();
@@ -164,11 +161,9 @@ void Engine::close()
 /// <summary>Load/reload rendering pipeline</summary>
 void Engine::loadPipeline()
 {
-    if (s_isInitialized == false)
+    if (s_isInitialized == false && s_isReady)
     {
-        if (s_isReady)
-            initGL();
-        return; // initGL will also call loadPipeline() -> return
+        initGL(); return; // initGL will also call loadPipeline() -> return
     }
     if (s_prog != 0) // close previous pipeline
     {
@@ -206,17 +201,142 @@ void Engine::render()
     //... conversion buffer internal res -> buffer d'affichage (+ centrer/tronquer)
     //...
     //... swap buffers
+
+
+    // --- TEST --- > tmp -> to remove
+    {
+        glViewport(0, 0, Config::dsp_windowResX, Config::dsp_windowResY);
+        glClearColor(0.0, 0.0, 0.0, 1.0);
+        glEnable(GL_DEPTH_TEST); // enable depth-testing
+        glDepthFunc(GL_LESS);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // --- V1
+        float points[] = {
+            0.0f, 0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+            -0.5f, -0.5f, 0.0f,
+            0.0f, 0.5f, 0.0f,
+            0.4f, 0.1f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+            -0.5f, -0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+            0.0f, -0.7f, 0.0f,
+            0.0f, 0.5f, 0.0f,
+            -0.5f, -0.5f, 0.0f,
+            -0.4f, 0.1f, 0.0f,
+        };
+        float colours[] = {
+            1.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 0.0f,
+            0.1f, 0.1f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.7f,
+            0.0f, 0.9f, 0.0f,
+            0.0f, 0.0f, 0.0f,
+            0.9f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.8f,
+            0.0f, 0.0f, 0.0f
+        };
+        const int triangles = 4;
+        GLuint points_vbo = 0;
+        glGenBuffers(1, &points_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
+        glBufferData(GL_ARRAY_BUFFER, triangles * 9 * sizeof(float), points, GL_STATIC_DRAW);
+        GLuint colours_vbo = 0;
+        glGenBuffers(1, &colours_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, colours_vbo);
+        glBufferData(GL_ARRAY_BUFFER, triangles * 9 * sizeof(float), colours, GL_STATIC_DRAW);
+        GLuint vao = 0;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+        glEnableVertexAttribArray(1); // for colors
+        glBindBuffer(GL_ARRAY_BUFFER, colours_vbo); // for colors
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL); // for colors
+        // draw
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, triangles * 3);
+        // free memory
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glDeleteVertexArrays(1, &vao);
+        GLuint vboArray[2] = { points_vbo, colours_vbo };
+        glDeleteBuffers(2, vboArray);
+
+        // --- V2
+        glEnable(GL_LINE_SMOOTH);
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // coords + colors
+        float line_vertex[] =
+        {
+            0.25f, -0.35f,	//vertex 1
+            0.8f, 0.5f,	    //vertex 2
+            0.0f, 0.25f		//vertex 3
+        };
+        float line_color[] =
+        {
+            1.0, 0.0, 0.0, 1.0,
+            0.5, 1.0, 0.0, 1.0,
+            0.0, 0.5, 1.0, 1.0
+        };
+        // draw
+        points_vbo = 0;
+        glGenBuffers(1, &points_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
+        glBufferData(GL_ARRAY_BUFFER, 3 * 2 * sizeof(float), line_vertex, GL_STATIC_DRAW);
+        colours_vbo = 0;
+        glGenBuffers(1, &colours_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, colours_vbo);
+        glBufferData(GL_ARRAY_BUFFER, 3 * 4 * sizeof(float), line_color, GL_STATIC_DRAW);
+        vao = 0;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+        glEnableVertexAttribArray(1); // for colors
+        glBindBuffer(GL_ARRAY_BUFFER, colours_vbo); // for colors
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, NULL); // for colors
+        glBindVertexArray(vao);
+        glDrawArrays(GL_LINE_STRIP, 0, 6);
+        // free memory
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glDeleteVertexArrays(1, &vao);
+        vboArray[0] = points_vbo;
+        vboArray[1] = colours_vbo;
+        glDeleteBuffers(2, vboArray);
+        // free memory
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+
+        // --- RENDER
+        if (Config::dsp_isFullscreen)
+            SwapBuffers(wglGetCurrentDC());
+        else
+        {
+            g_globalDeviceContext = GetDC(g_hWindow);
+            SwapBuffers(g_globalDeviceContext);
+            ReleaseDC(g_hWindow, g_globalDeviceContext);
+        }
+    }
+    // --- END OF TEST ---
 }
 
 /// <summary>Set display size and stretching mode</summary>
 /// <param name="isWindowResized">Check new window size</param>
 void Engine::setViewport(bool isWindowResized)
 {
-    if (s_isInitialized == false)
+    if (s_isInitialized == false && s_isReady)
     {
-        if (s_isReady)
-            initGL(); 
-        return; // initGL will also call setViewport() -> return
+        initGL(); return; // initGL will also call setViewport() -> return
     }
 
     // get window size
