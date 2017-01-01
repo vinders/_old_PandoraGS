@@ -49,14 +49,24 @@ inline void printError(const char* error)
 /// <param name="isFlipped">Flip indicator (only for rectangles)</param>
 void CALLBACK GPUtestPrimitive(unsigned char* pData, int len, bool isFlipped)
 {
-    //... reset draw area/offsets/size/...
+    // reset drawing attributes
+    Dispatcher::st_displayState.reset();
+    // reset texture page
+    unsigned long pTexpage[1] = { 0xE1000700 };
+    if (isFlipped) // XY flip
+        pTexpage[1] |= 0x00003000;
+    PrimitiveBuilder::processSinglePrimitive((unsigned char*)pTexpage, 1);
 
-    if (isFlipped)
-        ;//... flip XY
+    // process primitive
     PrimitiveBuilder::processSinglePrimitive(pData, len);
+    // drawing attributes -> display rectangle to show changes
+    if (pData[0] >= 0x80) 
+    {
+        unsigned long pWhiteRect[3] = { 0x02177700, 0x00200010, 0x01000100 };
+        PrimitiveBuilder::processSinglePrimitive((unsigned char*)pWhiteRect, 3);
+    }
 
-    if (pData[0] >= 0x80) // drawing attributes
-        ;//... fill draw zone with white blank rectangle
+    // display
     Engine::render();
 }
 
