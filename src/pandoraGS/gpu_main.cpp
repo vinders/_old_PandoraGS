@@ -233,7 +233,9 @@ void CALLBACK GPUupdateLace()
             Dispatcher::st_displayState.set(false);
 
             if (EVT_WINDOWRATIO)
-                Config::getCurrentProfile()->dsp_ratioType ^= 1uL;
+            {
+                Config::getCurrentProfile()->dsp_ratioType = (Config::getCurrentProfile()->dsp_ratioType == CFG_ratio_aspect) ? CFG_ratio_pixel : CFG_ratio_aspect;
+            }
             Engine::setViewport(InputReader::getEvents(EVT_WINDOWSIZE));
 
             InputReader::resetEvents();

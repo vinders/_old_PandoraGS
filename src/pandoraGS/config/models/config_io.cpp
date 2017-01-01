@@ -272,7 +272,7 @@ ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
     ConfigProfile* pProfile = new ConfigProfile(id, L"<default>");
     if (pProfile == NULL)
         throw new std::exception("Profile allocation failure");
-    pProfile->setPresetValues(ProfilePreset_Standard);
+    pProfile->setPresetValues(CFG_preset_standard);
 
     // read saved profile (if available)
     HKEY profileKey;
@@ -284,51 +284,53 @@ ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
         readRegWString(&(pProfile->gen_profileName), &profileKey, L"ProfileName", &type, &size);
 
         //smooth/scale filters
-        readRegDword<uint32_t>(&(pProfile->scl_texSmooth), &profileKey, L"TxIntp", &type, &size);
-        if (pProfile->scl_texSmooth >= CFG_Interpolation_LENGTH)
-            pProfile->scl_texSmooth = 0;
+        readRegDword<CFG_interp_t>(&(pProfile->scl_texSmooth), &profileKey, L"TxIntp", &type, &size);
+        if (pProfile->scl_texSmooth >= CFG_interp_LENGTH)
+            pProfile->scl_texSmooth = CFG_interp_nearest;
         readRegDword<uint32_t>(&(pProfile->scl_texUpscaleVal), &profileKey, L"TxUpscale", &type, &size);
         if (pProfile->scl_texUpscaleVal == 0)
             pProfile->scl_texUpscaleVal = 1;
-        readRegDword<uint32_t>(&(pProfile->scl_texUpscaleType), &profileKey, L"TxUpType", &type, &size);
-        if (pProfile->scl_texUpscaleType >= CFG_UpScaling_LENGTH)
-            pProfile->scl_texUpscaleType = 0;
-        readRegDword<uint32_t>(&(pProfile->scl_sprSmooth), &profileKey, L"SprIntp", &type, &size);
-        if (pProfile->scl_sprSmooth >= CFG_Interpolation_LENGTH)
-            pProfile->scl_sprSmooth = 0;
+        readRegDword<CFG_upsc_t>(&(pProfile->scl_texUpscaleType), &profileKey, L"TxUpType", &type, &size);
+        if (pProfile->scl_texUpscaleType >= CFG_upsc_LENGTH)
+            pProfile->scl_texUpscaleType = CFG_upsc_native;
+        readRegDword<CFG_interp_t>(&(pProfile->scl_sprSmooth), &profileKey, L"SprIntp", &type, &size);
+        if (pProfile->scl_sprSmooth >= CFG_interp_LENGTH)
+            pProfile->scl_sprSmooth = CFG_interp_nearest;
         readRegDword<uint32_t>(&(pProfile->scl_sprUpscaleVal), &profileKey, L"SprUpscale", &type, &size);
         if (pProfile->scl_sprUpscaleVal == 0)
             pProfile->scl_sprUpscaleVal = 1;
-        readRegDword<uint32_t>(&(pProfile->scl_sprUpscaleType), &profileKey, L"SprUpType", &type, &size);
-        if (pProfile->scl_sprUpscaleType >= CFG_UpScaling_LENGTH)
-            pProfile->scl_sprUpscaleType = 0;
-        readRegDword<uint32_t>(&(pProfile->scl_screenSmooth), &profileKey, L"ScnSmooth", &type, &size);
-        if (pProfile->scl_screenSmooth >= CFG_ScreenSmoothing_LENGTH)
-            pProfile->scl_screenSmooth = 0;
+        readRegDword<CFG_upsc_t>(&(pProfile->scl_sprUpscaleType), &profileKey, L"SprUpType", &type, &size);
+        if (pProfile->scl_sprUpscaleType >= CFG_upsc_LENGTH)
+            pProfile->scl_sprUpscaleType = CFG_upsc_native;
+        readRegDword<CFG_smooth_t>(&(pProfile->scl_screenSmooth), &profileKey, L"ScnSmooth", &type, &size);
+        if (pProfile->scl_screenSmooth >= CFG_smooth_LENGTH)
+            pProfile->scl_screenSmooth = CFG_smooth_none;
         readRegDword<uint32_t>(&(pProfile->scl_screenUpscaleVal), &profileKey, L"ScnUpscale", &type, &size);
         if (pProfile->scl_screenUpscaleVal == 0)
             pProfile->scl_screenUpscaleVal = 1;
-        readRegDword<uint32_t>(&(pProfile->scl_screenUpscaleType), &profileKey, L"ScnUpType", &type, &size);
-        if (pProfile->scl_screenUpscaleType >= CFG_UpScaling_LENGTH)
-            pProfile->scl_screenUpscaleType = 0;
-        readRegDword<uint32_t>(&(pProfile->scl_mdecFilter), &profileKey, L"Mdec", &type, &size);
-        if (pProfile->scl_mdecFilter >= CFG_MdecFiltering_LENGTH)
-            pProfile->scl_mdecFilter = 0;
+        readRegDword<CFG_upsc_t>(&(pProfile->scl_screenUpscaleType), &profileKey, L"ScnUpType", &type, &size);
+        if (pProfile->scl_screenUpscaleType >= CFG_upsc_LENGTH)
+            pProfile->scl_screenUpscaleType = CFG_upsc_native;
+        readRegDword<CFG_mdec_t>(&(pProfile->scl_mdecFilter), &profileKey, L"Mdec", &type, &size);
+        if (pProfile->scl_mdecFilter >= CFG_mdec_LENGTH)
+            pProfile->scl_mdecFilter = CFG_mdec_none;
 
         // shading
-        readRegDword<uint32_t>(&(pProfile->shd_antiAliasing), &profileKey, L"FxAA", &type, &size);
-        if (pProfile->shd_antiAliasing >= CFG_AntiAliasing_LENGTH)
-            pProfile->shd_antiAliasing = 0;
+        readRegDword<CFG_aa_t>(&(pProfile->shd_antiAliasing), &profileKey, L"FxAA", &type, &size);
+        if (pProfile->shd_antiAliasing >= CFG_aa_LENGTH)
+            pProfile->shd_antiAliasing = CFG_aa_none;
         //...
 
         // screen adjustment
         readRegDword<uint32_t>(&(pProfile->dsp_internalResX), &profileKey, L"IntResX", &type, &size);
-        if (pProfile->dsp_internalResX == 0)
-            pProfile->dsp_internalResX = 2;
+        if (pProfile->dsp_internalResX == 0u)
+            pProfile->dsp_internalResX = 2u;
         readRegDword<uint32_t>(&(pProfile->dsp_internalResY), &profileKey, L"IntResY", &type, &size);
-        if (pProfile->dsp_internalResY == 0)
-            pProfile->dsp_internalResY = 2;
-        readRegDword<uint32_t>(&(pProfile->dsp_ratioType), &profileKey, L"Ratio", &type, &size);
+        if (pProfile->dsp_internalResY == 0u)
+            pProfile->dsp_internalResY = 2u;
+        readRegDword<CFG_ratio_t>(&(pProfile->dsp_ratioType), &profileKey, L"Ratio", &type, &size);
+        if (pProfile->dsp_ratioType > CFG_ratio_LENGTH)
+            pProfile->dsp_ratioType = CFG_ratio_aspect;
         readRegDword<uint32_t>(&(pProfile->dsp_stretchRatio), &profileKey, L"StretchCutRatio", &type, &size);
         if (pProfile->dsp_stretchRatio > CFG_RATIO_MAX)
             pProfile->dsp_stretchRatio = CFG_RATIO_MAX;
@@ -338,15 +340,17 @@ ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
         readRegBool(&(pProfile->dsp_isScreenMirror), &profileKey, L"Mirror", &type, &size);
         readRegDword<uint32_t>(&(pProfile->dsp_borderSizeX), &profileKey, L"BorderSizeX", &type, &size);
         readRegDword<uint32_t>(&(pProfile->dsp_borderSizeY), &profileKey, L"BorderSizeY", &type, &size);
-        readRegDword<uint32_t>(&(pProfile->dsp_screenCurved), &profileKey, L"CrtCurved", &type, &size);
+        readRegDword<CFG_curved_t>(&(pProfile->dsp_screenCurved), &profileKey, L"CrtCurved", &type, &size);
+        if (pProfile->dsp_screenCurved > CFG_curved_LENGTH)
+            pProfile->dsp_screenCurved = CFG_curved_none;
         
         //...
 
         // custom fixes
         readRegDword<uint32_t>(&(pProfile->misc_fixBits), &profileKey, L"FixBits", &type, &size);
-        readRegDword<uint32_t>(&(pProfile->misc_offscreenDrawing), &profileKey, L"Offscreen", &type, &size);
-        if (pProfile->misc_offscreenDrawing >= CFG_OffScreenDrawing_LENGTH)
-            pProfile->misc_offscreenDrawing = CFG_OffScr_Standard;
+        readRegDword<CFG_offscreen_t>(&(pProfile->misc_offscreenDrawing), &profileKey, L"Offscreen", &type, &size);
+        if (pProfile->misc_offscreenDrawing >= CFG_offscreen_LENGTH)
+            pProfile->misc_offscreenDrawing = CFG_offscreen_standard;
 
         RegCloseKey(profileKey); // close
     }

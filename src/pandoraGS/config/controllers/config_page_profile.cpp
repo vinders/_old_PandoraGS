@@ -53,11 +53,11 @@ uint32_t ConfigPageProfile::setUpscalingList(std::wstring** ppTypeList, int* len
             (*ppTypeList)[5] = L"Super-xBR bilateral";
             switch (value)
             {
-                case CFG_UpSc_xBR:         return 1u; break;
-                case CFG_UpSc_xBRZ:        return 2u; break;
-                case CFG_UpSc_NNEDI3:      return 3u; break;
-                case CFG_UpSc_SuperxBR:    return 4u; break;
-                case CFG_UpSc_SuperxBR_FB: return 5u; break;
+                case CFG_upsc_xbr:         return 1u; break;
+                case CFG_upsc_xbrz:        return 2u; break;
+                case CFG_upsc_nnedi3:      return 3u; break;
+                case CFG_upsc_superxbr:    return 4u; break;
+                case CFG_upsc_superxbr_fb: return 5u; break;
                 default: return 0u; break;
             }
             break;
@@ -71,8 +71,8 @@ uint32_t ConfigPageProfile::setUpscalingList(std::wstring** ppTypeList, int* len
             (*ppTypeList)[2] = L"xBRZ smoothed";
             switch (value)
             {
-                case CFG_UpSc_xBRZ:        return 1u; break;
-                case CFG_UpSc_xBRZ_Smoothed: return 2u; break;
+                case CFG_upsc_xbrz:    return 1u; break;
+                case CFG_upsc_xbrz_ex: return 2u; break;
                 default: return 0u; break;
             }
             break;
@@ -89,11 +89,11 @@ uint32_t ConfigPageProfile::setUpscalingList(std::wstring** ppTypeList, int* len
             (*ppTypeList)[5] = L"Super-xBR bilateral";
             switch (value)
             {
-                case CFG_UpSc_xBRZ:        return 1u; break;
-                case CFG_UpSc_xBRZ_Smoothed: return 2u; break;
-                case CFG_UpSc_NNEDI3:      return 3u; break;
-                case CFG_UpSc_SuperxBR:    return 4u; break;
-                case CFG_UpSc_SuperxBR_FB: return 5u; break;
+                case CFG_upsc_xbrz:        return 1u; break;
+                case CFG_upsc_xbrz_ex:     return 2u; break;
+                case CFG_upsc_nnedi3:      return 3u; break;
+                case CFG_upsc_superxbr:    return 4u; break;
+                case CFG_upsc_superxbr_fb: return 5u; break;
                 default: return 0u; break;
             }
             break;
@@ -106,7 +106,7 @@ uint32_t ConfigPageProfile::setUpscalingList(std::wstring** ppTypeList, int* len
             (*ppTypeList)[1] = L"xBRZ smoothed";
             switch (value)
             {
-                case CFG_UpSc_xBRZ_Smoothed: return 1u; break;
+                case CFG_upsc_xbrz_ex: return 1u; break;
                 default: return 0u; break;
             }
             break;
@@ -120,8 +120,8 @@ uint32_t ConfigPageProfile::setUpscalingList(std::wstring** ppTypeList, int* len
             (*ppTypeList)[2] = L"Super-xBR bilateral";
             switch (value)
             {
-                case CFG_UpSc_SuperxBR:    return 1u; break;
-                case CFG_UpSc_SuperxBR_FB: return 2u; break;
+                case CFG_upsc_superxbr:    return 1u; break;
+                case CFG_upsc_superxbr_fb: return 2u; break;
                 default: return 0u; break;
             }
             break;
