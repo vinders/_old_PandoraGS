@@ -130,18 +130,31 @@ This file can be used only to develop PSEmu Plugins. Other usage is highly prohi
 #else 
 // LINUX-UNIX
 // types compatibility
+#ifndef FALSE
 #define FALSE 0
+#endif
+#ifndef TRUE
 #define TRUE  1
+#endif
+#ifndef BOOL
 #define BOOL  unsigned short
+#endif
+#ifndef DWORD
 #define DWORD unsigned long
+#endif
 
 // functions / macros
+#ifndef LOWORD
 #define LOWORD(l)   ((unsigned short)(l))
+#endif
+#ifndef HIWORD
 #define HIWORD(l)   ((unsigned short)(((unsigned long)(l) >> 16) & 0xFFFF))
+#endif
 #define max(a,b)    (((a) > (b)) ? (a) : (b))
 #define min(a,b)    (((a) < (b)) ? (a) : (b))
+#ifndef strcpy_s
 #define strcpy_s(a,size,b) strcpy(a,b)
-#define strcpy_s(a,b)      strcpy(a,b)
+#endif
 #endif
 
 #ifndef CALLBACK
