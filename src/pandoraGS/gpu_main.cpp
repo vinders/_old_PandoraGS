@@ -18,7 +18,7 @@ using namespace std;
 #include "config.h"
 #include "config_io.h"
 #include "dispatcher.h"
-#include "render_api.h"
+#include "engine.h"
 
 #include "about_dialog.h"
 #include "config_dialog.h"
@@ -28,6 +28,8 @@ using namespace std;
 static char* g_pLibName = PLUGIN_NAME;
 #ifndef _WINDOWS
 static char* g_pLibInfo = PLUGIN_INFO;
+#else
+HWND  g_hWindow = NULL; // main emulator window handle
 #endif
 
 
@@ -69,7 +71,7 @@ long CALLBACK GPUshutdown()
         SystemTools::closeOutputWindow();
 
     // stop renderer
-    RenderApi::close();
+    Engine::close();
     Logger::closeInstance();
     // close memory container
     Dispatcher::close();
@@ -108,8 +110,9 @@ long CALLBACK GPUopen_PARAM_
 
         // create rendering window
         #ifdef _WINDOWS
-        Dispatcher::s_hWindow = hWindow;
-        SystemTools::createDisplayWindow(Dispatcher::s_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
+        g_hWindow = hWindow;
+        SystemTools::createDisplayWindow(g_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
+        Engine::initScreen();
         #else
         SystemTools::createDisplayWindow();
         #endif
@@ -123,7 +126,7 @@ long CALLBACK GPUopen_PARAM_
         Dispatcher::initFrameRate();
         // start user input tracker
         #ifdef _WINDOWS
-        InputReader::start(Dispatcher::s_hWindow, Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1, 
+        InputReader::start(g_hWindow, Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1,
                            Config::dsp_isFullscreen, Config::misc_isScreensaverDisabled);
         #else
         InputReader::start(Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1, Config::dsp_isFullscreen);
@@ -153,7 +156,7 @@ long CALLBACK GPUclose()
 
     #ifdef _WINDOWS
     // close window
-    SystemTools::closeDisplayWindow(Dispatcher::s_hWindow);
+    SystemTools::closeDisplayWindow(g_hWindow);
     // re-enable screensaver (if disabled)
     if (Config::misc_isScreensaverDisabled)
         SystemTools::setScreensaver(true);
@@ -211,7 +214,7 @@ void CALLBACK GPUupdateLace()
                 else
                     DisplayState::s_displayWidths[4] = 368;
 
-                RenderApi::reload(); // rebuild rendering pipeline
+                Engine::loadPipeline(); // rebuild rendering pipeline
                 return;
             }
             catch (std::exception exc)
@@ -229,7 +232,9 @@ void CALLBACK GPUupdateLace()
             InputReader::lock();
             Dispatcher::st_displayState.set(false);
 
-            RenderApi::setDrawingSize(InputReader::getEvents(EVT_WINDOWSIZE));
+            if (EVT_WINDOWRATIO)
+                Config::getCurrentProfile()->dsp_ratioType ^= 1uL;
+            Engine::setViewport(InputReader::getEvents(EVT_WINDOWSIZE));
 
             InputReader::resetEvents();
             InputReader::unlock();
@@ -241,20 +246,22 @@ void CALLBACK GPUupdateLace()
         {
             InputReader::stop();
             Dispatcher::st_displayState.set(false);
+            Engine::close();
 
             Config::dsp_isFullscreen = !(Config::dsp_isFullscreen);
             #ifdef _WINDOWS
-            SystemTools::closeDisplayWindow(Dispatcher::s_hWindow);
-            SystemTools::createDisplayWindow(Dispatcher::s_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
+            SystemTools::closeDisplayWindow(g_hWindow);
+            SystemTools::createDisplayWindow(g_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
             #else
             SystemTools::closeDisplayWindow();
             SystemTools::createDisplayWindow();
             #endif
-            //... choix fentre dans opengl //!
+            Engine::initScreen();
+            Engine::initGL();
 
             // restart input tracker for new window
             #ifdef _WINDOWS
-            InputReader::start(Dispatcher::s_hWindow, Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1,
+            InputReader::start(g_hWindow, Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1,
                 Config::dsp_isFullscreen, Config::misc_isScreensaverDisabled);
             #else
             InputReader::start(Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1, Config::dsp_isFullscreen);
@@ -265,21 +272,10 @@ void CALLBACK GPUupdateLace()
     }
 
     // frame limiting/skipping + display current frame (if not skipped)
-    if (Config::getCurrentProfile()->getFix(CFG_FIX_REACTIVE_FPSLIMIT)) // reactive display mode -> draw then wait
-    {
-        if (Timer::isPeriodSkipped() == false) // drawing starts earlier + skipping is more effective
-            RenderApi::drawFrame();
-        Timer::wait(InputReader::getSpeedStatus(), Dispatcher::st_displayState.getOddFrameFlag() != 0);
-    }
-    else // steady display mode -> wait then draw
-    {
-        static bool isSkipped; //!!! mode mieux (si upscaling fait avant), car attend ce qu'il reste après avoir fait traitements upscaling
-                                //--> adapter frame skipping et virer autre mode, ou bien copier frame skipping Pete
-        isSkipped = Timer::isPeriodSkipped();
-        Timer::wait(InputReader::getSpeedStatus(), Dispatcher::st_displayState.getOddFrameFlag() != 0);
-        if (isSkipped == false) // drawing starts at regular intervals
-            RenderApi::drawFrame();
-    }
+    bool isSkipped = Timer::isPeriodSkipped();
+    Timer::wait(InputReader::getSpeedStatus(), Dispatcher::st_displayState.getOddFrameFlag() != 0);
+    if (isSkipped == false)
+        Engine::render();
 }
 
 

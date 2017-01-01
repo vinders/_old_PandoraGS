@@ -14,7 +14,6 @@ Description : display state, data and settings
 using namespace std;
 #endif
 #include "config.h"
-#include "status_register.h"
 
 #ifndef _DISPLAY_STATE_H // if not sub-inclusion from header file (for inline methods)
 #include "display_state.h"
@@ -76,9 +75,9 @@ inline void DisplayState::reset()
     memset(m_pDrawInfo, 0x0, DRAWINFO_SIZE * sizeof(buffer_t));
     dsp_curFrame.isDisabled = true;
     dsp_curFrame.drawOffset.x = dsp_curFrame.drawOffset.y = 0;
-    //...
     dsp_curFrame.colorMode = Colormode_rgb15;
     m_isInterlaced = false;
+    //...
 }
 
 /// <summary>Enable/disable display</summary>
@@ -88,17 +87,20 @@ inline void DisplayState::toggleDisplay(bool isDisabled)
     // enable/disable
     dsp_prevFrame.isDisabled = dsp_curFrame.isDisabled; // copy previous
     dsp_curFrame.isDisabled = isDisabled;
-    if (dsp_curFrame.isDisabled) // set status register
+    if (isDisabled) // set status register
         StatusRegister::setStatus(GPUSTATUS_DISPLAYDISABLED);
     else
         StatusRegister::unsetStatus(GPUSTATUS_DISPLAYDISABLED);
 
     // now enabled + full offscreen drawing -> upload
-    if (/*... full offscreen drawing && */dsp_prevFrame.isDisabled && dsp_curFrame.isDisabled == false) //!
+    if (/*offscreenDrawing == 4 && */dsp_prevFrame.isDisabled && dsp_curFrame.isDisabled == false) //!
     {
         if (dsp_curFrame.colorMode == Colormode_rgb15)
         {
-            //... upload + update display
+            //! ... prepare screen full upload
+            //! ... upload screen
+            //! ... update display
+            //...
         }
     }
 }
@@ -110,7 +112,8 @@ inline void DisplayState::setWidth(point_t pos)
     dsp_curFrame.range.x0 = pos.x;
     dsp_curFrame.range.x1 = pos.y;
     dsp_curFrame.range.x1 -= dsp_curFrame.range.x0; // coord to width
-    //... change display X offsets
+    //! ... change display offsets X
+    //...
 }
 
 /// <summary>Set display height</summary>
@@ -126,8 +129,10 @@ inline void DisplayState::setHeight(point_t pos)
     if (dsp_prevFrame.height != dsp_curFrame.height)
     {
         ch_displaySizePending.y = dsp_curFrame.height * dsp_heightMultiplier;
-        //... change display Y offsets
-        //... update display if changed
+        //! ... change display offsets Y
+        //...
+        //! ... update display if changed
+        //...
     }
 }
 
@@ -192,7 +197,8 @@ inline void DisplayState::setDisplayPos(point_t pos)
     m_isDisplaySet = false;
     if (m_isInterlaced == false)
     {
-        //... update display
+        //! ... update display
+        //...
     }
     else // interlaced
     {
@@ -235,7 +241,8 @@ inline void DisplayState::setDisplayState(ubuffer_t gdata)
         dsp_heightMultiplier = 1;
     ch_displaySizePending.y = dsp_curFrame.height * dsp_heightMultiplier;
 
-    //... change display Y offsets
+    //! ... change display offsets Y
+    //...
 
     // set status width bits
     StatusRegister::unsetStatus(GPUSTATUS_WIDTHBITS);

@@ -25,7 +25,7 @@ using namespace std;
 #include "config.h"
 #include "primitive_builder.h"
 #include "shader.h"
-#include "render_api.h"
+#include "engine.h"
 #include "display_state.h"
 #include "dispatcher.h"
 #include "gpu_main.h"
@@ -86,7 +86,7 @@ long CALLBACK GPUtestUnits(void* pWinData)
         && testUnit(Unit_config_io)
         && testUnit(Unit_display_state)
         && testUnit(Unit_shader)
-        && testUnit(Unit_render_api)
+        && testUnit(Unit_engine)
         && testUnit(Unit_dispatcher);
     return isSuccess;
 }
@@ -436,11 +436,11 @@ bool testUnit(unit_id_t unit, void* pWinData)
         {
             break;
         }
-        case Unit_render_api:
+        case Unit_display_state:
         {
             break;
         }
-        case Unit_display_state:
+        case Unit_engine:
         {
             break;
         }

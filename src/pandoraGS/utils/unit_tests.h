@@ -26,8 +26,8 @@ enum unit_id_t : unsigned long // unit IDs
     Unit_config,
     Unit_config_io,
     Unit_shader,
-    Unit_render_api,
     Unit_display_state,
+    Unit_engine,
     Unit_dispatcher
 };
 

@@ -80,10 +80,6 @@ public: // treat PSEmu memory functions as member methods
     static bool st_isUploadPending;  // image needs to be uploaded to VRAM
     static long st_selectedSaveSlot;  // selected save-state slot
 
-#ifdef _WINDOWS
-public:
-    static HWND  s_hWindow;    // main emulator window handle
-#endif
     static bool s_isZincEmu;   // Zinc emulation
 
 

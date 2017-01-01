@@ -66,7 +66,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Msimg32.lib;winmm.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Msimg32.lib;winmm.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;opengl32.lib;glu32.lib;glew32s.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>pandoraGS.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -88,7 +88,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>Msimg32.lib;winmm.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Msimg32.lib;winmm.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;opengl32.lib;glu32.lib;glew32s.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>pandoraGS.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -124,7 +124,7 @@
     <ClCompile Include="gpu_main.cpp" />
     <ClCompile Include="gpu_zinc.cpp" />
     <ClCompile Include="render\primitive_builder.cpp" />
-    <ClCompile Include="render\render_api.cpp" />
+    <ClCompile Include="render\engine.cpp" />
     <ClCompile Include="render\shader\shader.cpp" />
     <ClCompile Include="utils\input_reader.cpp" />
     <ClCompile Include="utils\logger.cpp" />
@@ -165,8 +165,9 @@
     <ClInclude Include="memory\video_memory_iterator.hpp" />
     <ClInclude Include="pandoraGS.h" />
     <ClInclude Include="pandoraGS_targetver.h" />
+    <ClInclude Include="render\opengl.h" />
     <ClInclude Include="render\primitive_builder.h" />
-    <ClInclude Include="render\render_api.h" />
+    <ClInclude Include="render\engine.h" />
     <ClInclude Include="render\shader\shader.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="gpu_main.h" />

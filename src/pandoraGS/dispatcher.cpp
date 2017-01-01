@@ -35,9 +35,6 @@ bool Dispatcher::st_isFirstOpen = true;      // first call to GPUopen()
 bool Dispatcher::st_isUploadPending = false; // image needs to be uploaded to VRAM
 long Dispatcher::st_selectedSaveSlot = 0L;   // selected save-state slot
 
-#ifdef _WINDOWS
-HWND  Dispatcher::s_hWindow = NULL;   // main emulator window handle
-#endif
 bool Dispatcher::s_isZincEmu = false; // Zinc emulation
 
 
@@ -272,7 +269,8 @@ void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
     while (This::mem_vramReader.vramPos.getPos() < This::mem_vram.rend()) // min position
         This::mem_vramReader.vramPos += This::mem_vram.size();
 
-    //...
+    //! ... si frameReadType impair && size > 1 && vramReader == vramWriter (pour x, y, w et h)
+        //! ... vérif vramReader
 
     // read memory chunk of data
     int i = 0;

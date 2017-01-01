@@ -105,9 +105,6 @@
     <ClCompile Include="memory\video_memory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="render\render_api.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="render\shader\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -127,6 +124,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="render\display_state.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="render\engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -230,9 +230,6 @@
     <ClInclude Include="memory\video_memory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="render\render_api.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="render\shader\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -258,6 +255,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="render\display_state.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render\engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render\opengl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
