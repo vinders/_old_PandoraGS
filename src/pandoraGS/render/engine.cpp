@@ -118,9 +118,9 @@ void Engine::initGL()
     glewInit();
 
     // set display + shaders
+    s_isInitialized = true;
     setViewport(false);
     loadPipeline();
-    s_isInitialized = true;
 }
 
 /// <summary>Cleanup and shutdown OpenGL API</summary>
@@ -159,7 +159,7 @@ void Engine::loadPipeline()
     {
         initGL(); return; // initGL will also call loadPipeline() -> return
     }
-    else // close previous pipeline
+    if (s_prog != 0) // close previous pipeline
     {
         glUseProgram(0);
         glDeleteProgram(s_prog);
