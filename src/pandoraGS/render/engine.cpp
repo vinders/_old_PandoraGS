@@ -205,7 +205,10 @@ void Engine::render()
 
     // --- TEST --- > tmp -> to remove
     {
-        glViewport(0, 0, Config::dsp_windowResX, Config::dsp_windowResY);
+        if (Config::dsp_isFullscreen)
+            glViewport(0, 0, Config::dsp_fullscnResX, Config::dsp_fullscnResY);
+        else
+            glViewport(0, 0, Config::dsp_windowResX, Config::dsp_windowResY);
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glEnable(GL_DEPTH_TEST); // enable depth-testing
         glDepthFunc(GL_LESS);
