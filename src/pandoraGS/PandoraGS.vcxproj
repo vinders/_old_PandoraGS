@@ -124,7 +124,7 @@
     <ClCompile Include="pandoraGS.cpp" />
     <ClCompile Include="gpu_main.cpp" />
     <ClCompile Include="gpu_zinc.cpp" />
-    <ClCompile Include="render\opengl\glew.c" />
+    <ClCompile Include="render\opengl\glew.cpp" />
     <ClCompile Include="render\primitive_builder.cpp" />
     <ClCompile Include="render\engine.cpp" />
     <ClCompile Include="render\shader\shader.cpp" />

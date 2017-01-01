@@ -129,7 +129,7 @@
     <ClCompile Include="render\engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="render\opengl\glew.c">
+    <ClCompile Include="render\opengl\glew.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
