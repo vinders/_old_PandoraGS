@@ -263,6 +263,12 @@
     <ClInclude Include="render\opengl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="render\shader\shader_vertex.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render\shader\shader_fragment.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="pandoraGS.def">

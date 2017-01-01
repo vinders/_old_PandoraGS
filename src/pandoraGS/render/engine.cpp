@@ -17,6 +17,7 @@ using namespace std;
 #include "geometry.hpp"
 #include "config.h"
 #include "system_tools.h"
+#include "shader.h"
 #include "engine.h"
 
 #ifdef _WINDOWS
@@ -28,8 +29,6 @@ GLFWwindow* g_openGlWindow = NULL;
 #endif
 bool Engine::s_isInitialized = false;
 GLuint Engine::s_prog = 0; // rendering pipeline program identifier
-Shader* Engine::s_pVertShader = NULL; // vertex shader (polygon management)
-Shader* Engine::s_pFragShader = NULL; // fragment shader (pixel management)
 
 
 // -- RENDERING API MANAGEMENT -- ----------------------------------------------
@@ -119,7 +118,6 @@ void Engine::initGL()
     glewInit();
 
     // set display + shaders
-    s_prog = glCreateProgram();
     setViewport(false);
     loadPipeline();
     s_isInitialized = true;
@@ -133,18 +131,10 @@ void Engine::close()
 
     //...
 
-    // destroy shaders
-    if (s_pVertShader != NULL)
-    {
-        delete s_pVertShader;
-        s_pVertShader = NULL;
-    }
-    if (s_pFragShader != NULL)
-    {
-        delete s_pFragShader;
-        s_pFragShader = NULL;
-    }
+    // destroy pipeline
+    glUseProgram(0);
     glDeleteProgram(s_prog);
+    s_prog = 0;
 
     // destroy window context
     #ifdef _WINDOWS
@@ -169,21 +159,25 @@ void Engine::loadPipeline()
     {
         initGL(); return; // initGL will also call loadPipeline() -> return
     }
+    else // close previous pipeline
+    {
+        glUseProgram(0);
+        glDeleteProgram(s_prog);
+        s_prog = 0;
+    }
 
-    // remove previous shaders
-    if (s_pVertShader != NULL)
-    {
-        delete s_pVertShader;
-        s_pVertShader = NULL;
-    }
-    if (s_pFragShader != NULL)
-    {
-        delete s_pFragShader;
-        s_pFragShader = NULL;
-    }
     // create shaders, based on current config
-    s_pVertShader = new Shader(s_prog, Shadertype_vertex);
-    s_pVertShader = new Shader(s_prog, Shadertype_fragment);
+    s_prog = glCreateProgram();
+    Shader* pVertShader = new Shader(s_prog, Shadertype_vertex);
+    Shader* pFragShader = new Shader(s_prog, Shadertype_fragment);
+    glLinkProgram(s_prog);
+    glUseProgram(s_prog);
+
+    // remove shader source objects after linking them
+    if (pVertShader != NULL)
+        delete pVertShader;
+    if (pFragShader != NULL)
+        delete pFragShader;
 }
 
 /// <summary>Render current frame</summary>
@@ -191,7 +185,7 @@ void Engine::render()
 {
     if (s_isInitialized == false)
     {
-        initGL(); return;
+        initGL(); return; // skip first frame
     }
 
     //... dessin VBO et VAO

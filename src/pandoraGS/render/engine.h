@@ -11,15 +11,12 @@ Description : rendering engine - OpenGL 4.1
 #define _ENGINE_H
 
 #include "opengl.h" // openGL includes
-#include "shader.h"
 
 class Engine
 {
 private:
     static bool s_isInitialized;
     static GLuint s_prog;         // rendering pipeline program identifier
-    static Shader* s_pVertShader; // vertex shader (polygon management)
-    static Shader* s_pFragShader; // fragment shader (pixel management)
 
     
 public:

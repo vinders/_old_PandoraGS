@@ -10,6 +10,8 @@ Description : rendering shader manager
 using namespace std;
 #include "config.h"
 #include "shader.h"
+#include "shader_vertex.hpp"
+#include "shader_fragment.hpp"
 
 /// <summary>Create and load shader</summary>
 /// <param name="prog">Rendering pipeline program</summary>
@@ -17,15 +19,10 @@ using namespace std;
 Shader::Shader(GLuint& prog, shadertype_t type)
 {
     if (type == Shadertype_vertex)
-    { 
-        m_shader = glCreateShader(GL_VERTEX_SHADER);
         setVertexShader();
-    }
     else // Shadertype_fragment
-    {
-        m_shader = glCreateShader(GL_FRAGMENT_SHADER);
         setFragmentShader();
-    }
+
     m_prog = prog;
     glAttachShader(prog, m_shader);
 }
@@ -41,30 +38,38 @@ Shader::~Shader()
 void Shader::setVertexShader()
 {
     // create shader definition
-    std::string shaderStr;
+    std::string* pShaderSource = VertexShader::startMain();
+    //... ajouts au main selon config
+    VertexShader::endMain(*pShaderSource);
 
-    //...
-    shaderStr = "";
-    //...
+    //... ajout des blocs de fonctions
 
     // load string definition into shader
-    const char* shaderDef = shaderStr.c_str();
+    const char* shaderDef = pShaderSource->c_str();
+    m_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(m_shader, 1, &shaderDef, NULL);
     glCompileShader(m_shader);
+
+    shaderDef = NULL;
+    delete pShaderSource;
 }
 
 /// <summary>Create custom fragment shader, based on config</summary>
 void Shader::setFragmentShader()
 {
     // create shader definition
-    std::string shaderStr;
+    std::string* pShaderSource = FragmentShader::startMain();
+    //... ajouts au main selon config
+    FragmentShader::endMain(*pShaderSource);
 
-    //...
-    shaderStr = "";
-    //...
+    //... ajout des blocs de fonctions
 
     // load string definition into shader
-    const char* shaderDef = shaderStr.c_str();
+    const char* shaderDef = pShaderSource->c_str();
+    m_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(m_shader, 1, &shaderDef, NULL);
     glCompileShader(m_shader);
+
+    shaderDef = NULL;
+    delete pShaderSource;
 }

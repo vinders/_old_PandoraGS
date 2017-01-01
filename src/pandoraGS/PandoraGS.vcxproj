@@ -169,6 +169,8 @@
     <ClInclude Include="render\primitive_builder.h" />
     <ClInclude Include="render\engine.h" />
     <ClInclude Include="render\shader\shader.h" />
+    <ClInclude Include="render\shader\shader_fragment.hpp" />
+    <ClInclude Include="render\shader\shader_vertex.hpp" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="gpu_main.h" />
     <ClInclude Include="utils\geometry.hpp" />
