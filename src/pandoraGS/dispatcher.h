@@ -143,25 +143,14 @@ public:
     static inline void initFrameRate()
     {
         Timer::setTimeMode((timemode_t)Config::sync_timeMode);
-        if (Config::getCurrentProfile()->getFix(CFG_FIX_PC_FPSLIMIT))
-            Timer::setFrequency(Config::sync_framerateLimit, Regionsync_undefined, st_displayState.isInterlaced());
-        else
-            Timer::setFrequency(Config::sync_framerateLimit, Regionsync_undefined, StatusRegister::getStatus(GPUSTATUS_INTERLACED));
+        Timer::setFrequency(Config::sync_framerateLimit, Regionsync_undefined, StatusRegister::getStatus(GPUSTATUS_INTERLACED));
     }
     /// <summary>Set frame rate with region info</summary>
     static inline void setFrameRate()
     {
         regionsync_t timerReg;
-        if (Config::getCurrentProfile()->getFix(CFG_FIX_PC_FPSLIMIT))
-        {
-            timerReg = (st_displayState.getRegionmode() == Region_pal) ? Regionsync_pal_pcfix : Regionsync_ntsc_pcfix;
-            Timer::setFrequency(Config::sync_framerateLimit, timerReg, st_displayState.isInterlaced());
-        }
-        else
-        {
-            timerReg = (st_displayState.getRegionmode() == Region_pal) ? Regionsync_pal : Regionsync_ntsc;
-            Timer::setFrequency(Config::sync_framerateLimit, timerReg, StatusRegister::getStatus(GPUSTATUS_INTERLACED));
-        }
+        timerReg = (st_displayState.getRegionmode() == Region_pal) ? Regionsync_pal : Regionsync_ntsc;
+        Timer::setFrequency(Config::sync_framerateLimit, timerReg, StatusRegister::getStatus(GPUSTATUS_INTERLACED));
     }
 
 

@@ -113,7 +113,7 @@ enum CFG_ratio_t : uint32_t // screen ratio modes
 #define CFG_FIX_NO_COORD_CHECK        0x10 // coord compatibility mode
 #define CFG_FIX_REMOVE_BLUE           0x20 // Legacy of Dragoon fix - remove blue glitches (needs alpha multipass)
 //#define CFG_FIX_7                   0x40 
-#define CFG_FIX_PC_FPSLIMIT           0x80 // MGS fix - special FPS limit (theoretical values, no wait if skipped)
+//#define CFG_FIX_8                   0x80 
 #define CFG_FIX_HALF_SKIPPING        0x100 // skip one frame out of two
 #define CFG_FIX_POLYGON_CACHE_FF9    0x200 // FF9 battle rect fix - G4 polygon cache
 #define CFG_FIX_IGNORE_SMALL_MOVE    0x400 //+ FF7 & 8 smooth fix - ignore small framebuffer moves

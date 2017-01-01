@@ -192,14 +192,6 @@ bool testUnit(unit_id_t unit, void* pWinData)
                 Timer::setFrequency(60.0f, Regionsync_undefined, false);
                 printSuccess();
 
-                printf("\t* setFrequency(0.0f, Regionmode_ntsc_pcfix, true): ");
-                Timer::setFrequency(0.0f, Regionsync_ntsc_pcfix, true);
-                printSuccess();
-
-                printf("\t* setFrequency(0.0f, Regionmode_pal_pcfix, false): ");
-                Timer::setFrequency(0.0f, Regionsync_pal_pcfix, false);
-                printSuccess();
-
                 printf("\t* setFrequency(0.0f, Regionmode_ntsc, false): ");
                 Timer::setFrequency(0.0f, Regionsync_ntsc, false);
                 printSuccess();

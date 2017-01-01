@@ -74,26 +74,19 @@ void Timer::setFrequency(float freqLimit, regionsync_t regMode, bool isInterlace
     // set auto framerate limit
     else if (regMode != Regionsync_undefined)
     {
-        switch (regMode)
+        if (regMode == Regionsync_ntsc)
         {
-            case Regionsync_ntsc: 
-                if (s_isInterlaced)
-                    s_targetFreq = 33868800.0f / 565031.25f; // 59.94146
-                else
-                    s_targetFreq = 33868800.0f / 566107.50f; // 59.82750
-                break;
-            case Regionsync_pal: 
-                if (s_isInterlaced)
-                    s_targetFreq = 33868800.0f / 677343.75f; // 50.00238
-                else
-                    s_targetFreq = 33868800.0f / 680595.00f; // 49.76351
-                break;
-            case Regionsync_ntsc_pcfix: 
-                s_targetFreq = (s_isInterlaced) ? 60.0f : 30.0f;
-                break;
-            case Regionsync_pal_pcfix: 
-                s_targetFreq = (s_isInterlaced) ? 50.0f : 25.0f;
-                break;
+            if (s_isInterlaced)
+                s_targetFreq = 33868800.0f / 565031.25f; // 59.94146
+            else
+                s_targetFreq = 33868800.0f / 566107.50f; // 59.82750
+        }
+        else // Regionsync_pal
+        {
+            if (s_isInterlaced)
+                s_targetFreq = 33868800.0f / 677343.75f; // 50.00238
+            else
+                s_targetFreq = 33868800.0f / 680595.00f; // 49.76351
         }
     }
 
