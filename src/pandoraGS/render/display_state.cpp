@@ -213,7 +213,7 @@ inline void DisplayState::setDisplayPos(point_t pos)
 /// <returns>Information value</returns>
 inline ubuffer_t DisplayState::getDrawInfo(ubuffer_t gdata)
 {
-    gdata &= 0x0FFu; // get type (extract last 8 bits)
+    gdata &= REQ_BIT_MASK; // get type (extract last 8 bits)
     switch (gdata)
     {
         case REQ_TW:          return m_pDrawInfo[DRAWINFO_TW]; break;
@@ -233,9 +233,9 @@ inline ubuffer_t DisplayState::getDrawInfo(ubuffer_t gdata)
 inline void DisplayState::setDisplayState(ubuffer_t gdata)
 {
     // set display width
-    ch_displaySizePending.x = s_displayWidths[(gdata & 0x03u) | ((gdata & 0x40u) >> 4)];
+    ch_displaySizePending.x = s_displayWidths[(gdata & DRAWCMD_WIDTHTYPE1) | ((gdata & DRAWCMD_WIDTHTYPE2) >> 4)];
     // set display height
-    if (gdata & 0x04)
+    if (gdata & DRAWCMD_HEIGHTTYPE)
         dsp_heightMultiplier = 2;
     else
         dsp_heightMultiplier = 1;
@@ -246,10 +246,10 @@ inline void DisplayState::setDisplayState(ubuffer_t gdata)
 
     // set status width bits
     StatusRegister::unsetStatus(GPUSTATUS_WIDTHBITS);
-    StatusRegister::setStatus((((gdata & 0x03u) << 17) | ((gdata & 0x40u) << 10)));
+    StatusRegister::setStatus((((gdata & DRAWCMD_WIDTHTYPE1) << 17) | ((gdata & DRAWCMD_WIDTHTYPE2) << 10)));
 
     // interlacing 
-    if (gdata & 0x20) // enable
+    if (gdata & DRAWCMD_INTERLACE) // enable
     {
         if (m_isInterlaced == false) // if different
         {
@@ -268,7 +268,7 @@ inline void DisplayState::setDisplayState(ubuffer_t gdata)
         StatusRegister::unsetStatus(GPUSTATUS_INTERLACED);
     }
     // game localization
-    if (gdata & 0x08)
+    if (gdata & DRAWCMD_PAL)
     {
         m_region = Region_pal;
         StatusRegister::setStatus(GPUSTATUS_PAL);
@@ -279,7 +279,7 @@ inline void DisplayState::setDisplayState(ubuffer_t gdata)
         StatusRegister::unsetStatus(GPUSTATUS_PAL);
     }
     // color depth
-    if (gdata & 0x10)
+    if (gdata & DRAWCMD_COLOR24)
     {
         ch_rgbModePending = Colormode_rgb24;
         StatusRegister::setStatus(GPUSTATUS_RGB24);

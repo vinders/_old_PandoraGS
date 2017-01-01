@@ -42,6 +42,7 @@ typedef struct FRAMESTATUS // current/previous frame state
 } framestatus_t;
 
 // draw info - request codes
+#define REQ_BIT_MASK            0x0FFu // last 8 bits
 #define REQ_TW                  0x02u
 #define REQ_DRAWSTART           0x03u
 #define REQ_DRAWEND             0x04u
@@ -56,6 +57,13 @@ typedef struct FRAMESTATUS // current/previous frame state
 #define DRAWINFO_DRAWSTART      1
 #define DRAWINFO_DRAWEND        2
 #define DRAWINFO_DRAWOFF        3
+// draw info - commands
+#define DRAWCMD_WIDTHTYPE1      0x03u
+#define DRAWCMD_WIDTHTYPE2      0x40u
+#define DRAWCMD_HEIGHTTYPE      0x04u
+#define DRAWCMD_INTERLACE       0x20u
+#define DRAWCMD_PAL             0x08u
+#define DRAWCMD_COLOR24         0x10u
 
 
 // Display state, data and settings
