@@ -24,6 +24,7 @@ FILE* openTestConsole(LPCWSTR title, short bufferHeight);
 void closeTestConsole(FILE* hfOut);
 void listPrimitives();
 bool renderPrimitive(int id, bool isFlipped);
+void renderAnimation();
 
 
 ///<summary>Test app to check plugin execution</summary>
@@ -57,11 +58,14 @@ void ProcessTest(HWND hWindow)
     GPUsetExeName("UNITTEST.001");
     if (GPUopen(hWindow) == 0)
     {
-        // flow tests
-        // USE BREAKPOINT HERE
+        GPUupdateLace();
+
         // ...
         // add PSEmu function(s) you need to test here
         // ...
+
+        // demo animation
+        renderAnimation();
 
         // close renderer
         GPUclose();
@@ -99,6 +103,8 @@ void PrimitivesTest(HWND hWindow)
     GPUsetExeName("UNITTEST.001");
     if (GPUopen(hWindow) == 0)
     {
+        GPUupdateLace();
+
         // primitive testing
         FILE* hfOut = openTestConsole(L"Primitives testing - console", 0); // test console
         int primitiveId = 0;
@@ -210,4 +216,10 @@ bool renderPrimitive(int id, bool isFlipped)
     // render primitive
     GPUtestPrimitive(pPrim, primLen, isFlipped);
     return true;
+}
+
+///<summary>Play demo animation</summary>
+void renderAnimation()
+{
+    //...
 }
