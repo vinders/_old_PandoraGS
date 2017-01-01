@@ -81,9 +81,8 @@ void Engine::initScreen()
 void Engine::initGL()
 {
     #ifdef _WINDOWS // WIN32
-    g_globalDeviceContext = GetDC(g_hWindow);
-
     // assign context window
+    g_globalDeviceContext = GetDC(g_hWindow);
     g_openGlRenderContext = wglCreateContext(g_globalDeviceContext);
     wglMakeCurrent(g_globalDeviceContext, g_openGlRenderContext);
     if (Config::dsp_isFullscreen == false) // window mode -> release context
@@ -168,7 +167,7 @@ void Engine::loadPipeline()
 {
     if (s_isInitialized == false)
     {
-        initGL(); return; // initGL will call loadPipeline() -> return
+        initGL(); return; // initGL will also call loadPipeline() -> return
     }
 
     // remove previous shaders
@@ -206,6 +205,11 @@ void Engine::render()
 /// <param name="isWindowResized">Check new window size</param>
 void Engine::setViewport(bool isWindowResized)
 {
+    if (s_isInitialized == false)
+    {
+        initGL(); return; // initGL will also call setViewport() -> return
+    }
+
     // get window size
     wtile_t displaySize;
     if (Config::dsp_isFullscreen)
@@ -213,17 +217,10 @@ void Engine::setViewport(bool isWindowResized)
         displaySize.width = Config::dsp_fullscnResX;
         displaySize.height = Config::dsp_fullscnResY;
     }
-    else
+    else if (isWindowResized == false || SystemTools::getDisplayWindowSize(g_hWindow, displaySize.width, displaySize.height) == false)
     {
-        if (isWindowResized)
-        {
-            //...
-        }
-        else
-        {
-            displaySize.width = Config::dsp_windowResX;
-            displaySize.height = Config::dsp_windowResY;
-        }
+        displaySize.width = Config::dsp_windowResX;
+        displaySize.height = Config::dsp_windowResY;
     }
 
     // set display

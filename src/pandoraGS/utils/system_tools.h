@@ -45,19 +45,24 @@ namespace SystemTools
     void setConsoleCursorPos(int line);
 
 #ifdef _WINDOWS
-    /// <summary>Create a new output console window</summary>
+    /// <summary>Create a new display window</summary>
     /// <param name="hWindow">Main window handle</param>
     /// <param name="isFullscreen">Fullscreen or not</param>
     /// <param name="isResizable">Resizable window (if window mode) or not</param>
     void createDisplayWindow(HWND hWindow, bool isFullscreen, bool isResizable);
-    /// <summary>Close current output console window</summary>
+    /// <summary>Close current display window</summary>
     /// <param name="hWindow">Main window handle</param>
     void closeDisplayWindow(HWND hWindow);
-    /// <summary>Close current output console window</summary>
+    /// <summary>Fill display window</summary>
     /// <param name="hDC">Main display context</param>
     /// <param name="lx">Width</param>
     /// <param name="ly">Height</param>
     void fillDisplayWindow(HDC hDC, uint32_t lx, uint32_t ly);
+    /// <summary>Get dimensions of display window</summary>
+    /// <param name="hWindow">Display window handle</param>
+    /// <param name="outX">Width destination</param>
+    /// <param name="outY">Height destination</param>
+    bool getDisplayWindowSize(HWND hWindow, long& outX, long& outY);
     /// <summary>Enable or disable screen-saver</summary>
     /// <param name="isEnabled">Enabled/disabled</param>
     void setScreensaver(bool isEnabled);
