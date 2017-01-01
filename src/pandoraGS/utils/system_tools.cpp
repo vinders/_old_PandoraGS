@@ -123,6 +123,18 @@ void SystemTools::closeDisplayWindow(HWND hWindow)
     g_hMenu = NULL;
 }
 
+/// <summary>Close current output console window</summary>
+/// <param name="hDC">Main display context</param>
+/// <param name="lx">Width</param>
+/// <param name="ly">Height</param>
+void SystemTools::fillDisplayWindow(HDC hDC, uint32_t lx, uint32_t ly)
+{
+    RECT screenRect;
+    screenRect.left = screenRect.top = 0;
+    screenRect.right = lx; screenRect.bottom = ly;
+    FillRect(hDC, &screenRect, (HBRUSH)GetStockObject(BLACK_BRUSH));
+}
+
 /// <summary>Enable or disable screen saver</summary>
 /// <param name="isEnabled">Enabled/disabled</param>
 void SystemTools::setScreensaver(bool isEnabled)

@@ -53,6 +53,11 @@ namespace SystemTools
     /// <summary>Close current output console window</summary>
     /// <param name="hWindow">Main window handle</param>
     void closeDisplayWindow(HWND hWindow);
+    /// <summary>Close current output console window</summary>
+    /// <param name="hDC">Main display context</param>
+    /// <param name="lx">Width</param>
+    /// <param name="ly">Height</param>
+    void fillDisplayWindow(HDC hDC, uint32_t lx, uint32_t ly);
     /// <summary>Enable or disable screen-saver</summary>
     /// <param name="isEnabled">Enabled/disabled</param>
     void setScreensaver(bool isEnabled);
