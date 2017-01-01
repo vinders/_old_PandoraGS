@@ -50,9 +50,9 @@ public:
     static uint32_t   dsp_windowResY;      // window display resolution [y]
     static bool       dsp_isWindowResizable; // resizable window mode
     static bool       dsp_isColorDepth32;  // color depth mode (32/16-bit)
+    static bool       dsp_isZbuffer;       // Z-buffer mode (on/off)
 
     // framerate
-    static bool       sync_isVerticalSync;  // vsync (on/off)
     static bool       sync_isFrameSkip;     // frame skipping mode (on/off)
     static bool       sync_isFrameLimit;    // frame limit mode (on/off)
     static float      sync_framerateLimit;  // framerate limit (0=auto / value=fixed)

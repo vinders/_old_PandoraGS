@@ -38,7 +38,6 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
     scl_screenSmooth = copy.scl_screenSmooth;
     scl_screenUpscaleVal = copy.scl_screenUpscaleVal;
     scl_screenUpscaleType = copy.scl_screenUpscaleType;
-    scl_isShaderUpscale = copy.scl_isShaderUpscale;
     scl_mdecFilter = copy.scl_mdecFilter;
 
     shd_antiAliasing = copy.shd_antiAliasing;
@@ -158,7 +157,6 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
             shd_antiAliasing = CFG_AA_SMAA4;
             //...
 
-            scl_isShaderUpscale = true;
             dsp_internalResX = 4u;
             dsp_internalResY = 8u;
             dsp_ratioType = CFG_Ratio_Aspect;
@@ -176,7 +174,6 @@ void ConfigProfile::setPresetValues(const ProfilePreset preset)
     dsp_screenCurved = 0u;
     //...
     misc_fixBits = 0u;
-    setFix(CFG_FIX_REACTIVE_FPSLIMIT);
     misc_offscreenDrawing = CFG_OffScr_Standard;
 }
 

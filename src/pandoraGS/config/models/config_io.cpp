@@ -106,6 +106,7 @@ void ConfigIO::loadConfig(bool hasProfileArray, bool hasProfileValues)
         readRegDword<uint32_t>(&(Config::dsp_windowResY), &configKey, L"WinResY", &type, &size);
         readRegBool(&(Config::dsp_isWindowResizable), &configKey, L"WinResize", &type, &size);
         readRegBool(&(Config::dsp_isColorDepth32), &configKey, L"Color32", &type, &size);
+        readRegBool(&(Config::dsp_isZbuffer), &configKey, L"Zbuffer", &type, &size);
         // auto-detect fullscreen resolution
         if (Config::dsp_fullscnResX == 0u)
         {
@@ -126,7 +127,6 @@ void ConfigIO::loadConfig(bool hasProfileArray, bool hasProfileValues)
             Config::dsp_windowResY = 480u;
 
         // framerate
-        readRegBool(&(Config::sync_isVerticalSync), &configKey, L"Vsync", &type, &size);
         readRegBool(&(Config::sync_isFrameSkip), &configKey, L"FrameSkip", &type, &size);
         readRegBool(&(Config::sync_isFrameLimit), &configKey, L"FrameLimit", &type, &size);
         readRegFloat(&(Config::sync_framerateLimit), &configKey, L"Framerate", &type, &size);
@@ -205,10 +205,10 @@ void ConfigIO::saveConfig(bool hasProfiles)
         RegSetValueEx(configKey, L"WinResize", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (Config::dsp_isColorDepth32) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"Color32", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
+        val = (Config::dsp_isZbuffer) ? 1uL : 0uL;
+        RegSetValueEx(configKey, L"Vsync", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 
         // framerate
-        val = (Config::sync_isVerticalSync) ? 1uL : 0uL;
-        RegSetValueEx(configKey, L"Vsync", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (Config::sync_isFrameSkip) ? 1uL : 0uL;
         RegSetValueEx(configKey, L"FrameSkip", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = (Config::sync_isFrameLimit) ? 1uL : 0uL;
@@ -311,7 +311,6 @@ ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id)
         readRegDword<uint32_t>(&(pProfile->scl_screenUpscaleType), &profileKey, L"ScnUpType", &type, &size);
         if (pProfile->scl_screenUpscaleType >= CFG_UpScaling_LENGTH)
             pProfile->scl_screenUpscaleType = 0;
-        readRegBool(&(pProfile->scl_isShaderUpscale), &profileKey, L"ShaderUpscale", &type, &size);
         readRegDword<uint32_t>(&(pProfile->scl_mdecFilter), &profileKey, L"Mdec", &type, &size);
         if (pProfile->scl_mdecFilter >= CFG_MdecFiltering_LENGTH)
             pProfile->scl_mdecFilter = 0;
@@ -389,8 +388,6 @@ void ConfigIO::saveConfigProfile(ConfigProfile* pProfile)
         RegSetValueEx(profileKey, L"ScnUpscale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->scl_screenUpscaleType;
         RegSetValueEx(profileKey, L"ScnUpType", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
-        val = (pProfile->scl_isShaderUpscale) ? 1uL : 0uL;
-        RegSetValueEx(profileKey, L"ShaderUpscale", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
         val = pProfile->scl_mdecFilter;
         RegSetValueEx(profileKey, L"Mdec", 0, REG_DWORD, (LPBYTE)&val, sizeof(val));
 

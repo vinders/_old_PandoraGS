@@ -31,7 +31,7 @@ enum ProfilePreset : uint32_t
 #define CFG_FIX_SWAP_FRONTBACK         0x8 // Speed Freaks & Killer Loop fix - swap front/back detection
 #define CFG_FIX_NO_COORD_CHECK        0x10 // coord compatibility mode
 #define CFG_FIX_REMOVE_BLUE           0x20 // Legacy of Dragoon fix - remove blue glitches (needs alpha multipass)
-#define CFG_FIX_REACTIVE_FPSLIMIT     0x40 // frame displayed before frame time waiting - feels more reactive but less steady
+//#define CFG_FIX_7                   0x40 
 #define CFG_FIX_PC_FPSLIMIT           0x80 // MGS fix - special FPS limit (theoretical values, no wait if skipped)
 #define CFG_FIX_HALF_SKIPPING        0x100 // skip one frame out of two
 #define CFG_FIX_POLYGON_CACHE_FF9    0x200 // FF9 battle rect fix - G4 polygon cache
@@ -65,7 +65,6 @@ public:
     uint32_t scl_screenSmooth;// global screen smoothing - type (blur, algorithm, ..)
     uint32_t scl_screenUpscaleVal; // global screen upscaling - 1-8x
     uint32_t scl_screenUpscaleType;// global screen upscaling - type (blur, algorithm, ..)
-    bool     scl_isShaderUpscale; // upscaling algorithm using shader (faster, less precision)
     uint32_t scl_mdecFilter;      // MDEC video filter
     //smooth texture transitions ('texture splatting' avec textures de polygones voisins)
                 //-> essayer de ne le faire qu'une fois par association de textures (tableau avec ID textures ?)

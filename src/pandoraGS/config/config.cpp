@@ -32,8 +32,8 @@ uint32_t Config::dsp_windowResX;      // window display resolution [x]
 uint32_t Config::dsp_windowResY;      // window display resolution [y]
 bool     Config::dsp_isWindowResizable; // resizable window mode
 bool     Config::dsp_isColorDepth32;  // color depth mode (32/16-bit)
+bool     Config::dsp_isZbuffer;       // Z-buffer mode (on/off)
 // framerate
-bool     Config::sync_isVerticalSync;  // vsync (on/off)
 bool     Config::sync_isFrameSkip;     // frame skipping mode (on/off)
 bool     Config::sync_isFrameLimit;    // frame limit mode (on/off)
 float    Config::sync_framerateLimit;  // framerate limit (0=auto / value=fixed)
@@ -80,11 +80,11 @@ void Config::setDefaultValues()
     dsp_windowResY = 600u;
     dsp_isWindowResizable = false;
     dsp_isColorDepth32 = true;
+    dsp_isZbuffer = true;
 
     sync_isFrameSkip = false;
     sync_isFrameLimit = true;
     sync_framerateLimit = FRAMELIMIT_Auto;
-    sync_isVerticalSync = true;
     sync_timeMode = Timemode_highResCounter;
 
     misc_isScreensaverDisabled = false;
