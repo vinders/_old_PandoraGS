@@ -44,10 +44,12 @@ long CALLBACK GPUinit()
         // initialize config container
         Config::init(); // default config
         ConfigIO::loadConfig(true, false); // user config
+        LanguageGameMenuResource::setLanguage((langcode_t)Config::gen_langCode, Config::gen_langFilePath);
 
+        // configure frame rate (default)
+        Dispatcher::initFrameRate();
         // initialize memory container
         Dispatcher::init();
-        LanguageGameMenuResource::setLanguage((langcode_t)Config::gen_langCode, Config::gen_langFilePath);
 
         // open debug window
         if (Config::rnd_isDebugMode)
@@ -108,22 +110,20 @@ long CALLBACK GPUopen_PARAM_
                 DisplayState::s_displayWidths[4] = 368;
         }
 
-        // create rendering window
-        #ifdef _WINDOWS
-        g_hWindow = hWindow;
-        SystemTools::createDisplayWindow(g_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
-        Engine::initScreen();
-        #else
-        SystemTools::createDisplayWindow();
-        #endif
-        Dispatcher::st_displayState.set(false);
-
         // disable screensaver (if possible)
         if (Config::misc_isScreensaverDisabled)
             SystemTools::setScreensaver(false);
 
-        // configure frame rate manager (default)
-        Dispatcher::initFrameRate();
+        // create rendering window
+        #ifdef _WINDOWS
+        g_hWindow = hWindow;
+        SystemTools::createDisplayWindow(g_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
+        #else
+        SystemTools::createDisplayWindow();
+        #endif
+        Engine::initScreen();
+        Dispatcher::st_displayState.set(false);      
+
         // start user input tracker
         #ifdef _WINDOWS
         InputReader::start(g_hWindow, Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1,
@@ -131,6 +131,9 @@ long CALLBACK GPUopen_PARAM_
         #else
         InputReader::start(Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1, Config::dsp_isFullscreen);
         #endif
+
+        // reset frame skipping
+        Timer::resetTimeReference();
     }
     catch (const std::exception& exc) // allocation failure
     {
@@ -156,6 +159,7 @@ long CALLBACK GPUclose()
 
     #ifdef _WINDOWS
     // close window
+    Engine::close();
     SystemTools::closeDisplayWindow(g_hWindow);
     // re-enable screensaver (if disabled)
     if (Config::misc_isScreensaverDisabled)

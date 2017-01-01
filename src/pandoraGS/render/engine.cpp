@@ -28,15 +28,16 @@ HGLRC g_openGlRenderContext = 0;
 GLFWwindow* g_openGlWindow = NULL;
 #endif
 bool Engine::s_isInitialized = false;
+bool Engine::s_isReady = false;
 GLuint Engine::s_prog = 0; // rendering pipeline program identifier
 
 
 // -- RENDERING API MANAGEMENT -- ----------------------------------------------
 
-#ifdef _WINDOWS
 /// <summary>Initialize screen + device pixel format</summary>
 void Engine::initScreen()
 {
+    #ifdef _WINDOWS
     if (g_globalDeviceContext) // context already in use
         return;
     HDC hDC = GetDC(g_hWindow);
@@ -72,13 +73,19 @@ void Engine::initScreen()
         SystemTools::fillDisplayWindow(hDC, Config::dsp_windowResX, Config::dsp_windowResY);
 
     ReleaseDC(g_hWindow, hDC);
+    #endif
+
+    s_isReady = true;
 }
-#endif
 
 /// <summary>Initialize OpenGL API</summary>
 /// <exception cref="std::exception">OpenGL API init failure</exception>
 void Engine::initGL()
 {
+    if (s_isInitialized)
+        return;
+    s_isReady = false;
+
     #ifdef _WINDOWS // WIN32
     // assign context window
     g_globalDeviceContext = GetDC(g_hWindow);
@@ -118,9 +125,10 @@ void Engine::initGL()
     glewInit();
 
     // set display + shaders
-    s_isInitialized = true;
     setViewport(false);
     loadPipeline();
+    s_isInitialized = true;
+    s_isReady = true;
 }
 
 /// <summary>Cleanup and shutdown OpenGL API</summary>
@@ -128,6 +136,7 @@ void Engine::close()
 {
     if (s_isInitialized == false)
         return;
+    s_isReady = false;
 
     //...
 
@@ -157,7 +166,9 @@ void Engine::loadPipeline()
 {
     if (s_isInitialized == false)
     {
-        initGL(); return; // initGL will also call loadPipeline() -> return
+        if (s_isReady)
+            initGL();
+        return; // initGL will also call loadPipeline() -> return
     }
     if (s_prog != 0) // close previous pipeline
     {
@@ -185,7 +196,9 @@ void Engine::render()
 {
     if (s_isInitialized == false)
     {
-        initGL(); return; // skip first frame
+        if (s_isReady)
+            initGL();
+        return; // skip first frame
     }
 
     //... dessin VBO et VAO
@@ -201,7 +214,9 @@ void Engine::setViewport(bool isWindowResized)
 {
     if (s_isInitialized == false)
     {
-        initGL(); return; // initGL will also call setViewport() -> return
+        if (s_isReady)
+            initGL(); 
+        return; // initGL will also call setViewport() -> return
     }
 
     // get window size

@@ -16,16 +16,15 @@ class Engine
 {
 private:
     static bool s_isInitialized;
+    static bool s_isReady;
     static GLuint s_prog;         // rendering pipeline program identifier
 
     
 public:
     // -- RENDERING API MANAGEMENT -- ------------------------------------------
 
-#ifdef _WINDOWS
     /// <summary>Initialize screen + device pixel format</summary>
     static void initScreen();
-#endif
     /// <summary>Initialize OpenGL API</summary>
     /// <exception cref="std::exception">OpenGL API init failure</exception>
     static void initGL();
