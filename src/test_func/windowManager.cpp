@@ -112,6 +112,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case IDM_PRIM:
             PrimitivesTest(hWnd);
             break;
+        case IDM_CONFIGDIAL:
+            DialogTest(0);
+            break;
+        case IDM_ABOUTDIAL:
+            DialogTest(1);
+            break;
         case IDM_EXIT:
             DestroyWindow(hWnd);
             break;

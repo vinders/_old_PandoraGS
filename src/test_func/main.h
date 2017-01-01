@@ -7,6 +7,10 @@ Description : test app - flow/unit tests -- entry point and test functions
 #pragma once
 #include "resource.h"
 
+///<summary>Plugin dialog testing</summary>
+///<param name="type">Dialog type (0 = config ; 1 = about box)</param>
+void DialogTest(int type);
+
 ///<summary>Plugin test function</summary>
 ///<param name="hWindow">Main window handle</param>
 void ProcessTest(HWND hWindow);

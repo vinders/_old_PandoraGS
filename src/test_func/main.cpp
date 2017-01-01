@@ -35,6 +35,16 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstanc
     return CreateBaseWindow(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }
 
+///<summary>Plugin dialog testing</summary>
+///<param name="type">Dialog type (0 = config ; 1 = about box)</param>
+void DialogTest(int type)
+{
+    if (type == 0)
+        GPUconfigure();
+    else
+        GPUabout();
+}
+
 ///<summary>Plugin flow test function (use with step by step debugging)</summary>
 ///<param name="hWindow">Main window handle</param>
 void ProcessTest(HWND hWindow)

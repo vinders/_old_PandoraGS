@@ -12,6 +12,8 @@
 #define IDM_START               200
 #define IDM_UNIT                202
 #define IDM_PRIM                203
+#define IDM_CONFIGDIAL          204
+#define IDM_ABOUTDIAL           205
 #define IDM_EXIT				105
 #define IDI_TESTFUNC			107
 #define IDI_SMALL				108
