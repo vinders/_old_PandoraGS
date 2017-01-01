@@ -14,7 +14,7 @@ Description : test app - plugin dialogs/GUI
 int _tmain(int argc, _TCHAR* argv[])
 {
     GPUconfigure();
-    GPUabout();
+    //GPUabout();
     return 0;
 }
 
