@@ -49,7 +49,9 @@ namespace SystemTools
     /// <param name="hWindow">Main window handle</param>
     /// <param name="isFullscreen">Fullscreen or not</param>
     /// <param name="isResizable">Resizable window (if window mode) or not</param>
-    void createDisplayWindow(HWND hWindow, bool isFullscreen, bool isResizable);
+    /// <param name="winResX">Window width (if window mode)</param>
+    /// <param name="winResY">Window height (if window mode)</param>
+    void createDisplayWindow(HWND hWindow, bool isFullscreen, bool isResizable, uint32_t winResX, uint32_t winResY);
     /// <summary>Close current display window</summary>
     /// <param name="hWindow">Main window handle</param>
     void closeDisplayWindow(HWND hWindow);

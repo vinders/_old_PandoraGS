@@ -100,7 +100,7 @@ long CALLBACK GPUopen_PARAM_
             {
                 Config::dsp_isFullscreen = false;
                 Config::dsp_windowResX = 800u;
-                Config::dsp_windowResX = 600u;
+                Config::dsp_windowResY = 600u;
             }
             Dispatcher::st_isFirstOpen = false;
 
@@ -110,17 +110,19 @@ long CALLBACK GPUopen_PARAM_
                 DisplayState::s_displayWidths[4] = 368;
         }
 
-        // disable screensaver (if possible)
-        if (Config::misc_isScreensaverDisabled)
-            SystemTools::setScreensaver(false);
 
         // create rendering window
         #ifdef _WINDOWS
         g_hWindow = hWindow;
-        SystemTools::createDisplayWindow(g_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
+        SystemTools::createDisplayWindow(g_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable, 
+                                         Config::dsp_windowResX, Config::dsp_windowResY);
+        // disable screensaver (if possible)
+        if (Config::misc_isScreensaverDisabled)
+            SystemTools::setScreensaver(false);
         #else
         SystemTools::createDisplayWindow();
         #endif
+        // fill window
         Engine::initScreen();
         Dispatcher::st_displayState.set(false);      
 
@@ -157,9 +159,10 @@ long CALLBACK GPUclose()
         Dispatcher::exportData();
     }
 
+    // close renderer
+    Engine::close();
     #ifdef _WINDOWS
     // close window
-    Engine::close();
     SystemTools::closeDisplayWindow(g_hWindow);
     // re-enable screensaver (if disabled)
     if (Config::misc_isScreensaverDisabled)
@@ -260,7 +263,8 @@ void CALLBACK GPUupdateLace()
             Config::dsp_isFullscreen = !(Config::dsp_isFullscreen);
             #ifdef _WINDOWS
             SystemTools::closeDisplayWindow(g_hWindow);
-            SystemTools::createDisplayWindow(g_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable);
+            SystemTools::createDisplayWindow(g_hWindow, Config::dsp_isFullscreen, Config::dsp_isWindowResizable,
+                                             Config::dsp_windowResX, Config::dsp_windowResY);
             #else
             SystemTools::closeDisplayWindow();
             SystemTools::createDisplayWindow();
@@ -271,7 +275,7 @@ void CALLBACK GPUupdateLace()
             // restart input tracker for new window
             #ifdef _WINDOWS
             InputReader::start(g_hWindow, Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1,
-                Config::dsp_isFullscreen, Config::misc_isScreensaverDisabled);
+                               Config::dsp_isFullscreen, Config::misc_isScreensaverDisabled);
             #else
             InputReader::start(Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1, Config::dsp_isFullscreen);
             #endif

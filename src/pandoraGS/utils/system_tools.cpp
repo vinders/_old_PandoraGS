@@ -24,6 +24,7 @@ using namespace std;
 #ifdef _WINDOWS
 HMENU g_hMenu = NULL;        // emulator menu handle
 DWORD g_origStyle = 0uL;     // original window style
+RECT g_origSize;     // original window size
 FILE* g_hfConsoleOut = NULL; // console output stream descriptor
 
 /// <summary>Create a new output console window</summary>
@@ -83,12 +84,15 @@ void SystemTools::setConsoleCursorPos(int line)
 /// <param name="hWindow">Main window handle</param>
 /// <param name="isFullscreen">Fullscreen or not</param>
 /// <param name="isResizable">Resizable window (if window mode) or not</param>
-void SystemTools::createDisplayWindow(HWND hWindow, bool isFullscreen, bool isResizable)
+/// <param name="winResX">Window width (if window mode)</param>
+/// <param name="winResY">Window height (if window mode)</param>
+void SystemTools::createDisplayWindow(HWND hWindow, bool isFullscreen, bool isResizable, uint32_t winResX, uint32_t winResY)
 {
     if (g_hMenu != NULL)
         closeDisplayWindow(hWindow);
 
     // save style backup to restore it
+    GetWindowRect(hWindow, &g_origSize);
     DWORD dwStyle = GetWindowLong(hWindow, GWL_STYLE);
     g_origStyle = dwStyle;
 
@@ -109,6 +113,34 @@ void SystemTools::createDisplayWindow(HWND hWindow, bool isFullscreen, bool isRe
     g_hMenu = GetMenu(hWindow);
     if (g_hMenu)
         SetMenu(hWindow, NULL);
+
+    // display new window
+    if (isFullscreen)
+    {
+        // enter fullscreen mode
+        //...ChangeDisplaySettings ...
+        ShowWindow(hWindow, SW_SHOWMAXIMIZED);
+    }
+    else // window mode
+    {
+        // get screen size
+        int screenWidth = GetSystemMetrics(SM_CXFULLSCREEN);
+        if (screenWidth < 320)
+            screenWidth = 800;
+        int screenHeight = GetSystemMetrics(SM_CYFULLSCREEN);
+        if (screenHeight < 240) 
+            screenHeight = 600;
+
+        // show centered window
+        ShowWindow(hWindow, SW_SHOWNORMAL);
+        MoveWindow(hWindow,
+            screenWidth / 2 - winResX / 2,
+            screenHeight / 2 - winResY / 2,
+            winResX + GetSystemMetrics(SM_CXFIXEDFRAME) + 3,
+            winResY + GetSystemMetrics(SM_CYFIXEDFRAME) + 3 + GetSystemMetrics(SM_CYCAPTION), 
+            TRUE);
+        UpdateWindow(hWindow);
+    }
 }
 
 /// <summary>Close current display window</summary>
@@ -117,7 +149,9 @@ void SystemTools::closeDisplayWindow(HWND hWindow)
 {
     // restore window style
     SetWindowLong(hWindow, GWL_STYLE, g_origStyle);
+    MoveWindow(hWindow, g_origSize.left, g_origSize.top, g_origSize.right - g_origSize.left, g_origSize.bottom - g_origSize.top, TRUE);
     // restore emulator menu
+    //...ChangeDisplaySettings(NULL, 0);
     if (g_hMenu)
         SetMenu(hWindow, g_hMenu);
     g_hMenu = NULL;
