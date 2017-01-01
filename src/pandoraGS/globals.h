@@ -44,6 +44,7 @@ Description : global constants and definitions + PSEmu Pro specification
 #define ARCHITECTURE_32 1
 #define ARCHITECTURE_64 2
 #define _ARCHITECTURE ARCHITECTURE_32
+#define _TRACE_CALLS 0 // 0 - disabled / 1 - enabled
 
 
 // -- PSEMU SPECIFICATION -- ---------------------------------------------------

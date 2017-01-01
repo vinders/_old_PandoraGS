@@ -112,6 +112,9 @@ void Dispatcher::exportData()
 /// <returns>GPU status register data</returns>
 unsigned long CALLBACK GPUreadStatus()
 {
+#if _TRACE_CALLS == 1
+    Logger::getInstance()->writeEntry("GPUreadStatus", "trace", "");
+#endif
     // interlacing CC game fix
     if (Config::isProfileSet() && Config::getCurrentProfile()->getFix(CFG_FIX_STATUS_INTERLACE))
     {
@@ -133,6 +136,9 @@ unsigned long CALLBACK GPUreadStatus()
 /// <param name="gdata">Status register command</param>
 void CALLBACK GPUwriteStatus(unsigned long gdata)
 {
+#if _TRACE_CALLS == 1
+    Logger::getInstance()->writeEntry("GPUwriteStatus", "trace", std::to_string(gdata));
+#endif
      // get command indicator
     ubuffer_t command = This::extractGpuCommandType((ubuffer_t)gdata);
     This::st_pControlReg[command] = gdata; // store command (for save-states)
@@ -173,6 +179,9 @@ void CALLBACK GPUwriteStatus(unsigned long gdata)
 /// <param name="dwFlags">Display flags</param>
 void CALLBACK GPUdisplayFlags(unsigned long dwFlags)
 {
+#if _TRACE_CALLS == 1
+    Logger::getInstance()->writeEntry("GPUdisplayFlags", "trace", std::to_string(dwFlags));
+#endif
     // display flags for GPU menu
     This::st_displayDevFlags = dwFlags; // 00 -> digital, 01 -> analog, 02 -> mouse, 03 -> gun
 }
@@ -191,6 +200,9 @@ void CALLBACK GPUsetExeName(char* pGameId)
 /// <returns>Image transfer mode</returns>
 long CALLBACK GPUgetMode()
 {
+#if _TRACE_CALLS == 1
+    Logger::getInstance()->writeEntry("GPUgetMode", "trace", "");
+#endif
     long imageTransfer = 0L;
     if (This::mem_vramWriter.mode == Loadmode_vramTransfer)
         imageTransfer |= 0x1;
@@ -202,6 +214,9 @@ long CALLBACK GPUgetMode()
 /// <param name="gdataMode">Image transfer mode</param>
 void CALLBACK GPUsetMode(unsigned long gdataMode)
 {
+#if _TRACE_CALLS == 1
+    Logger::getInstance()->writeEntry("GPUsetMode", "trace", std::to_string(gdataMode));
+#endif
     // This::mem_vramWriter.mode = (gdataMode&0x1) ? Loadmode_vramTransfer : Loadmode_normal;
     // This::mem_vramReader.mode = (gdataMode&0x2) ? Loadmode_vramTransfer : Loadmode_normal;
 }
@@ -227,6 +242,9 @@ void CALLBACK GPUwriteData(unsigned long gdata)
 /// <returns>Success indicator</returns>
 long CALLBACK GPUdmaChain(unsigned long* pDwBaseAddress, unsigned long offset)
 {
+#if _TRACE_CALLS == 1
+    Logger::getInstance()->writeEntry("GPUdmaChain", "trace", std::string("offset=") + std::to_string(offset));
+#endif
     unsigned char* pByteBaseAddress = (unsigned char*)pDwBaseAddress;
     uint32_t dmaCommandCounter = 0u;
     StatusRegister::unsetStatus(GPUSTATUS_IDLE); // busy
@@ -261,6 +279,9 @@ long CALLBACK GPUdmaChain(unsigned long* pDwBaseAddress, unsigned long offset)
 /// <param name="size">Memory chunk size</param>
 void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
 {
+#if _TRACE_CALLS == 1
+    Logger::getInstance()->writeEntry("GPUreadDataMem", "trace", std::string("size=") + std::to_string(size));
+#endif
     StatusRegister::unsetStatus(GPUSTATUS_IDLE); // busy
 
     // check/adjust vram reader position
@@ -337,6 +358,19 @@ void CALLBACK GPUreadDataMem(unsigned long* pDwMem, int size)
 /// <param name="size">Memory chunk size</param>
 void CALLBACK GPUwriteDataMem(unsigned long* pDwMem, int size)
 {
+#if _TRACE_CALLS == 1
+    Logger::getInstance()->writeEntry("GPUwriteDataMem", "trace", std::string("size=") + std::to_string(size));
+    {
+        std::string traceData("pDwMem[...]=");
+        unsigned long* pTraceIterator = pDwMem;
+        for (int tr = 0; tr < size; ++tr)
+        {
+            traceData += std::string(" ") + std::to_string(*pTraceIterator);
+            ++pTraceIterator;
+        }
+        Logger::getInstance()->writeEntry("GPUwriteDataMem", "trace", traceData);
+    }
+#endif
     unsigned long gdata = 0;
     unsigned long bitHandler;
     int i = 0;

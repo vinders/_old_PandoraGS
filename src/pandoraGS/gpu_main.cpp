@@ -177,6 +177,9 @@ long CALLBACK GPUclose()
 /// <summary>Activity update (called every vsync)</summary>
 void CALLBACK GPUupdateLace()
 {
+#if _TRACE_CALLS == 1
+    Logger::getInstance()->writeEntry("GPUupdateLace", "trace", "");
+#endif
     // interlacing (if CC game fix, done in GPUreadStatus)
     if (Config::getCurrentProfile()->getNotFix(CFG_FIX_STATUS_INTERLACE))
         Dispatcher::st_displayState.toggleOddFrameFlag();
