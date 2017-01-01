@@ -129,6 +129,9 @@
     <ClCompile Include="render\engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="render\opengl\glew.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.h">
@@ -260,13 +263,22 @@
     <ClInclude Include="render\engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="render\opengl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="render\shader\shader_vertex.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="render\shader\shader_fragment.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render\opengl\opengl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render\opengl\glew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render\opengl\glxew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render\opengl\wglew.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
