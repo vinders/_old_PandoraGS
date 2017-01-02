@@ -13,12 +13,12 @@ Description : global constants and definitions + PSEmu Pro specification
 // plugin information
 #define PLUGIN_VERSIONMAJ  0uL
 #define PLUGIN_VERSIONMIN  2uL
-#define PLUGIN_VERSIONSTR  "0.2"
+#define PLUGIN_VERSIONSTR  "0.2.2"
 #define PLUGIN_NAME        "PandoraGS Driver"
 #define PLUGIN_INFO        "PandoraGS GPU Driver 0.2\nBy Romain Vinders"
 #define PLUGIN_DESCRIPTION "GPU plugin for PSEmu compatible emulator"
 #define PLUGIN_AUTHOR      "Romain Vinders"
-#define PLUGIN_DATE        "2016"
+#define PLUGIN_DATE        "2017"
 #define PLUGIN_LANGUAGES   "English, Spanish, French, German"
 #define PLUGIN_TECH        "C++11 (runtimes 2013)"
 #define PLUGIN_API         "OpenGL 4.1"
