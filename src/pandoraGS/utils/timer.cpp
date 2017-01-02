@@ -34,7 +34,7 @@ skipmode_t Timer::s_skipMode = Skipmode_disabled; // period skipping mode
 // timer execution
 bool Timer::s_isResetPending = true;  // time reference reset query
 float Timer::s_measuredFreq = 0.0f;   // current measured frequency
-int Timer::s_periodsSinceMeasure = 0; // number of periods since last check
+int Timer::s_periodsSinceMeasure = 1; // number of periods since last check
 int Timer::s_periodsToSkip = 0;       // number of periods to skip (to stay in sync)
 ticks_t Timer::s_lateTicks = 0uL;     // current lateness (compared to time reference)
 
@@ -107,12 +107,12 @@ void Timer::setFrequency(float freqLimit, regionsync_t regMode, bool isInterlace
     s_periodTimeout = ((7 * s_period) >> 3);
     #endif
 
-    // reset frame skipping
+    // reset period skipping
     s_periodsToSkip = 0;
     s_lateTicks = 0uL;
-    // reset frame management values
-    s_measuredFreq = 0.0f;
-    s_periodsSinceMeasure = 0;
+    // reset wait info
+    s_measuredFreq = s_targetFreq;
+    s_periodsSinceMeasure = 1;
     s_isResetPending = true;
 }
 
@@ -136,16 +136,23 @@ void Timer::wait(bool isLimited, speed_t speedChange, bool isOddPeriod)
         s_isResetPending = false;
         #ifdef _WINDOWS
         if (s_timeMode == Timemode_highResCounter)
+        {
             QueryPerformanceCounter(&lastTimeRef);
+            ticksToWait = s_periodHiRes;
+        }
+        else
+            ticksToWait = s_period;
+        #else
+        ticksToWait = s_period;
         #endif
         lastTicks = timeGetTime();
-        s_lateTicks = ticksToWait = 0;
+        s_lateTicks = 0;
         return;
     }
     ++s_periodsSinceMeasure;
 
     // speed modifiers
-    if (speedChange)
+    if (speedChange != Speed_normal)
     {
         if (speedChange == Speed_fast)
         {
@@ -163,7 +170,7 @@ void Timer::wait(bool isLimited, speed_t speedChange, bool isOddPeriod)
                 s_periodsToSkip = nextPeriodsToSkip;
                 return;
             }
-            s_periodsToSkip = 1 + nextPeriodsToSkip; // bypass skipping calculations (will decrement instead of calculating)
+            s_periodsToSkip = 1 + nextPeriodsToSkip; // bypass skipping calculations (will decrement instead)
         }
         else // Speed_slow
         {
@@ -176,7 +183,7 @@ void Timer::wait(bool isLimited, speed_t speedChange, bool isOddPeriod)
             #else
             ticksToWait += s_period;
             #endif
-            s_periodsToSkip = 1; // bypass skipping calculations (will decrement instead of calculating)
+            s_periodsToSkip = 1; // bypass skipping calculations (will decrement instead)
         }
     }
 
@@ -211,7 +218,7 @@ void Timer::wait(bool isLimited, speed_t speedChange, bool isOddPeriod)
             if (waitLoopCount == 1uL) // time elapsed > frame time
             {
                 s_lateTicks = elapsedTicks - ticksToWait;
-                if (s_lateTicks > s_periodHiRes)
+                if (s_lateTicks > s_periodHiRes) // more than one period late -> skip it
                 {
                     ticksToWait = 0;
                     if (currentTimeRef.LowPart < lastTimeRef.LowPart)
@@ -234,8 +241,8 @@ void Timer::wait(bool isLimited, speed_t speedChange, bool isOddPeriod)
 
         // low resolution time sync (mm timer)
         else
+        #endif
         {
-            #endif
             unsigned long waitCount = 0uL;
             do
             {
@@ -267,9 +274,7 @@ void Timer::wait(bool isLimited, speed_t speedChange, bool isOddPeriod)
 
             // copy time reference for next update
             lastTicks = currentTicks;
-            #ifdef _WINDOWS
         }
-        #endif
     }
 
     // skipping

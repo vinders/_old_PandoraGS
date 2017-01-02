@@ -407,7 +407,6 @@ char* GPUgetLibInfos()
 void CALLBACK GPUsetframelimit(unsigned long option)
 {
     Config::sync_isFrameLimit = (option == 1);
-    Dispatcher::setFrameRate();
 }
 
 /// <summary>Set custom fixes from emulator</summary>

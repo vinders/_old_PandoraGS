@@ -13,6 +13,7 @@ Description : display state, data and settings
 #include <cstdint>
 #include <string>
 #include "geometry.hpp"
+#include "timer.h"
 #include "status_register.h"
 #include "system_tools.h"
 
@@ -119,6 +120,13 @@ public:
     inline bool isSet()
     {
         return m_isDisplaySet;
+    }
+    /// <summary>Set frame rate with region info</summary>
+    inline void setFrameRate()
+    {
+        regionsync_t timerReg;
+        timerReg = (m_region == Region_pal) ? Regionsync_pal : Regionsync_ntsc;
+        Timer::setFrequency(Config::sync_framerateLimit, timerReg, StatusRegister::getStatus(GPUSTATUS_INTERLACED));
     }
 
 

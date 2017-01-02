@@ -148,9 +148,7 @@ public:
     /// <summary>Set frame rate with region info</summary>
     static inline void setFrameRate()
     {
-        regionsync_t timerReg;
-        timerReg = (st_displayState.getRegionmode() == Region_pal) ? Regionsync_pal : Regionsync_ntsc;
-        Timer::setFrequency(Config::sync_framerateLimit, timerReg, StatusRegister::getStatus(GPUSTATUS_INTERLACED));
+        st_displayState.setFrameRate();
     }
 
 

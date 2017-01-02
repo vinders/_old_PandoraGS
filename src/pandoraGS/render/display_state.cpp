@@ -270,13 +270,21 @@ inline void DisplayState::setDisplayState(ubuffer_t gdata)
     // game localization
     if (gdata & DRAWCMD_PAL)
     {
-        m_region = Region_pal;
-        StatusRegister::setStatus(GPUSTATUS_PAL);
+        if (m_region != Region_pal)
+        {
+            m_region = Region_pal;
+            StatusRegister::setStatus(GPUSTATUS_PAL);
+            setFrameRate();
+        }
     }
     else
     {
-        m_region = Region_ntsc;
-        StatusRegister::unsetStatus(GPUSTATUS_PAL);
+        if (m_region != Region_ntsc)
+        {
+            m_region = Region_ntsc;
+            StatusRegister::unsetStatus(GPUSTATUS_PAL);
+            setFrameRate();
+        }
     }
     // color depth
     if (gdata & DRAWCMD_COLOR24)

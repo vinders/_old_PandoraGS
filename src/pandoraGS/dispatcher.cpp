@@ -147,31 +147,28 @@ void CALLBACK GPUwriteStatus(unsigned long gdata)
     {
         // set VRAM transfer mode
         case CMD_SETTRANSFERMODE: 
-            This::setDataTransferMode((ubuffer_t)gdata); return;
+            This::setDataTransferMode((ubuffer_t)gdata); break;
         // check GPU information (version, draw info, ...)
         case CMD_GPUREQUESTINFO: 
-            This::mem_dataExchangeBuffer = (unsigned long)This::st_displayState.getDrawInfo((ubuffer_t)gdata); return;
+            This::mem_dataExchangeBuffer = (unsigned long)This::st_displayState.getDrawInfo((ubuffer_t)gdata); break;
         // set display
         case CMD_TOGGLEDISPLAY: 
-            This::st_displayState.toggleDisplay((gdata & 0x1) != 0); return;
+            This::st_displayState.toggleDisplay((gdata & 0x1) != 0); break;
         case CMD_SETDISPLAYPOSITION: 
-            This::st_displayState.setDisplayPos(This::extractSmallPos((ubuffer_t)gdata, true)); return;
+            This::st_displayState.setDisplayPos(This::extractSmallPos((ubuffer_t)gdata, true)); break;
         case CMD_SETDISPLAYWIDTH:  
-            This::st_displayState.setWidth(This::extractPos((ubuffer_t)gdata)); return;
+            This::st_displayState.setWidth(This::extractPos((ubuffer_t)gdata)); break;
         case CMD_SETDISPLAYHEIGHT: 
-            This::st_displayState.setHeight(This::extractSmallPos((ubuffer_t)gdata, false)); return;
+            This::st_displayState.setHeight(This::extractSmallPos((ubuffer_t)gdata, false)); break;
         case CMD_SETDISPLAYINFO:
         {
             This::st_displayState.setDisplayState((ubuffer_t)gdata);
-            if (Config::sync_framerateLimit <= 0.02f) // == 0.0 (+ float error offset) = auto-detect
-                This::setFrameRate();
-            
             //... update display if changed //!
-            return;
+            break;
         }
         // reset GPU info
         case CMD_RESETGPU:
-            This::reset(); return;
+            This::reset(); break;
     }
 }
 
