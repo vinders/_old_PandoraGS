@@ -90,6 +90,8 @@ long CALLBACK GPUopen_PARAM_
 {
     try
     {
+        Timer::resetTimeReference(); // reset timer (in case GPUupdateLace is called meanwhile)
+
         // load associated profile (if not already loaded)
         if (Dispatcher::st_isFirstOpen || Config::getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
         {
@@ -119,10 +121,6 @@ long CALLBACK GPUopen_PARAM_
         #else
         SystemTools::createDisplayWindow();
         #endif
-
-        // reset frame skipping
-        Timer::setSkippingMode(Config::sync_isFrameSkip, Config::getCurrentProfile()->getFix(CFG_FIX_HALF_SKIPPING));
-        Timer::resetTimeReference();
         // fill window + allow rendering (unlock GPUupdateLace)
         Engine::initScreen();
         Dispatcher::st_displayState.set(false);
@@ -134,7 +132,10 @@ long CALLBACK GPUopen_PARAM_
         #else
         InputReader::start(Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1, Config::dsp_isFullscreen);
         #endif
-        Timer::resetTimeReference(); // reset again (in case GPUupdateLace was called meanwhile)
+
+        // set frame skipping
+        Timer::setSkippingMode(Config::sync_isFrameSkip, Config::getCurrentProfile()->getFix(CFG_FIX_HALF_SKIPPING));
+        Timer::resetTimeReference();
     }
     catch (const std::exception& exc) // allocation failure
     {
@@ -186,9 +187,6 @@ void CALLBACK GPUupdateLace()
 #if _TRACE_CALLS == 1
     Logger::getInstance()->writeEntry("GPUupdateLace", "trace", "");
 #endif
-    if (Engine::isReady() == false) // skip first frames (requested while GPUopen is still loading...)
-        return;
-
     // interlacing (if CC game fix, done in GPUreadStatus)
     if (Config::getCurrentProfile()->getNotFix(CFG_FIX_STATUS_INTERLACE))
         Dispatcher::st_displayState.toggleOddFrameFlag();
@@ -299,7 +297,7 @@ void CALLBACK GPUupdateLace()
     }
     bool isSkipped = Timer::isPeriodSkipped();
     Timer::wait(Config::sync_isFrameLimit, InputReader::getSpeedStatus(), (Dispatcher::st_displayState.getOddFrameFlag() != 0));
-    if (isSkipped == false)
+    if (isSkipped == false && Engine::isReady())
         Engine::render();
 }
 
