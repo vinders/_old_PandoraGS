@@ -40,6 +40,15 @@ public:
     /// <summary>Set display size and stretching mode</summary>
     /// <param name="isWindowResized">Check new window size</param>
     static void setViewport(bool isWindowResized);
+
+
+    // -- GETTERS -- -----------------------------------------------------------
+
+    /// <summary>Check if window has been initialized</summary>
+    static bool isReady()
+    {
+        return s_isReady;
+    }
 };
 
 #endif

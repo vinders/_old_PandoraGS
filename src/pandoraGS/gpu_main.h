@@ -88,7 +88,7 @@ void CALLBACK GPUshowScreenPic(unsigned char* pmem);
 
 // -- DATA TRANSFER INTERFACE -- -----------------------------------------------
 
-// see "memory_dispatcher.h"
+// see "dispatcher.h"
 
 
 // -- MISCELLANEOUS -- ---------------------------------------------------------

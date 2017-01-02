@@ -90,8 +90,6 @@ long CALLBACK GPUopen_PARAM_
 {
     try
     {
-        // reload framerate values (may have changed in previous session)
-        //ConfigIO::loadFrameLimitConfig(); // ne pas le faire ? si on l'a changé, ce n'est pas pour que ça s'annule chaque fois qu'on fait ESC
         // load associated profile (if not already loaded)
         if (Dispatcher::st_isFirstOpen || Config::getGenFix(GEN_FIX_RELOAD_CFG_AFTER_OPEN))
         {
@@ -110,7 +108,6 @@ long CALLBACK GPUopen_PARAM_
                 DisplayState::s_displayWidths[4] = 368;
         }
 
-
         // create rendering window
         #ifdef _WINDOWS
         g_hWindow = hWindow;
@@ -122,9 +119,13 @@ long CALLBACK GPUopen_PARAM_
         #else
         SystemTools::createDisplayWindow();
         #endif
-        // fill window
+
+        // reset frame skipping
+        Timer::setSkippingMode(Config::sync_isFrameSkip, Config::getCurrentProfile()->getFix(CFG_FIX_HALF_SKIPPING));
+        Timer::resetTimeReference();
+        // fill window + allow rendering (unlock GPUupdateLace)
         Engine::initScreen();
-        Dispatcher::st_displayState.set(false);      
+        Dispatcher::st_displayState.set(false);
 
         // start user input tracker
         #ifdef _WINDOWS
@@ -133,10 +134,7 @@ long CALLBACK GPUopen_PARAM_
         #else
         InputReader::start(Config::misc_gpuKeys, (menu_t)Config::countProfiles() - 1, Config::dsp_isFullscreen);
         #endif
-
-        // reset frame skipping
-        Timer::setSkippingMode(Config::sync_isFrameSkip, Config::getCurrentProfile()->getFix(CFG_FIX_HALF_SKIPPING));
-        Timer::resetTimeReference();
+        Timer::resetTimeReference(); // reset again (in case GPUupdateLace was called meanwhile)
     }
     catch (const std::exception& exc) // allocation failure
     {
@@ -188,6 +186,9 @@ void CALLBACK GPUupdateLace()
 #if _TRACE_CALLS == 1
     Logger::getInstance()->writeEntry("GPUupdateLace", "trace", "");
 #endif
+    if (Engine::isReady() == false) // skip first frames (requested while GPUopen is still loading...)
+        return;
+
     // interlacing (if CC game fix, done in GPUreadStatus)
     if (Config::getCurrentProfile()->getNotFix(CFG_FIX_STATUS_INTERLACE))
         Dispatcher::st_displayState.toggleOddFrameFlag();
@@ -416,7 +417,7 @@ void CALLBACK GPUsetfix(unsigned long fixBits)
 
 // -- MEMORY MANAGEMENT INTERFACE -- -------------------------------------------
 
-// see "memory_dispatcher.h"
+// see "dispatcher.h"
 
 
 
