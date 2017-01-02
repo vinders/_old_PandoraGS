@@ -245,24 +245,6 @@ void ConfigIO::saveConfig(bool hasProfiles)
         throw new std::exception("Could not open or create the config registry key");
 }
 
-/// <summary>Load only frame limiting values</summary>
-void ConfigIO::loadFrameLimitConfig()
-{
-    // read saved data in registry (if available)
-    HKEY configKey;
-    DWORD type, size;
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, REG_KEY_PATH, 0, KEY_ALL_ACCESS, &configKey) == ERROR_SUCCESS)
-    {
-        // framerate
-        readRegBool(&(Config::sync_isFrameSkip), &configKey, L"FrameSkip", &type, &size);
-        readRegBool(&(Config::sync_isFrameLimit), &configKey, L"FrameLimit", &type, &size);
-        readRegFloat(&(Config::sync_framerateLimit), &configKey, L"Framerate", &type, &size);
-
-        RegCloseKey(configKey); // close
-    }
-}
-
-
 /// <summary>Load specific profile values from registry/file</summary>
 /// <param name="id">Profile identifier</param>
 /// <returns>Allocated config profile container (with loaded values)</returns>

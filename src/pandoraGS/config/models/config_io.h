@@ -48,9 +48,6 @@ public:
     /// <exception cref="std::exception">Key creation/opening failure</exception>
     static void saveConfig(bool hasProfiles);
 
-    /// <summary>Load only frame limiting values</summary>
-    static void loadFrameLimitConfig();
-
     /// <summary>Load specific profile values from registry/file</summary>
     /// <param name="id">Profile identifier</param>
     /// <returns>Allocated config profile container (with loaded values)</returns>
