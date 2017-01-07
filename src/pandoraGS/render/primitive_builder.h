@@ -56,7 +56,7 @@ public:
     /// <summary>Process single primitive (for testing purpose)</summary>
     /// <param name="pData">Primitive raw data</param>
     /// <param name="len">Primitive data length (number of 32bits blocks)</param>
-    static void processSinglePrimitive(unsigned char* pData, int len);
+    static void processSinglePrimitive(unsigned long* pData, int len);
 
     /// <summary>Extract command bits from display data</summary>
     /// <param name="gdata">Display data (first block)</param>

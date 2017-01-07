@@ -46,6 +46,6 @@ bool testUnit(unit_id_t unit, void* pWinData = NULL);
 /// <param name="pData">Primitive raw data</param>
 /// <param name="len">Primitive data length (number of 32bits blocks)</param>
 /// <param name="isFlipped">Flip indicator (only for rectangles)</param>
-void CALLBACK GPUtestPrimitive(unsigned char* pData, int len, bool isFlipped);
+void CALLBACK GPUtestPrimitive(unsigned long* pData, int len, bool isFlipped);
 
 #endif

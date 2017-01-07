@@ -47,13 +47,13 @@ inline void printError(const char* error)
 /// <param name="pData">Primitive raw data</param>
 /// <param name="len">Primitive data length (number of 32bits blocks)</param>
 /// <param name="isFlipped">Flip indicator (only for rectangles)</param>
-void CALLBACK GPUtestPrimitive(unsigned char* pData, int len, bool isFlipped)
+void CALLBACK GPUtestPrimitive(unsigned long* pData, int len, bool isFlipped)
 {
     // reset texture page
     unsigned long pTexpage[1] = { 0xE1000700 };
     if (isFlipped) // XY flip
         pTexpage[1] |= 0x00003000;
-    PrimitiveBuilder::processSinglePrimitive((unsigned char*)pTexpage, 1);
+    PrimitiveBuilder::processSinglePrimitive(pTexpage, 1);
 
     // process primitive
     PrimitiveBuilder::processSinglePrimitive(pData, len);

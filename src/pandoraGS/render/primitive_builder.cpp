@@ -245,14 +245,14 @@ bool PrimitiveBuilder::processDisplayData(loadmode_t& writeModeRef, unsigned lon
 /// <summary>Process single primitive (for testing purpose)</summary>
 /// <param name="pData">Primitive raw data</param>
 /// <param name="len">Primitive data length (number of 32bits blocks)</param>
-void PrimitiveBuilder::processSinglePrimitive(unsigned char* pData, int len)
+void PrimitiveBuilder::processSinglePrimitive(unsigned long* pData, int len)
 {
-    gpucmd_t command = pData[0];
+    gpucmd_t command = extractPrimitiveCommand(pData[0]);
     if (command < PRIMITIVE_NUMBER && (s_gpuDataCount = c_pPrimTable[command].size) > 0)
     {
         s_gpuCommand = command;
         memset(s_gpuMemCache, 0, 256 * sizeof(unsigned long));
-        unsigned long* pSrcMem = (unsigned long*)pData;
+        unsigned long* pSrcMem = pData;
         for (int i = 0; i < len; ++i) // test functions may pass data shorter than 256 -> no memcpy
         {
             s_gpuMemCache[i] = *pSrcMem;
