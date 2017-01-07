@@ -2,7 +2,7 @@
 ![GPLv2](https://img.shields.io/badge/license-GPL2-blue.svg)
 ![v0.2.2](https://img.shields.io/badge/latest-v0.2.2-blue.svg)
 ![Status](https://img.shields.io/badge/status-not_ready-red.svg)
-##Description
+
 PandoraGS is a GPU driver plugin for PlayStation emulators using the PSEmu Pro specification.
 #########################################################################
 
@@ -20,13 +20,14 @@ PandoraGS is a GPU driver plugin for PlayStation emulators using the PSEmu Pro s
 * configuration dialog - user-friendly UI with tabs
 * multilanguage support and error log system
 * debug mode - debug terminal + vram data export
-* testing utilities - unit testing, PS1 primitives testing, dialog box launcher
+* test utilities - unit testing, rendering primitive testing, dialog box launcher
 
-###To do (2017):
+###To do:
+* processing and rendering of primitives and attributes
 * graphics rendering (OpenGL)
+* test utility - short rendering demo
 * display management - screen resolution, internal resolution, ratio, stretching, cropping, mirroring, ...
-* processing and rendering of psx primitives
-* textures/sprites/screen filtering/upscaling
+* textures/sprites/screen filtering and upscaling
 * shader effects (AA, motion blur, bump mapping, color filters, noise, HDR, ...)
 * configuration dialog - final settings, profile creation tool
 * goodies (visual vibrations, snapshots, cursor, scanlines, ...)
