@@ -1,10 +1,14 @@
 #PandoraGS - GPU driver for emulator
-PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu Pro specification).
+![GPLv2](https://img.shields.io/badge/license-GPL2-blue.svg)
+![v0.2.2](https://img.shields.io/badge/latest-v0.2.2-blue.svg)
+![Status](https://img.shields.io/badge/status-not_ready-red.svg)
+##Description
+PandoraGS is a GPU driver plugin for PlayStation emulators using the PSEmu Pro specification.
 #########################################################################
 
     Author            : Romain Vinders
     Prog. languages   : C++, GLSL
-    Supported systems : Windows NT (Vista, 7, 8, 10+)
+    Supported systems : currently Windows NT (Vista, 7, 8, 10+)
     License           : GPLv2
 
 #########################################################################
