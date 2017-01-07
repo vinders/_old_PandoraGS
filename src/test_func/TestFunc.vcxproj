@@ -89,6 +89,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="demo.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="primitive.h" />
     <ClInclude Include="psemu.h" />
@@ -97,6 +98,7 @@
     <ClInclude Include="windowManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="demo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="primitive.cpp" />
     <ClCompile Include="windowManager.cpp" />

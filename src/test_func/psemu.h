@@ -9,7 +9,11 @@ Description : driver service interface (PSEmu)
 *******************************************************************************/
 #ifndef _PSEMU_H
 #define _PSEMU_H
-#include "globals.h"
+
+#include <Windows.h>
+#ifndef CALLBACK
+#define CALLBACK __stdcall
+#endif
 
 // -- DRIVER INIT INTERFACE -- -------------------------------------------------
 
@@ -20,15 +24,10 @@ long CALLBACK GPUinit();
 /// <returns>Success indicator</returns>
 long CALLBACK GPUshutdown();
 
-#ifdef _WINDOWS
-#define GPUopen_PARAM_ GPUopen(HWND hWindow)
-#else
-#define GPUopen_PARAM_ GPUopen(unsigned long* displayId,char* caption,char* configFile)
-#endif
 /// <summary>Driver opening/reopening (game started)</summary>
 /// <param name="hWindow">Emulator main window handle</param>
 /// <returns>Success indicator</returns>
-long CALLBACK GPUopen_PARAM_;
+long CALLBACK GPUopen(HWND hWindow);
 /// <summary>Driver closed (game stopped)</summary>
 /// <returns>Success indicator</returns>
 long CALLBACK GPUclose();
@@ -175,6 +174,6 @@ long CALLBACK GPUtestUnits(void* pWinData);
 /// <param name="pData">Primitive raw data</param>
 /// <param name="len">Primitive data length (number of 32bits blocks)</param>
 /// <param name="isFlipped">Flip indicator (only for rectangles)</param>
-void CALLBACK GPUtestPrimitive(unsigned char* pData, int len, bool isFlipped);
+void CALLBACK GPUtestPrimitive(unsigned long* pData, int len, bool isFlipped);
 
 #endif

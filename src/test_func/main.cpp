@@ -15,6 +15,7 @@ Description : test app - flow/unit tests -- entry point and test functions
 using namespace std;
 #include "windowManager.h"
 #include "primitive.h"
+#include "demo.h"
 #include "main.h"
 
 #include "psemu.h" // plugin PSEmu interface
@@ -24,7 +25,6 @@ FILE* openTestConsole(LPCWSTR title, short bufferHeight);
 void closeTestConsole(FILE* hfOut);
 void listPrimitives();
 bool renderPrimitive(int id, bool isFlipped);
-void renderAnimation();
 
 
 ///<summary>Test app to check plugin execution</summary>
@@ -58,6 +58,7 @@ void ProcessTest(HWND hWindow)
     GPUsetExeName("UNITTEST.001");
     if (GPUopen(hWindow) == 0)
     {
+        GPUsetfix(4096);
         GPUupdateLace();
 
         // ...
@@ -65,7 +66,7 @@ void ProcessTest(HWND hWindow)
         // ...
 
         // demo animation
-        renderAnimation();
+        renderDemoAnimation();
 
         // close renderer
         GPUclose();
@@ -206,7 +207,7 @@ void closeTestConsole(FILE* hfOut)
 bool renderPrimitive(int id, bool isFlipped)
 {
     // create primitive description
-    unsigned char* pPrim = NULL;
+    unsigned long* pPrim = NULL;
     int primLen = createPrimitive(id, &pPrim);
     if (primLen == -1)
         return false;
@@ -216,10 +217,4 @@ bool renderPrimitive(int id, bool isFlipped)
     // render primitive
     GPUtestPrimitive(pPrim, primLen, isFlipped);
     return true;
-}
-
-///<summary>Play demo animation</summary>
-void renderAnimation()
-{
-    //...
 }

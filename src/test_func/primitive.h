@@ -13,7 +13,7 @@ void listPrimitives();
 ///<param name="id">Primitive ID (type)</param>
 ///<param name="pOut">Output reference</param>
 ///<returns>Primitive length</returns>
-int createPrimitive(int id, unsigned char** pOut);
+int createPrimitive(int id, unsigned long** ppOut);
 
 ///<summary>Check if primitive can be flipped (rectangle)</summary>
 ///<param name="id">Primitive ID (type)</param>

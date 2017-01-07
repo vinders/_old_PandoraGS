@@ -297,13 +297,13 @@ void listPrimitives()
 ///<param name="id">Primitive ID (type)</param>
 ///<param name="pOut">Output reference</param>
 ///<returns>Primitive length</returns>
-int createPrimitive(int id, unsigned char** pOut)
+int createPrimitive(int id, unsigned long** ppOut)
 {
     if (id < 1 || id > MAX_PRIMITIVE_ID || (id > 0x2 && id < 0x20) || (id > 0x80 && id < 0xE1 && id != 0xA0 && id != 0xC0))
         return -1;
 
     --id;
-    *pOut = (unsigned char*)&primTestTable[id][1];
+    *ppOut = &primTestTable[id][1];
     return (int)primTestTable[id][0];
 }
 
