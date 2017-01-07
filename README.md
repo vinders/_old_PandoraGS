@@ -37,7 +37,6 @@ PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu compatible).
 * shader effects (AA, motion blur, bump mapping, color filters, noise, HDR, ...)
 * configuration dialog - final settings, profile creation tool
 * goodies (visual vibrations, snapshots, cursor, scanlines, ...)
-
-* gnu-linux (ubuntu) port
+* gnu-linux (debian/ubuntu) port
 * mac os (10.9+) port
 * support for PGXP
