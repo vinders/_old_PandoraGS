@@ -9,8 +9,12 @@
 PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu compatible).
 #########################################################################
 
-    Requirements : Visual C++ Runtimes 2013 (x86), OpenGL 4.1
-    Supported systems : Windows NT (Vista, 7, 8, 10+)
+    Author       : Romain Vinders
+    Languages    : English, French, Spanish, German (or external file)
+    Requirements : Windows NT 6.0+ (Vista, 7, 8, 10+),
+                   Visual C++ Runtimes 2013 (x86),
+                   OpenGL 4.1 compatible drivers,
+                   256MB VRAM or more
 
 #########################################################################
 
@@ -33,5 +37,7 @@ PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu compatible).
 * shader effects (AA, motion blur, bump mapping, color filters, noise, HDR, ...)
 * configuration dialog - final settings, profile creation tool
 * goodies (visual vibrations, snapshots, cursor, scanlines, ...)
-* user input - pause/freeze game
-* linux / os x port
+
+* gnu-linux (ubuntu) port
+* mac os (10.9+) port
+* support for PGXP
