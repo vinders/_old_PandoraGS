@@ -39,17 +39,17 @@ namespace Primitive
             return ((unsigned long)(raw >> 8) & 0x0FFuL);
         }
 
-        inline uint16_t clut_x() { return ((unsigned long)(raw >> 12) & 0x3F0uL); }   // CLUT - X coordinate: 0, 16, ...
-        inline uint16_t clut_y() { return ((unsigned long)(raw >> 22) & 0x1FFuL); }   // CLUT - Y coordinate: 0-511
-        inline uint16_t tpage_x() { return ((unsigned long)(raw >> 10) & 0x3C0uL); }  // Texpage - X base: 0, 64, ...
-        inline uint16_t tpage_y() { return ((unsigned long)(raw >> 12) & 0x100uL); }  // Texpage - Y base: 0 or 256
-        inline bool tpage_isTextureDisabled() { return ((raw & 0x8000000uL) != 0uL); }// Texpage - Texture mode - normal (0) or disable (1) if texture disabling allowed (GP1(09h).bit0 == 1)
-        inline colordepth_t tpage_colorDepth() // Texpage - Y base: 0 or 256
+        inline uint16_t clutX() { return ((unsigned long)(raw >> 12) & 0x3F0uL); }  // CLUT - X coordinate: 0, 16, ...
+        inline uint16_t clutY() { return ((unsigned long)(raw >> 22) & 0x1FFuL); }  // CLUT - Y coordinate: 0-511
+        inline uint16_t tpageX() { return ((unsigned long)(raw >> 10) & 0x3C0uL); } // Texpage - X base: 0, 64, ...
+        inline uint16_t tpageY() { return ((unsigned long)(raw >> 12) & 0x100uL); } // Texpage - Y base: 0 or 256
+        inline bool isTextureDisabled() { return ((raw & 0x8000000uL) != 0uL); }    // Texpage - Texture mode - normal (0) or disable (1) if texture disabling allowed (GP1(09h).bit0 == 1)
+        inline colordepth_t colorDepth() // Texpage - Y base: 0 or 256
         { 
             uint8_t val = ((unsigned long)(raw >> 23) & 0x3uL);
             return (colordepth_t)val;
         }    
-        inline stp_t tpage_semiTransparency()  // Texpage - Semi-transparency
+        inline stp_t semiTransparency()  // Texpage - Semi-transparency
         { 
             uint8_t val = ((unsigned long)(raw >> 21) & 0x3uL); 
             return (stp_t)val; 

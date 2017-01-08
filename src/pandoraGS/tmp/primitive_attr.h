@@ -79,7 +79,7 @@ namespace Primitive
         rgb24_t color;  // Primitive ID + rectangle color (RGB)
         coord16_t pos;  // top-left coordinates
         coord16_t size; // size (width / height)
-        // Horizontally the filling is done in 16-pixel (32-bytes) units.
+        // Horizontally the filling is done in 16-pixel (32-bytes) units (steps of 10h).
         // X-size==400h works only indirectly: handled as X-size==0. However, X-size==[3F1h..3FFh] is rounded-up as X-size==400h.
         // If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge.
         // NOT affected by the mask settings
