@@ -63,10 +63,10 @@ namespace Primitive
     typedef struct DR_STPMASK
     {
         unsigned long raw;
-        inline bool isMaskForced() { return ((raw & 0x1uL) != 0uL); } // Set mask while drawing (0 = texture with bit 15 ; 1 = force bit15=1)
+        inline bool isMaskBitForced() { return ((raw & 0x1uL) != 0uL); }  // Set mask while drawing (0 = texture with bit 15 ; 1 = force bit15=1)
         // When bit0 is off, the upper bit of data written to framebuffer is equal to bit15 of the texture color 
           // (it is set for colors that are marked as "semi-transparent"). For untextured polygons, bit15 is set to zero.
-        inline bool y() { return ((raw & 0x2uL) != 0uL); }            // Check mask before drawing (0 = always draw ; 1 = draw if bit15==0)
+        inline bool isMaskBitChecked() { return ((raw & 0x2uL) != 0uL); } // Check mask before drawing (0 = always draw ; 1 = draw if bit15==0)
         // When bit1 is on, any old pixels in the framebuffer with bit15==1 are write-protected, and cannot be overwritten by rendering commands.
         // The mask setting affects all rendering commands, as well as CPU-to-VRAM and VRAM-to-VRAM transfer commands (where it acts as for 15bit textures). 
           // However, Mask does NOT affect the Fill-VRAM command.

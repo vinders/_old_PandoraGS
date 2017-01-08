@@ -3,27 +3,10 @@
 
 #include <cstdint>
 #include <cstddef>
+#include "frame_buffer.h"
 
 namespace Primitive
 {
-    // -- data types - values -- -----------------------------------------------
-
-    enum stp_t : uint8_t // semi-transparency (B=back ; F=forward)
-    {
-        Stp_mean = 0, // B/2 + F/2
-        Stp_add = 1,  // B + F
-        Stp_sub = 2,  // B - F
-        Stp_addQuarter = 3  // B + F/4
-    };
-    enum colordepth_t : uint8_t // semi-transparency (B=back ; F=forward)
-    {
-        Colordepth_4 = 0, // 4-bit
-        Colordepth_8 = 1,  // 8-bit
-        Colordepth_15 = 2,  // 15-bit
-        Colordepth_res = 3  // reserved
-    };
-
-
     // -- data types - read raw data -- ----------------------------------------
 
     // 8-bit coordinates + texture attribut (MiscYyXx)
