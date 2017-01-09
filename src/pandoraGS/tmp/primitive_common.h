@@ -66,7 +66,7 @@ namespace Primitive
     typedef struct RGB16
     {
         unsigned long raw;
-        inline bool mask() // m
+        inline bool isMask() // m0000000
         {
             return ((raw >> 15) != 0uL);
         }

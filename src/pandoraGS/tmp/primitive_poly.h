@@ -29,86 +29,106 @@ namespace Primitive
     // Flat-shaded triangle
     typedef struct POLY_F3
     {
-        rgb24_t color;           // Primitive ID (pad) + triangle color (RGB)
-        vertex_f1_t vertices[3]; // Vertex coordinates
+        rgb24_t color;       // Primitive ID (pad) + triangle color (RGB)
+        vertex_f1_t vertex0; // Vertex coordinates
+        vertex_f1_t vertex1; // Vertex coordinates
+        vertex_f1_t vertex2; // Vertex coordinates
     } poly_f3_t;
 
     // Flat-shaded quad
     typedef struct POLY_F4
     {
-        rgb24_t color;           // Primitive ID (pad) + quad color (RGB)
-        vertex_f1_t vertices[4]; // Vertex coordinates (top-left)
+        rgb24_t color;       // Primitive ID (pad) + quad color (RGB)
+        vertex_f1_t vertex0; // Vertex coordinates (top-left)
+        vertex_f1_t vertex1; // Vertex coordinates (top-left)
+        vertex_f1_t vertex2; // Vertex coordinates (top-left)
+        vertex_f1_t vertex3; // Vertex coordinates (top-left)
         // sub-triangles
-        inline vertex_f1_t triangle0(int vertex) { return vertices[QUAD_TRIANGLE0_INDEX]; }
-        inline vertex_f1_t triangle1(int vertex) { return vertices[QUAD_TRIANGLE1_INDEX]; }
+        inline vertex_f1_t triangle0(int vertex) { return (&vertex0)[QUAD_TRIANGLE0_INDEX]; }
+        inline vertex_f1_t triangle1(int vertex) { return (&vertex0)[QUAD_TRIANGLE1_INDEX]; }
     } poly_f4_t;
 
     // Flat-shaded texture-mapped triangle
     typedef struct POLY_FT3
     {
-        rgb24_t color;            // Primitive ID (pad) + triangle color (RGB)
-        vertex_ft1_t vertices[3]; // Vertex coordinates/texture (coord + CLUT/texpage)
+        rgb24_t color;        // Primitive ID (pad) + triangle color (RGB)
+        vertex_ft1_t vertex0; // Vertex coordinates/texture (coord + CLUT)
+        vertex_ft1_t vertex1; // Vertex coordinates/texture (coord + texpage)
+        vertex_ft1_t vertex2; // Vertex coordinates/texture (coord)
         // texture information
-        inline unsigned long clutX()    { return vertices[0].texture.clutX(); }
-        inline unsigned long clutY()    { return vertices[0].texture.clutY(); }
-        inline unsigned long texpageX() { return vertices[1].texture.texpageX(); }
-        inline unsigned long texpageY() { return vertices[1].texture.texpageY(); }
+        inline unsigned long clutX()    { return vertex0.texture.clutX(); }
+        inline unsigned long clutY()    { return vertex0.texture.clutY(); }
+        inline unsigned long texpageX() { return vertex1.texture.texpageX(); }
+        inline unsigned long texpageY() { return vertex1.texture.texpageY(); }
     } poly_ft3_t;
 
     // Flat-shaded texture-mapped quad
     typedef struct POLY_FT4
     {
-        rgb24_t color;            // Primitive ID (pad) + quad color (RGB)
-        vertex_ft1_t vertices[4]; // Vertex coordinates/texture (coord + CLUT/texpage)
+        rgb24_t color;        // Primitive ID (pad) + quad color (RGB)
+        vertex_ft1_t vertex0; // Vertex coordinates/texture (coord + CLUT)
+        vertex_ft1_t vertex1; // Vertex coordinates/texture (coord + texpage)
+        vertex_ft1_t vertex2; // Vertex coordinates/texture (coord)
+        vertex_ft1_t vertex3; // Vertex coordinates/texture (coord)
         // sub-triangles
-        inline vertex_ft1_t triangle0(int vertex) { return vertices[QUAD_TRIANGLE0_INDEX]; }
-        inline vertex_ft1_t triangle1(int vertex) { return vertices[QUAD_TRIANGLE1_INDEX]; }
+        inline vertex_ft1_t triangle0(int vertex) { return (&vertex0)[QUAD_TRIANGLE0_INDEX]; }
+        inline vertex_ft1_t triangle1(int vertex) { return (&vertex0)[QUAD_TRIANGLE1_INDEX]; }
         // texture information
-        inline unsigned long clutX()    { return vertices[0].texture.clutX(); }
-        inline unsigned long clutY()    { return vertices[0].texture.clutY(); }
-        inline unsigned long texpageX() { return vertices[1].texture.texpageX(); }
-        inline unsigned long texpageY() { return vertices[1].texture.texpageY(); }
+        inline unsigned long clutX()    { return vertex0.texture.clutX(); }
+        inline unsigned long clutY()    { return vertex0.texture.clutY(); }
+        inline unsigned long texpageX() { return vertex1.texture.texpageX(); }
+        inline unsigned long texpageY() { return vertex1.texture.texpageY(); }
     } poly_ft4_t;
 
 
     // Gouraud-shaded triangle
     typedef struct POLY_G3
     {
-        vertex_g1_t vertices[3]; // Primitive ID + vertex color/coordinates
+        vertex_g1_t vertex0; // Primitive ID + vertex color/coordinates
+        vertex_g1_t vertex1; // Vertex color/coordinates
+        vertex_g1_t vertex2; // Vertex color/coordinates
     } poly_g3_t;
 
     // Gouraud-shaded quad
     typedef struct POLY_G4
     {
-        vertex_g1_t vertices[4]; // Primitive ID + vertex color/coordinates
+        vertex_g1_t vertex0; // Primitive ID + vertex color/coordinates
+        vertex_g1_t vertex1; // Vertex color/coordinates
+        vertex_g1_t vertex2; // Vertex color/coordinates
+        vertex_g1_t vertex3; // Vertex color/coordinates
         // sub-triangles
-        inline vertex_g1_t triangle0(int vertex) { return vertices[QUAD_TRIANGLE0_INDEX]; }
-        inline vertex_g1_t triangle1(int vertex) { return vertices[QUAD_TRIANGLE1_INDEX]; }
+        inline vertex_g1_t triangle0(int vertex) { return (&vertex0)[QUAD_TRIANGLE0_INDEX]; }
+        inline vertex_g1_t triangle1(int vertex) { return (&vertex0)[QUAD_TRIANGLE1_INDEX]; }
     } poly_g4_t;
 
     // Gouraud-shaded texture-mapped triangle
     typedef struct POLY_GT3
     {
-        vertex_gt1_t vertices[3]; // Primitive ID + vertex color/coordinates/texture (coord + CLUT/texpage)
+        vertex_gt1_t vertex0; // Primitive ID + vertex color/coordinates/texture (coord + CLUT)
+        vertex_gt1_t vertex1; // Vertex color/coordinates/texture (coord + texpage)
+        vertex_gt1_t vertex2; // Vertex color/coordinates/texture (coord)
         // texture information
-        inline unsigned long clutX()    { return vertices[0].texture.clutX(); }
-        inline unsigned long clutY()    { return vertices[0].texture.clutY(); }
-        inline unsigned long texpageX() { return vertices[1].texture.texpageX(); }
-        inline unsigned long texpageY() { return vertices[1].texture.texpageY(); }
+        inline unsigned long clutX()    { return vertex0.texture.clutX(); }
+        inline unsigned long clutY()    { return vertex0.texture.clutY(); }
+        inline unsigned long texpageX() { return vertex1.texture.texpageX(); }
+        inline unsigned long texpageY() { return vertex1.texture.texpageY(); }
     } poly_gt3_t;
 
     // Gouraud-shaded texture-mapped quad
     typedef struct POLY_GT4
     {
-        vertex_gt1_t vertices[4]; // Primitive ID + vertex color/coordinates/texture (coord + CLUT/texpage)
+        vertex_gt1_t vertex0; // Primitive ID + vertex color/coordinates/texture (coord + CLUT)
+        vertex_gt1_t vertex1; // Vertex color/coordinates/texture (coord + texpage)
+        vertex_gt1_t vertex2; // Vertex color/coordinates/texture (coord)
+        vertex_gt1_t vertex3; // Vertex color/coordinates/texture (coord)
         // sub-triangles
-        inline vertex_gt1_t triangle0(int vertex) { return vertices[QUAD_TRIANGLE0_INDEX]; }
-        inline vertex_gt1_t triangle1(int vertex) { return vertices[QUAD_TRIANGLE1_INDEX]; }
+        inline vertex_gt1_t triangle0(int vertex) { return (&vertex0)[QUAD_TRIANGLE0_INDEX]; }
+        inline vertex_gt1_t triangle1(int vertex) { return (&vertex0)[QUAD_TRIANGLE1_INDEX]; }
         // texture information
-        inline unsigned long clutX()    { return vertices[0].texture.clutX(); }
-        inline unsigned long clutY()    { return vertices[0].texture.clutY(); }
-        inline unsigned long texpageX() { return vertices[1].texture.texpageX(); }
-        inline unsigned long texpageY() { return vertices[1].texture.texpageY(); }
+        inline unsigned long clutX()    { return vertex0.texture.clutX(); }
+        inline unsigned long clutY()    { return vertex0.texture.clutY(); }
+        inline unsigned long texpageX() { return vertex1.texture.texpageX(); }
+        inline unsigned long texpageY() { return vertex1.texture.texpageY(); }
     } poly_gt4_t;
 }
 
