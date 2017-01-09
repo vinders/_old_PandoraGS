@@ -1,6 +1,7 @@
 #ifndef _FRAMEBUFFER_H
 #define _FRAMEBUFFER_H
 
+#include <cstdint>
 #include "video_memory.hpp"
 #include "geometry.hpp"
 
@@ -20,7 +21,7 @@ enum colordepth_t : uint8_t // semi-transparency (B=back ; F=forward)
     Colordepth_res = 3  // reserved
 };
 
-// Virtual PSx GPU framebuffer
+// Emulated GPU framebuffer
 class FrameBuffer
 {
 private:

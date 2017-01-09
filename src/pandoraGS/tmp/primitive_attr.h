@@ -11,22 +11,22 @@ namespace Primitive
     typedef struct DR_TEXPAGE
     {
         unsigned long raw;
-
-        inline uint16_t x() { return ((unsigned long)(raw << 6) & 0x3C0uL); } // Texture page X base: 0, 64, ...
-        inline uint16_t y() { return ((unsigned long)(raw << 4) & 0x100uL); } // Texture page Y base: 0 or 256
-        inline bool isDithered() { return ((raw & 0x200uL) != 0uL); }         // Dither 24bit to 15bit (0 = off (strip LSBs) ; 1 = enabled)
-        inline bool isDrawingAllowed() { return ((raw & 0x400uL) != 0uL); }   // Drawing to display area (0 = forbidden ; 1 = allowed)
+        // attributes
+        inline unsigned long x() { return ((raw << 6) & 0x3C0uL); }    // Texture page X base: 0, 64, ...
+        inline unsigned long y() { return ((raw << 4) & 0x100uL); }    // Texture page Y base: 0 or 256
+        inline bool isXFlip()    { return ((raw & 0x1000uL) != 0uL); } // Textured rectangle X-flip
+        inline bool isYFlip()    { return ((raw & 0x2000uL) != 0uL); } // Textured rectangle Y-flip
+        inline bool isDithered() { return ((raw & 0x200uL) != 0uL); }  // Dither 24bit to 15bit (0 = off (strip LSBs) ; 1 = enabled)
+        inline bool isDrawingAllowed()  { return ((raw & 0x400uL) != 0uL); }  // Drawing to display area (0 = forbidden ; 1 = allowed)
         inline bool isTextureDisabled() { return ((raw & 0x800uL) != 0uL); }  // Texture mode - normal (0) or disable (1) if texture disabling allowed (GP1(09h).bit0 == 1)
-        inline bool isXFlip() { return ((raw & 0x1000uL) != 0uL); }           // Textured rectangle X-flip
-        inline bool isYFlip() { return ((raw & 0x2000uL) != 0uL); }           // Textured rectangle Y-flip
-        inline colordepth_t colorDepth() // Texpage - Y base: 0 or 256
+        inline colordepth_t colorDepth() // Color depth mode (4-bit, 8-bit, 15-bit)
         {
-            uint8_t val = ((unsigned long)(raw >> 7) & 0x3uL);
+            unsigned long val = ((unsigned long)(raw >> 7) & 0x3uL);
             return (colordepth_t)val;
         }
-        inline stp_t semiTransparency()  // Texpage - Semi-transparency
+        inline stp_t semiTransparency()  // Semi-transparency mode
         {
-            uint8_t val = ((unsigned long)(raw >> 5) & 0x3uL);
+            unsigned long val = ((unsigned long)(raw >> 5) & 0x3uL);
             return (stp_t)val;
         }
     } attr_texpage_t;
@@ -35,11 +35,11 @@ namespace Primitive
     typedef struct DR_TEXWIN
     {
         unsigned long raw;
-
-        inline uint16_t maskX() { return (raw & 0x1FuL); }                        // Mask X (8 pixel steps) = manipulated bits
-        inline uint16_t maskY() { return ((unsigned long)(raw >> 5) & 0x1FuL); }  // Mask Y (8 pixel steps)
-        inline uint16_t offsetX() { return ((unsigned long)(raw >> 10) & 0x1FuL); } // Offset X (8 pixel steps) = value for these bits
-        inline uint16_t offsetY() { return ((unsigned long)(raw >> 15) & 0x1FuL); } // Offset Y (8 pixel steps)
+        // attributes
+        inline unsigned long maskX()   { return (raw & 0x1FuL); }         // Mask X (8 pixel steps) = manipulated bits
+        inline unsigned long maskY()   { return ((raw >> 5) & 0x1FuL); }  // Mask Y (8 pixel steps)
+        inline unsigned long offsetX() { return ((raw >> 10) & 0x1FuL); } // Offset X (8 pixel steps) = value for these bits
+        inline unsigned long offsetY() { return ((raw >> 15) & 0x1FuL); } // Offset Y (8 pixel steps)
         // texcoord = (texcoord AND (NOT (mask*8))) OR ((offset AND mask)*8)
         // Area within texture window is repeated throughout the texture page (repeats not stored, but "read" as if present)
     } attr_texwin_t;
@@ -48,21 +48,24 @@ namespace Primitive
     typedef struct DR_AREA
     {
         unsigned long raw;
-        inline uint16_t x() { return (raw & 0x3FFuL); }                        // X coordinate
-        inline uint16_t y() { return ((unsigned long)(raw >> 10) & 0x3FFuL); } // Y coordinate (must be framebuffer height max (e.g. 512) -> check it before using it)
+        // attributes
+        inline unsigned long x() { return (raw & 0x3FFuL); }         // X coordinate
+        inline unsigned long y() { return ((raw >> 10) & 0x3FFuL); } // Y coordinate (must be framebuffer height max (e.g. 512) -> check it before using it)
     } attr_drawarea_t;
     // Drawing offset modification
     typedef struct DR_OFFSET
     {
         unsigned long raw;
-        inline int16_t x() { return (raw & 0x7FFuL); }                        // X coordinate
-        inline int16_t y() { return ((unsigned long)(raw >> 11) & 0x7FFuL); } // Y coordinate
+        // attributes
+        inline unsigned long x() { return (raw & 0x7FFuL); }         // X coordinate
+        inline unsigned long y() { return ((raw >> 11) & 0x7FFuL); } // Y coordinate
     } attr_drawoffset_t;
 
     // Semi-transparency bit change
     typedef struct DR_STPMASK
     {
         unsigned long raw;
+        // attributes
         inline bool isMaskBitForced() { return ((raw & 0x1uL) != 0uL); }  // Set mask while drawing (0 = texture with bit 15 ; 1 = force bit15=1)
         // When bit0 is off, the upper bit of data written to framebuffer is equal to bit15 of the texture color 
           // (it is set for colors that are marked as "semi-transparent"). For untextured polygons, bit15 is set to zero.

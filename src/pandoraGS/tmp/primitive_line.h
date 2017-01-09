@@ -19,16 +19,14 @@ namespace Primitive
     // Flat-shaded line
     typedef struct LINE_F2
     {
-        rgb24_t color;       // Primitive ID (pad) + line color (RGB)
-        vertex_f1_t vertex0; // Vertex coordinates
-        vertex_f1_t vertex1; // Vertex coordinates
+        rgb24_t color;           // Primitive ID (pad) + line color (RGB)
+        vertex_f1_t vertices[2]; // Vertex coordinates
     } line_f2_t;
 
     // Gouraud-shaded line
     typedef struct LINE_G2
     {
-        vertex_g1_t vertex0; // Primitive ID (pad) + vertex color/coordinates
-        vertex_g1_t vertex1; // Vertex color/coordinates
+        vertex_g1_t vertices[2]; // Primitive ID (pad) + vertex color/coordinates
     } line_g2_t;
 
     // Flat-shaded poly-line
