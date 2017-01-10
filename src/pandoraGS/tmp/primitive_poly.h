@@ -1,8 +1,22 @@
+/*******************************************************************************
+PANDORAGS project - PS1 GPU driver
+------------------------------------------------------------------------
+Author  :     Romain Vinders
+License :     GPLv2
+------------------------------------------------------------------------
+File name :   primitive_poly.h
+Description : primitive processing - polygons
+*******************************************************************************/
 #ifndef _PRIMITIVE_POLY_H
 #define _PRIMITIVE_POLY_H
 
-#define QUAD_TRIANGLE0_INDEX vertex
-#define QUAD_TRIANGLE1_INDEX 3-vertex
+// quad to triangle
+#define TRIANGLE0_VTX0 vertex0
+#define TRIANGLE0_VTX1 vertex1
+#define TRIANGLE0_VTX2 vertex2
+#define TRIANGLE1_VTX0 vertex2
+#define TRIANGLE1_VTX1 vertex1
+#define TRIANGLE1_VTX2 vertex3
 
 #include "primitive_common.h"
 
@@ -33,6 +47,8 @@ namespace Primitive
         vertex_f1_t vertex0; // Vertex coordinates
         vertex_f1_t vertex1; // Vertex coordinates
         vertex_f1_t vertex2; // Vertex coordinates
+        // length
+        static inline long size() { return 4; }
     } poly_f3_t;
 
     // Flat-shaded quad
@@ -43,9 +59,8 @@ namespace Primitive
         vertex_f1_t vertex1; // Vertex coordinates (top-left)
         vertex_f1_t vertex2; // Vertex coordinates (top-left)
         vertex_f1_t vertex3; // Vertex coordinates (top-left)
-        // sub-triangles
-        inline vertex_f1_t triangle0(int vertex) { return (&vertex0)[QUAD_TRIANGLE0_INDEX]; }
-        inline vertex_f1_t triangle1(int vertex) { return (&vertex0)[QUAD_TRIANGLE1_INDEX]; }
+        // length
+        static inline long size() { return 5; }
     } poly_f4_t;
 
     // Flat-shaded texture-mapped triangle
@@ -60,6 +75,8 @@ namespace Primitive
         inline unsigned long clutY()    { return vertex0.texture.clutY(); }
         inline unsigned long texpageX() { return vertex1.texture.texpageX(); }
         inline unsigned long texpageY() { return vertex1.texture.texpageY(); }
+        // length
+        static inline long size() { return 7; }
     } poly_ft3_t;
 
     // Flat-shaded texture-mapped quad
@@ -70,14 +87,13 @@ namespace Primitive
         vertex_ft1_t vertex1; // Vertex coordinates/texture (coord + texpage)
         vertex_ft1_t vertex2; // Vertex coordinates/texture (coord)
         vertex_ft1_t vertex3; // Vertex coordinates/texture (coord)
-        // sub-triangles
-        inline vertex_ft1_t triangle0(int vertex) { return (&vertex0)[QUAD_TRIANGLE0_INDEX]; }
-        inline vertex_ft1_t triangle1(int vertex) { return (&vertex0)[QUAD_TRIANGLE1_INDEX]; }
         // texture information
         inline unsigned long clutX()    { return vertex0.texture.clutX(); }
         inline unsigned long clutY()    { return vertex0.texture.clutY(); }
         inline unsigned long texpageX() { return vertex1.texture.texpageX(); }
         inline unsigned long texpageY() { return vertex1.texture.texpageY(); }
+        // length
+        static inline long size() { return 9; }
     } poly_ft4_t;
 
 
@@ -87,6 +103,8 @@ namespace Primitive
         vertex_g1_t vertex0; // Primitive ID + vertex color/coordinates
         vertex_g1_t vertex1; // Vertex color/coordinates
         vertex_g1_t vertex2; // Vertex color/coordinates
+        // length
+        static inline long size() { return 6; }
     } poly_g3_t;
 
     // Gouraud-shaded quad
@@ -96,9 +114,8 @@ namespace Primitive
         vertex_g1_t vertex1; // Vertex color/coordinates
         vertex_g1_t vertex2; // Vertex color/coordinates
         vertex_g1_t vertex3; // Vertex color/coordinates
-        // sub-triangles
-        inline vertex_g1_t triangle0(int vertex) { return (&vertex0)[QUAD_TRIANGLE0_INDEX]; }
-        inline vertex_g1_t triangle1(int vertex) { return (&vertex0)[QUAD_TRIANGLE1_INDEX]; }
+        // length
+        static inline long size() { return 8; }
     } poly_g4_t;
 
     // Gouraud-shaded texture-mapped triangle
@@ -112,6 +129,8 @@ namespace Primitive
         inline unsigned long clutY()    { return vertex0.texture.clutY(); }
         inline unsigned long texpageX() { return vertex1.texture.texpageX(); }
         inline unsigned long texpageY() { return vertex1.texture.texpageY(); }
+        // length
+        static inline long size() { return 9; }
     } poly_gt3_t;
 
     // Gouraud-shaded texture-mapped quad
@@ -121,15 +140,26 @@ namespace Primitive
         vertex_gt1_t vertex1; // Vertex color/coordinates/texture (coord + texpage)
         vertex_gt1_t vertex2; // Vertex color/coordinates/texture (coord)
         vertex_gt1_t vertex3; // Vertex color/coordinates/texture (coord)
-        // sub-triangles
-        inline vertex_gt1_t triangle0(int vertex) { return (&vertex0)[QUAD_TRIANGLE0_INDEX]; }
-        inline vertex_gt1_t triangle1(int vertex) { return (&vertex0)[QUAD_TRIANGLE1_INDEX]; }
         // texture information
         inline unsigned long clutX()    { return vertex0.texture.clutX(); }
         inline unsigned long clutY()    { return vertex0.texture.clutY(); }
         inline unsigned long texpageX() { return vertex1.texture.texpageX(); }
         inline unsigned long texpageY() { return vertex1.texture.texpageY(); }
+        // length
+        static inline long size() { return 12; }
     } poly_gt4_t;
+
+
+    // - primitive command functions - -----------------------------------------
+
+    void cmTriangleF(unsigned char* pData);  // POLY - triangle - flat-shaded
+    void cmTriangleG(unsigned char* pData);  // POLY - triangle - gouraud-shaded
+    void cmTriangleFT(unsigned char* pData); // POLY - triangle - texture-mapped
+    void cmTriangleGT(unsigned char* pData); // POLY - triangle - texture-mapped gouraud-shaded
+    void cmQuadF(unsigned char* pData);      // POLY - quad - flat-shaded
+    void cmQuadG(unsigned char* pData);      // POLY - quad - gouraud-shaded
+    void cmQuadFT(unsigned char* pData);     // POLY - quad - texture-mapped
+    void cmQuadGT(unsigned char* pData);     // POLY - quad - texture-mapped gouraud-shaded
 }
 
 #endif

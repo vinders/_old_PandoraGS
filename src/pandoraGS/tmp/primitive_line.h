@@ -1,5 +1,22 @@
+/*******************************************************************************
+PANDORAGS project - PS1 GPU driver
+------------------------------------------------------------------------
+Author  :     Romain Vinders
+License :     GPLv2
+------------------------------------------------------------------------
+File name :   primitive_line.h
+Description : primitive processing - lines
+*******************************************************************************/
 #ifndef _PRIMITIVE_LINE_H
 #define _PRIMITIVE_LINE_H
+
+#define POLYLINE_MAX_DATA_LEN 255
+#define POLYLINE_F_MIN_DATA_LEN 3 // flat-shaded line: at least 1 color + 2 vertices
+#define POLYLINE_G_MIN_DATA_LEN 4 // gouraud-shaded line: at least 2 colors + 2 vertices
+#define isPolyLineEndCode(DATA) ((DATA&0xF000F000)==0x50005000)
+#define isNotPolyLineEndCode(DATA) ((DATA&0xF000F000)!=0x50005000)
+#define isFPolyLineEndable(LEN) ((LEN)>=line_fp_t::minSize())
+#define isGPolyLineEndable(LEN) ((LEN)>=line_gp_t::minSize() && !((LEN)&1)) // gouraud-shaded: N*(color+vertex) -> even number
 
 #include "primitive_common.h"
 
@@ -19,6 +36,8 @@ namespace Primitive
         rgb24_t color;       // Primitive ID (pad) + line color (RGB)
         vertex_f1_t vertex0; // Vertex coordinates
         vertex_f1_t vertex1; // Vertex coordinates
+        // length
+        static inline long size() { return 3; }
     } line_f2_t;
 
     // Gouraud-shaded line
@@ -26,6 +45,8 @@ namespace Primitive
     {
         vertex_g1_t vertex0; // Primitive ID (pad) + vertex color/coordinates
         vertex_g1_t vertex1; // Vertex color/coordinates
+        // length
+        static inline long size() { return 4; }
     } line_g2_t;
 
     // Flat-shaded poly-line
@@ -36,6 +57,8 @@ namespace Primitive
         vertex_f1_t vertex1; // Vertex coordinates
         vertex_f1_t vertex2; // Vertex coordinates OR end code (0x55555555)
         // up to 253 vertices + end code
+        static inline long maxSize() { return POLYLINE_MAX_DATA_LEN; }
+        static inline long minSize() { return POLYLINE_F_MIN_DATA_LEN; }
     } line_fp_t;
 
     // Gouraud-shaded poly-line
@@ -45,6 +68,8 @@ namespace Primitive
         vertex_g1_t vertex1; // Vertex color/coordinates
         vertex_g1_t vertex2; // Vertex color/coordinates OR end code (0x55555555)
         // up to 127 vertices + end code
+        static inline long maxSize() { return POLYLINE_MAX_DATA_LEN; }
+        static inline long minSize() { return POLYLINE_G_MIN_DATA_LEN; }
     } line_gp_t;
 
 
@@ -70,7 +95,7 @@ namespace Primitive
             if (++count < 254) // less than max vertices nb
             {
                 ++pVertex;
-                return ((pVertex->raw & 0xF000F000) != 0x50005000); // end code
+                return isNotPolyLineEndCode(pVertex->raw); // end code
             }
             return false;
         }
@@ -105,7 +130,7 @@ namespace Primitive
             if (++count < 127) // less than max vertices nb
             {
                 ++pVertex;
-                return ((pVertex->color.raw & 0xF000F000) != 0x50005000); // end code
+                return isNotPolyLineEndCode(pVertex->color.raw); // end code
             }
             return false;
         }
@@ -116,6 +141,14 @@ namespace Primitive
             return *pVertex;
         }
     } line_gp_iterator;
+
+
+    // - primitive command functions - -----------------------------------------
+
+    void cmLineF(unsigned char* pData);     // LINE - flat-shaded
+    void cmLineG(unsigned char* pData);     // LINE - gouraud-shaded
+    void cmPolyLineF(unsigned char* pData); // LINE - poly-line - flat-shaded
+    void cmPolyLineG(unsigned char* pData); // LINE - poly-line - gouraud-shaded
 }
 
 #endif

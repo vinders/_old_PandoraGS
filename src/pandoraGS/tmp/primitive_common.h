@@ -1,3 +1,12 @@
+/*******************************************************************************
+PANDORAGS project - PS1 GPU driver
+------------------------------------------------------------------------
+Author  :     Romain Vinders
+License :     GPLv2
+------------------------------------------------------------------------
+File name :   primitive_common.h
+Description : primitive processing - common tools
+*******************************************************************************/
 #ifndef _PRIMITIVE_COMMON_H
 #define _PRIMITIVE_COMMON_H
 

@@ -29,6 +29,8 @@ namespace Primitive
             unsigned long val = ((unsigned long)(raw >> 5) & 0x3uL);
             return (stp_t)val;
         }
+        // length
+        static inline long size() { return 1; }
     } attr_texpage_t;
 
     // Texture window change
@@ -42,6 +44,7 @@ namespace Primitive
         inline unsigned long offsetY() { return ((raw >> 15) & 0x1FuL); } // Offset Y (8 pixel steps)
         // texcoord = (texcoord AND (NOT (mask*8))) OR ((offset AND mask)*8)
         // Area within texture window is repeated throughout the texture page (repeats not stored, but "read" as if present)
+        static inline long size() { return 1; } // length
     } attr_texwin_t;
 
     // Drawing area change
@@ -51,6 +54,8 @@ namespace Primitive
         // attributes
         inline unsigned long x() { return (raw & 0x3FFuL); }         // X coordinate
         inline unsigned long y() { return ((raw >> 10) & 0x3FFuL); } // Y coordinate (must be framebuffer height max (e.g. 512) -> check it before using it)
+        // length
+        static inline long size() { return 1; }
     } attr_drawarea_t;
     // Drawing offset modification
     typedef struct DR_OFFSET
@@ -59,6 +64,8 @@ namespace Primitive
         // attributes
         inline unsigned long x() { return (raw & 0x7FFuL); }         // X coordinate
         inline unsigned long y() { return ((raw >> 11) & 0x7FFuL); } // Y coordinate
+        // length
+        static inline long size() { return 1; }
     } attr_drawoffset_t;
 
     // Semi-transparency bit change
@@ -73,6 +80,7 @@ namespace Primitive
         // When bit1 is on, any old pixels in the framebuffer with bit15==1 are write-protected, and cannot be overwritten by rendering commands.
         // The mask setting affects all rendering commands, as well as CPU-to-VRAM and VRAM-to-VRAM transfer commands (where it acts as for 15bit textures). 
           // However, Mask does NOT affect the Fill-VRAM command.
+        static inline long size() { return 1; } // length
     } attr_stpmask_t;
 
 
@@ -86,7 +94,8 @@ namespace Primitive
         // X-size==400h works only indirectly: handled as X-size==0. However, X-size==[3F1h..3FFh] is rounded-up as X-size==400h.
         // If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge.
         // NOT affected by the mask settings
-    } img_load_t;
+        static inline long size() { return 3; } // length
+    } fill_area_t;
 
     // Load image (cpu to vram)
     typedef struct DR_LOAD
@@ -99,6 +108,7 @@ namespace Primitive
         // Parameters are clipped to 10bit (X) / 9bit (Y) range, the only special case is that Size=0 is handled as Size=max.
         // If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge.
         // Affected by the mask settings
+        static inline long size() { return 3; } // length
     } img_load_t;
 
     // Store image (vram to central memory)
@@ -110,6 +120,7 @@ namespace Primitive
         // Size=0 is handled as Size=max
         // If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge.
         // Transfer data through DMA or gpuread port
+        static inline long size() { return 3; } // length
     } img_store_t;
 
     // Framebuffer rectangle copy (vram to vram)
@@ -122,7 +133,25 @@ namespace Primitive
         // Size=0 is handled as Size=max
         // If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge
         // Affected by the mask settings
+        static inline long size() { return 4; } // length
     } img_move_t;
+
+
+    // - primitive command functions - -----------------------------------------
+
+    void cmClearCache(unsigned char* pData); // GENERAL - clear cache
+    void cmBlankFill(unsigned char* pData);  // GENERAL - fill area
+    void cmIrq(unsigned char* pData);        // GENERAL - interrupt request
+    void cmImageMove(unsigned char* pData);  // IMAGE - move
+    void cmImageLoad(unsigned char* pData);  // IMAGE - load
+    void cmImageStore(unsigned char* pData); // IMAGE - store
+
+    void cmTexPage(unsigned char* pData);      // ATTR - texture page
+    void cmTexWindow(unsigned char* pData);    // ATTR - texture window
+    void cmDrawAreaStart(unsigned char* pData);// ATTR - draw area start
+    void cmDrawAreaEnd(unsigned char* pData);  // ATTR - draw area end
+    void cmDrawOffset(unsigned char* pData);   // ATTR - draw offset
+    void cmMaskBit(unsigned char* pData);      // ATTR - mask bit
 }
 
 #endif

@@ -1,3 +1,12 @@
+/*******************************************************************************
+PANDORAGS project - PS1 GPU driver
+------------------------------------------------------------------------
+Author  :     Romain Vinders
+License :     GPLv2
+------------------------------------------------------------------------
+File name :   primitive_rect.h
+Description : primitive processing - rectangles/sprites
+*******************************************************************************/
 #ifndef _PRIMITIVE_RECT_H
 #define _PRIMITIVE_RECT_H
 
@@ -28,24 +37,32 @@ namespace Primitive
     {
         rgb24_t color;  // Primitive ID + tile color (RGB)
         rect16_t coord; // Position (top-left) + size (width/height)
+        // length
+        static inline long size() { return 3; }
     } tile_f_t;
     // 1 x 1 fixed-size tile
     typedef struct TILE_F1
     {
         rgb24_t color; // Primitive ID + tile color (RGB)
         coord16_t pos; // Position (top-left)
+        // length
+        static inline long size() { return 2; }
     } tile_f1_t;
     // 8 x 8 fixed-size tile
     typedef struct TILE_F8
     {
         rgb24_t color; // Primitive ID + tile color (RGB)
         coord16_t pos; // Position (top-left)
+        // length
+        static inline long size() { return 2; }
     } tile_f8_t;
     // 16 x 16 fixed-size tile
     typedef struct TILE_F16
     {
         rgb24_t color; // Primitive ID + tile color (RGB)
         coord16_t pos; // Position (top-left)
+        // length
+        static inline long size() { return 2; }
     } tile_f16_t;
 
 
@@ -56,6 +73,8 @@ namespace Primitive
         coord16_t pos;    // Position (top-left)
         coord8_t texture; // Sprite texture coordinates + CLUT
         coord16_t size;   // Size (width/height)
+        // length
+        static inline long size() { return 4; }
     } sprite_f_t;
     // 1 x 1 fixed size texture-mapped sprite
     typedef struct SPRT_F1
@@ -63,6 +82,8 @@ namespace Primitive
         rgb24_t color;    // Primitive ID + tile color (RGB)
         coord16_t pos;    // Position (top-left)
         coord8_t texture; // Sprite texture coordinates + CLUT
+        // length
+        static inline long size() { return 3; }
     } sprite_f1_t;
     // 8 x 8 fixed size texture-mapped sprite
     typedef struct SPRT_F8
@@ -70,6 +91,8 @@ namespace Primitive
         rgb24_t color;    // Primitive ID + tile color (RGB)
         coord16_t pos;    // Position (top-left)
         coord8_t texture; // Sprite texture coordinates + CLUT
+        // length
+        static inline long size() { return 3; }
     } sprite_f8_t;
     // 16 x 16 fixed size texture-mapped sprite
     typedef struct SPRT_F16
@@ -77,7 +100,21 @@ namespace Primitive
         rgb24_t color;    // Primitive ID + tile color (RGB)
         coord16_t pos;    // Position (top-left)
         coord8_t texture; // Sprite texture coordinates + CLUT
+        // length
+        static inline long size() { return 3; }
     } sprite_f16_t;
+
+
+    // - primitive command functions - -----------------------------------------
+
+    void cmTile(unsigned char* pData);         // RECT - tile custom
+    void cmTile1(unsigned char* pData);        // RECT - tile 1x1
+    void cmTile8(unsigned char* pData);        // RECT - tile 8x8
+    void cmTile16(unsigned char* pData);       // RECT - tile 16x16
+    void cmSprite(unsigned char* pData);       // RECT - sprite custom
+    void cmSprite1(unsigned char* pData);      // RECT - sprite 1x1
+    void cmSprite8(unsigned char* pData);      // RECT - sprite 8x8
+    void cmSprite16(unsigned char* pData);     // RECT - sprite 16x16
 }
 
 #endif

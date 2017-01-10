@@ -1,5 +1,14 @@
-#ifndef _FRAMEBUFFER_H
-#define _FRAMEBUFFER_H
+/*******************************************************************************
+PANDORAGS project - PS1 GPU driver
+------------------------------------------------------------------------
+Author  :     Romain Vinders
+License :     GPLv2
+------------------------------------------------------------------------
+File name :   frame_buffer.h
+Description : emulated GPU framebuffer
+*******************************************************************************/
+#ifndef _FRAME_BUFFER_H
+#define _FRAME_BUFFER_H
 
 #include <cstdint>
 #include "video_memory.hpp"
