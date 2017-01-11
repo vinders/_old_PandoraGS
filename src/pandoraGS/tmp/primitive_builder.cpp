@@ -37,12 +37,12 @@ long PrimitiveBuilder::s_copiedDataLen;             // data blocks already copie
 // primitive factory table
 const primtable_row_t c_pPrimTable[PRIMITIVE_NUMBER] =
 {
-    // GENERAL : 00 - 02
-    { NOP, 0L }, { cmClearCache, 1L }, { cmBlankFill, fill_area_t::size() },
-    // not implemented : 03 - 1E
-    CMDx24(NI,0), CMDx4(NI,0),
+    // GENERAL : 00 - 03
+    { NOP, 0L }, { cmClearCache, 1L }, { cmFillArea, fill_area_t::size() }, { cmBufferWait, 1L },
+    // not implemented : 04 - 1E
+    CMDx24(NI,0), {NI,0}, {NI,0}, {NI,0},
     // IRQ : 1F
-    { cmIrq, 1L },
+    { cmGpuIrq, 1L },
  
     // POLY - flat-shaded triangle : 20 - 27
     CMDx4(cmTriangleF, poly_f3_t::size()), CMDx4(cmTriangleFT, poly_ft3_t::size()), 

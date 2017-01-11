@@ -137,11 +137,13 @@ namespace Primitive
     } img_move_t;
 
 
-    // - primitive command functions - -----------------------------------------
+    // - attribute/data command functions - ------------------------------------
 
     void cmClearCache(unsigned char* pData); // GENERAL - clear cache
-    void cmBlankFill(unsigned char* pData);  // GENERAL - fill area
-    void cmIrq(unsigned char* pData);        // GENERAL - interrupt request
+    void cmFillArea(unsigned char* pData);   // GENERAL - fill area
+    void cmBufferWait(unsigned char* pData); // GENERAL - add empty statement to FIFO buffer (wait if full)
+    void cmGpuIrq(unsigned char* pData);     // GENERAL - GPU interrupt request flag
+
     void cmImageMove(unsigned char* pData);  // IMAGE - move
     void cmImageLoad(unsigned char* pData);  // IMAGE - load
     void cmImageStore(unsigned char* pData); // IMAGE - store

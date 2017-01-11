@@ -55,6 +55,7 @@ namespace Primitive
         do
         {
             it.get();//...
-        } while (it.next());
+        } 
+        while (it.next());
     }
 }
