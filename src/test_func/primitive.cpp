@@ -26,23 +26,24 @@ unsigned long primTestTable[MAX_PRIMITIVE_ID][16] =
     // Txpg = texture page
     { 0x1, 0x01000000 },                       // 01 clear txtr cache - 1x32 - Cm000000
     { 0x3, 0x02177700,0x00200010,0x01000100 }, // 02 fill blank rect  - 3x32 - CmBbGgRr YtopXlft YhgtXwid 
-    { 0x1, 0x03000000 }, // 03 unknown command
-    {0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}, // unused (04 to 1F)
+    { 0x1, 0x03000000 }, // 03 fifo buffer wait
+    {0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}, // unused (04 to 1E)
+    { 0x1, 0x1F000000 }, // 1F gpu irq flag
     // POLY
-    { 0x4, 0x200000AA,0x00200080,0x01100010,0x01000200 }, // 20 3pt mono opaque     - 4x32
-    { 0x4, 0x217700AA,0x00200080,0x01100010,0x01000200 }, // 21 3pt mono opaque n-b - 4x32
-    { 0x4, 0x22AA4400,0x00200080,0x01100010,0x01000200 }, // 22 3pt mono transp     - 4x32
-    { 0x4, 0x2344AA00,0x00200080,0x01100010,0x01000200 }, // 23 3pt mono transp n-b - 4x32
+    { 0x4, 0x200000AA,0x00200080,0x01100010,0x01000200 }, // 20 3pt flat opaque     - 4x32
+    { 0x4, 0x217700AA,0x00200080,0x01100010,0x01000200 }, // 21 3pt flat opaque n-b - 4x32
+    { 0x4, 0x22AA4400,0x00200080,0x01100010,0x01000200 }, // 22 3pt flat transp     - 4x32
+    { 0x4, 0x2344AA00,0x00200080,0x01100010,0x01000200 }, // 23 3pt flat transp n-b - 4x32
         // CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx
     { 0x7, 0x240000AA,0x01100010, 0 ,0x01000200, 0 ,0x01800030, 0 }, // 24 3pt txtr opaque bld - 7x32
     { 0x7, 0x257700AA,0x01100010, 0 ,0x01000200, 0 ,0x01800030, 0 }, // 25 3pt txtr opaque raw - 7x32
     { 0x7, 0x26AA4400,0x01100010, 0 ,0x01000200, 0 ,0x01800030, 0 }, // 26 3pt txtr transp bld - 7x32
     { 0x7, 0x2744AA00,0x01100010, 0 ,0x01000200, 0 ,0x01800030, 0 }, // 27 3pt txtr transp raw - 7x32
         // CmBbGgRr YvtxXvtx ClutYcXc YvtxXvtx TxpgYcXc YvtxXvtx 0000YcXc
-    { 0x5, 0x280000AA,0x01000200,0x01100300,0x02000220,0x02100310 }, // 28 4pt mono opaque     - 5x32
-    { 0x5, 0x297700AA,0x01000200,0x01100300,0x02000220,0x02100310 }, // 29 4pt mono opaque n-b - 5x32
-    { 0x5, 0x2AAA4400,0x01000200,0x01100300,0x02000220,0x02100310 }, // 2A 4pt mono transp     - 5x32
-    { 0x5, 0x2B44AA00,0x01000200,0x01100300,0x02000220,0x02100310 }, // 2B 4pt mono transp n-b - 5x32
+    { 0x5, 0x280000AA,0x01000200,0x01100300,0x02000220,0x02100310 }, // 28 4pt flat opaque     - 5x32
+    { 0x5, 0x297700AA,0x01000200,0x01100300,0x02000220,0x02100310 }, // 29 4pt flat opaque n-b - 5x32
+    { 0x5, 0x2AAA4400,0x01000200,0x01100300,0x02000220,0x02100310 }, // 2A 4pt flat transp     - 5x32
+    { 0x5, 0x2B44AA00,0x01000200,0x01100300,0x02000220,0x02100310 }, // 2B 4pt flat transp n-b - 5x32
         // CmBbGgRr YvtxXvtx YvtxXvtx YvtxXvtx YvtxXvtx
     { 0x9, 0x2C0000AA,0x02000220,0x02100310,0x03000280,0x03100340 }, // 2C 4pt txtr opaque bld - 9x32
     { 0x9, 0x2D7700AA,0x02000220,0x02100310,0x03000280,0x03100340 }, // 2D 4pt txtr opaque raw - 9x32
@@ -70,23 +71,23 @@ unsigned long primTestTable[MAX_PRIMITIVE_ID][16] =
     { 0xC, 0x3F44AA00, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // 3F 4pt shtx transp raw - 12x32
         // CmBbGgRr YvtxXvtx ClutYcXc 00BbGgRr YvtxXvtx TxpgYcXc 00BbGgRr YvtxXvtx 0000YcXc 00BbGgRr YvtxXvtx 0000YcXc
     // LINE
-    { 0x3, 0x404444CC,0x01100010,0x02000220 }, // 40 line mono opaque     - 3x32
-    { 0x3, 0x41AA44CC,0x01100010,0x02000220 }, // 41 line mono opaque n-b - 3x32
-    { 0x3, 0x42CCAA44,0x01100010,0x02000220 }, // 42 line mono transp     - 3x32
-    { 0x3, 0x43AACC44,0x01100010,0x02000220 }, // 43 line mono transp n-b - 3x32
-    { 0x3, 0x444444CC,0x01100010,0x02000220 }, // 44 line mono opaque     - 3x32
-    { 0x3, 0x45AA44CC,0x01100010,0x02000220 }, // 45 line mono opaque n-b - 3x32
-    { 0x3, 0x46CCAA44,0x01100010,0x02000220 }, // 46 line mono transp     - 3x32
-    { 0x3, 0x47AACC44,0x01100010,0x02000220 }, // 47 line mono transp n-b - 3x32
+    { 0x3, 0x404444CC,0x01100010,0x02000220 }, // 40 line flat opaque     - 3x32
+    { 0x3, 0x41AA44CC,0x01100010,0x02000220 }, // 41 line flat opaque n-b - 3x32
+    { 0x3, 0x42CCAA44,0x01100010,0x02000220 }, // 42 line flat transp     - 3x32
+    { 0x3, 0x43AACC44,0x01100010,0x02000220 }, // 43 line flat transp n-b - 3x32
+    { 0x3, 0x444444CC,0x01100010,0x02000220 }, // 44 line flat opaque     - 3x32
+    { 0x3, 0x45AA44CC,0x01100010,0x02000220 }, // 45 line flat opaque n-b - 3x32
+    { 0x3, 0x46CCAA44,0x01100010,0x02000220 }, // 46 line flat transp     - 3x32
+    { 0x3, 0x47AACC44,0x01100010,0x02000220 }, // 47 line flat transp n-b - 3x32
         // CmBbGgRr YvtxXvtx YvtxXvtx
-    { 0xFE, 0x484444CC,0x03100010,0x02100110,0x02000220,0x55555555 }, // 48 plin mono opaque     - var.x32
-    { 0xFE, 0x49AA44CC,0x03100010,0x02100110,0x02000220,0x55555555 }, // 49 plin mono opaque n-b - var.x32
-    { 0xFE, 0x4ACCAA44,0x03100010,0x02100110,0x02000220,0x55555555 }, // 4A plin mono transp     - var.x32
-    { 0xFE, 0x4BAACC44,0x03100010,0x02100110,0x02000220,0x55555555 }, // 4B plin mono transp n-b - var.x32
-    { 0xFE, 0x4C4444CC,0x03100010,0x02100110,0x02000220,0x55555555 }, // 4C plin mono opaque bld - var.x32
-    { 0xFE, 0x4DAA44CC,0x03100010,0x02100110,0x02000220,0x55555555 }, // 4D plin mono opaque raw - var.x32
-    { 0xFE, 0x4ECCAA44,0x03100010,0x02100110,0x02000220,0x55555555 }, // 4E plin mono transp bld - var.x32
-    { 0xFE, 0x4FAACC44,0x03100010,0x02100110,0x02000220,0x55555555 }, // 4F plin mono transp raw - var.x32
+    { 0xFE, 0x484444CC,0x03100010,0x02100110,0x02000220,0x55555555 }, // 48 plin flat opaque     - var.x32
+    { 0xFE, 0x49AA44CC,0x03100010,0x02100110,0x02000220,0x55555555 }, // 49 plin flat opaque n-b - var.x32
+    { 0xFE, 0x4ACCAA44,0x03100010,0x02100110,0x02000220,0x55555555 }, // 4A plin flat transp     - var.x32
+    { 0xFE, 0x4BAACC44,0x03100010,0x02100110,0x02000220,0x55555555 }, // 4B plin flat transp n-b - var.x32
+    { 0xFE, 0x4C4444CC,0x03100010,0x02100110,0x02000220,0x55555555 }, // 4C plin flat opaque bld - var.x32
+    { 0xFE, 0x4DAA44CC,0x03100010,0x02100110,0x02000220,0x55555555 }, // 4D plin flat opaque raw - var.x32
+    { 0xFE, 0x4ECCAA44,0x03100010,0x02100110,0x02000220,0x55555555 }, // 4E plin flat transp bld - var.x32
+    { 0xFE, 0x4FAACC44,0x03100010,0x02100110,0x02000220,0x55555555 }, // 4F plin flat transp raw - var.x32
         // CmBbGgRr YvtxXvtx YvtxXvtx [...] 55555555
     { 0x4, 0x504444CC, 0, 0, 0 }, // 50 line shad opaque     - 4x32
     { 0x4, 0x51AA44CC, 0, 0, 0 }, // 51 line shad opaque n-b - 4x32
@@ -107,40 +108,40 @@ unsigned long primTestTable[MAX_PRIMITIVE_ID][16] =
     { 0xFF, 0x5FAACC44,0,0,0,0,0,0x55555555 }, // 5F plin shad transp raw - var.x32
         // CmBbGgRr YvtxXvtx 00BbGgRr YvtxXvtx [...] 55555555
     // RECT
-    { 0x3, 0x60AAAAAA, 0, 0 }, // 60 var mono opaque     - 3x32
-    { 0x3, 0x61888888, 0, 0 }, // 61 var mono opaque n-b - 3x32
-    { 0x3, 0x62AA8844, 0, 0 }, // 62 var mono transp     - 3x32
-    { 0x3, 0x63AA8844, 0, 0 }, // 63 var mono transp n-b - 3x32
+    { 0x3, 0x60AAAAAA, 0, 0 }, // 60 var flat opaque     - 3x32
+    { 0x3, 0x61888888, 0, 0 }, // 61 var flat opaque n-b - 3x32
+    { 0x3, 0x62AA8844, 0, 0 }, // 62 var flat transp     - 3x32
+    { 0x3, 0x63AA8844, 0, 0 }, // 63 var flat transp n-b - 3x32
         // CmBbGgRr YvtxXvtx YhgtXwid
     { 0x4, 0x64AAAAAA, 0, 0, 0 }, // 64 var txtr opaque bld - 4x32
     { 0x4, 0x65888888, 0, 0, 0 }, // 65 var txtr opaque raw - 4x32
     { 0x4, 0x66CCAA77, 0, 0, 0 }, // 66 var txtr transp bld - 4x32
     { 0x4, 0x67AA8844, 0, 0, 0 }, // 67 var txtr transp raw - 4x32
         // CmBbGgRr YvtxXvtx ClutYcXc YhgtXwid
-    { 0x2, 0x68AAAAAA, 0 }, // 68 1x1 mono opaque     - 2x32
-    { 0x2, 0x69888888, 0 }, // 69 1x1 mono opaque n-b - 2x32
-    { 0x2, 0x6ACCAA77, 0 }, // 6A 1x1 mono transp     - 2x32
-    { 0x2, 0x6BAA8844, 0 }, // 6B 1x1 mono transp n-b - 2x32
+    { 0x2, 0x68AAAAAA, 0 }, // 68 1x1 flat opaque     - 2x32
+    { 0x2, 0x69888888, 0 }, // 69 1x1 flat opaque n-b - 2x32
+    { 0x2, 0x6ACCAA77, 0 }, // 6A 1x1 flat transp     - 2x32
+    { 0x2, 0x6BAA8844, 0 }, // 6B 1x1 flat transp n-b - 2x32
         // CmBbGgRr YvtxXvtx
     { 0x3, 0x6CAAAAAA, 0, 0 }, // 6C 1x1 txtr opaque bld - 3x32
     { 0x3, 0x6D888888, 0, 0 }, // 6D 1x1 txtr opaque raw - 3x32
     { 0x3, 0x6ECCAA77, 0, 0 }, // 6E 1x1 txtr transp bld - 3x32
     { 0x3, 0x6FAA8844, 0, 0 }, // 6F 1x1 txtr transp raw - 3x32
         // CmBbGgRr YvtxXvtx ClutYcXc
-    { 0x2, 0x70AAAAAA, 0 }, // 70 8x8 mono opaque     - 2x32
-    { 0x2, 0x71888888, 0 }, // 71 8x8 mono opaque n-b - 2x32
-    { 0x2, 0x72CCAA77, 0 }, // 72 8x8 mono transp     - 2x32
-    { 0x2, 0x73AA8844, 0 }, // 73 8x8 mono transp n-b - 2x32
+    { 0x2, 0x70AAAAAA, 0 }, // 70 8x8 flat opaque     - 2x32
+    { 0x2, 0x71888888, 0 }, // 71 8x8 flat opaque n-b - 2x32
+    { 0x2, 0x72CCAA77, 0 }, // 72 8x8 flat transp     - 2x32
+    { 0x2, 0x73AA8844, 0 }, // 73 8x8 flat transp n-b - 2x32
         // CmBbGgRr YvtxXvtx
     { 0x3, 0x74AAAAAA, 0, 0 }, // 74 8x8 txtr opaque bld - 3x32
     { 0x3, 0x75888888, 0, 0 }, // 75 8x8 txtr opaque raw - 3x32
     { 0x3, 0x76CCAA77, 0, 0 }, // 76 8x8 txtr transp bld - 3x32
     { 0x3, 0x77AA8844, 0, 0 }, // 77 8x8 txtr transp raw - 3x32
         // CmBbGgRr YvtxXvtx ClutYcXc
-    { 0x2, 0x78AAAAAA, 0 }, // 78 16x mono opaque     - 2x32
-    { 0x2, 0x79888888, 0 }, // 79 16x mono opaque n-b - 2x32
-    { 0x2, 0x7ACCAA77, 0 }, // 7A 16x mono transp     - 2x32
-    { 0x2, 0x7BAA8844, 0 }, // 7B 16x mono transp n-b - 2x32
+    { 0x2, 0x78AAAAAA, 0 }, // 78 16x flat opaque     - 2x32
+    { 0x2, 0x79888888, 0 }, // 79 16x flat opaque n-b - 2x32
+    { 0x2, 0x7ACCAA77, 0 }, // 7A 16x flat transp     - 2x32
+    { 0x2, 0x7BAA8844, 0 }, // 7B 16x flat transp n-b - 2x32
         // CmBbGgRr YvtxXvtx
     { 0x3, 0x7CAAAAAA, 0, 0 }, // 7C 16x txtr opaque bld - 3x32
     { 0x3, 0x7D888888, 0, 0 }, // 7D 16x txtr opaque raw - 3x32
@@ -172,66 +173,66 @@ void listPrimitives()
     printf("\n POLY                      ");
     printf("LINE                      ");
     printf("RECT                      \n");
-    printf("  20: 3pt mono opaque      "); // mono = monochrome
-    printf(" 40: line mono opaque     ");
-    printf(" 60: var mono opaque      \n");
-    printf("  21: 3pt mono opaque n-b  "); // n-b = no texture-blending
-    printf(" 41: line mono opaque n-b ");
-    printf(" 61: var mono opaque n-b  \n"); 
-    printf("  22: 3pt mono transp      ");
-    printf(" 42: line mono transp     ");
-    printf(" 62: var mono transp      \n");
-    printf("  23: 3pt mono transp n-b  ");
-    printf(" 43: line mono transp n-b ");
-    printf(" 63: var mono transp n-b  \n");
+    printf("  20: 3pt flat opaque      ");
+    printf(" 40: line flat opaque     ");
+    printf(" 60: var flat opaque      \n");
+    printf("  21: 3pt flat opaque n-b  "); // n-b = no texture-blending
+    printf(" 41: line flat opaque n-b ");
+    printf(" 61: var flat opaque n-b  \n"); 
+    printf("  22: 3pt flat transp      ");
+    printf(" 42: line flat transp     ");
+    printf(" 62: var flat transp      \n");
+    printf("  23: 3pt flat transp n-b  ");
+    printf(" 43: line flat transp n-b ");
+    printf(" 63: var flat transp n-b  \n");
     printf("  24: 3pt txtr opaque bld  "); // bld = texture-blending
-    printf(" 44: line mono opaque     ");
+    printf(" 44: line flat opaque     ");
     printf(" 64: var txtr opaque bld  \n"); 
     printf("  25: 3pt txtr opaque raw  "); // raw = raw-texture
-    printf(" 45: line mono opaque n-b ");
+    printf(" 45: line flat opaque n-b ");
     printf(" 65: var txtr opaque raw  \n"); 
     printf("  26: 3pt txtr transp bld  "); // txtr = textured
-    printf(" 46: line mono transp     ");
+    printf(" 46: line flat transp     ");
     printf(" 66: var txtr transp bld  \n"); 
     printf("  27: 3pt txtr transp raw  ");
-    printf(" 47: line mono transp n-b ");
+    printf(" 47: line flat transp n-b ");
     printf(" 67: var txtr transp raw  \n");
-    printf("  28: 4pt mono opaque      ");
-    printf(" 48: plin mono opaque     "); // plin = poly-line
-    printf(" 68: 1x1 mono opaque      \n");
-    printf("  29: 4pt mono opaque n-b  ");
-    printf(" 49: plin mono opaque n-b ");
-    printf(" 69: 1x1 mono opaque n-b  \n");
-    printf("  2A: 4pt mono transp      ");
-    printf(" 4A: plin mono transp     ");
-    printf(" 6A: 1x1 mono transp      \n");
-    printf("  2B: 4pt mono transp n-b  ");
-    printf(" 4B: plin mono transp n-b ");
-    printf(" 6B: 1x1 mono transp n-b  \n");
+    printf("  28: 4pt flat opaque      ");
+    printf(" 48: plin flat opaque     "); // plin = poly-line
+    printf(" 68: 1x1 flat opaque      \n");
+    printf("  29: 4pt flat opaque n-b  ");
+    printf(" 49: plin flat opaque n-b ");
+    printf(" 69: 1x1 flat opaque n-b  \n");
+    printf("  2A: 4pt flat transp      ");
+    printf(" 4A: plin flat transp     ");
+    printf(" 6A: 1x1 flat transp      \n");
+    printf("  2B: 4pt flat transp n-b  ");
+    printf(" 4B: plin flat transp n-b ");
+    printf(" 6B: 1x1 flat transp n-b  \n");
     printf("  2C: 4pt txtr opaque bld  ");
-    printf(" 4C: plin mono opaque     ");
+    printf(" 4C: plin flat opaque     ");
     printf(" 6C: 1x1 txtr opaque bld  \n");
     printf("  2D: 4pt txtr opaque raw  ");
-    printf(" 4D: plin mono opaque n-b ");
+    printf(" 4D: plin flat opaque n-b ");
     printf(" 6D: 1x1 txtr opaque raw  \n");
     printf("  2E: 4pt txtr transp bld  ");
-    printf(" 4E: plin mono transp     ");
+    printf(" 4E: plin flat transp     ");
     printf(" 6E: 1x1 txtr transp bld  \n");
     printf("  2F: 4pt txtr transp raw  ");
-    printf(" 4F: plin mono transp n-b ");
+    printf(" 4F: plin flat transp n-b ");
     printf(" 6F: 1x1 txtr transp raw  \n");
     printf("  30: 3pt shad opaque      "); // shad = shaded
     printf(" 50: line shad opaque     "); 
-    printf(" 70: 8x8 mono opaque      \n"); 
+    printf(" 70: 8x8 flat opaque      \n"); 
     printf("  31: 3pt shad opaque n-b  ");
     printf(" 51: line shad opaque n-b ");
-    printf(" 71: 8x8 mono opaque n-b  \n");
+    printf(" 71: 8x8 flat opaque n-b  \n");
     printf("  32: 3pt shad transp      ");
     printf(" 52: line shad transp     ");
-    printf(" 72: 8x8 mono transp      \n");
+    printf(" 72: 8x8 flat transp      \n");
     printf("  33: 3pt shad transp n-b  ");
     printf(" 53: line shad transp n-b ");
-    printf(" 73: 8x8 mono transp n-b  \n");
+    printf(" 73: 8x8 flat transp n-b  \n");
     printf("  34: 3pt shtx opaque bld  "); // shtx = shaded textured
     printf(" 54: line shad opaque     "); 
     printf(" 74: 8x8 txtr opaque bld  \n");
@@ -246,16 +247,16 @@ void listPrimitives()
     printf(" 77: 8x8 txtr transp raw  \n");
     printf("  38: 4pt shad opaque      ");
     printf(" 58: plin shad opaque     ");
-    printf(" 78: 16x mono opaque      \n");
+    printf(" 78: 16x flat opaque      \n");
     printf("  39: 4pt shad opaque n-b  ");
     printf(" 59: plin shad opaque n-b ");
-    printf(" 79: 16x mono opaque n-b  \n");
+    printf(" 79: 16x flat opaque n-b  \n");
     printf("  3A: 4pt shad transp      ");
     printf(" 5A: plin shad transp     ");
-    printf(" 7A: 16x mono transp      \n");
+    printf(" 7A: 16x flat transp      \n");
     printf("  3B: 4pt shad transp n-b  ");
     printf(" 5B: plin shad transp n-b ");
-    printf(" 7B: 16x mono transp n-b  \n");
+    printf(" 7B: 16x flat transp n-b  \n");
     printf("  3C: 4pt shtx opaque bld  ");
     printf(" 5C: plin shad opaque     ");
     printf(" 7C: 16x txtr opaque bld  \n");
@@ -276,18 +277,19 @@ void listPrimitives()
     printf(" 01: clear texture cache  ");
     printf(" * txtr = textured        \n");
     printf("  E2: texture window       ");
-    printf(" 02: fill blank rect      ");
-    printf(" * shad = shaded          \n");
+    printf(" 02: fill area            ");
+    printf(" * shad = gouraud-shaded  \n");
     printf("  E3: draw area top left   ");
-    printf(" 80: move image           ");
-    printf(" * shtx = shaded-textured \n");
+    printf(" 03: buffer wait          ");
+    printf(" * shtx = shaded/textured \n");
     printf("  E4: draw area btm right  ");
-    printf(" A0: load image           ");
+    printf(" 80: move image           ");
     printf(" * bld = texture blending \n");
     printf("  E5: draw offset          ");
-    printf(" C0: store image          ");
+    printf(" A0: load image           ");
     printf(" * n-b = no blending      \n");
-    printf("  E6: mask bit             \n\n");
+    printf("  E6: mask bit             ");
+    printf(" C0: store image          \n\n");
 
     printf(" XY FLIP: use negative value (only for RECT types).\n");
     printf("\nEnter 0 to exit.\n");
@@ -299,7 +301,7 @@ void listPrimitives()
 ///<returns>Primitive length</returns>
 int createPrimitive(int id, unsigned long** ppOut)
 {
-    if (id < 1 || id > MAX_PRIMITIVE_ID || (id > 0x2 && id < 0x20) || (id > 0x80 && id < 0xE1 && id != 0xA0 && id != 0xC0))
+    if (id < 1 || id > MAX_PRIMITIVE_ID || (id > 0x3 && id < 0x1F) || (id > 0x80 && id < 0xE1 && id != 0xA0 && id != 0xC0))
         return -1;
 
     --id;
