@@ -66,20 +66,6 @@ public:
     {
         return ((gdata >> 24) & 0x0FFuL);
     }
-    /// <summary>Check if shape uses blending (display data)</summary>
-    /// <param name="gdata">Display data (first block)</param>
-    /// <returns>Blending enabled (true) or raw (false)</returns>
-    static inline bool isShapeBlended(unsigned long gdata)
-    {
-        return ((gdata & 0x01000000uL) == 0uL);
-    }
-    /// <summary>Check if shape is opaque (display data)</summary>
-    /// <param name="gdata">Display data (first block)</param>
-    /// <returns>Opaque (true) or semi-transparent (false)</returns>
-    static inline bool isShapeOpaque(unsigned long gdata)
-    {
-        return ((gdata & 0x02000000uL) == 0uL);
-    }
 
     /// <summary>Check if primitive is processed or skipped</summary>
     /// <param name="cmd">Primitive ID</param>
