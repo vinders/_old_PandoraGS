@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6724EA46-B90D-4519-AF41-95AEAF34321E}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>pandoraGS_project</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(Configuration)\</IntDir>
+    <TargetName>gpuPandoraGS</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(Configuration)\</IntDir>
+    <TargetName>gpuPandoraGS</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PANDORAGS_PROJECT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile />
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Msimg32.lib;winmm.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;opengl32.lib;glu32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>pandoraGS.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PANDORAGS_PROJECT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAsManaged>false</CompileAsManaged>
+      <SDLCheck>false</SDLCheck>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile />
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>Msimg32.lib;winmm.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;opengl32.lib;glu32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>pandoraGS.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\command\command_buffer.cpp" />
+    <ClCompile Include="..\src\command\dispatcher.cpp" />
+    <ClCompile Include="..\src\command\frame_buffer_settings.cpp" />
+    <ClCompile Include="..\src\command\memory\status_register.cpp" />
+    <ClCompile Include="..\src\command\memory\status_register_io.cpp" />
+    <ClCompile Include="..\src\command\memory\video_memory.cpp" />
+    <ClCompile Include="..\src\command\memory\video_memory_io.cpp" />
+    <ClCompile Include="..\src\command\primitive\attribute.cpp" />
+    <ClCompile Include="..\src\command\primitive\line_primitive.cpp" />
+    <ClCompile Include="..\src\command\primitive\poly_primitive.cpp" />
+    <ClCompile Include="..\src\command\primitive\primitive_factory.cpp" />
+    <ClCompile Include="..\src\command\primitive\rect_primitive.cpp" />
+    <ClCompile Include="..\src\config\config.cpp" />
+    <ClCompile Include="..\src\config\config_file_io.cpp" />
+    <ClCompile Include="..\src\config\config_io.cpp" />
+    <ClCompile Include="..\src\config\config_profile.cpp" />
+    <ClCompile Include="..\src\display\engine.cpp" />
+    <ClCompile Include="..\src\display\shader.cpp" />
+    <ClCompile Include="..\src\display\utils\console_window.cpp" />
+    <ClCompile Include="..\src\display\utils\display_window.cpp" />
+    <ClCompile Include="..\src\event\listener.cpp" />
+    <ClCompile Include="..\src\event\timer.cpp" />
+    <ClCompile Include="..\src\event\utils\logger.cpp" />
+    <ClCompile Include="..\src\lang\config_lang.cpp" />
+    <ClCompile Include="..\src\lang\menu_lang.cpp" />
+    <ClCompile Include="..\src\pandoraGS.cpp" />
+    <ClCompile Include="..\src\psemu_main.cpp" />
+    <ClCompile Include="..\src\psemu_zinc.cpp" />
+    <ClCompile Include="..\src\unit_tests.cpp" />
+    <ClCompile Include="..\src\vendor\glew.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\command\command_buffer.h" />
+    <ClInclude Include="..\src\command\dispatcher.h" />
+    <ClInclude Include="..\src\command\frame_buffer_settings.h" />
+    <ClInclude Include="..\src\command\memory\status_register.h" />
+    <ClInclude Include="..\src\command\memory\status_register_io.h" />
+    <ClInclude Include="..\src\command\memory\video_memory.h" />
+    <ClInclude Include="..\src\command\memory\video_memory_io.h" />
+    <ClInclude Include="..\src\command\memory\video_memory_iterator.hpp" />
+    <ClInclude Include="..\src\command\primitive\attribute.h" />
+    <ClInclude Include="..\src\command\primitive\i_primitive.h" />
+    <ClInclude Include="..\src\command\primitive\line_primitive.h" />
+    <ClInclude Include="..\src\command\primitive\poly_primitive.h" />
+    <ClInclude Include="..\src\command\primitive\primitive_factory.h" />
+    <ClInclude Include="..\src\command\primitive\rect_primitive.h" />
+    <ClInclude Include="..\src\config\config.h" />
+    <ClInclude Include="..\src\config\config_file_io.h" />
+    <ClInclude Include="..\src\config\config_io.h" />
+    <ClInclude Include="..\src\config\config_profile.h" />
+    <ClInclude Include="..\src\display\engine.h" />
+    <ClInclude Include="..\src\display\shader.h" />
+    <ClInclude Include="..\src\display\utils\console_window.h" />
+    <ClInclude Include="..\src\display\utils\display_window.h" />
+    <ClInclude Include="..\src\display\utils\i_window.h" />
+    <ClInclude Include="..\src\event\listener.h" />
+    <ClInclude Include="..\src\event\timer.h" />
+    <ClInclude Include="..\src\event\utils\logger.h" />
+    <ClInclude Include="..\src\event\utils\std_exception.hpp" />
+    <ClInclude Include="..\src\globals.h" />
+    <ClInclude Include="..\src\lang\config_lang.h" />
+    <ClInclude Include="..\src\lang\menu_lang.h" />
+    <ClInclude Include="..\src\pandoraGS.h" />
+    <ClInclude Include="..\src\psemu_main.h" />
+    <ClInclude Include="..\src\res\resource.h" />
+    <ClInclude Include="..\src\res\targetver.h" />
+    <ClInclude Include="..\src\unit_tests.h" />
+    <ClInclude Include="..\src\vendor\glew.h" />
+    <ClInclude Include="..\src\vendor\glxew.h" />
+    <ClInclude Include="..\src\vendor\opengl.h" />
+    <ClInclude Include="..\src\vendor\wglew.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\src\pandoraGS.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
