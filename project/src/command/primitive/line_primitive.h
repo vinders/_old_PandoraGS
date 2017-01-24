@@ -29,8 +29,8 @@ namespace command
             LinePrimitive(unsigned long* pData, FrameBufferSettings& frameSettings);
             
             /// @brief Process primitive
-            /// @param pOutSlots Next drawing primitive slots
-            virtual void process(const float* pOutSlots);
+            /// @param outputBuffer Output buffer for primitive formatted data
+            virtual void process(std::vector<float>& outputBuffer);
         };
     }
 }

@@ -22,7 +22,7 @@ namespace command
         {
             
             
-            /// @class iterator
+            /// @class VideoMemory::iterator
             /// @brief GPU video memory (vram) iterator
             class iterator
             {
