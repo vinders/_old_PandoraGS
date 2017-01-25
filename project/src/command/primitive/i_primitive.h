@@ -166,6 +166,7 @@ namespace command
         {
             coord16_t coord;     ///< Vertex coordinates
             coord8_tx_t texture; ///< Texture coordinates + misc texture information
+            static inline size_t size() { return 2; } ///< Length (32-bit blocks)
         } vertex_ft1_t;
 
         /// @struct vertex_g1_t
@@ -174,6 +175,7 @@ namespace command
         {
             rgb24_t color;    ///< Vertex color (RGB)
             coord16_t coord;  ///< Vertex coordinates
+            static inline size_t size() { return 2; } ///< Length (32-bit blocks)
         } vertex_g1_t;
 
         /// @struct vertex_gt1_t
@@ -183,6 +185,7 @@ namespace command
             rgb24_t color;       ///< Vertex color (RGB)
             coord16_t coord;     ///< Vertex coordinates
             coord8_tx_t texture; ///< Texture coordinates + misc texture information
+            static inline size_t size() { return 3; } ///< Length (32-bit blocks)
         } vertex_gt1_t;
     }
 }
