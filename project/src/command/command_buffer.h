@@ -9,8 +9,8 @@ Description : fifo GPU command buffer
 #pragma once
 
 #include <cstdint>
-#include <vector>
 #include <thread>
+#include "memory/vertex_buffer.h"
 #include "frame_buffer_settings.h"
 
 /// @namespace command
@@ -23,9 +23,10 @@ namespace command
     {
     private:
         FrameBufferSettings m_drawSettings;
-        std::vector<float> m_lineBuffer;
-        std::vector<float> m_polygonBuffer;
-        uint32_t m_currentFramePolygonCount;
+        memory::VertexBuffer* m_pLineBuffer;
+        memory::VertexBuffer* m_pPolyBuffer;
+        memory::VertexBuffer* m_pTxPolyBuffer;
+        uint32_t m_currentPrimitiveCount;
 
         bool m_isBusy;
 
@@ -50,12 +51,11 @@ namespace command
             //  - theoretically 360000 flat-shaded polygons per second -> 12000/frame
             //  - theoretically 180000 textured/gouraud-shaded polygons per second -> 6000/frame
             // lignes:    7 = { X, Y, z, R, G, B, stp }
-            m_lineBuffer.reserve(9000 * 2 * 7);
+            m_pLineBuffer = new memory::VertexBuffer(9000 * 2, false);
             // triangles: 7 = { X, Y, z, R, G, B, stp }
+            m_pPolyBuffer = new memory::VertexBuffer(9000 * 3, false);
             // triangles: 9 = { X, Y, z, R, G, B, stp, U, V }
-            m_polygonBuffer.reserve(6000 * 3 * 9);
-
-            // !!! peu fiable -> préférer fifo buffer de trois commandes ??? -> vidé au fur et à mesure ???
+            m_pTxPolyBuffer = new memory::VertexBuffer(6000 * 3, false);
         }
     };
 }

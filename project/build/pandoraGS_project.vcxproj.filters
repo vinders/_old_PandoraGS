@@ -133,6 +133,9 @@
     <ClCompile Include="..\src\command\primitive\attribute.cpp">
       <Filter>Source Files\command\primitive</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\command\memory\vertex_buffer.cpp">
+      <Filter>Source Files\command\memory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\lang\config_lang.h">
@@ -251,6 +254,9 @@
     </ClInclude>
     <ClInclude Include="..\src\command\primitive\attribute.h">
       <Filter>Source Files\command\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\command\memory\vertex_buffer.h">
+      <Filter>Source Files\command\memory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

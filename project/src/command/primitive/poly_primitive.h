@@ -11,12 +11,12 @@ Description : drawing polygon primitive (triangle / quad)
 #include "i_primitive.h"
 
 // quad to triangle
-#define T0_vertex0 vertex0
-#define T0_vertex1 vertex1
-#define T0_vertex2 vertex2
-#define T1_vertex0 vertex2
-#define T1_vertex1 vertex1
-#define T1_vertex2 vertex3
+#define POLY0_vertex0 vertex0
+#define POLY0_vertex1 vertex1
+#define POLY0_vertex2 vertex2
+#define POLY1_vertex0 vertex2
+#define POLY1_vertex1 vertex1
+#define POLY1_vertex2 vertex3
 
 
 /// @namespace command

@@ -96,6 +96,7 @@
     <ClCompile Include="..\src\command\frame_buffer_settings.cpp" />
     <ClCompile Include="..\src\command\memory\status_register.cpp" />
     <ClCompile Include="..\src\command\memory\status_register_io.cpp" />
+    <ClCompile Include="..\src\command\memory\vertex_buffer.cpp" />
     <ClCompile Include="..\src\command\memory\video_memory.cpp" />
     <ClCompile Include="..\src\command\memory\video_memory_io.cpp" />
     <ClCompile Include="..\src\command\primitive\attribute.cpp" />
@@ -128,6 +129,7 @@
     <ClInclude Include="..\src\command\frame_buffer_settings.h" />
     <ClInclude Include="..\src\command\memory\status_register.h" />
     <ClInclude Include="..\src\command\memory\status_register_io.h" />
+    <ClInclude Include="..\src\command\memory\vertex_buffer.h" />
     <ClInclude Include="..\src\command\memory\video_memory.h" />
     <ClInclude Include="..\src\command\memory\video_memory_io.h" />
     <ClInclude Include="..\src\command\memory\video_memory_iterator.hpp" />
