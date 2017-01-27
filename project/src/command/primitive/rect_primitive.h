@@ -8,7 +8,7 @@ Description : drawing rectangle primitive (tile / sprite)
 *******************************************************************************/
 #pragma once
 
-#include "i_primitive.h"
+#include "primitive_common.h"
 
 /// @namespace command
 /// GPU commands management
@@ -18,68 +18,16 @@ namespace command
     /// Drawing primitive management
     namespace primitive
     {
-        /// @class RectPrimitive
-        /// @brief Drawing rectangle primitive (tile / sprite)
-        class RectPrimitive : public IPrimitive
-        {
-        public:
-            /// @brief Create primitive
-            /// @param pData Raw primitive data
-            /// @param frameSettings Current frame buffer settings
-            RectPrimitive(unsigned long* pData, FrameBufferSettings& frameSettings);
-            
-            /// @brief Process primitive
-            /// @param outputBuffer Output buffer for primitive formatted data
-            virtual void process(std::vector<float>& outputBuffer);
-        };
-
-
         // -- primitive units - tiles -- ---------------------------------------
 
-        /// @struct tile_f_t
-        /// @brief Tile of any desired size
-        typedef struct TILE_F
-        {
-            rgb24_t color;  ///< Primitive ID + tile color (RGB)
-            rect16_t coord; ///< Position (top-left) + size (width/height)
-
-            static inline size_t size() { return 3; } ///< Length (32-bit blocks)
-        } tile_f_t;
-        
-        /// @struct tile_f1_t
-        /// @brief 1 x 1 fixed-size tile
-        typedef struct TILE_F1
-        {
-            rgb24_t color; ///< Primitive ID + tile color (RGB)
-            coord16_t pos; ///< Position (top-left)
-
-            static inline size_t size() { return 2; } ///< Length (32-bit blocks)
-        } tile_f1_t;
-        
-        /// @struct tile_f8_t
-        /// @brief 8 x 8 fixed-size tile
-        typedef struct TILE_F8
-        {
-            rgb24_t color; ///< Primitive ID + tile color (RGB)
-            coord16_t pos; ///< Position (top-left)
-
-            static inline size_t size() { return 2; } ///< Length (32-bit blocks)
-        } tile_f8_t;
-        
-        /// @struct tile_f16_t
-        /// @brief 16 x 16 fixed-size tile
-        typedef struct TILE_F16
-        {
-            rgb24_t color; ///< Primitive ID + tile color (RGB)
-            coord16_t pos; ///< Position (top-left)
-
-            static inline size_t size() { return 2; } ///< Length (32-bit blocks)
-        } tile_f16_t;
-
-        /// @struct sprite_f1_t
+        /// @struct fill_area_t
         /// @brief Fill blank area
-        typedef struct DR_FILL
+        typedef struct
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             rgb24_t color;  ///< Primitive ID + rectangle color (RGB)
             coord16_t pos;  ///< top-left coordinates
             coord16_t size; ///< size (width / height)
@@ -91,12 +39,76 @@ namespace command
         } fill_area_t;
 
 
+        /// @struct tile_f_t
+        /// @brief Tile of any desired size
+        typedef struct 
+        {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
+            rgb24_t color;  ///< Primitive ID + tile color (RGB)
+            rect16_t coord; ///< Position (top-left) + size (width/height)
+
+            static inline size_t size() { return 3; } ///< Length (32-bit blocks)
+        } tile_f_t;
+        
+
+        /// @struct tile_f1_t
+        /// @brief 1 x 1 fixed-size tile
+        typedef struct 
+        {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
+            rgb24_t color; ///< Primitive ID + tile color (RGB)
+            coord16_t pos; ///< Position (top-left)
+
+            static inline size_t size() { return 2; } ///< Length (32-bit blocks)
+        } tile_f1_t;
+        
+
+        /// @struct tile_f8_t
+        /// @brief 8 x 8 fixed-size tile
+        typedef struct 
+        {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
+            rgb24_t color; ///< Primitive ID + tile color (RGB)
+            coord16_t pos; ///< Position (top-left)
+
+            static inline size_t size() { return 2; } ///< Length (32-bit blocks)
+        } tile_f8_t;
+        
+
+        /// @struct tile_f16_t
+        /// @brief 16 x 16 fixed-size tile
+        typedef struct 
+        {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
+            rgb24_t color; ///< Primitive ID + tile color (RGB)
+            coord16_t pos; ///< Position (top-left)
+
+            static inline size_t size() { return 2; } ///< Length (32-bit blocks)
+        } tile_f16_t;
+
+
         // -- primitive units - sprites -- -------------------------------------
 
         /// @struct sprite_f_t
         /// @brief Sprite of any desired size
-        typedef struct SPRT_F
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             rgb24_t color;       ///< Primitive ID + tile color (RGB)
             coord16_t pos;       ///< Position (top-left)
             coord8_tx_t texture; ///< Sprite texture coordinates + CLUT
@@ -105,10 +117,15 @@ namespace command
             static inline size_t size() { return 4; } ///< Length (32-bit blocks)
         } sprite_f_t;
         
+
         /// @struct sprite_f1_t
         /// @brief 1 x 1 fixed size texture-mapped sprite
-        typedef struct SPRT_F1
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             rgb24_t color;       ///< Primitive ID + tile color (RGB)
             coord16_t pos;       ///< Position (top-left)
             coord8_tx_t texture; ///< Sprite texture coordinates + CLUT
@@ -116,10 +133,15 @@ namespace command
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
         } sprite_f1_t;
         
+
         /// @struct sprite_f8_t
         /// @brief 8 x 8 fixed size texture-mapped sprite
-        typedef struct SPRT_F8
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             rgb24_t color;       ///< Primitive ID + tile color (RGB)
             coord16_t pos;       ///< Position (top-left)
             coord8_tx_t texture; ///< Sprite texture coordinates + CLUT
@@ -127,16 +149,22 @@ namespace command
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
         } sprite_f8_t;
         
+
         /// @struct sprite_f16_t
         /// @brief 16 x 16 fixed size texture-mapped sprite
-        typedef struct SPRT_F16
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             rgb24_t color;       ///< Primitive ID + tile color (RGB)
             coord16_t pos;       ///< Position (top-left)
             coord8_tx_t texture; ///< Sprite texture coordinates + CLUT
 
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
         } sprite_f16_t;
+
 
         /*
         Size Restriction: The maximum distance between two vertices is 1023 horizontally, and 511 vertically.

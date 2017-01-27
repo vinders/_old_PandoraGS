@@ -8,7 +8,7 @@ Description : drawing polygon primitive (triangle / quad)
 *******************************************************************************/
 #pragma once
 
-#include "i_primitive.h"
+#include "primitive_common.h"
 
 // quad to triangle
 #define POLY0_vertex0 vertex0
@@ -27,28 +27,16 @@ namespace command
     /// Drawing primitive management
     namespace primitive
     {
-        /// @class PolyPrimitive
-        /// @brief Drawing polygon primitive (triangle / quad)
-        class PolyPrimitive : public IPrimitive
-        {
-        public:
-            /// @brief Create primitive
-            /// @param pData Raw primitive data
-            /// @param frameSettings Current frame buffer settings
-            PolyPrimitive(unsigned long* pData, FrameBufferSettings& frameSettings);
-            
-            /// @brief Process primitive
-            /// @param outputBuffer Output buffer for primitive formatted data
-            virtual void process(std::vector<float>& outputBuffer);
-        };
-
-
         // -- primitive units - flat polygons -- -------------------------------
 
         /// @struct poly_f3_t
         /// @brief Flat-shaded triangle
-        typedef struct POLY_F3
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             rgb24_t color;       ///< Primitive ID (pad) + triangle color (RGB)
             vertex_f1_t vertex0; ///< Vertex coordinates
             vertex_f1_t vertex1; ///< Vertex coordinates
@@ -57,10 +45,15 @@ namespace command
             static inline size_t size() { return 4; } ///< Length (32-bit blocks)
         } poly_f3_t;
 
+
         /// @struct poly_f4_t
         /// @brief Flat-shaded quad
-        typedef struct POLY_F4
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             rgb24_t color;       ///< Primitive ID (pad) + quad color (RGB)
             vertex_f1_t vertex0; ///< Vertex coordinates (top-left)
             vertex_f1_t vertex1; ///< Vertex coordinates (top-right)
@@ -70,10 +63,15 @@ namespace command
             static inline size_t size() { return 5; } ///< Length (32-bit blocks)
         } poly_f4_t;
 
+
         /// @struct poly_ft3_t
         /// @brief Flat-shaded texture-mapped triangle
-        typedef struct POLY_FT3
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             rgb24_t color;        ///< Primitive ID (pad) + triangle color (RGB)
             vertex_ft1_t vertex0; ///< Vertex coordinates/texture (CLUT)
             vertex_ft1_t vertex1; ///< Vertex coordinates/texture (texpage)
@@ -87,10 +85,15 @@ namespace command
             static inline size_t size() { return 7; } ///< Length (32-bit blocks)
         } poly_ft3_t;
 
+
         /// @struct poly_ft4_t
         /// @brief Flat-shaded texture-mapped quad
-        typedef struct POLY_FT4
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             rgb24_t color;        ///< Primitive ID (pad) + quad color (RGB)
             vertex_ft1_t vertex0; ///< Vertex coordinates/texture (CLUT)
             vertex_ft1_t vertex1; ///< Vertex coordinates/texture (texpage)
@@ -110,8 +113,12 @@ namespace command
 
         /// @struct poly_g3_t
         /// @brief Gouraud-shaded triangle
-        typedef struct POLY_G3
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             vertex_g1_t vertex0; ///< Primitive ID + vertex color/coordinates
             vertex_g1_t vertex1; ///< Vertex color/coordinates
             vertex_g1_t vertex2; ///< Vertex color/coordinates
@@ -119,10 +126,15 @@ namespace command
             static inline size_t size() { return 6; } ///< Length (32-bit blocks)
         } poly_g3_t;
 
+
         /// @struct poly_g4_t
         /// @brief Gouraud-shaded quad
-        typedef struct POLY_G4
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             vertex_g1_t vertex0; ///< Primitive ID + vertex color/coordinates
             vertex_g1_t vertex1; ///< Vertex color/coordinates
             vertex_g1_t vertex2; ///< Vertex color/coordinates
@@ -131,10 +143,15 @@ namespace command
             static inline size_t size() { return 8; } ///< Length (32-bit blocks)
         } poly_g4_t;
 
+
         /// @struct poly_gt3_t
         /// @brief Gouraud-shaded texture-mapped triangle
-        typedef struct POLY_GT3
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             vertex_gt1_t vertex0; ///< Primitive ID + vertex color/coordinates/texture (CLUT)
             vertex_gt1_t vertex1; ///< Vertex color/coordinates/texture (texpage)
             vertex_gt1_t vertex2; ///< Vertex color/coordinates
@@ -147,10 +164,15 @@ namespace command
             static inline size_t size() { return 9; } ///< Length (32-bit blocks)
         } poly_gt3_t;
 
+
         /// @struct poly_gt4_t
         /// @brief Gouraud-shaded texture-mapped quad
-        typedef struct POLY_GT4
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             vertex_gt1_t vertex0; ///< Primitive ID + vertex color/coordinates/texture (CLUT)
             vertex_gt1_t vertex1; ///< Vertex color/coordinates/texture (texpage)
             vertex_gt1_t vertex2; ///< Vertex color/coordinates
@@ -163,6 +185,7 @@ namespace command
 
             static inline size_t size() { return 12; } ///< Length (32-bit blocks)
         } poly_gt4_t;
+
 
         /*
         Size Restriction: The maximum distance between two vertices is 1023 horizontally, and 511 vertically. 

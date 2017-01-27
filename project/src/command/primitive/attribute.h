@@ -8,7 +8,7 @@ Description : drawing attribute (area / transparency)
 *******************************************************************************/
 #pragma once
 
-#include "i_primitive.h"
+#include "primitive_common.h"
 
 /// @namespace command
 /// GPU commands management
@@ -18,26 +18,20 @@ namespace command
     /// Drawing primitive management
     namespace primitive
     {
-        /// @class Attribute
-        /// @brief Drawing attribute (area / transparency)
-        class Attribute
-        {
-        public:
-            /// @brief Create primitive
-            /// @param pData Raw attribute data
-            /// @param frameSettings Current frame buffer settings
-            static void setAttribute(cmd_block_t* pData, FrameBufferSettings& frameSettings);
-        };
-
-
         // -- attribute types - frame buffer settings -- ---------------------------
 
         /// @struct attr_texpage_t
         /// @brief Draw mode / Texture page change
-        typedef struct DR_TEXPAGE
+        typedef struct
         {
-            cmd_block_t raw;
-            // attributes
+        private:
+            cmd_block_t raw; ///< Raw attribute data block
+        public:
+            /// @brief Process attribute
+            /// @param pData Raw attribute data pointer
+            static void process(cmd_block_t* pData);
+
+            // attribute values
             inline cmd_block_t x() { return ((raw << 6) & 0x3C0uL); }            ///< Texture page X base: 0, 64, ...
             inline cmd_block_t y() { return ((raw << 4) & 0x100uL); }            ///< Texture page Y base: 0 or 256
             inline bool isXFlip()    { return ((raw & 0x1000uL) != 0uL); }       ///< Textured rectangle X-flip
@@ -59,12 +53,19 @@ namespace command
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
         } attr_texpage_t;
 
+
         /// @struct attr_texwin_t
         /// @brief Texture window change
-        typedef struct DR_TEXWIN
+        typedef struct
         {
-            cmd_block_t raw;
-            // attributes
+        private:
+            cmd_block_t raw; ///< Raw attribute data block
+        public:
+            /// @brief Process attribute
+            /// @param pData Raw attribute data pointer
+            static void process(cmd_block_t* pData);
+
+            // attribute values
             inline cmd_block_t maskX()   { return (raw & 0x1FuL); }         ///< Mask X (8 pixel steps) = manipulated bits
             inline cmd_block_t maskY()   { return ((raw >> 5) & 0x1FuL); }  ///< Mask Y (8 pixel steps)
             inline cmd_block_t offsetX() { return ((raw >> 10) & 0x1FuL); } ///< Offset X (8 pixel steps) = value for these bits
@@ -74,36 +75,57 @@ namespace command
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
         } attr_texwin_t;
 
+
         /// @struct attr_drawarea_t
         /// @brief Drawing area change
-        typedef struct DR_AREA
+        typedef struct
         {
-            cmd_block_t raw;
-            // attributes
+        private:
+            cmd_block_t raw; ///< Raw attribute data block
+        public:
+            /// @brief Process attribute
+            /// @param pData Raw attribute data pointer
+            static void process(cmd_block_t* pData);
+
+            // attribute values
             inline cmd_block_t x() { return (raw & 0x3FFuL); }         ///< X coordinate
             inline cmd_block_t y() { return ((raw >> 10) & 0x3FFuL); } ///< Y coordinate (must be framebuffer height max (e.g. 512) -> check it before using it)
 
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
         } attr_drawarea_t;
 
+
         /// @struct attr_drawoffset_t
         /// @brief Drawing offset modification
-        typedef struct DR_OFFSET
+        typedef struct
         {
-            cmd_block_t raw;
-            // attributes
+        private:
+            cmd_block_t raw; ///< Raw attribute data block
+        public:
+            /// @brief Process attribute
+            /// @param pData Raw attribute data pointer
+            static void process(cmd_block_t* pData);
+
+            // attribute values
             inline cmd_block_t x() { return (raw & 0x7FFuL); }         ///< X coordinate
             inline cmd_block_t y() { return ((raw >> 11) & 0x7FFuL); } ///< Y coordinate
 
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
         } attr_drawoffset_t;
 
+
         /// @struct attr_stpmask_t
         /// @brief Semi-transparency bit change
-        typedef struct DR_STPMASK
+        typedef struct
         {
-            cmd_block_t raw;
-            // attributes
+        private:
+            cmd_block_t raw; ///< Raw attribute data block
+        public:
+            /// @brief Process attribute
+            /// @param pData Raw attribute data pointer
+            static void process(cmd_block_t* pData);
+
+            // attribute values
             inline bool isMaskBitForced() { return ((raw & 0x1uL) != 0uL); }  ///< Set mask while drawing (0 = texture with bit 15 ; 1 = force bit15=1)
             // - When bit0 is off, the upper bit of data written to framebuffer is equal to bit15 of the texture color 
             //   (it is set for colors that are marked as "semi-transparent"). For untextured polygons, bit15 is set to zero.
@@ -115,48 +137,18 @@ namespace command
         } attr_stpmask_t;
 
 
-        // -- attribute types - data transfer settings -- --------------------------
-
-        /// @struct img_load_t
-        /// @brief Load image (cpu to vram)
-        typedef struct DR_LOAD
+        /// @struct attr_irqflag_t
+        /// @brief GPU interrupt request flag
+        typedef struct
         {
-            cmd_block_t cmd;       ///< Primitive ID
-            coord16_t destination; ///< framebuffer destination: X = 0..3FFh ; Y = 0..1FFh (if more, clipped)
-            coord16_t size;        ///< size (width / height): X = 0..400h ; Y = 0..200h (if more, clipped)
-            // - Size=0 is handled as Size=max
-            // - Transfer data through DMA
-            // - Parameters are clipped to 10bit (X) / 9bit (Y) range, the only special case is that Size=0 is handled as Size=max.
-            // - If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge.
-            // - Affected by the mask settings
-            static inline size_t size() { return 3; } ///< Length (32-bit blocks)
-        } img_load_t;
+        private:
+            cmd_block_t raw; ///< Raw attribute data block
+        public:
+            /// @brief Process attribute
+            /// @param pData Raw attribute data pointer
+            static void process(cmd_block_t* pData);
 
-        /// @struct img_store_t
-        /// @brief Store image (vram to central memory)
-        typedef struct DR_STORE
-        {
-            cmd_block_t cmd;    ///< Primitive ID
-            coord16_t source;   ///< framebuffer source: X = 0..3FFh ; Y = 0..1FFh (if more, clipped)
-            coord16_t size;     ///< size (width / height): X = 0..400h ; Y = 0..200h (if more, clipped)
-            // - Size=0 is handled as Size=max
-            // - If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge.
-            // - Transfer data through DMA or gpuread port
-            static inline size_t size() { return 3; } ///< Length (32-bit blocks)
-        } img_store_t;
-
-        /// @struct img_move_t
-        /// @brief Framebuffer rectangle copy (vram to vram)
-        typedef struct DR_MOVE
-        {
-            cmd_block_t cmd;       ///< Primitive ID
-            coord16_t source;      ///< framebuffer source: X = 0..3FFh ; Y = 0..1FFh (if more, clipped)
-            coord16_t destination; ///< framebuffer destination: X = 0..3FFh ; Y = 0..1FFh (if more, clipped)
-            coord16_t size;        ///< size (width / height): X = 0..400h ; Y = 0..200h (if more, clipped)
-            // - Size=0 is handled as Size=max
-            // - If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge
-            // - Affected by the mask settings
-            static inline size_t size() { return 4; } ///< Length (32-bit blocks)
-        } img_move_t;
+            static inline size_t size() { return 1; } ///< Length (32-bit blocks)
+        } attr_irqflag_t;
     }
 }

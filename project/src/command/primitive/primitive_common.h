@@ -4,7 +4,7 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : drawing primitive - interface
+Description : drawing primitive - common types
 *******************************************************************************/
 #pragma once
 
@@ -21,19 +21,6 @@ namespace command
     /// Drawing primitive management
     namespace primitive
     {
-        /// @class IPrimitive
-        /// @brief Drawing primitive - interface
-        class IPrimitive
-        {
-        public:
-            virtual ~IPrimitive() {}
-            
-            /// @brief Process primitive
-            /// @param outputBuffer Output buffer for primitive formatted data
-            virtual void process(std::vector<float>& outputBuffer) = 0;
-        };
-
-
         // -- data types -- ----------------------------------------------------
 
         /// @enum stp_t
@@ -60,7 +47,7 @@ namespace command
 
         /// @struct coord8_tx_t
         /// @brief 8-bit coordinates + texture attributes (MiscYyXx)
-        typedef struct COORD8TX
+        typedef struct 
         {
             cmd_block_t raw;
             inline cmd_block_t x() ///< X coordinate (Xx)
@@ -92,7 +79,7 @@ namespace command
 
         /// @struct coord16_t
         /// @brief 16-bit coordinates (YyyyXxxx)
-        typedef struct COORD16
+        typedef struct 
         {
             cmd_block_t raw;
             inline cmd_block_t x() ///< X coordinate (Xxxx)
@@ -107,7 +94,7 @@ namespace command
 
         /// @struct rect16_t
         /// @brief 2x-16-bit rectangular area (YyyyXxxx HhhhWwww)
-        typedef struct RECT16
+        typedef struct 
         {
             coord16_t pos;  ///< Top-left XY coordinates (YyyyXxxx)
             coord16_t size; ///< Width / height (HhhhWwww)
@@ -118,7 +105,7 @@ namespace command
 
         /// @struct rgb16_t
         /// @brief 16-bit RGB color value (0000MBGR)
-        typedef struct RGB16
+        typedef struct 
         {
             cmd_block_t raw;
             inline bool isMask() ///< Mask bit (m0000000)
@@ -137,7 +124,7 @@ namespace command
 
         /// @struct rgb24_t
         /// @brief 24-bit RGB color value (PpBbGgRr)
-        typedef struct RGB24
+        typedef struct 
         {
             cmd_block_t raw;
             inline cmd_block_t r() { return (raw & 0x0FFuL); }           ///< Red (Rr)
@@ -162,7 +149,7 @@ namespace command
 
         /// @struct vertex_ft1_t
         /// @brief Textured flat-shaded vertex (YyyyXxxx MiscYyXx)
-        typedef struct VERTEX_FT1
+        typedef struct 
         {
             coord16_t coord;     ///< Vertex coordinates
             coord8_tx_t texture; ///< Texture coordinates + misc texture information
@@ -171,7 +158,7 @@ namespace command
 
         /// @struct vertex_g1_t
         /// @brief Gouraud-shaded vertex (00BbGgRr YyyyXxxx)
-        typedef struct VERTEX_G1
+        typedef struct 
         {
             rgb24_t color;    ///< Vertex color (RGB)
             coord16_t coord;  ///< Vertex coordinates
@@ -180,7 +167,7 @@ namespace command
 
         /// @struct vertex_gt1_t
         /// @brief Textured gouraud-shaded vertex (00BbGgRr YyyyXxxx MiscYyXx)
-        typedef struct VERTEX_GT1
+        typedef struct 
         {
             rgb24_t color;       ///< Vertex color (RGB)
             coord16_t coord;     ///< Vertex coordinates

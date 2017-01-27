@@ -8,7 +8,7 @@ Description : drawing line primitive (line / poly-line)
 *******************************************************************************/
 #pragma once
 
-#include "i_primitive.h"
+#include "primitive_common.h"
 
 /// @namespace command
 /// GPU commands management
@@ -18,28 +18,16 @@ namespace command
     /// Drawing primitive management
     namespace primitive
     {
-        /// @class LinePrimitive
-        /// @brief Drawing line primitive (line / poly-line)
-        class LinePrimitive : public IPrimitive
-        {
-        public:
-            /// @brief Create primitive
-            /// @param pData Raw primitive data
-            /// @param frameSettings Current frame buffer settings
-            LinePrimitive(unsigned long* pData, FrameBufferSettings& frameSettings);
-            
-            /// @brief Process primitive
-            /// @param outputBuffer Output buffer for primitive formatted data
-            virtual void process(std::vector<float>& outputBuffer);
-        };
-
-
         // -- primitive units - lines -- ---------------------------------------
 
         /// @struct line_f2_t
         /// @brief Flat-shaded line
-        typedef struct LINE_F2
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             rgb24_t color;       ///< Primitive ID (pad) + line color (RGB)
             vertex_f1_t vertex0; ///< Vertex coordinates
             vertex_f1_t vertex1; ///< Vertex coordinates
@@ -47,10 +35,15 @@ namespace command
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
         } line_f2_t;
 
+
         /// @struct line_g2_t
         /// @brief Gouraud-shaded line
-        typedef struct LINE_G2
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             vertex_g1_t vertex0; ///< Primitive ID (pad) + vertex color/coordinates
             vertex_g1_t vertex1; ///< Vertex color/coordinates
 
@@ -62,8 +55,12 @@ namespace command
 
         /// @struct line_fp_t
         /// @brief Flat-shaded poly-line
-        typedef struct LINE_FP
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             rgb24_t color;       ///< Primitive ID (pad) + line color (RGB)
             vertex_f1_t vertex0; ///< Vertex coordinates
             vertex_f1_t vertex1; ///< Vertex coordinates
@@ -81,10 +78,15 @@ namespace command
             }
         } line_fp_t;
 
+
         /// @struct line_gp_t
         /// @brief Gouraud-shaded poly-line
-        typedef struct LINE_GP
+        typedef struct 
         {
+            /// @brief Process primitive
+            /// @param pData Raw primitive data pointer
+            static void process(cmd_block_t* pData);
+
             vertex_g1_t vertex0; ///< Primitive ID (pad) + vertex color/coordinates
             vertex_g1_t vertex1; ///< Vertex color/coordinates
             vertex_g1_t vertex2; ///< Vertex color/coordinates OR end code (0x55555555)
@@ -173,6 +175,7 @@ namespace command
                 return (vertex_g1_t*)(m_pCurrentVertex);
             }
         } line_gp_iterator;
+
 
         /*
         Size Restriction: The maximum distance between two vertices is 1023 horizontally, and 511 vertically.

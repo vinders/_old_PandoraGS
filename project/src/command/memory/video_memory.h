@@ -21,13 +21,15 @@ namespace command
         class VideoMemory
         {
             
-            
+        public:
             /// @class VideoMemory::iterator
             /// @brief GPU video memory (vram) iterator
             class iterator
             {
                 
             };
+
+            iterator begin();
         };
     }
 }

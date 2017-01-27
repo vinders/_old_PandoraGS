@@ -100,6 +100,7 @@
     <ClCompile Include="..\src\command\memory\video_memory.cpp" />
     <ClCompile Include="..\src\command\memory\video_memory_io.cpp" />
     <ClCompile Include="..\src\command\primitive\attribute.cpp" />
+    <ClCompile Include="..\src\command\primitive\image_transfer.cpp" />
     <ClCompile Include="..\src\command\primitive\line_primitive.cpp" />
     <ClCompile Include="..\src\command\primitive\poly_primitive.cpp" />
     <ClCompile Include="..\src\command\primitive\primitive_factory.cpp" />
@@ -134,7 +135,8 @@
     <ClInclude Include="..\src\command\memory\video_memory_io.h" />
     <ClInclude Include="..\src\command\memory\video_memory_iterator.hpp" />
     <ClInclude Include="..\src\command\primitive\attribute.h" />
-    <ClInclude Include="..\src\command\primitive\i_primitive.h" />
+    <ClInclude Include="..\src\command\primitive\image_transfer.h" />
+    <ClInclude Include="..\src\command\primitive\primitive_common.h" />
     <ClInclude Include="..\src\command\primitive\line_primitive.h" />
     <ClInclude Include="..\src\command\primitive\poly_primitive.h" />
     <ClInclude Include="..\src\command\primitive\primitive_factory.h" />

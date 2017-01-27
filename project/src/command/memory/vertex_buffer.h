@@ -10,7 +10,7 @@ Description : vertex data buffer
 
 #include <cstdint>
 #include <vector>
-#include "../primitive/i_primitive.h"
+#include "../primitive/primitive_common.h"
 
 /// @namespace command
 /// GPU commands management

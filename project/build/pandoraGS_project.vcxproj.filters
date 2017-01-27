@@ -136,6 +136,9 @@
     <ClCompile Include="..\src\command\memory\vertex_buffer.cpp">
       <Filter>Source Files\command\memory</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\command\primitive\image_transfer.cpp">
+      <Filter>Source Files\command\primitive</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\lang\config_lang.h">
@@ -198,9 +201,6 @@
     <ClInclude Include="..\src\command\memory\video_memory_iterator.hpp">
       <Filter>Source Files\command\memory</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\command\primitive\i_primitive.h">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\command\primitive\line_primitive.h">
       <Filter>Source Files\command\primitive</Filter>
     </ClInclude>
@@ -257,6 +257,12 @@
     </ClInclude>
     <ClInclude Include="..\src\command\memory\vertex_buffer.h">
       <Filter>Source Files\command\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\command\primitive\image_transfer.h">
+      <Filter>Source Files\command\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\command\primitive\primitive_common.h">
+      <Filter>Source Files\command\primitive</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
