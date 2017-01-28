@@ -14,9 +14,6 @@
     <Filter Include="Source Files\lang">
       <UniqueIdentifier>{c73d6b4c-1a2c-47ce-81d6-c860f3b032d6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\event">
-      <UniqueIdentifier>{8efec250-59b2-4e53-811c-a355a5ae2e99}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\display">
       <UniqueIdentifier>{2e5ec620-e6b4-4179-aa6f-a40eaf444d6a}</UniqueIdentifier>
     </Filter>
@@ -25,9 +22,6 @@
     </Filter>
     <Filter Include="Source Files\command">
       <UniqueIdentifier>{63e8534a-2904-426c-8759-8bc9f4680876}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\event\utils">
-      <UniqueIdentifier>{750aec66-227b-47e4-9dc7-996f4a2a9447}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\display\utils">
       <UniqueIdentifier>{0dcde7e2-66b9-44fe-9114-a3c79c822842}</UniqueIdentifier>
@@ -44,6 +38,12 @@
     <Filter Include="Source Files\display\effects">
       <UniqueIdentifier>{5ddb9996-9cd3-4e30-a1f6-e555623a132d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\events">
+      <UniqueIdentifier>{8efec250-59b2-4e53-811c-a355a5ae2e99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\events\utils">
+      <UniqueIdentifier>{750aec66-227b-47e4-9dc7-996f4a2a9447}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\lang\config_lang.cpp">
@@ -52,14 +52,14 @@
     <ClCompile Include="..\src\lang\menu_lang.cpp">
       <Filter>Source Files\lang</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\event\listener.cpp">
-      <Filter>Source Files\event</Filter>
+    <ClCompile Include="..\src\events\listener.cpp">
+      <Filter>Source Files\events</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\event\timer.cpp">
-      <Filter>Source Files\event</Filter>
+    <ClCompile Include="..\src\events\timer.cpp">
+      <Filter>Source Files\events</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\event\utils\logger.cpp">
-      <Filter>Source Files\event\utils</Filter>
+    <ClCompile Include="..\src\events\utils\logger.cpp">
+      <Filter>Source Files\events\utils</Filter>
     </ClCompile>
     <ClCompile Include="..\src\display\engine.cpp">
       <Filter>Source Files\display</Filter>
@@ -148,6 +148,9 @@
     <ClCompile Include="..\src\display\effects\vertex_shader_definition.cpp">
       <Filter>Source Files\display\effects</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\events\utils\file_io.cpp">
+      <Filter>Source Files\events\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\lang\config_lang.h">
@@ -156,14 +159,14 @@
     <ClInclude Include="..\src\lang\menu_lang.h">
       <Filter>Source Files\lang</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\event\listener.h">
-      <Filter>Source Files\event</Filter>
+    <ClInclude Include="..\src\events\listener.h">
+      <Filter>Source Files\events</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\event\timer.h">
-      <Filter>Source Files\event</Filter>
+    <ClInclude Include="..\src\events\timer.h">
+      <Filter>Source Files\events</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\event\utils\logger.h">
-      <Filter>Source Files\event\utils</Filter>
+    <ClInclude Include="..\src\events\utils\logger.h">
+      <Filter>Source Files\events\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\src\display\engine.h">
       <Filter>Source Files\display</Filter>
@@ -252,8 +255,8 @@
     <ClInclude Include="..\src\res\targetver.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\event\utils\std_exception.hpp">
-      <Filter>Source Files\event\utils</Filter>
+    <ClInclude Include="..\src\events\utils\std_exception.hpp">
+      <Filter>Source Files\events\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\src\config\config_file_io.h">
       <Filter>Source Files\config</Filter>
@@ -278,6 +281,9 @@
     </ClInclude>
     <ClInclude Include="..\src\display\effects\vertex_shader_definition.h">
       <Filter>Source Files\display\effects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\events\utils\file_io.h">
+      <Filter>Source Files\events\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
