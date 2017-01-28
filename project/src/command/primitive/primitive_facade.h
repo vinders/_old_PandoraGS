@@ -32,11 +32,11 @@ namespace command
     {
         /// @struct index_row_t
         /// @brief Primitive index row
-        typedef struct PRIMTABLEROW
+        struct index_row_t
         {
             void(*command)(cmd_block_t*); // function to call to process primitive
             size_t size; // number of 32-bit blocks
-        } index_row_t;
+        };
 
         extern const index_row_t c_pPrimitiveIndex[PRIMITIVE_NUMBER]; ///< Primitive index table
 

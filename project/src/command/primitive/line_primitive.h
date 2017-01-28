@@ -22,7 +22,7 @@ namespace command
 
         /// @struct line_f2_t
         /// @brief Flat-shaded line
-        typedef struct 
+        struct line_f2_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -33,12 +33,12 @@ namespace command
             vertex_f1_t vertex1; ///< Vertex coordinates
 
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
-        } line_f2_t;
+        };
 
 
         /// @struct line_g2_t
         /// @brief Gouraud-shaded line
-        typedef struct 
+        struct line_g2_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -48,26 +48,26 @@ namespace command
             vertex_g1_t vertex1; ///< Vertex color/coordinates
 
             static inline size_t size() { return 4; } ///< Length (32-bit blocks)
-        } line_g2_t;
+        };
 
 
         // -- primitive units - poly-lines -- ----------------------------------
 
         /// @struct poly_line_common_t
         /// @brief Poly-line common base
-        typedef struct
+        struct poly_line_common_t
         {
             static inline size_t maxSize() { return 255; } ///< Maximum length
             static inline bool isEndCode(cmd_block_t data) ///< End code verification
             {
                 return ((data & 0xF000F000) == 0x50005000);
             }
-        } poly_line_common_t;
+        };
 
 
         /// @struct line_fp_t
         /// @brief Flat-shaded poly-line
-        typedef struct : public poly_line_common_t
+        struct line_fp_t : public poly_line_common_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -84,12 +84,12 @@ namespace command
             {
                 return (position >= minSize());
             }
-        } line_fp_t;
+        };
 
 
         /// @struct line_gp_t
         /// @brief Gouraud-shaded poly-line
-        typedef struct : public poly_line_common_t
+        struct line_gp_t : public poly_line_common_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -105,14 +105,14 @@ namespace command
             {
                 return (position >= minSize() && (position & 0x1) == 0); // N*(color+vertex) -> even number
             }
-        } line_gp_t;
+        };
 
 
         // -- primitive units - iterators -- -----------------------------------
 
         /// @struct line_fp_iterator
         /// @brief Flat-shaded poly-line iterator
-        typedef struct LINE_FP_IT
+        struct line_fp_iterator
         {
         private:
             size_t m_count;                ///< Read units count
@@ -121,7 +121,7 @@ namespace command
         public:
             /// @brief Create iterator for flat poly-line
             /// @param dataSource Reference to poly-line container
-            LINE_FP_IT(line_fp_t& dataSource) : m_count(1), m_pCurrentVertex(&(dataSource.vertex0.raw)) {}
+            line_fp_iterator(line_fp_t& dataSource) : m_count(1), m_pCurrentVertex(&(dataSource.vertex0.raw)) {}
 
             /// @brief Select next element (if available)
             /// @return Success (or end of line)
@@ -142,12 +142,12 @@ namespace command
             {
                 return (vertex_f1_t*)(m_pCurrentVertex);
             }
-        } line_fp_iterator;
+        };
 
 
         /// @struct line_gp_iterator
         /// @brief Gouraud-shaded poly-line iterator
-        typedef struct LINE_GP_IT
+        struct line_gp_iterator
         {
         private:
             size_t m_count;                ///< Read units count
@@ -156,7 +156,7 @@ namespace command
         public:
             /// @brief Create iterator for flat poly-line
             /// @param dataSource Reference to poly-line container
-            LINE_GP_IT(line_gp_t& dataSource) : m_count(0), m_pCurrentVertex(&(dataSource.vertex0.color.raw)) {}
+            line_gp_iterator(line_gp_t& dataSource) : m_count(0), m_pCurrentVertex(&(dataSource.vertex0.color.raw)) {}
 
             /// @brief Select next element (if available)
             /// @return Success (or end of line)
@@ -178,8 +178,7 @@ namespace command
             {
                 return (vertex_g1_t*)(m_pCurrentVertex);
             }
-        } line_gp_iterator;
-
+        };
 
         /*
         Size Restriction: The maximum distance between two vertices is 1023 horizontally, and 511 vertically.

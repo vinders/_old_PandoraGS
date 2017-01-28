@@ -22,7 +22,7 @@ namespace command
 
         /// @struct fill_area_t
         /// @brief Fill blank area
-        typedef struct
+        struct fill_area_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -36,12 +36,12 @@ namespace command
             // - If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge.
             // - NOT affected by the mask settings
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
-        } fill_area_t;
+        };
 
 
         /// @struct tile_f_t
         /// @brief Tile of any desired size
-        typedef struct 
+        struct tile_f_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -51,12 +51,12 @@ namespace command
             rect16_t coord; ///< Position (top-left) + size (width/height)
 
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
-        } tile_f_t;
+        };
         
 
         /// @struct tile_f1_t
         /// @brief 1 x 1 fixed-size tile
-        typedef struct 
+        struct tile_f1_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -66,12 +66,12 @@ namespace command
             coord16_t pos; ///< Position (top-left)
 
             static inline size_t size() { return 2; } ///< Length (32-bit blocks)
-        } tile_f1_t;
+        };
         
 
         /// @struct tile_f8_t
         /// @brief 8 x 8 fixed-size tile
-        typedef struct 
+        struct tile_f8_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -81,12 +81,12 @@ namespace command
             coord16_t pos; ///< Position (top-left)
 
             static inline size_t size() { return 2; } ///< Length (32-bit blocks)
-        } tile_f8_t;
+        };
         
 
         /// @struct tile_f16_t
         /// @brief 16 x 16 fixed-size tile
-        typedef struct 
+        struct tile_f16_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -96,14 +96,14 @@ namespace command
             coord16_t pos; ///< Position (top-left)
 
             static inline size_t size() { return 2; } ///< Length (32-bit blocks)
-        } tile_f16_t;
+        };
 
 
         // -- primitive units - sprites -- -------------------------------------
 
         /// @struct sprite_f_t
         /// @brief Sprite of any desired size
-        typedef struct 
+        struct sprite_f_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -115,12 +115,12 @@ namespace command
             coord16_t size;      ///< Size (width/height)
 
             static inline size_t size() { return 4; } ///< Length (32-bit blocks)
-        } sprite_f_t;
+        };
         
 
         /// @struct sprite_f1_t
         /// @brief 1 x 1 fixed size texture-mapped sprite
-        typedef struct 
+        struct sprite_f1_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -131,12 +131,12 @@ namespace command
             coord8_tx_t texture; ///< Sprite texture coordinates + CLUT
 
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
-        } sprite_f1_t;
+        };
         
 
         /// @struct sprite_f8_t
         /// @brief 8 x 8 fixed size texture-mapped sprite
-        typedef struct 
+        struct sprite_f8_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -147,12 +147,12 @@ namespace command
             coord8_tx_t texture; ///< Sprite texture coordinates + CLUT
 
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
-        } sprite_f8_t;
+        };
         
 
         /// @struct sprite_f16_t
         /// @brief 16 x 16 fixed size texture-mapped sprite
-        typedef struct 
+        struct sprite_f16_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -163,7 +163,7 @@ namespace command
             coord8_tx_t texture; ///< Sprite texture coordinates + CLUT
 
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
-        } sprite_f16_t;
+        };
 
 
         /*

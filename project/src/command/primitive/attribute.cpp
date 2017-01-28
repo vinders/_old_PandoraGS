@@ -62,5 +62,7 @@ void attr_stpmask_t::process(cmd_block_t* pData)
 /// @param pData Raw attribute data pointer
 void attr_irqflag_t::process(cmd_block_t* pData)
 {
+    // vérif si IRQ1 activé
+    // si oui, positionner flag d'interruption
     //...
 }

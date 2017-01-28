@@ -47,7 +47,7 @@ namespace command
 
         /// @struct coord8_tx_t
         /// @brief 8-bit coordinates + texture attributes (MiscYyXx)
-        typedef struct 
+        struct coord8_tx_t
         {
             cmd_block_t raw;
             inline cmd_block_t x() ///< X coordinate (Xx)
@@ -75,11 +75,11 @@ namespace command
                 cmd_block_t val = ((raw >> 21) & 0x3uL);
                 return static_cast<stp_t>(val);
             }
-        } coord8_tx_t;
+        };
 
         /// @struct coord16_t
         /// @brief 16-bit coordinates (YyyyXxxx)
-        typedef struct 
+        struct coord16_t
         {
             cmd_block_t raw;
             inline cmd_block_t x() ///< X coordinate (Xxxx)
@@ -90,22 +90,22 @@ namespace command
             {
                 return ((raw >> 16) & 0x0FFFFuL);
             }
-        } coord16_t;
+        };
 
         /// @struct rect16_t
         /// @brief 2x-16-bit rectangular area (YyyyXxxx HhhhWwww)
-        typedef struct 
+        struct rect16_t
         {
             coord16_t pos;  ///< Top-left XY coordinates (YyyyXxxx)
             coord16_t size; ///< Width / height (HhhhWwww)
-        } rect16_t;
+        };
 
 
         // -- primitive sub-units - colors -- ----------------------------------
 
         /// @struct rgb16_t
         /// @brief 16-bit RGB color value (0000MBGR)
-        typedef struct 
+        struct rgb16_t
         {
             cmd_block_t raw;
             inline bool isMask() ///< Mask bit (m0000000)
@@ -120,11 +120,11 @@ namespace command
             {
                 return (((raw << 9) & 0x0FF0000) | ((raw << 6) & 0x0FF00) | ((raw << 3) & 0x0FF));
             }
-        } rgb16_t;
+        };
 
         /// @struct rgb24_t
         /// @brief 24-bit RGB color value (PpBbGgRr)
-        typedef struct 
+        struct rgb24_t
         {
             cmd_block_t raw;
             inline cmd_block_t r() { return (raw & 0x0FFuL); }           ///< Red (Rr)
@@ -139,7 +139,7 @@ namespace command
             {
                 return (raw & 0x0FFFFFFuL);
             }
-        } rgb24_t;
+        };
 
 
         // -- primitive sub-units - vertices -- --------------------------------
@@ -149,30 +149,30 @@ namespace command
 
         /// @struct vertex_ft1_t
         /// @brief Textured flat-shaded vertex (YyyyXxxx MiscYyXx)
-        typedef struct 
+        struct vertex_ft1_t
         {
             coord16_t coord;     ///< Vertex coordinates
             coord8_tx_t texture; ///< Texture coordinates + misc texture information
             static inline size_t size() { return 2; } ///< Length (32-bit blocks)
-        } vertex_ft1_t;
+        };
 
         /// @struct vertex_g1_t
         /// @brief Gouraud-shaded vertex (00BbGgRr YyyyXxxx)
-        typedef struct 
+        struct vertex_g1_t
         {
             rgb24_t color;    ///< Vertex color (RGB)
             coord16_t coord;  ///< Vertex coordinates
             static inline size_t size() { return 2; } ///< Length (32-bit blocks)
-        } vertex_g1_t;
+        };
 
         /// @struct vertex_gt1_t
         /// @brief Textured gouraud-shaded vertex (00BbGgRr YyyyXxxx MiscYyXx)
-        typedef struct 
+        struct vertex_gt1_t
         {
             rgb24_t color;       ///< Vertex color (RGB)
             coord16_t coord;     ///< Vertex coordinates
             coord8_tx_t texture; ///< Texture coordinates + misc texture information
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
-        } vertex_gt1_t;
+        };
     }
 }

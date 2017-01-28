@@ -22,7 +22,7 @@ namespace command
 
         /// @struct attr_texpage_t
         /// @brief Draw mode / Texture page change
-        typedef struct
+        struct attr_texpage_t
         {
         private:
             cmd_block_t raw; ///< Raw attribute data block
@@ -51,12 +51,12 @@ namespace command
             }
 
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
-        } attr_texpage_t;
+        };
 
 
         /// @struct attr_texwin_t
         /// @brief Texture window change
-        typedef struct
+        struct attr_texwin_t
         {
         private:
             cmd_block_t raw; ///< Raw attribute data block
@@ -73,12 +73,12 @@ namespace command
             // - texcoord = (texcoord AND (NOT (mask*8))) OR ((offset AND mask)*8)
             // - Area within texture window is repeated throughout the texture page (repeats not stored, but "read" as if present)
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
-        } attr_texwin_t;
+        };
 
 
         /// @struct attr_drawarea_t
         /// @brief Drawing area change
-        typedef struct
+        struct attr_drawarea_t
         {
         private:
             cmd_block_t raw; ///< Raw attribute data block
@@ -92,12 +92,12 @@ namespace command
             inline cmd_block_t y() { return ((raw >> 10) & 0x3FFuL); } ///< Y coordinate (must be frame buffer height max (e.g. 512) -> check it before using it)
 
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
-        } attr_drawarea_t;
+        };
 
 
         /// @struct attr_drawoffset_t
         /// @brief Drawing offset modification
-        typedef struct
+        struct attr_drawoffset_t
         {
         private:
             cmd_block_t raw; ///< Raw attribute data block
@@ -111,12 +111,12 @@ namespace command
             inline cmd_block_t y() { return ((raw >> 11) & 0x7FFuL); } ///< Y coordinate
 
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
-        } attr_drawoffset_t;
+        };
 
 
         /// @struct attr_stpmask_t
         /// @brief Semi-transparency bit change
-        typedef struct
+        struct attr_stpmask_t
         {
         private:
             cmd_block_t raw; ///< Raw attribute data block
@@ -134,12 +134,12 @@ namespace command
             // - The mask setting affects all rendering commands, as well as CPU-to-VRAM and VRAM-to-VRAM transfer commands (where it acts as for 15bit textures). 
             //   However, Mask does NOT affect the Fill-VRAM command.
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
-        } attr_stpmask_t;
+        };
 
 
         /// @struct attr_irqflag_t
         /// @brief GPU interrupt request flag
-        typedef struct
+        typedef struct attr_irqflag_t
         {
         private:
             cmd_block_t raw; ///< Raw attribute data block
@@ -149,6 +149,6 @@ namespace command
             static void process(cmd_block_t* pData);
 
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
-        } attr_irqflag_t;
+        };
     }
 }

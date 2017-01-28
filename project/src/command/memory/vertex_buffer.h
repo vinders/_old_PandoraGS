@@ -19,15 +19,14 @@ namespace command
 {
     /// @struct vertex_pos_t
     /// @brief Vertex position
-    typedef struct
+    struct vertex_pos_t
     {
         float x; ///< Vertex X coordinate
         float y; ///< Vertex Y coordinate
         float z; ///< Vertex Z depth layer
 
         static inline size_t size() { return 3; } ///< Length (number of variables)
-    } vertex_pos_t;
-
+    };
     /// @struct vertex_color_t
     /// @brief Vertex color (24-bit RGB + semi-transparency mode)
     typedef uint32_t vertex_color_t;

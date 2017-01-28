@@ -31,7 +31,7 @@ namespace command
 
         /// @struct poly_f3_t
         /// @brief Flat-shaded triangle
-        typedef struct 
+        struct poly_f3_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -43,12 +43,12 @@ namespace command
             vertex_f1_t vertex2; ///< Vertex coordinates
 
             static inline size_t size() { return 4; } ///< Length (32-bit blocks)
-        } poly_f3_t;
+        };
 
 
         /// @struct poly_f4_t
         /// @brief Flat-shaded quad
-        typedef struct 
+        struct poly_f4_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -61,12 +61,12 @@ namespace command
             vertex_f1_t vertex3; ///< Vertex coordinates (bottom-right)
 
             static inline size_t size() { return 5; } ///< Length (32-bit blocks)
-        } poly_f4_t;
+        };
 
 
         /// @struct poly_ft3_t
         /// @brief Flat-shaded texture-mapped triangle
-        typedef struct 
+        struct poly_ft3_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -83,12 +83,12 @@ namespace command
             inline cmd_block_t texpageY() { return vertex1.texture.texpageY(); }
 
             static inline size_t size() { return 7; } ///< Length (32-bit blocks)
-        } poly_ft3_t;
+        };
 
 
         /// @struct poly_ft4_t
         /// @brief Flat-shaded texture-mapped quad
-        typedef struct 
+        struct poly_ft4_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -106,14 +106,14 @@ namespace command
             inline cmd_block_t texpageY() { return vertex1.texture.texpageY(); }
 
             static inline size_t size() { return 9; } ///< Length (32-bit blocks)
-        } poly_ft4_t;
+        };
 
 
         // -- primitive units - shaded polygons -- -----------------------------
 
         /// @struct poly_g3_t
         /// @brief Gouraud-shaded triangle
-        typedef struct 
+        struct poly_g3_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -124,12 +124,12 @@ namespace command
             vertex_g1_t vertex2; ///< Vertex color/coordinates
 
             static inline size_t size() { return 6; } ///< Length (32-bit blocks)
-        } poly_g3_t;
+        };
 
 
         /// @struct poly_g4_t
         /// @brief Gouraud-shaded quad
-        typedef struct 
+        struct poly_g4_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -141,12 +141,12 @@ namespace command
             vertex_g1_t vertex3; ///< Vertex color/coordinates
 
             static inline size_t size() { return 8; } ///< Length (32-bit blocks)
-        } poly_g4_t;
+        };
 
 
         /// @struct poly_gt3_t
         /// @brief Gouraud-shaded texture-mapped triangle
-        typedef struct 
+        struct poly_gt3_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -162,12 +162,12 @@ namespace command
             inline cmd_block_t texpageY() { return vertex1.texture.texpageY(); }
 
             static inline size_t size() { return 9; } ///< Length (32-bit blocks)
-        } poly_gt3_t;
+        };
 
 
         /// @struct poly_gt4_t
         /// @brief Gouraud-shaded texture-mapped quad
-        typedef struct 
+        struct poly_gt4_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -184,7 +184,7 @@ namespace command
             inline cmd_block_t texpageY() { return vertex1.texture.texpageY(); }
 
             static inline size_t size() { return 12; } ///< Length (32-bit blocks)
-        } poly_gt4_t;
+        };
 
 
         /*
