@@ -10,6 +10,16 @@ Description : standard exception
 
 #include <string>
 
+#define NOEXCEPT noexcept // C++11
+#ifdef _WINDOWS
+#ifdef _MSC_VER 
+    #if _MSC_VER <= 1800
+        #define NOEXCEPT
+    #endif
+#endif
+#endif
+
+
 /// @namespace event
 /// Event management
 namespace event
@@ -37,7 +47,7 @@ namespace event
             
             /// @brief Get exception message
             /// @return Exception message
-            virtual char const* what() const noexcept
+            virtual char const* what() const NOEXCEPT
             {
                 return m_message.c_str();
             }
