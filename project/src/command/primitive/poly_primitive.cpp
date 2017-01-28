@@ -4,9 +4,9 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : drawing polygon primitive (triangle / quad)
+Description : polygon primitive (triangle / quad)
 *******************************************************************************/
-#include "primitive_factory.h"
+#include "primitive_facade.h"
 #include "poly_primitive.h"
 using namespace command::primitive;
 
@@ -17,8 +17,6 @@ using namespace command::primitive;
 /// @param pData Raw primitive data pointer
 void poly_f3_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     poly_f3_t* pPrim = (poly_f3_t*)pData;
 
     //...
@@ -28,8 +26,6 @@ void poly_f3_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void poly_f4_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     poly_f4_t* pPrim = (poly_f4_t*)pData;
 
     //...
@@ -39,8 +35,6 @@ void poly_f4_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void poly_ft3_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     poly_ft3_t* pPrim = (poly_ft3_t*)pData;
 
     //...
@@ -50,8 +44,6 @@ void poly_ft3_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void poly_ft4_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     poly_ft4_t* pPrim = (poly_ft4_t*)pData;
 
     //...
@@ -64,8 +56,6 @@ void poly_ft4_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void poly_g3_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     poly_g3_t* pPrim = (poly_g3_t*)pData;
 
     //...
@@ -75,8 +65,6 @@ void poly_g3_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void poly_g4_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     poly_g4_t* pPrim = (poly_g4_t*)pData;
 
     //...
@@ -86,8 +74,6 @@ void poly_g4_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void poly_gt3_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     poly_gt3_t* pPrim = (poly_gt3_t*)pData;
 
     //...
@@ -97,8 +83,6 @@ void poly_gt3_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void poly_gt4_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     poly_gt4_t* pPrim = (poly_gt4_t*)pData;
 
     //...

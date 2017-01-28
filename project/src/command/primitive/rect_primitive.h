@@ -4,7 +4,7 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : drawing rectangle primitive (tile / sprite)
+Description : rectangle primitive (tile / sprite)
 *******************************************************************************/
 #pragma once
 

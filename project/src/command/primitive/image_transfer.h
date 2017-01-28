@@ -42,12 +42,12 @@ namespace command
             static void process(cmd_block_t* pData);
 
             cmd_block_t cmd;       ///< Primitive ID
-            coord16_t destination; ///< framebuffer destination: X = 0..3FFh ; Y = 0..1FFh (if more, clipped)
+            coord16_t destination; ///< frame buffer destination: X = 0..3FFh ; Y = 0..1FFh (if more, clipped)
             coord16_t size;        ///< size (width / height): X = 0..400h ; Y = 0..200h (if more, clipped)
             // - Size=0 is handled as Size=max
             // - Transfer data through DMA
             // - Parameters are clipped to 10bit (X) / 9bit (Y) range, the only special case is that Size=0 is handled as Size=max.
-            // - If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge.
+            // - If the Source/Dest starting points plus the width/height value exceed the frame buffer size, wrap to the opposite memory edge.
             // - Affected by the mask settings
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
         } img_load_t;
@@ -62,17 +62,17 @@ namespace command
             static void process(cmd_block_t* pData);
 
             cmd_block_t cmd;    ///< Primitive ID
-            coord16_t source;   ///< framebuffer source: X = 0..3FFh ; Y = 0..1FFh (if more, clipped)
+            coord16_t source;   ///< frame buffer source: X = 0..3FFh ; Y = 0..1FFh (if more, clipped)
             coord16_t size;     ///< size (width / height): X = 0..400h ; Y = 0..200h (if more, clipped)
             // - Size=0 is handled as Size=max
-            // - If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge.
+            // - If the Source/Dest starting points plus the width/height value exceed the frame buffer size, wrap to the opposite memory edge.
             // - Transfer data through DMA or gpuread port
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
         } img_store_t;
 
 
         /// @struct img_move_t
-        /// @brief Framebuffer rectangle copy (vram to vram)
+        /// @brief Frame buffer rectangle copy (vram to vram)
         typedef struct 
         {
             /// @brief Process attribute
@@ -80,11 +80,11 @@ namespace command
             static void process(cmd_block_t* pData);
 
             cmd_block_t cmd;       ///< Primitive ID
-            coord16_t source;      ///< framebuffer source: X = 0..3FFh ; Y = 0..1FFh (if more, clipped)
-            coord16_t destination; ///< framebuffer destination: X = 0..3FFh ; Y = 0..1FFh (if more, clipped)
+            coord16_t source;      ///< frame buffer source: X = 0..3FFh ; Y = 0..1FFh (if more, clipped)
+            coord16_t destination; ///< frame buffer destination: X = 0..3FFh ; Y = 0..1FFh (if more, clipped)
             coord16_t size;        ///< size (width / height): X = 0..400h ; Y = 0..200h (if more, clipped)
             // - Size=0 is handled as Size=max
-            // - If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge
+            // - If the Source/Dest starting points plus the width/height value exceed the frame buffer size, wrap to the opposite memory edge
             // - Affected by the mask settings
             static inline size_t size() { return 4; } ///< Length (32-bit blocks)
         } img_move_t;

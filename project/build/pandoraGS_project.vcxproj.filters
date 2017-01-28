@@ -103,9 +103,6 @@
     <ClCompile Include="..\src\command\primitive\poly_primitive.cpp">
       <Filter>Source Files\command\primitive</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\command\primitive\primitive_factory.cpp">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\command\primitive\rect_primitive.cpp">
       <Filter>Source Files\command\primitive</Filter>
     </ClCompile>
@@ -137,6 +134,9 @@
       <Filter>Source Files\command\memory</Filter>
     </ClCompile>
     <ClCompile Include="..\src\command\primitive\image_transfer.cpp">
+      <Filter>Source Files\command\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\command\primitive\primitive_facade.cpp">
       <Filter>Source Files\command\primitive</Filter>
     </ClCompile>
   </ItemGroup>
@@ -207,9 +207,6 @@
     <ClInclude Include="..\src\command\primitive\poly_primitive.h">
       <Filter>Source Files\command\primitive</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\command\primitive\primitive_factory.h">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\command\primitive\rect_primitive.h">
       <Filter>Source Files\command\primitive</Filter>
     </ClInclude>
@@ -262,6 +259,9 @@
       <Filter>Source Files\command\primitive</Filter>
     </ClInclude>
     <ClInclude Include="..\src\command\primitive\primitive_common.h">
+      <Filter>Source Files\command\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\command\primitive\primitive_facade.h">
       <Filter>Source Files\command\primitive</Filter>
     </ClInclude>
   </ItemGroup>

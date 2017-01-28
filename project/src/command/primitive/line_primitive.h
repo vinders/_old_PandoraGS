@@ -4,7 +4,7 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : drawing line primitive (line / poly-line)
+Description : line primitive (line / poly-line)
 *******************************************************************************/
 #pragma once
 
@@ -53,9 +53,21 @@ namespace command
 
         // -- primitive units - poly-lines -- ----------------------------------
 
+        /// @struct poly_line_common_t
+        /// @brief Poly-line common base
+        typedef struct
+        {
+            static inline size_t maxSize() { return 255; } ///< Maximum length
+            static inline bool isEndCode(cmd_block_t data) ///< End code verification
+            {
+                return ((data & 0xF000F000) == 0x50005000);
+            }
+        } poly_line_common_t;
+
+
         /// @struct line_fp_t
         /// @brief Flat-shaded poly-line
-        typedef struct 
+        typedef struct : public poly_line_common_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -66,12 +78,8 @@ namespace command
             vertex_f1_t vertex1; ///< Vertex coordinates
             vertex_f1_t vertex2; ///< Vertex coordinates OR end code (0x55555555)
 
-            static inline size_t maxSize() { return 255; } ///< Maximum length (1 color + up to 254 vertices / end code)
+            // Maximum length : 1 color + up to 254 vertices (or 253 vertices + end code)
             static inline size_t minSize() { return 3; }   ///< Minimum length (at least 1 color + 2 vertices)
-            static inline bool isEndCode(cmd_block_t data) ///< End code verification
-            { 
-                return ((data & 0xF000F000) == 0x50005000); 
-            }
             static inline bool isLineEndable(size_t position) ///< Check if line data block can be the last
             {
                 return (position >= minSize());
@@ -81,7 +89,7 @@ namespace command
 
         /// @struct line_gp_t
         /// @brief Gouraud-shaded poly-line
-        typedef struct 
+        typedef struct : public poly_line_common_t
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
@@ -91,12 +99,8 @@ namespace command
             vertex_g1_t vertex1; ///< Vertex color/coordinates
             vertex_g1_t vertex2; ///< Vertex color/coordinates OR end code (0x55555555)
 
-            static inline size_t maxSize() { return 255; } ///< Maximum length (up to 127 vertices/colors + end code)
+            // Maximum length : up to 127 vertices/colors + end code
             static inline size_t minSize() { return 4; }   ///< Minimum length (at least 2 colors + 2 vertices)
-            static inline bool isEndCode(cmd_block_t data) ///< End code verification
-            {
-                return ((data & 0xF000F000) == 0x50005000);
-            }
             static inline bool isLineEndable(size_t position) ///< Check if line data block can be the last
             {
                 return (position >= minSize() && (position & 0x1) == 0); // N*(color+vertex) -> even number

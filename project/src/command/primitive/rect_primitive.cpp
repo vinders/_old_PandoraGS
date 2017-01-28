@@ -4,9 +4,9 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : drawing rectangle primitive (tile / sprite)
+Description : rectangle primitive (tile / sprite)
 *******************************************************************************/
-#include "primitive_factory.h"
+#include "primitive_facade.h"
 #include "rect_primitive.h"
 using namespace command::primitive;
 
@@ -17,8 +17,6 @@ using namespace command::primitive;
 /// @param pData Raw primitive data pointer
 void fill_area_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     fill_area_t* pPrim = (fill_area_t*)pData;
 
     //...
@@ -28,8 +26,6 @@ void fill_area_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void tile_f_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     tile_f_t* pPrim = (tile_f_t*)pData;
 
     //...
@@ -39,8 +35,6 @@ void tile_f_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void tile_f1_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     tile_f1_t* pPrim = (tile_f1_t*)pData;
 
     //...
@@ -50,8 +44,6 @@ void tile_f1_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void tile_f8_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     tile_f8_t* pPrim = (tile_f8_t*)pData;
 
     //...
@@ -61,8 +53,6 @@ void tile_f8_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void tile_f16_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     tile_f16_t* pPrim = (tile_f16_t*)pData;
 
     //...
@@ -75,8 +65,6 @@ void tile_f16_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void sprite_f_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     sprite_f_t* pPrim = (sprite_f_t*)pData;
 
     //...
@@ -86,8 +74,6 @@ void sprite_f_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void sprite_f1_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     sprite_f1_t* pPrim = (sprite_f1_t*)pData;
 
     //...
@@ -97,8 +83,6 @@ void sprite_f1_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void sprite_f8_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     sprite_f8_t* pPrim = (sprite_f8_t*)pData;
 
     //...
@@ -108,8 +92,6 @@ void sprite_f8_t::process(cmd_block_t* pData)
 /// @param pData Raw primitive data pointer
 void sprite_f16_t::process(cmd_block_t* pData)
 {
-    if (pData == NULL)
-        return;
     sprite_f16_t* pPrim = (sprite_f16_t*)pData;
 
     //...

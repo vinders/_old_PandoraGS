@@ -103,7 +103,7 @@
     <ClCompile Include="..\src\command\primitive\image_transfer.cpp" />
     <ClCompile Include="..\src\command\primitive\line_primitive.cpp" />
     <ClCompile Include="..\src\command\primitive\poly_primitive.cpp" />
-    <ClCompile Include="..\src\command\primitive\primitive_factory.cpp" />
+    <ClCompile Include="..\src\command\primitive\primitive_facade.cpp" />
     <ClCompile Include="..\src\command\primitive\rect_primitive.cpp" />
     <ClCompile Include="..\src\config\config.cpp" />
     <ClCompile Include="..\src\config\config_file_io.cpp" />
@@ -139,7 +139,7 @@
     <ClInclude Include="..\src\command\primitive\primitive_common.h" />
     <ClInclude Include="..\src\command\primitive\line_primitive.h" />
     <ClInclude Include="..\src\command\primitive\poly_primitive.h" />
-    <ClInclude Include="..\src\command\primitive\primitive_factory.h" />
+    <ClInclude Include="..\src\command\primitive\primitive_facade.h" />
     <ClInclude Include="..\src\command\primitive\rect_primitive.h" />
     <ClInclude Include="..\src\config\config.h" />
     <ClInclude Include="..\src\config\config_file_io.h" />

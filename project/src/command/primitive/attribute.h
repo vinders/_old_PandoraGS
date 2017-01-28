@@ -89,7 +89,7 @@ namespace command
 
             // attribute values
             inline cmd_block_t x() { return (raw & 0x3FFuL); }         ///< X coordinate
-            inline cmd_block_t y() { return ((raw >> 10) & 0x3FFuL); } ///< Y coordinate (must be framebuffer height max (e.g. 512) -> check it before using it)
+            inline cmd_block_t y() { return ((raw >> 10) & 0x3FFuL); } ///< Y coordinate (must be frame buffer height max (e.g. 512) -> check it before using it)
 
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
         } attr_drawarea_t;
@@ -127,10 +127,10 @@ namespace command
 
             // attribute values
             inline bool isMaskBitForced() { return ((raw & 0x1uL) != 0uL); }  ///< Set mask while drawing (0 = texture with bit 15 ; 1 = force bit15=1)
-            // - When bit0 is off, the upper bit of data written to framebuffer is equal to bit15 of the texture color 
+            // - When bit0 is off, the upper bit of data written to frame buffer is equal to bit15 of the texture color 
             //   (it is set for colors that are marked as "semi-transparent"). For untextured polygons, bit15 is set to zero.
             inline bool isMaskBitChecked() { return ((raw & 0x2uL) != 0uL); } ///< Check mask before drawing (0 = always draw ; 1 = draw if bit15==0)
-            // - When bit1 is on, any old pixels in the framebuffer with bit15==1 are write-protected, and cannot be overwritten by rendering commands.
+            // - When bit1 is on, any old pixels in the frame buffer with bit15==1 are write-protected, and cannot be overwritten by rendering commands.
             // - The mask setting affects all rendering commands, as well as CPU-to-VRAM and VRAM-to-VRAM transfer commands (where it acts as for 15bit textures). 
             //   However, Mask does NOT affect the Fill-VRAM command.
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)

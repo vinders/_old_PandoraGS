@@ -4,9 +4,9 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : drawing primitive factory
+Description : primitive drawing facade
 *******************************************************************************/
-#include "primitive_factory.h"
+#include "primitive_facade.h"
 #include "line_primitive.h"
 #include "poly_primitive.h"
 #include "rect_primitive.h"
@@ -26,7 +26,7 @@ command::FrameBufferSettings* PrimitiveFactory::s_pDrawSettingsAccess = NULL; //
 
 
 /// @brief Primitive index table
-const index_row_t c_pPrimitiveIndex[PRIMITIVE_NUMBER] = 
+const index_row_t command::primitive::c_pPrimitiveIndex[PRIMITIVE_NUMBER] = 
 {
     // GENERAL : 00 - 02
     { PRIMITIVE_NOP, 0L }, { cache_clear_t::process, cache_clear_t::size() }, { fill_area_t::process, fill_area_t::size() },
