@@ -4,23 +4,26 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : event log utility
+Description : file IO toolbox
 *******************************************************************************/
 #pragma once
 
-/// @namespace event
+/// @namespace events
 /// Event management
-namespace event
+namespace events
 {
     /// @namespace event.utils
     /// Event management utilities
     namespace utils
     {
-        /// @class Logger
-        /// @brief Event log utility
-        class Logger
+        /// @class FileIO
+        /// @brief File IO toolbox
+        class FileIO
         {
-            
+        public:
+            /// @brief Get file path with write access (same as plugin or home path)
+            /// @return File path
+            static std::string FileIO::getWritableFilePath();
         };
     }
 }

@@ -20,11 +20,11 @@ Description : standard exception
 #endif
 
 
-/// @namespace event
+/// @namespace events
 /// Event management
-namespace event
+namespace events
 {
-    /// @namespace event.utils
+    /// @namespace events.utils
     /// Event management utilities
     namespace utils
     {
