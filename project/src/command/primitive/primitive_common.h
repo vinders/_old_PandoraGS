@@ -68,12 +68,12 @@ namespace command
             inline colordepth_t colorDepth() ///< Color depth mode (4-bit, 8-bit, 15-bit)
             {
                 cmd_block_t val = ((raw >> 23) & 0x3uL);
-                return (colordepth_t)val;
+                return static_cast<colordepth_t>(val);
             }
             inline stp_t semiTransparency() ///< Semi-transparency mode
             {
                 cmd_block_t val = ((raw >> 21) & 0x3uL);
-                return (stp_t)val;
+                return static_cast<stp_t>(val);
             }
         } coord8_tx_t;
 
