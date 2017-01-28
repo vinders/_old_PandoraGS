@@ -8,6 +8,8 @@ Description : rendering engine - graphics API management
 *******************************************************************************/
 #pragma once
 
+#include "../vendor/opengl.h" // openGL includes
+
 /// @namespace display
 /// Display management
 namespace display
