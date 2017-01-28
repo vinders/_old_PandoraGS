@@ -41,6 +41,9 @@
     <Filter Include="Source Files\command\memory">
       <UniqueIdentifier>{b11de079-83e4-4ee2-b024-fad148eb302e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\display\effects">
+      <UniqueIdentifier>{5ddb9996-9cd3-4e30-a1f6-e555623a132d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\lang\config_lang.cpp">
@@ -138,6 +141,12 @@
     </ClCompile>
     <ClCompile Include="..\src\command\primitive\primitive_facade.cpp">
       <Filter>Source Files\command\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\display\effects\fragment_shader_definition.cpp">
+      <Filter>Source Files\display\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\display\effects\vertex_shader_definition.cpp">
+      <Filter>Source Files\display\effects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -263,6 +272,12 @@
     </ClInclude>
     <ClInclude Include="..\src\command\primitive\primitive_facade.h">
       <Filter>Source Files\command\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\display\effects\fragment_shader_definition.h">
+      <Filter>Source Files\display\effects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\display\effects\vertex_shader_definition.h">
+      <Filter>Source Files\display\effects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

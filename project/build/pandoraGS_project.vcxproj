@@ -109,6 +109,8 @@
     <ClCompile Include="..\src\config\config_file_io.cpp" />
     <ClCompile Include="..\src\config\config_io.cpp" />
     <ClCompile Include="..\src\config\config_profile.cpp" />
+    <ClCompile Include="..\src\display\effects\fragment_shader_definition.cpp" />
+    <ClCompile Include="..\src\display\effects\vertex_shader_definition.cpp" />
     <ClCompile Include="..\src\display\engine.cpp" />
     <ClCompile Include="..\src\display\shader.cpp" />
     <ClCompile Include="..\src\display\utils\console_window.cpp" />
@@ -145,6 +147,8 @@
     <ClInclude Include="..\src\config\config_file_io.h" />
     <ClInclude Include="..\src\config\config_io.h" />
     <ClInclude Include="..\src\config\config_profile.h" />
+    <ClInclude Include="..\src\display\effects\fragment_shader_definition.h" />
+    <ClInclude Include="..\src\display\effects\vertex_shader_definition.h" />
     <ClInclude Include="..\src\display\engine.h" />
     <ClInclude Include="..\src\display\shader.h" />
     <ClInclude Include="..\src\display\utils\console_window.h" />
