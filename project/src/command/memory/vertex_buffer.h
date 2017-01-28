@@ -8,6 +8,7 @@ Description : vertex data buffer
 *******************************************************************************/
 #pragma once
 
+#include <cstdlib>
 #include <cstdint>
 #include <vector>
 #include "../primitive/primitive_common.h"
@@ -16,123 +17,112 @@ Description : vertex data buffer
 /// GPU commands management
 namespace command
 {
+    /// @struct vertex_pos_t
+    /// @brief Vertex position
+    typedef struct
+    {
+        float x; ///< Vertex X coordinate
+        float y; ///< Vertex Y coordinate
+        float z; ///< Vertex Z depth layer
+
+        static inline size_t size() { return 3; } ///< Length (number of variables)
+    } vertex_pos_t;
+
+    /// @struct vertex_color_t
+    /// @brief Vertex color (24-bit RGB + semi-transparency mode)
+    typedef uint32_t vertex_color_t;
+    /// @struct vertex_texture_t
+    /// @brief Vertex texturing information (16-bit texture ID + UV coordinates)
+    typedef uint32_t vertex_texture_t;
+
+
     /// @namespace command.primitive
     /// GPU memory management
     namespace memory
     {
-        /// @struct vertex_info_t
-        /// @brief Vertex data
-        typedef struct
-        {
-            float pCoords[3];                  ///< Vertex coordinates : X, Y, Z
-            primitive::rgb24_t color;          ///< RGB color data
-            primitive::stp_t semiTransparency; ///< Semi-transparency mode
-        } vertex_info_t;
-
-        /// @struct vertex_tx_info_t
-        /// @brief Textured vertex data
-        typedef struct
-        {
-            float pCoords[3];                  ///< Vertex coordinates : X, Y, Z
-            primitive::rgb24_t color;          ///< RGB color data
-            primitive::stp_t semiTransparency; ///< Semi-transparency mode
-            uint32_t textureId;                ///< Texture identifier
-            short pTextureCoords[3];           ///< Texture coordinates : U, V, upscaling factor
-        } vertex_tx_info_t;
-
-
         /// @class VertexBuffer
         /// @brief Vertex data buffer
         class VertexBuffer
         {
         private:
-            std::vector<float>* m_pVertexCoords;  ///< Vertex coordinates : X, Y, Z
-            std::vector<short>* m_pVertexColors;  ///< Vertex colors : R, G, B, transparency-mode
-            std::vector<short>* m_pTextureCoords; ///< Vertex texture information : texture-ID, U, V, upscaling
+            std::vector<float>* m_pVertexCoords;    ///< Vertex coordinates : X, Y, Z
+            std::vector<uint32_t>* m_pVertexColors; ///< Vertex colors
+            std::vector<uint32_t>* m_pTextureInfos; ///< Vertex texture informations
 
         public:
             /// @brief Create and configure vertex buffer
             /// @param baseCapacity Base capacity (pre-allocated number of vertices)
             /// @param isTextured Use texture data
-            VertexBuffer(uint32_t baseCapacity, bool isTextured)
-            {
-                // coords
-                m_pVertexCoords = new std::vector<float>();
-                m_pVertexCoords->reserve(baseCapacity * 3);
-
-                // colors
-                m_pVertexColors = new std::vector<short>();
-                m_pVertexColors->reserve(baseCapacity << 2);
-
-                // texture coords
-                if (isTextured)
-                {
-                    m_pTextureCoords = new std::vector<short>();
-                    m_pTextureCoords->reserve(baseCapacity << 2);
-                }
-                else
-                    m_pTextureCoords = NULL;
-            }
-
+            VertexBuffer(uint32_t baseCapacity, bool isTextured);
             /// @brief Destroy vertex buffer
-            ~VertexBuffer()
-            {
-                delete m_pVertexCoords;
-                delete m_pVertexColors;
-                if (m_pTextureCoords != NULL)
-                    delete m_pTextureCoords;
-            }
+            ~VertexBuffer();
 
             /// @brief Clear vertex buffer (remove content)
-            void clear()
+            inline void clear()
             {
                 m_pVertexCoords->clear();
                 m_pVertexColors->clear();
-                if (m_pTextureCoords != NULL)
-                    m_pTextureCoords->clear();
+                if (m_pTextureInfos != NULL)
+                    m_pTextureInfos->clear();
             }
 
-            /// @brief Add simple elements at the end of the buffer
-            /// @param pVertices Array of vertices to insert
-            /// @param length Array length
-            void push(vertex_info_t* pVertices, size_t length)
+            /// @brief Add non-textured elements at the end of the buffer
+            /// @param pCoords Vertex coordinates to insert
+            /// @param color Vertex color to insert
+            inline void push(vertex_pos_t& pCoords, vertex_color_t color)
             {
-                //...
+                m_pVertexCoords->push_back(pCoords.x);
+                m_pVertexCoords->push_back(pCoords.y);
+                m_pVertexCoords->push_back(pCoords.z);
+                m_pVertexColors->push_back(color);
             }
 
-            /// @brief Add textured elements at the end of the buffer
-            /// @param pVertices Array of textured vertices to insert
-            /// @param length Array length
-            void push(vertex_tx_info_t* vertices, size_t length)
+            /// @brief Add non-textured elements at the end of the buffer
+            /// @param pCoords Vertex coordinates to insert
+            /// @param color Vertex color to insert
+            /// @param tex Texture information to insert
+            inline void push(vertex_pos_t& pCoords, vertex_color_t& color, vertex_texture_t& tex)
             {
-                //...
-                if (m_pTextureCoords != NULL)
+                push(pCoords, color);
+                if (m_pTextureInfos != NULL)
                 {
-
+                    m_pTextureInfos->push_back(tex);
                 }
             }
 
             /// @brief Extract simple vertices as arrays (coordinates, colors)
             /// @param ppOutCoords Destination for array of vertex coordinates
             /// @param ppOutColors Destination for array of vertex colors
-            size_t read(float** ppOutCoords, short** ppOutColors)
+            inline size_t read(float** ppOutCoords, uint32_t** ppOutColors)
             {
-                *ppOutCoords = &((*m_pVertexCoords)[0]);
-                *ppOutColors = &((*m_pVertexColors)[0]);
+                if (m_pVertexColors->size() > 0)
+                {
+                    *ppOutCoords = &((*m_pVertexCoords)[0]);
+                    *ppOutColors = &((*m_pVertexColors)[0]);
+
+                    return m_pVertexColors->size();
+                }
+                return 0;
             }
 
             /// @brief Extract textured vertices as arrays (coordinates, colors, texture information)
             /// @param ppOutCoords Destination for array of vertex coordinates
             /// @param ppOutColors Destination for array of vertex colors
             /// @param ppOutColors Destination for array of vertex texture information
-            size_t read(float** ppOutCoords, short** ppOutColors, short** ppOutTextures)
+            inline size_t read(float** ppOutCoords, uint32_t** ppOutColors, uint32_t** ppOutTextures)
             {
-                *ppOutCoords = &((*m_pVertexCoords)[0]);
-                *ppOutColors = &((*m_pVertexColors)[0]);
-                if (m_pTextureCoords != NULL)
-                    *ppOutTextures = &((*m_pTextureCoords)[0]);
-                else
-                    *ppOutTextures = NULL;
+                if (m_pVertexColors->size() > 0)
+                {
+                    *ppOutCoords = &((*m_pVertexCoords)[0]);
+                    *ppOutColors = &((*m_pVertexColors)[0]);
+                    if (m_pTextureInfos != NULL)
+                        *ppOutTextures = &((*m_pTextureInfos)[0]);
+                    else
+                        *ppOutTextures = NULL;
+
+                    return m_pVertexColors->size();
+                }
+                return 0;
             }
         };
     }

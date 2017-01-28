@@ -25,7 +25,6 @@ namespace command
         FrameBufferSettings m_drawSettings;
         memory::VertexBuffer* m_pLineBuffer;
         memory::VertexBuffer* m_pPolyBuffer;
-        memory::VertexBuffer* m_pTxPolyBuffer;
         uint32_t m_currentPrimitiveCount;
 
         bool m_isBusy;
@@ -50,12 +49,11 @@ namespace command
             // PS1 GPU limits :
             //  - theoretically 360000 flat-shaded polygons per second -> 12000/frame
             //  - theoretically 180000 textured/gouraud-shaded polygons per second -> 6000/frame
-            // lignes:    7 = { X, Y, z, R, G, B, stp }
-            m_pLineBuffer = new memory::VertexBuffer(9000 * 2, false);
-            // triangles: 7 = { X, Y, z, R, G, B, stp }
-            m_pPolyBuffer = new memory::VertexBuffer(9000 * 3, false);
-            // triangles: 9 = { X, Y, z, R, G, B, stp, U, V }
-            m_pTxPolyBuffer = new memory::VertexBuffer(6000 * 3, false);
+            m_pLineBuffer = new memory::VertexBuffer(12000 * 2, false);
+            m_pPolyBuffer = new memory::VertexBuffer(10000 * 3, false);
+
+            //! ne pas vider contenu de frame avant de dessiner -> garder "restes" de la frame précédente -> effets de tornade de certains jeux (crash 3, ff 7, ...)
+            //! ajout option pour vider frame avant dessin
         }
     };
 }
