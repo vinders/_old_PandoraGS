@@ -11,6 +11,7 @@ Description : configuration container
 #include <vector>
 #include "config_common.h"
 #include "config_profile.h"
+#include "config_io.h"
 #include "config.h"
 using namespace config;
 
@@ -34,7 +35,7 @@ void Config::init()
 {
     s_isReady = false;
     s_currentProfileId = 0u;
-    langCode = LANG_DEFAULT;
+    langCode = LANGCODE_DEFAULT;
     langFilePath = L"./pandoraGS.lang";
     memset(events.pTriggerKeys, 0x0, EVENT_KEYS_STRING_LENGTH);
     reset(true);
@@ -91,4 +92,43 @@ void Config::resetKeyBindings()
 
 // -- profile management -- --------------------------------------------
 
-//...
+/// @brief Get specific profile
+/// @param index Profile index (0 based)
+/// @return Profile at the specified index (if available)
+ConfigProfile* Config::getProfile(uint32_t index)
+{
+
+}
+
+
+// -- profile selection -- ---------------------------------------------
+
+/// @brief Set default profile as current
+void Config::useDefaultProfile()
+{
+
+}
+
+/// @brief Set specific profile as current (if available)
+/// @param index Profile index (0 based)
+/// @throw Memory allocation failure
+void Config::useProfile(uint32_t index)
+{
+
+}
+
+/// @brief Get ID of profile before specified ID
+/// @param currentId Specified ID
+/// @return Previous profile ID
+uint32_t Config::getPrevProfileId(uint32_t currentId)
+{
+
+}
+
+/// @brief Get ID of profile after specified ID
+/// @param currentId Specified ID
+/// @return Next profile ID
+uint32_t Config::getNextProfileId(uint32_t currentId)
+{
+
+}
