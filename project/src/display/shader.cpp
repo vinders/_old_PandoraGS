@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : rendering shader builder
 *******************************************************************************/
+#include "../globals.h"
 #include "shader.h"
 #include "effects/vertex_shader_definition.h"
 #include "effects/fragment_shader_definition.h"

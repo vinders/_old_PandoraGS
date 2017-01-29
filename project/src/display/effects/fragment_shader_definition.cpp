@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : fragment shader definition builder
 *******************************************************************************/
+#include "../../globals.h"
 #include <string>
 #include "../../config/config.h"
 #include "fragment_shader_definition.h"

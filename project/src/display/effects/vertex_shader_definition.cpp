@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : vertex shader definition builder
 *******************************************************************************/
+#include "../../globals.h"
 #include <string>
 #include "../../config/config.h"
 #include "vertex_shader_definition.h"
