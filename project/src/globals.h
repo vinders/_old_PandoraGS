@@ -64,15 +64,12 @@ Description : global constants and settings
 #ifndef _CRT_NONSTDC_NO_DEPRECATE
 #define _CRT_NONSTDC_NO_DEPRECATE
 #endif
-// win32 API
-#include "res/targetver.h"
-#include <Windows.h>
-#include <tchar.h>
 
 // functions / macros
 #define snprintf _snprintf
 
 // win32 resources identifiers
+#include "res/targetver.h"
 #include "res/resource.h"
 
 
