@@ -6,4 +6,6 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : GPU command dispatcher
 *******************************************************************************/
+#include "../globals.h"
 #include "dispatcher.h"
+using namespace command;

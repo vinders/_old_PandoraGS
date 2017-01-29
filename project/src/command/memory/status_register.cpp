@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : GPU status register
 *******************************************************************************/
+#include "../../globals.h"
 #include "status_register.h"
 using namespace command::memory;
 

@@ -6,4 +6,6 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : fifo GPU command buffer
 *******************************************************************************/
+#include "../globals.h"
 #include "command_buffer.h"
+using namespace command;

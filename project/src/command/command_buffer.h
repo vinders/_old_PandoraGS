@@ -38,7 +38,7 @@ namespace command
             m_isBusy = true;
         }
 
-        void release()
+        void unlock()
         {
             m_isBusy = false;
         }

@@ -11,7 +11,6 @@ Description : vertex data buffer
 #include <cstdlib>
 #include <cstdint>
 #include <vector>
-#include "../primitive/primitive_common.h"
 
 /// @namespace command
 /// GPU commands management

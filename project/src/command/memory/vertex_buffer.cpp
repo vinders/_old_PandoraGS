@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : vertex data buffer
 *******************************************************************************/
+#include "../../globals.h"
 #include <cstdlib>
 #include <cstdint>
 #include "vertex_buffer.h"
