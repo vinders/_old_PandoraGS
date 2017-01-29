@@ -91,9 +91,6 @@
     <ClCompile Include="..\src\command\memory\status_register.cpp">
       <Filter>Source Files\command\memory</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\command\memory\status_register_io.cpp">
-      <Filter>Source Files\command\memory</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\command\memory\video_memory.cpp">
       <Filter>Source Files\command\memory</Filter>
     </ClCompile>
@@ -201,9 +198,6 @@
     <ClInclude Include="..\src\command\memory\status_register.h">
       <Filter>Source Files\command\memory</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\command\memory\status_register_io.h">
-      <Filter>Source Files\command\memory</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\command\memory\video_memory.h">
       <Filter>Source Files\command\memory</Filter>
     </ClInclude>
@@ -284,6 +278,12 @@
     </ClInclude>
     <ClInclude Include="..\src\events\utils\file_io.h">
       <Filter>Source Files\events\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\config_common.h">
+      <Filter>Source Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\lang\i_lang.h">
+      <Filter>Source Files\lang</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
