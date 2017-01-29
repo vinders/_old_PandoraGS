@@ -11,8 +11,7 @@ Description : in-game language/translation - common interface
 #include <cstdint>
 #include <string>
 
-#define LANG_DEFAULT lang::langcode_t::english
-#define LANG_LAST_INTERNAL lang::langcode_t::german
+#define LANGCODE_DEFAULT lang::langcode_t::english
 #define LANG_NAMES_LIST {L" English",L" Español",L" Français",L" Deutsch",L" External file..."}
 
 /// @namespace lang
@@ -29,6 +28,7 @@ namespace lang
         german = 3,
         customFile = 1000 // external file
     };
+    #define LANGCODE_LAST_INTERNAL lang::langcode_t::german
 
 
     /// @class MenuLang
