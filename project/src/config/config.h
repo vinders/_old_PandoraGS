@@ -10,6 +10,7 @@ Description : configuration container
 
 #include <string>
 #include <vector>
+#include <thread>
 #include "config_common.h"
 #include "config_profile.h"
 
@@ -32,9 +33,11 @@ namespace config
     class Config
     {
     private:
-        static std::vector<ConfigProfile*> s_profiles; ///< Config profiles (vector)
-        static uint32_t s_currentProfileId;            ///< Active profile ID
-        static bool s_isReady;                         ///< Fast mutual exclusion
+        static std::vector<ConfigProfile*> s_profiles;   ///< Config profiles (vector)
+        static std::vector<std::wstring> s_profileNames; ///< Names of the profiles (for in-game menu -> no need to load every profile)
+        static uint32_t s_currentProfileId;              ///< Active profile ID
+        static bool s_isInitialized;                     ///< Initialization status
+        static bool s_isReady;                           ///< Fast mutual exclusion
 
     public:
         static lang::langcode_t langCode; ///< Used language identifier
@@ -42,7 +45,7 @@ namespace config
 
         static config_display_t display; ///< Display settings
         static config_timer_t timer;     ///< Timer sync settings
-        static config_events_t events;   ///< Events handling settings
+        static config_events_t events;   ///< Event handling settings
 
         static uint32_t configFixBits;   ///< Configured fixes
         static uint32_t runtimeFixBits;  ///< Fixes set by emulator
@@ -67,8 +70,26 @@ namespace config
         {
             return s_isReady;
         }
+        
+    private:
+        /// @brief Set status to "not ready"
+        static void lock()
+        {
+            s_isReady = false;
+        }
+        /// @brief Wait while status is "not ready"
+        static void waitLock()
+        {
+            while (s_isReady == false)
+                std::this_thread::yield();
+        }
+        /// @brief Set status to "ready"
+        static void unlock()
+        {
+            s_isReady = true;
+        }
 
-
+    public:
         // -- profile management -- --------------------------------------------
 
         /// @brief Get specific profile
@@ -79,6 +100,8 @@ namespace config
         /// @return Current profile
         static inline ConfigProfile* getCurrentProfile()
         {
+            if (s_isInitialized == false)
+                return;
             return s_profiles[s_currentProfileId];
         }
 
@@ -114,6 +137,11 @@ namespace config
         /// @param currentId Specified ID
         /// @return Next profile ID
         static uint32_t getNextProfileId(uint32_t currentId);
+
+        /// @brief Get specific profile name
+        /// @param index Profile index (0 based)
+        /// @return Name of profile at the specified index (if available)
+        static std::wstring* getProfileName(uint32_t index);
 
 
         // -- fix bits management -- -------------------------------------------

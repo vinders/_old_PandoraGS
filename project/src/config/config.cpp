@@ -7,6 +7,8 @@ License :     GPLv2
 Description : configuration container
 *******************************************************************************/
 #include "../globals.h"
+#include <cstdlib>
+#include <cstring>
 #include <string>
 #include <vector>
 #include "config_common.h"
@@ -17,7 +19,8 @@ using namespace config;
 
 std::vector<ConfigProfile*> Config::s_profiles; ///< Config profiles (vector)
 uint32_t Config::s_currentProfileId = 0u;       ///< Active profile ID
-bool Config::s_isReady = false;                 ///< Fast mutual exclusion
+bool Config::s_isInitialized = false;           ///< Initialization status
+bool Config::s_isReady = true;                  ///< Fast mutual exclusion
 
 lang::langcode_t Config::langCode; ///< Used language identifier
 std::wstring Config::langFilePath; ///< External language file path
@@ -30,23 +33,50 @@ uint32_t Config::configFixBits = 0u;  ///< Configured fixes
 uint32_t Config::runtimeFixBits = 0u; ///< Fixes set by emulator
 
 
-/// @brief Create config container (default values, no profile)
+/// @brief Create config container (default values + default profile)
 void Config::init()
 {
-    s_isReady = false;
-    s_currentProfileId = 0u;
+    lock();
+
+    // set default values
     langCode = LANGCODE_DEFAULT;
     langFilePath = L"./pandoraGS.lang";
     memset(events.pTriggerKeys, 0x0, EVENT_KEYS_STRING_LENGTH);
     reset(true);
+
+    // load general config
+    ConfigIO::loadConfig(&s_profileNames);
+    // initialize profile array
+    s_profiles.reserve(s_profileNames.size());
+    for (int i = s_profileNames.size(); i > 0; --i)
+        s_profiles.push_back(NULL);
+
+    // load default profile
+    s_currentProfileId = 0u;
+    s_profiles[0] = ConfigIO::loadConfigProfile(0u);
+
+    s_isInitialized = true;
+    unlock();
 }
 
 /// @brief Close config container and profiles
 void Config::close()
 {
+    s_isInitialized = false;
+    waitLock();
+    lock();
+
+    // clear profile array
+    for (auto it = s_profiles.begin(); it != s_profiles.end(); ++it)
+    {
+        delete *it;
+        *it = NULL;
+    }
     s_profiles.clear();
+    s_profileNames.clear();
     s_currentProfileId = 0u;
-    s_isReady = false;
+
+    unlock();
 }
 
 /// @brief Set default config values
@@ -97,7 +127,19 @@ void Config::resetKeyBindings()
 /// @return Profile at the specified index (if available)
 ConfigProfile* Config::getProfile(uint32_t index)
 {
+    waitLock();
+    lock();
+    if (s_isInitialized == false || index >= countProfiles())
+    {
+        unlock();
+        return NULL;
+    }
 
+    // if no yet loaded, load profile
+    if (s_profiles[index] == NULL)
+        s_profiles[index] = ConfigIO::loadConfigProfile(index);
+    unlock();
+    return s_profiles[index];
 }
 
 
@@ -106,7 +148,17 @@ ConfigProfile* Config::getProfile(uint32_t index)
 /// @brief Set default profile as current
 void Config::useDefaultProfile()
 {
+    waitLock();
+    lock();
+    if (s_isInitialized == false)
+    {
+        unlock();
+        return;
+    }
 
+    // set profile as active
+    s_currentProfileId = 0u;
+    unlock();
 }
 
 /// @brief Set specific profile as current (if available)
@@ -114,7 +166,22 @@ void Config::useDefaultProfile()
 /// @throw Memory allocation failure
 void Config::useProfile(uint32_t index)
 {
+    waitLock();
+    lock();
+    if (s_isInitialized == false || index >= countProfiles())
+    {
+        unlock();
+        return;
+    }
 
+    // if no yet loaded, load profile
+    if (s_profiles[index] == NULL)
+    {
+        s_profiles[index] = ConfigIO::loadConfigProfile(index);
+    }
+    // set profile as active
+    s_currentProfileId = index;
+    unlock();
 }
 
 /// @brief Get ID of profile before specified ID
@@ -122,7 +189,18 @@ void Config::useProfile(uint32_t index)
 /// @return Previous profile ID
 uint32_t Config::getPrevProfileId(uint32_t currentId)
 {
+    waitLock();
+    if (s_isInitialized == false)
+        return 0u;
 
+    // calculate previous ID
+    if (currentId > 0u)
+        currentId -= 1u;
+    else if (!s_profiles.empty())
+        currentId = countProfiles() - 1u;
+    else
+        currentId = 0u;
+    return currentId;
 }
 
 /// @brief Get ID of profile after specified ID
@@ -130,5 +208,25 @@ uint32_t Config::getPrevProfileId(uint32_t currentId)
 /// @return Next profile ID
 uint32_t Config::getNextProfileId(uint32_t currentId)
 {
+    waitLock();
+    if (s_isInitialized == false)
+        return 0u;
 
+    // calculate next ID
+    if (s_profiles.empty() || currentId >= (countProfiles() - 1u))
+        currentId = 0u;
+    else
+        currentId += 1u;
+    return currentId;
+}
+
+/// @brief Get specific profile name
+/// @param index Profile index (0 based)
+/// @return Name of profile at the specified index (if available)
+std::wstring* Config::getProfileName(uint32_t index)
+{
+    waitLock();
+    if (s_isInitialized == false || index >= countProfiles())
+        return NULL;
+    return &s_profileNames[index];
 }

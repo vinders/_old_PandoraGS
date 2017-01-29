@@ -26,6 +26,7 @@ namespace display
             fixed = 1,
             resizable = 2
         };
+        #define WINDOW_MODE_LENGTH 3
 
 
         /// @class DisplayWindow

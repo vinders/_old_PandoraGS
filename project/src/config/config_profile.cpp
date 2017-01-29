@@ -13,7 +13,15 @@ Description : configuration profile container
 using namespace config;
 
 
-/// @brief Create profile container (with preset values)
+/// @brief Create profile container
+/// @param id Profile unique identifier
+ConfigProfile::ConfigProfile(uint32_t id)
+{
+    m_profileId = id;
+    fixBits = 0u;
+}
+
+/// @brief Create profile container
 /// @param id Profile unique identifier
 /// @param name Profile name
 ConfigProfile::ConfigProfile(uint32_t id, std::wstring name)

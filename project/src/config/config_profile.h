@@ -72,6 +72,9 @@ namespace config
     public:
         /// @brief Create profile container (with preset values)
         /// @param id Profile unique identifier
+        ConfigProfile(uint32_t id);
+        /// @brief Create profile container (with preset values)
+        /// @param id Profile unique identifier
         /// @param name Profile name
         ConfigProfile(uint32_t id, std::wstring name);
         /// @brief Copy profile container
