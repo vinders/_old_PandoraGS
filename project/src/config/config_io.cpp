@@ -23,11 +23,11 @@ using namespace config;
 #ifdef _WINDOWS
 #define CONFIG_PATH L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS"
 #define CONFIG_PROFILE_PATH_PREFIX L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\profile"
-#define REG_KEY_SUBPATH_GAMES L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\games"
+#define CONFIG_GAMES_PATH L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\games"
 #else
 #define CONFIG_PATH L"games/PandoraGS"
 #define CONFIG_PROFILE_PATH_PREFIX L"games/PandoraGS/profile"
-#define REG_KEY_SUBPATH_GAMES L"games/PandoraGS/games"
+#define CONFIG_GAMES_PATH L"games/PandoraGS/games"
 #endif
 
 
@@ -42,15 +42,15 @@ void ConfigIO::loadConfig(std::vector<std::wstring>* pOutProfileNames)
         uint32_t profileCount = 1;
         reader.readDword(L"ProfileCount", profileCount);
 
-        // language
+        //read values
         uint32_t bufferDword;
         reader.readDword(L"Lang", bufferDword);
         if (bufferDword > (uint32_t)LANGCODE_LAST_INTERNAL && bufferDword != static_cast<uint32_t>(lang::langcode_t::customFile))
-            Config::langCode = lang::langcode_t::english;
+            Config::langCode = LANGCODE_DEFAULT;
         else
             Config::langCode = static_cast<lang::langcode_t>(bufferDword);
         reader.readWideString(L"LangFile", Config::langFilePath);
-        // display
+
         reader.readDwordEnum<display::utils::window_mode_t>(L"WinMode", Config::display.windowMode, WINDOW_MODE_LENGTH, display::utils::window_mode_t::fullscreen);
         reader.readDword(L"FullResX", Config::display.fullscreenRes.x);
         reader.readDword(L"FullResY", Config::display.fullscreenRes.y);
@@ -58,14 +58,27 @@ void ConfigIO::loadConfig(std::vector<std::wstring>* pOutProfileNames)
         reader.readDword(L"WinResY", Config::display.windowRes.y);
         reader.readBoolEnum<display::window_color_mode_t>(L"Color", Config::display.colorDepth);
         reader.readDwordEnum<config::subprecision_settings_t>(L"GteAcc", Config::display.subprecisionMode, SUBPRECISION_SETTINGS_LENGTH, config::subprecision_settings_t::disabled);
-        // timer sync
-        //...
-        // event handling
-        //...
-        // miscellaneous
+
+        reader.readDwordEnum<events::timemode_t>(L"TimeMode", Config::timer.timeMode, TIMEMODE_LENGTH, events::timemode_t::highResCounter);
+        reader.readDwordEnum<config::framelimit_settings_t>(L"FrameLimit", Config::timer.frameLimitMode, FRAMELIMIT_SETTINGS_LENGTH, config::framelimit_settings_t::limit);
+        reader.readFloat(L"FrameRate", Config::timer.frameRateLimit);
+        reader.readBool(L"ShowFps", Config::timer.isFreqDisplay);
+
+        reader.readString(L"EvtKeys", Config::events.pTriggerKeys, EVENT_KEYS_STRING_LENGTH);
+        reader.readBool(L"NoScreenSaver", Config::events.isNoScreenSaver);
+        reader.readBool(L"Debug", Config::events.isDebugMode);
         reader.readDword(L"FixBits", Config::configFixBits);
 
         reader.close();
+
+        // auto-detect fullscreen resolution
+        if (Config::display.fullscreenRes.x == 0u || Config::display.fullscreenRes.y == 0u)
+            display::utils::DisplayWindow::readScreenSize(Config::display.fullscreenRes.x, Config::display.fullscreenRes.y);
+        // check mininmum window resolution
+        if (Config::display.windowRes.x < 320uL)
+            Config::display.windowRes.x = 640u;
+        if (Config::display.windowRes.y < 240u)
+            Config::display.windowRes.y = 480u;
 
         // load list of profile names (optional)
         if (pOutProfileNames != NULL)

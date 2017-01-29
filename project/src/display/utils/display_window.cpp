@@ -236,15 +236,20 @@ bool DisplayWindow::setPixelFormat(display::coord_t resolution, display::window_
 /// @param outHeight Height destination variable
 void DisplayWindow::readScreenSize(uint32_t& outWidth, uint32_t& outHeight)
 {
-    int screenWidth = GetSystemMetrics(SM_CXFULLSCREEN);
-    if (screenWidth < 320)
+    #ifdef _WINDOWS
+    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+    if (screenWidth < 640)
         screenWidth = 800;
     outWidth = screenWidth;
 
-    int screenHeight = GetSystemMetrics(SM_CYFULLSCREEN);
-    if (screenHeight < 240)
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    if (screenHeight < 480)
         screenHeight = 600;
     outHeight = screenHeight;
+    #else
+    // Linux/UNIX version
+    //...
+    #endif
 }
 
 /// @brief Enable or disable screen saver

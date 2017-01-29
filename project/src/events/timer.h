@@ -38,6 +38,7 @@ namespace events
         multimediaClock = 0u, // low res, steady
         highResCounter = 1u   // high res, unstable
     };
+    #define TIMEMODE_LENGTH 2
 
     /// @enum regionsync_t
     /// @brief Regional sync modes
