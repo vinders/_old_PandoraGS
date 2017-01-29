@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : image transfer command
 *******************************************************************************/
+#include "../../globals.h"
 #include "primitive_facade.h"
 #include "image_transfer.h"
 using namespace command::primitive;

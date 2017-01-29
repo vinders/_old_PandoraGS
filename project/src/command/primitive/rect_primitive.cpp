@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : rectangle primitive (tile / sprite)
 *******************************************************************************/
+#include "../../globals.h"
 #include "primitive_facade.h"
 #include "rect_primitive.h"
 using namespace command::primitive;

@@ -8,6 +8,9 @@ Description : primitive drawing facade
 *******************************************************************************/
 #pragma once
 
+#include <cstdlib>
+#include <cstdint>
+#include <cstddef>
 #include "../frame_buffer_settings.h"
 #include "../memory/video_memory.h"
 #include "primitive_common.h"

@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : polygon primitive (triangle / quad)
 *******************************************************************************/
+#include "../../globals.h"
 #include "primitive_facade.h"
 #include "poly_primitive.h"
 using namespace command::primitive;

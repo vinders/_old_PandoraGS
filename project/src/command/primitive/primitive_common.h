@@ -11,12 +11,15 @@ Description : drawing primitive - common types
 #include <cstdint>
 #include <cstddef>
 #include <vector>
-#include "../frame_buffer_settings.h"
 
 /// @namespace command
 /// GPU commands management
 namespace command
 {
+    /// @brief raw command memory block unit
+    typedef unsigned long cmd_block_t;
+
+
     /// @namespace command.primitive
     /// Drawing primitive management
     namespace primitive

@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : line primitive (line / poly-line)
 *******************************************************************************/
+#include "../../globals.h"
 #include "primitive_facade.h"
 #include "line_primitive.h"
 using namespace command::primitive;

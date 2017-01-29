@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : drawing attribute (area / transparency)
 *******************************************************************************/
+#include "../../globals.h"
 #include "primitive_facade.h"
 #include "attribute.h"
 using namespace command::primitive;

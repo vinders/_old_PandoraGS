@@ -6,6 +6,8 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : primitive drawing facade
 *******************************************************************************/
+#include "../../globals.h"
+#include <cstdlib>
 #include "primitive_facade.h"
 #include "line_primitive.h"
 #include "poly_primitive.h"
@@ -14,8 +16,8 @@ Description : primitive drawing facade
 #include "attribute.h"
 using namespace command::primitive;
 
-command::memory::VideoMemory* PrimitiveFactory::s_pVramAccess = NULL;         ///< VRAM access used by primitives
-command::FrameBufferSettings* PrimitiveFactory::s_pDrawSettingsAccess = NULL; ///< Frame buffer settings used by primitives
+command::memory::VideoMemory* PrimitiveFacade::s_pVramAccess = NULL;         ///< VRAM access used by primitives
+command::FrameBufferSettings* PrimitiveFacade::s_pDrawSettingsAccess = NULL; ///< Frame buffer settings used by primitives
 
 // multi-commands definition macros
 #define CMDx4(cmd,size)  {cmd,size},{cmd,size},{cmd,size},{cmd,size}
