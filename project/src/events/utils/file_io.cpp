@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : file IO toolbox
 *******************************************************************************/
+#include "../../globals.h"
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -14,6 +15,7 @@ Description : file IO toolbox
 #include <fcntl.h>
 #ifdef _WINDOWS
 #include <Windows.h>
+#include <tchar.h>
 #include <shlobj.h>
 #define _CRT_SECURE_NO_WARNINGS
 #define access(dir, rights) _access(dir, rights)

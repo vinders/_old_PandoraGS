@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : user & system input listener
 *******************************************************************************/
+#include "../globals.h"
 #ifdef _WINDOWS
 #include <Windows.h>
 #endif
@@ -99,7 +100,7 @@ void Listener::stop()
 /// @param lpInfo Additional information
 LRESULT CALLBACK Listener::listen(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM lpInfo)
 {
-    if (s_isLocked == false)
+    if (isLocked() == false)
     {
         switch (eventType)
         {

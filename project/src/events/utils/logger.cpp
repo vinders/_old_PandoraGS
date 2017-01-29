@@ -11,6 +11,7 @@ Description : event log utility
 #include <fstream>
 #include <cerrno>
 #include <cstring>
+#include <string>
 #include <ctime>
 #ifdef _WINDOWS
 #define _CRT_SECURE_NO_WARNINGS
@@ -20,6 +21,7 @@ Description : event log utility
 #include <sys/types.h>
 #include <pwd.h>
 #endif
+#include "../../globals.h"
 #include "std_exception.hpp"
 #include "file_io.h"
 #include "logger.h"

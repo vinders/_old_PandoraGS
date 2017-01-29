@@ -10,6 +10,8 @@ Description : time management tool
 
 #include <cstdint>
 #ifdef _WINDOWS
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 
@@ -106,10 +108,10 @@ namespace events
         /// @brief Set period skipping mode
         /// @param isEnabled Enable skipping
         /// @param isHalfSkip Skip max one period out of two
-        static void setSkippingMode(bool isEnabled, bool isHalfSkip)
+        static void setSkippingMode(bool isEnabled, bool isAlternatedSkip)
         {
             if (isEnabled)
-                s_skipMode = (isHalfSkip) ? skipmode_t::alternate : skipmode_t::standard;
+                s_skipMode = (isAlternatedSkip) ? skipmode_t::alternate : skipmode_t::standard;
             else
                 s_skipMode = skipmode_t::disabled;
         }

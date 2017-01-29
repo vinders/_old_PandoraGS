@@ -6,6 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : time management tool
 *******************************************************************************/
+#include "../globals.h"
 #include <cstdlib>
 #include <ctime>
 #ifdef _WINDOWS

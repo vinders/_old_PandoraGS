@@ -10,6 +10,8 @@ Description : user & system input listener
 
 #include <cstdint>
 #ifdef _WINDOWS
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 
@@ -45,12 +47,12 @@ namespace events
         ratioMode = 5u,   ///< Next stretching mode
         fastForward = 6u, ///< Fast mode while pressed
         slowMotion = 7u,  ///< Slow mode on/off
-        fps = 8u,         ///< FPS display on/off
-        pause = 9u,       ///< Pause game on/off
-        windowMode = 10u, ///< Fullscreen/window mode (key not configurable)
-        windowSize = 11u  ///< Window resized (key not configurable)
+        pause = 8u,       ///< Pause game on/off
+        fps = 9u,         ///< FPS display on/off
+        windowMode = 10u, ///< Fullscreen/window mode (no key configurable)
+        windowSize = 11u  ///< Window resized (no key configurable)
     };
-    #define EVENT_ARRAY_LENGTH       12 // events: 0-11
+    #define EVENT_ARRAY_LENGTH       12 // all events: 0-11
     #define EVENT_KEYS_STRING_LENGTH 11 // configurable events: 0-9 + end character
 
     // @brief Event handler
