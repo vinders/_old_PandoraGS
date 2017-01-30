@@ -72,6 +72,16 @@ Description : global constants and settings
 #include "res/targetver.h"
 #include "res/resource.h"
 
+// C++11 alternatives
+#define NOEXCEPT noexcept
+#ifdef _WINDOWS
+#ifdef _MSC_VER 
+#if _MSC_VER <= 1800
+#define NOEXCEPT
+#endif
+#endif
+#endif
+
 
 // -- SYSTEM COMPATIBILITY - LINUX/UNIX -- -------------------------------------
 

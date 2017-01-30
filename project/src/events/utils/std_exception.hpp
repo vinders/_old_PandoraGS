@@ -10,16 +10,6 @@ Description : standard exception
 
 #include <string>
 
-#define NOEXCEPT noexcept // C++11
-#ifdef _WINDOWS
-#ifdef _MSC_VER 
-    #if _MSC_VER <= 1800
-        #define NOEXCEPT
-    #endif
-#endif
-#endif
-
-
 /// @namespace events
 /// Event management
 namespace events
