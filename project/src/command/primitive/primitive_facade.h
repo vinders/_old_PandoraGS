@@ -15,7 +15,6 @@ Description : primitive drawing facade
 #include "../memory/video_memory.h"
 #include "primitive_common.h"
 #include "line_primitive.h"
-#include "attribute.h"
 
 #define PRIMITIVE_NUMBER 256 // 0x00 - 0xFF
 #define PRIMITIVE_NI NULL    // non-implemented commands
