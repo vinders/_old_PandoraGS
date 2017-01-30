@@ -18,6 +18,7 @@ Description : configuration container
 using namespace config;
 
 std::vector<ConfigProfile*> Config::s_profiles; ///< Config profiles (vector)
+std::vector<std::wstring> Config::s_profileNames; ///< Names of the profiles
 uint32_t Config::s_currentProfileId = 0u;       ///< Active profile ID
 bool Config::s_isInitialized = false;           ///< Initialization status
 bool Config::s_isReady = true;                  ///< Fast mutual exclusion

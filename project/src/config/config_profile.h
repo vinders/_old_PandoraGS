@@ -60,6 +60,9 @@ namespace config
         std::wstring m_profileName;  ///< Profile displayed name
 
     public:
+        bool isExternalShaders;       ///< Use external shaders (bypass built-in effects)
+        std::wstring shadersPath;     ///< External shaders path
+
         config_screen_t display;       ///< Screen / display settings
         config_scaling_t scaling;      ///< Smoothing / upscaling settings
         offscreen_drawing_t offscreen; ///< Off-screen drawing mode

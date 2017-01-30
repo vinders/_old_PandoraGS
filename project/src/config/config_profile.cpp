@@ -18,6 +18,7 @@ using namespace config;
 ConfigProfile::ConfigProfile(uint32_t id)
 {
     m_profileId = id;
+    isExternalShaders = false;
     fixBits = 0u;
 }
 
@@ -28,6 +29,8 @@ ConfigProfile::ConfigProfile(uint32_t id, std::wstring name)
 {
     m_profileId = id;
     m_profileName = name;
+    isExternalShaders = false;
+    shadersPath = L"./gpuShader";
     fixBits = 0u;
 }
 
@@ -37,6 +40,8 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
 {
     m_profileId = copy.m_profileId;
     m_profileName = copy.m_profileName;
+    isExternalShaders = copy.isExternalShaders;
+    shadersPath = copy.shadersPath;
 
     memcpy(&display, &(copy.display), sizeof(config_screen_t));
     offscreen = copy.offscreen;
@@ -168,6 +173,7 @@ void ConfigProfile::setPresetValues(const config_preset_t preset)
     }
 
     // common values
+    isExternalShaders = false;
     display.isMirrored = false;
     display.isNtscRatioForced = false;
     display.blackBorders.x = 0u;

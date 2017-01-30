@@ -9,6 +9,7 @@ Description : file IO toolbox
 #include "../../globals.h"
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 #include <fstream>
 #include <cerrno>
 #include <io.h>

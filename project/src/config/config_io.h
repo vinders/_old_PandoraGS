@@ -41,17 +41,20 @@ namespace config
         static void loadConfig(std::vector<std::wstring>* pOutProfileNames = NULL);
         /// @brief Save config values
         /// @param hasProfiles Also save contained profiles (true) / only save main config (false)
+        /// @param profiles Array of config profiles (necessary, even if profiles not saved)
         /// @throw Saving failure
-        static void saveConfig(bool hasProfiles);
+        static void saveConfig(bool hasProfiles, std::vector<ConfigProfile*>& profiles);
         /// @brief Initialize list of profile names
+        /// @param profileCount Number of profiles to read
         /// @param profileNames Reference to list of names to complete
-        static void listProfileNames(std::vector<std::wstring>& profileNames);
+        static void listProfileNames(uint32_t profileCount, std::vector<std::wstring>& profileNames);
 
         /// @brief Load specific profile values
         /// @param id Profile identifier
+        /// @param isNameRead Read profile name (true) or ignore (false)
         /// @return Allocated config profile container (with loaded values)
         /// @throw Memory allocation failure
-        static ConfigProfile* loadConfigProfile(uint32_t id);
+        static ConfigProfile* loadConfigProfile(uint32_t id, bool isNameRead = false);
         /// @brief Save profile values
         /// @param profile Config profile container with values
         /// @throw Saving failure

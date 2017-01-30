@@ -8,6 +8,8 @@ Description : file IO toolbox
 *******************************************************************************/
 #pragma once
 
+#include <string>
+
 /// @namespace events
 /// Event management
 namespace events
