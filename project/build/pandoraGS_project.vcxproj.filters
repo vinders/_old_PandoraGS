@@ -148,6 +148,9 @@
     <ClCompile Include="..\src\events\utils\file_io.cpp">
       <Filter>Source Files\events\utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\events\utils\clock.cpp">
+      <Filter>Source Files\events\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\lang\config_lang.h">
@@ -284,6 +287,9 @@
     </ClInclude>
     <ClInclude Include="..\src\lang\i_lang.h">
       <Filter>Source Files\lang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\events\utils\clock.h">
+      <Filter>Source Files\events\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
