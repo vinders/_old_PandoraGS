@@ -101,7 +101,7 @@ namespace config
         static inline ConfigProfile* getCurrentProfile()
         {
             if (s_isInitialized == false)
-                return;
+                return nullptr;
             return s_profiles[s_currentProfileId];
         }
 

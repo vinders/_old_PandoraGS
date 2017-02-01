@@ -13,6 +13,7 @@ Description : configuration input/output toolbox
 #include <string>
 #include <vector>
 #include <list>
+#include "config_file_io.h"
 #include "config_profile.h"
 #include "config.h"
 
@@ -49,16 +50,39 @@ namespace config
         /// @param profileNames Reference to list of names to complete
         static void listProfileNames(uint32_t profileCount, std::vector<std::wstring>& profileNames);
 
-        /// @brief Load specific profile values
+        /// @brief Load profile values
         /// @param id Profile identifier
         /// @param isNameRead Read profile name (true) or ignore (false)
         /// @return Allocated config profile container (with loaded values)
         /// @throw Memory allocation failure
         static ConfigProfile* loadConfigProfile(uint32_t id, bool isNameRead = false);
+        /// @brief Import profile values (external file)
+        /// @param id New profile identifier
+        /// @param path Import file path
+        /// @return Allocated config profile container (with loaded values)
+        /// @throw Memory allocation failure
+        static ConfigProfile* importConfigProfile(uint32_t id, std::wstring& path);
+        /// @brief Read profile values
+        /// @param reader Data source reader
+        /// @param profile Profile to complete
+        template<typename T>
+        static void readConfigProfileValues(ConfigFileIO<T>& reader, ConfigProfile& profile);
+
         /// @brief Save profile values
         /// @param profile Config profile container with values
         /// @throw Saving failure
         static void saveConfigProfile(ConfigProfile& profile);
+        /// @brief Export profile values (external file)
+        /// @param profile Config profile container with values
+        /// @param path Export file path
+        /// @throw Export failure
+        static void exportConfigProfile(ConfigProfile& profile, std::wstring& path);
+        /// @brief Write profile values
+        /// @param writer Data destination manager
+        /// @param profile Source profile
+        template<typename T>
+        static void writeConfigProfileValues(ConfigFileIO<T>& writer, ConfigProfile& profile);
+
         /// @brief Remove profile (won't change associations !)
         /// @param id Profile identifier
         /// @throw Saving failure

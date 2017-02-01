@@ -19,7 +19,7 @@ Description : configuration profile container
 #define CFG_FIX_SWAP_FRONTBACK         0x8 // Speed Freaks & Killer Loop fix - swap front/back detection
 #define CFG_FIX_NO_COORD_CHECK        0x10 // coord compatibility mode
 #define CFG_FIX_REMOVE_BLUE           0x20 // Legacy of Dragoon fix - remove blue glitches (needs alpha multipass)
-//#define CFG_FIX_7                   0x40 
+#define CFG_FIX_STANDARD_RATE         0x40 // use standard frame rate instead of chip timing
 //#define CFG_FIX_8                   0x80 
 #define CFG_FIX_HALF_SKIPPING        0x100 // skip one frame out of two
 #define CFG_FIX_POLYGON_CACHE_FF9    0x200 // FF9 battle rect fix - G4 polygon cache
