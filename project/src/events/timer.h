@@ -132,7 +132,7 @@ namespace events
         // -- time measures -- -----------------------------------------------------
 
         /// @brief Calculate current number of effective periods per second
-        void checkFrequency()
+        inline void checkFrequency()
         {
             m_measuredFreq = m_clock.checkFrequency();
         }

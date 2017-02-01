@@ -94,7 +94,7 @@ namespace events
             /// @return Number of ticks that occured too late (after desired time reference)
             events::ticks_t wait();
             /// @brief Skip one period (no wait)
-            void skip()
+            inline void skip()
             {
                 ++m_periodCount;
             }
@@ -115,13 +115,13 @@ namespace events
 
             /// @brief Get period duration
             /// @return Period value (ticks)
-            float getPeriodDuration() const
+            inline float getPeriodDuration() const
             {
                 return m_period;
             }
             /// @brief Add custom duration for current period
             /// @return Period value (ticks)
-            void addCustomDuration(events::ticks_t duration)
+            inline void addCustomDuration(events::ticks_t duration)
             {
                 m_ticksToWait += duration;
             }
