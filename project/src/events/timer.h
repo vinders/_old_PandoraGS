@@ -20,27 +20,29 @@ namespace events
     enum class regionsync_t : int32_t
     {
         undefined = -1,
-        ntsc = 0,
-        pal = 1
+        ntsc = 0,    ///< NTSC - console chip timing
+        pal = 1,     ///< PAL - console chip timing
+        ntscStd = 2, ///< NTSC - standard rate
+        palStd = 3   ///< PAL - standard rate
     };
 
     /// @enum skipmode_t
     /// @brief Skipping modes
     enum class skipmode_t : uint32_t
     {
-        disabled = 0u,
-        standard = 1u,
-        alternate = 2u
+        disabled = 0u, ///< No skipping
+        standard = 1u, ///< Standard skipping
+        alternate = 2u ///< Alternate skipping (skip one period out of two)
     };
 
     /// @enum speed_t
     /// @brief Speed modifiers
     enum class speed_t : int32_t
     {
-        pause = -2,
-        slow = -1,
-        normal = 0,
-        fast = 1
+        pause = -2, ///< Freeze game
+        slow = -1,  ///< Slow motion
+        normal = 0, ///< Normal speed
+        fast = 1    ///< Fast-forward
     };
 
 

@@ -54,7 +54,7 @@ void Clock::setFrequency(float frequency)
     else
     #endif
     {
-        m_period = 1000.0 / frequency;
+        m_period = 1000.0f / frequency;
     }
 
     // calculate dropped decimals
