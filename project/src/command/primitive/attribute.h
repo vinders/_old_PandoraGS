@@ -25,15 +25,15 @@ namespace command
         struct attr_texpage_t
         {
         private:
-            cmd_block_t raw; ///< Raw attribute data block
+            command::cmd_block_t raw; ///< Raw attribute data block
         public:
             /// @brief Process attribute
             /// @param pData Raw attribute data pointer
             static void process(cmd_block_t* pData);
 
             // attribute values
-            inline cmd_block_t x() { return ((raw << 6) & 0x3C0uL); }            ///< Texture page X base: 0, 64, ...
-            inline cmd_block_t y() { return ((raw << 4) & 0x100uL); }            ///< Texture page Y base: 0 or 256
+            inline command::cmd_block_t x() { return ((raw << 6) & 0x3C0uL); }   ///< Texture page X base: 0, 64, ...
+            inline command::cmd_block_t y() { return ((raw << 4) & 0x100uL); }   ///< Texture page Y base: 0 or 256
             inline bool isXFlip()    { return ((raw & 0x1000uL) != 0uL); }       ///< Textured rectangle X-flip
             inline bool isYFlip()    { return ((raw & 0x2000uL) != 0uL); }       ///< Textured rectangle Y-flip
             inline bool isDithered() { return ((raw & 0x200uL) != 0uL); }        ///< Dither 24bit to 15bit (0 = off (strip LSBs) ; 1 = enabled)
@@ -41,12 +41,12 @@ namespace command
             inline bool isTextureDisabled() { return ((raw & 0x800uL) != 0uL); } ///< Texture mode - normal (0) or disable (1) if texture disabling allowed (GP1(09h).bit0 == 1)
             inline colordepth_t colorDepth() ///< Color depth mode (4-bit, 8-bit, 15-bit)
             {
-                cmd_block_t val = ((raw >> 7) & 0x3uL);
+                command::cmd_block_t val = ((raw >> 7) & 0x3uL);
                 return (colordepth_t)val;
             }
             inline stp_t semiTransparency() ///< Semi-transparency mode
             {
-                cmd_block_t val = ((raw >> 5) & 0x3uL);
+                command::cmd_block_t val = ((raw >> 5) & 0x3uL);
                 return (stp_t)val;
             }
 
@@ -59,17 +59,17 @@ namespace command
         struct attr_texwin_t
         {
         private:
-            cmd_block_t raw; ///< Raw attribute data block
+            command::cmd_block_t raw; ///< Raw attribute data block
         public:
             /// @brief Process attribute
             /// @param pData Raw attribute data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             // attribute values
-            inline cmd_block_t maskX()   { return (raw & 0x1FuL); }         ///< Mask X (8 pixel steps) = manipulated bits
-            inline cmd_block_t maskY()   { return ((raw >> 5) & 0x1FuL); }  ///< Mask Y (8 pixel steps)
-            inline cmd_block_t offsetX() { return ((raw >> 10) & 0x1FuL); } ///< Offset X (8 pixel steps) = value for these bits
-            inline cmd_block_t offsetY() { return ((raw >> 15) & 0x1FuL); } ///< Offset Y (8 pixel steps)
+            inline command::cmd_block_t maskX()   { return (raw & 0x1FuL); }         ///< Mask X (8 pixel steps) = manipulated bits
+            inline command::cmd_block_t maskY()   { return ((raw >> 5) & 0x1FuL); }  ///< Mask Y (8 pixel steps)
+            inline command::cmd_block_t offsetX() { return ((raw >> 10) & 0x1FuL); } ///< Offset X (8 pixel steps) = value for these bits
+            inline command::cmd_block_t offsetY() { return ((raw >> 15) & 0x1FuL); } ///< Offset Y (8 pixel steps)
             // - texcoord = (texcoord AND (NOT (mask*8))) OR ((offset AND mask)*8)
             // - Area within texture window is repeated throughout the texture page (repeats not stored, but "read" as if present)
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
@@ -81,15 +81,15 @@ namespace command
         struct attr_drawarea_t
         {
         private:
-            cmd_block_t raw; ///< Raw attribute data block
+            command::cmd_block_t raw; ///< Raw attribute data block
         public:
             /// @brief Process attribute
             /// @param pData Raw attribute data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             // attribute values
-            inline cmd_block_t x() { return (raw & 0x3FFuL); }         ///< X coordinate
-            inline cmd_block_t y() { return ((raw >> 10) & 0x3FFuL); } ///< Y coordinate (must be frame buffer height max (e.g. 512) -> check it before using it)
+            inline command::cmd_block_t x() { return (raw & 0x3FFuL); }         ///< X coordinate
+            inline command::cmd_block_t y() { return ((raw >> 10) & 0x3FFuL); } ///< Y coordinate (must be frame buffer height max (e.g. 512) -> check it before using it)
 
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
         };
@@ -100,15 +100,15 @@ namespace command
         struct attr_drawoffset_t
         {
         private:
-            cmd_block_t raw; ///< Raw attribute data block
+            command::cmd_block_t raw; ///< Raw attribute data block
         public:
             /// @brief Process attribute
             /// @param pData Raw attribute data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             // attribute values
-            inline cmd_block_t x() { return (raw & 0x7FFuL); }         ///< X coordinate
-            inline cmd_block_t y() { return ((raw >> 11) & 0x7FFuL); } ///< Y coordinate
+            inline command::cmd_block_t x() { return (raw & 0x7FFuL); }         ///< X coordinate
+            inline command::cmd_block_t y() { return ((raw >> 11) & 0x7FFuL); } ///< Y coordinate
 
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
         };
@@ -119,11 +119,11 @@ namespace command
         struct attr_stpmask_t
         {
         private:
-            cmd_block_t raw; ///< Raw attribute data block
+            command::cmd_block_t raw; ///< Raw attribute data block
         public:
             /// @brief Process attribute
             /// @param pData Raw attribute data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             // attribute values
             inline bool isMaskBitForced() { return ((raw & 0x1uL) != 0uL); }  ///< Set mask while drawing (0 = texture with bit 15 ; 1 = force bit15=1)
@@ -139,14 +139,14 @@ namespace command
 
         /// @struct attr_irqflag_t
         /// @brief GPU interrupt request flag
-        typedef struct attr_irqflag_t
+        struct attr_irqflag_t
         {
         private:
-            cmd_block_t raw; ///< Raw attribute data block
+            command::cmd_block_t raw; ///< Raw attribute data block
         public:
             /// @brief Process attribute
             /// @param pData Raw attribute data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
         };

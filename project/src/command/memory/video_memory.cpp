@@ -9,7 +9,7 @@ Description : GPU video memory (vram) image
 #include "../../globals.h"
 #include <cstdlib>
 #include <cstdint>
-#include "../../events/utils/std_exception.hpp"
+#include <stdexcept>
 #include "video_memory.h"
 using namespace command::memory;
 
@@ -42,7 +42,7 @@ void VideoMemory::init(bool isDoubledSize)
         m_bufferSize = (isDoubledSize) ? (VRAM_BUFFER_SIZE * 2 * 1024) : (VRAM_BUFFER_SIZE * 1024);
         m_totalSize = (m_bufferSize * 2) + (VRAM_OFFSET_SIZE * 2 * 1024); // 2 buffers + security offset
         if ((m_pVramImage = (uint8_t*)malloc(m_totalSize)) == NULL)
-            throw events::utils::StdException("VideoMemory.init: VRAM allocation failure");
+            throw std::runtime_error("VideoMemory.init: VRAM allocation failure");
     }
 
     // initialize VRAM

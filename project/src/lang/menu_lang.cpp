@@ -11,7 +11,6 @@ Description : in-game menu language/translation utility
 #include <fstream>
 #include <string>
 #include "../events/utils/logger.h"
-#include "../events/utils/std_exception.hpp"
 #include "menu_lang.h"
 using namespace lang;
 
@@ -63,6 +62,6 @@ void MenuLang::setLanguageFromFile(std::wstring& filePath)
     }
     catch (const std::exception& exc) // in-game -> no exception
     {
-        events::utils::Logger::Logger::getInstance()->writeErrorEntry("MenuLang.setLanguageFromFile", exc.what());
+        events::utils::Logger::getInstance()->writeErrorEntry("MenuLang.setLanguageFromFile", exc.what());
     }
 }

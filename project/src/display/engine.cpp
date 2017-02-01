@@ -12,7 +12,6 @@ Description : rendering engine - graphics API management
 #endif
 #include "../vendor/opengl.h" // openGL includes
 #include "../config/config.h"
-#include "../events/utils/std_exception.hpp"
 #include "utils/display_window.h"
 #include "shader.h"
 #include "engine.h"

@@ -35,7 +35,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID (pad) + triangle color (RGB)
             vertex_f1_t vertex0; ///< Vertex coordinates
@@ -52,7 +52,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID (pad) + quad color (RGB)
             vertex_f1_t vertex0; ///< Vertex coordinates (top-left)
@@ -70,17 +70,17 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color;        ///< Primitive ID (pad) + triangle color (RGB)
             vertex_ft1_t vertex0; ///< Vertex coordinates/texture (CLUT)
             vertex_ft1_t vertex1; ///< Vertex coordinates/texture (texpage)
             vertex_ft1_t vertex2; ///< Vertex coordinates
             // texture information
-            inline cmd_block_t clutX()    { return vertex0.texture.clutX(); }
-            inline cmd_block_t clutY()    { return vertex0.texture.clutY(); }
-            inline cmd_block_t texpageX() { return vertex1.texture.texpageX(); }
-            inline cmd_block_t texpageY() { return vertex1.texture.texpageY(); }
+            inline command::cmd_block_t clutX()    { return vertex0.texture.clutX(); }
+            inline command::cmd_block_t clutY()    { return vertex0.texture.clutY(); }
+            inline command::cmd_block_t texpageX() { return vertex1.texture.texpageX(); }
+            inline command::cmd_block_t texpageY() { return vertex1.texture.texpageY(); }
 
             static inline size_t size() { return 7; } ///< Length (32-bit blocks)
         };
@@ -92,7 +92,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color;        ///< Primitive ID (pad) + quad color (RGB)
             vertex_ft1_t vertex0; ///< Vertex coordinates/texture (CLUT)
@@ -100,10 +100,10 @@ namespace command
             vertex_ft1_t vertex2; ///< Vertex coordinates
             vertex_ft1_t vertex3; ///< Vertex coordinates
             // texture information
-            inline cmd_block_t clutX()    { return vertex0.texture.clutX(); }
-            inline cmd_block_t clutY()    { return vertex0.texture.clutY(); }
-            inline cmd_block_t texpageX() { return vertex1.texture.texpageX(); }
-            inline cmd_block_t texpageY() { return vertex1.texture.texpageY(); }
+            inline command::cmd_block_t clutX()    { return vertex0.texture.clutX(); }
+            inline command::cmd_block_t clutY()    { return vertex0.texture.clutY(); }
+            inline command::cmd_block_t texpageX() { return vertex1.texture.texpageX(); }
+            inline command::cmd_block_t texpageY() { return vertex1.texture.texpageY(); }
 
             static inline size_t size() { return 9; } ///< Length (32-bit blocks)
         };
@@ -117,7 +117,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             vertex_g1_t vertex0; ///< Primitive ID + vertex color/coordinates
             vertex_g1_t vertex1; ///< Vertex color/coordinates
@@ -133,7 +133,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             vertex_g1_t vertex0; ///< Primitive ID + vertex color/coordinates
             vertex_g1_t vertex1; ///< Vertex color/coordinates
@@ -150,16 +150,16 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             vertex_gt1_t vertex0; ///< Primitive ID + vertex color/coordinates/texture (CLUT)
             vertex_gt1_t vertex1; ///< Vertex color/coordinates/texture (texpage)
             vertex_gt1_t vertex2; ///< Vertex color/coordinates
             // texture information
-            inline cmd_block_t clutX()    { return vertex0.texture.clutX(); }
-            inline cmd_block_t clutY()    { return vertex0.texture.clutY(); }
-            inline cmd_block_t texpageX() { return vertex1.texture.texpageX(); }
-            inline cmd_block_t texpageY() { return vertex1.texture.texpageY(); }
+            inline command::cmd_block_t clutX()    { return vertex0.texture.clutX(); }
+            inline command::cmd_block_t clutY()    { return vertex0.texture.clutY(); }
+            inline command::cmd_block_t texpageX() { return vertex1.texture.texpageX(); }
+            inline command::cmd_block_t texpageY() { return vertex1.texture.texpageY(); }
 
             static inline size_t size() { return 9; } ///< Length (32-bit blocks)
         };
@@ -171,17 +171,17 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             vertex_gt1_t vertex0; ///< Primitive ID + vertex color/coordinates/texture (CLUT)
             vertex_gt1_t vertex1; ///< Vertex color/coordinates/texture (texpage)
             vertex_gt1_t vertex2; ///< Vertex color/coordinates
             vertex_gt1_t vertex3; ///< Vertex color/coordinates
             // texture information
-            inline cmd_block_t clutX()    { return vertex0.texture.clutX(); }
-            inline cmd_block_t clutY()    { return vertex0.texture.clutY(); }
-            inline cmd_block_t texpageX() { return vertex1.texture.texpageX(); }
-            inline cmd_block_t texpageY() { return vertex1.texture.texpageY(); }
+            inline command::cmd_block_t clutX()    { return vertex0.texture.clutX(); }
+            inline command::cmd_block_t clutY()    { return vertex0.texture.clutY(); }
+            inline command::cmd_block_t texpageX() { return vertex1.texture.texpageX(); }
+            inline command::cmd_block_t texpageY() { return vertex1.texture.texpageY(); }
 
             static inline size_t size() { return 12; } ///< Length (32-bit blocks)
         };

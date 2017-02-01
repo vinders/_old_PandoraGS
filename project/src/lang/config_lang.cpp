@@ -10,7 +10,7 @@ Description : config dialog language/translation utility
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "../events/utils/std_exception.hpp"
+#include <stdexcept>
 #include "config_lang.h"
 using namespace lang;
 
@@ -50,7 +50,7 @@ void ConfigLang::setLanguageFromFile(std::wstring& filePath)
     std::ifstream in;
     in.open(filePath, std::ifstream::in); // overwrite
     if (!in.is_open())
-        throw events::utils::StdException("File not found or not accessible.");
+        throw std::invalid_argument("File not found or not accessible.");
 
     //...read file
 

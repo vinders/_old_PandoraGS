@@ -35,18 +35,18 @@ namespace display
         {
         private:
             bool m_isVisible;           ///< Current visibility state
-            window_handle_t m_window;   ///< Managed window handle
+            display::window_handle_t m_window;   ///< Managed window handle
             window_mode_t m_windowMode; ///< Window mode (fullscreen, fixed, resizable)
 
-            window_menu_t m_sourceMenu;   ///< Source window menu handle
-            window_style_t m_sourceStyle; ///< Source window visual style
-            rect_t m_sourceSize;          ///< Source window size / position
+            display::window_menu_t m_sourceMenu;   ///< Source window menu handle
+            display::window_style_t m_sourceStyle; ///< Source window visual style
+            display::rect_t m_sourceSize;          ///< Source window size / position
 
 
         public:
             /// @brief Create window manager
             /// @param window System window handle
-            DisplayWindow(window_handle_t window) : m_isVisible(false), m_window(window), m_sourceMenu(0), m_sourceStyle(0) {}
+            DisplayWindow(display::window_handle_t window) : m_isVisible(false), m_window(window), m_sourceMenu(0), m_sourceStyle(0) {}
             /// @brief Destroy window manager
             ~DisplayWindow()
             {
@@ -65,7 +65,7 @@ namespace display
             /// @brief Clear window content
             /// @param context Current device context
             /// @param clearedZone Cleared zone (rectangle)
-            virtual void clear(device_handle_t context, rect_t& clearedZone);
+            virtual void clear(display::device_handle_t context, display::rect_t& clearedZone);
 
 
             // -- getters / setters -- -----------------------------------------
@@ -86,7 +86,7 @@ namespace display
             /// @brief Initialize window pixel format and fill window
             /// @param resolution Display resolution (X, Y)
             /// @param colorMode Display color mode
-            bool setPixelFormat(display::coord_t resolution, display::window_color_mode_t colorMode);
+            void setPixelFormat(display::coord_t resolution, display::window_color_mode_t colorMode);
 
             /// @brief Read screen display size
             /// @param outWidth Width destination variable

@@ -16,7 +16,7 @@ Description : graphics output window management
 #include <unistd.h>
 #include <sys/types.h>
 #endif
-#include "../../events/utils/std_exception.hpp"
+#include <stdexcept>
 #include "display_window.h"
 using namespace display::utils;
 
@@ -79,7 +79,7 @@ void DisplayWindow::hide()
 /// @brief Clear window content
 /// @param context Current device context
 /// @param clearedZone Cleared zone (rectangle)
-void DisplayWindow::clear(device_handle_t context, rect_t& clearedZone)
+void DisplayWindow::clear(display::device_handle_t context, display::rect_t& clearedZone)
 {
     if (m_isVisible == false)
         return;
@@ -180,7 +180,7 @@ bool DisplayWindow::getWindowSize(uint32_t& outWidth, uint32_t& outHeight)
 /// @brief Initialize window pixel format and fill window
 /// @param resolution Display resolution (X, Y)
 /// @param colorMode Display color mode
-bool DisplayWindow::setPixelFormat(display::coord_t resolution, display::window_color_mode_t colorMode)
+void DisplayWindow::setPixelFormat(display::coord_t resolution, display::window_color_mode_t colorMode)
 {
     #ifdef _WINDOWS
     display::device_handle_t deviceContext = GetDC(m_window);
@@ -212,7 +212,7 @@ bool DisplayWindow::setPixelFormat(display::coord_t resolution, display::window_
     if (!pxFormat || !SetPixelFormat(deviceContext, pxFormat, &pxFd))
     {
         ReleaseDC(m_window, deviceContext);
-        throw events::utils::StdException("RenderApi: failed to set pixel format");
+        throw std::runtime_error("RenderApi: failed to set pixel format");
     }
     #else
     // Linux/UNIX version
@@ -220,7 +220,11 @@ bool DisplayWindow::setPixelFormat(display::coord_t resolution, display::window_
     #endif
 
     // fill screen
-    rect_t fillZone = { 0, 0, resolution.x, resolution.y }; // left, top, right, bottom
+    display::rect_t fillZone;
+    fillZone.left = 0;
+    fillZone.top = 0;
+    fillZone.right = resolution.x;
+    fillZone.bottom = resolution.y;
     clear(deviceContext, fillZone);
 
     #ifdef _WINDOWS

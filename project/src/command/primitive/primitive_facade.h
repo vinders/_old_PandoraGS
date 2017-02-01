@@ -36,7 +36,7 @@ namespace command
         /// @brief Primitive index row
         struct index_row_t
         {
-            void(*command)(cmd_block_t*); // function to call to process primitive
+            void(*command)(command::cmd_block_t*); // function to call to process primitive
             size_t size; // number of 32-bit blocks
         };
 
@@ -64,7 +64,7 @@ namespace command
             /// @brief Create and process primitive
             /// @param commandId Command identifier
             /// @param pData Primitive raw data blocks
-            static inline void createPrimitive(cmd_block_t commandId, cmd_block_t* pData)
+            static inline void createPrimitive(command::cmd_block_t commandId, command::cmd_block_t* pData)
             {
                 if (isCommandImplemented(commandId))
                     c_pPrimitiveIndex[commandId].command(pData);
@@ -77,9 +77,9 @@ namespace command
             /// @param raw command data (first block)
             /// @param outCommandId Destination variable for read command ID
             /// @param outSize Destination variable for read command size
-            static inline void readCommandInfo(cmd_block_t raw, cmd_block_t& outCommandId, size_t& outSize)
+            static inline void readCommandInfo(command::cmd_block_t raw, command::cmd_block_t& outCommandId, size_t& outSize)
             {
-                cmd_block_t commandId = readCommandId(raw);
+                command::cmd_block_t commandId = readCommandId(raw);
                 if (isCommandImplemented(commandId))
                 {
                     outCommandId = commandId;
@@ -95,7 +95,7 @@ namespace command
             /// @brief Extract command identifier from first raw data block
             /// @param raw command data (first block)
             /// @return Command identifier
-            static inline cmd_block_t readCommandId(cmd_block_t raw)
+            static inline command::cmd_block_t readCommandId(command::cmd_block_t raw)
             {
                 return ((raw >> 24) & 0x0FFuL);
             }
@@ -103,7 +103,7 @@ namespace command
             /// @brief Check if identified primitive type is implemented
             /// @param commandId Command identifier
             /// @return Availability
-            static inline bool isCommandImplemented(cmd_block_t commandId)
+            static inline bool isCommandImplemented(command::cmd_block_t commandId)
             {
                 return (c_pPrimitiveIndex[commandId].command != PRIMITIVE_NI);
             }
@@ -111,7 +111,7 @@ namespace command
             /// @brief Check if identified primitive type can be skipped
             /// @param commandId Command identifier
             /// @return Skippable or not
-            static inline bool isCommandSkippable(cmd_block_t commandId)
+            static inline bool isCommandSkippable(command::cmd_block_t commandId)
             {
                 return (commandId < PRIMITIVE_GEOMETRY_FIRST_ID || commandId > PRIMITIVE_GEOMETRY_LAST_ID);
             }
@@ -132,7 +132,7 @@ namespace command
             /// @param curPos Current position in primitive data
             /// @param maxSize Max primitive length
             /// @return Endable or not
-            static inline bool isPolylineEndable(cmd_block_t commandId, size_t curPos, size_t maxSize)
+            static inline bool isPolylineEndable(command::cmd_block_t commandId, size_t curPos, size_t maxSize)
             {
                 if (isPolyline(maxSize))
                 {
@@ -151,7 +151,7 @@ namespace command
             /// @brief Check if poly-line data block contains end code
             /// @param dataBlock Data block to check
             /// @return End code or not
-            static inline bool isPolylineEndCode(cmd_block_t dataBlock)
+            static inline bool isPolylineEndCode(command::cmd_block_t dataBlock)
             {
                 return poly_line_common_t::isEndCode(dataBlock);
             }

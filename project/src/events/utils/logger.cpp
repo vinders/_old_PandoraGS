@@ -13,6 +13,7 @@ Description : event log utility
 #include <cstring>
 #include <string>
 #include <ctime>
+#include <stdexcept>
 #ifdef _WINDOWS
 #define _CRT_SECURE_NO_WARNINGS
 #include <Windows.h>
@@ -22,7 +23,6 @@ Description : event log utility
 #include <pwd.h>
 #endif
 #include "../../globals.h"
-#include "std_exception.hpp"
 #include "file_io.h"
 #include "logger.h"
 using namespace events::utils;
@@ -148,7 +148,15 @@ void Logger::writeErrorEntry(const std::string origin, std::string message)
 {
     const std::string type = std::to_string(errno); // error code
     if (errno != 0)
+    {
+        #ifdef _WINDOWS
+        char buffer[160];
+        strerror_s(buffer, (size_t)159, errno);
+        message = message + std::string(": ") + buffer; // error message
+        #else
         message = message + std::string(": ") + strerror(errno); // error message
+        #endif
+    }
     errno = 0;
 
     writeEntry(origin, type, message);
@@ -162,5 +170,5 @@ void Logger::removeLogFile()
     int err = std::remove(getFilePath().c_str());
     m_mutexInstance.unlock();
     if (err)
-        throw StdException("Unable to remove log file");
+        throw std::runtime_error("Unable to remove log file");
 }

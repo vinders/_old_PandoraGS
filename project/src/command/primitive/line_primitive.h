@@ -26,7 +26,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID (pad) + line color (RGB)
             vertex_f1_t vertex0; ///< Vertex coordinates
@@ -42,7 +42,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             vertex_g1_t vertex0; ///< Primitive ID (pad) + vertex color/coordinates
             vertex_g1_t vertex1; ///< Vertex color/coordinates
@@ -58,7 +58,7 @@ namespace command
         struct poly_line_common_t
         {
             static inline size_t maxSize() { return 255; } ///< Maximum length
-            static inline bool isEndCode(cmd_block_t data) ///< End code verification
+            static inline bool isEndCode(command::cmd_block_t data) ///< End code verification
             {
                 return ((data & 0xF000F000) == 0x50005000);
             }
@@ -71,7 +71,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID (pad) + line color (RGB)
             vertex_f1_t vertex0; ///< Vertex coordinates
@@ -93,7 +93,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             vertex_g1_t vertex0; ///< Primitive ID (pad) + vertex color/coordinates
             vertex_g1_t vertex1; ///< Vertex color/coordinates
@@ -116,7 +116,7 @@ namespace command
         {
         private:
             size_t m_count;                ///< Read units count
-            cmd_block_t* m_pCurrentVertex; ///< Current vertex reference
+            command::cmd_block_t* m_pCurrentVertex; ///< Current vertex reference
 
         public:
             /// @brief Create iterator for flat poly-line
@@ -151,7 +151,7 @@ namespace command
         {
         private:
             size_t m_count;                ///< Read units count
-            cmd_block_t* m_pCurrentVertex; ///< Current vertex reference
+            command::cmd_block_t* m_pCurrentVertex; ///< Current vertex reference
 
         public:
             /// @brief Create iterator for flat poly-line

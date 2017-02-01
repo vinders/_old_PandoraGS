@@ -11,7 +11,6 @@ Description : PSEmu GPU library interface
 #include "config/config.h"
 #include "events/listener.h"
 #include "events/utils/logger.h"
-#include "events/utils/std_exception.hpp"
 #include "command/dispatcher.h"
 #include "display/engine.h"
 #include "psemu_main.h"

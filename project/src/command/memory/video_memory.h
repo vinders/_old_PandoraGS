@@ -10,7 +10,7 @@ Description : GPU video memory (vram) image
 
 #include <cstdlib>
 #include <cstdint>
-#include "../../event/utils/std_exception.hpp"
+#include <stdexcept>
 
 
 /// @namespace command
@@ -98,7 +98,7 @@ namespace command
             inline VideoMemory::iterator begin()
             {
                 if (m_pVramImage == NULL)
-                    throw event::utils::StdException("VideoMemory.begin: can't iterate through uninitialized memory");
+                    throw std::logic_error("VideoMemory.begin: can't iterate through uninitialized memory");
                 return VideoMemory::iterator(*this);
             }
             /// @brief Get pointer after the end of the last buffer

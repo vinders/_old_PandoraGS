@@ -26,11 +26,11 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
-            rgb24_t color;  ///< Primitive ID + rectangle color (RGB)
-            coord16_t pos;  ///< top-left coordinates
-            coord16_t size; ///< size (width / height)
+            rgb24_t color;   ///< Primitive ID + rectangle color (RGB)
+            coord16_t pos;   ///< top-left coordinates
+            coord16_t range; ///< size (width / height)
             // - Horizontally, the filling is done in 16-pixel (32-bytes) units (steps of 10h).
             // - X-size==400h works only indirectly: handled as X-size==0. However, X-size==[3F1h..3FFh] is rounded-up as X-size==400h.
             // - If the Source/Dest starting points plus the width/height value exceed the framebuffer size, wrap to the opposite memory edge.
@@ -45,7 +45,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color;  ///< Primitive ID + tile color (RGB)
             rect16_t coord; ///< Position (top-left) + size (width/height)
@@ -60,7 +60,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color; ///< Primitive ID + tile color (RGB)
             coord16_t pos; ///< Position (top-left)
@@ -75,7 +75,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color; ///< Primitive ID + tile color (RGB)
             coord16_t pos; ///< Position (top-left)
@@ -90,7 +90,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color; ///< Primitive ID + tile color (RGB)
             coord16_t pos; ///< Position (top-left)
@@ -107,12 +107,12 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID + tile color (RGB)
             coord16_t pos;       ///< Position (top-left)
             coord8_tx_t texture; ///< Sprite texture coordinates + CLUT
-            coord16_t size;      ///< Size (width/height)
+            coord16_t range;     ///< Size (width/height)
 
             static inline size_t size() { return 4; } ///< Length (32-bit blocks)
         };
@@ -124,7 +124,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID + tile color (RGB)
             coord16_t pos;       ///< Position (top-left)
@@ -140,7 +140,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID + tile color (RGB)
             coord16_t pos;       ///< Position (top-left)
@@ -156,7 +156,7 @@ namespace command
         {
             /// @brief Process primitive
             /// @param pData Raw primitive data pointer
-            static void process(cmd_block_t* pData);
+            static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID + tile color (RGB)
             coord16_t pos;       ///< Position (top-left)
