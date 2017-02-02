@@ -18,23 +18,22 @@ Description : global constants and settings
 #define PLUGIN_AUTHOR      "Romain Vinders"
 #define PLUGIN_DATE        "2017"
 #define PLUGIN_LANGUAGES   "English, Spanish, French, German"
-#define PLUGIN_TECH        "C++11 (VC++ runtimes 2013)"
-#define PLUGIN_API         "OpenGL 4.1"
+#define PLUGIN_TECH        "C++14 (VC++ runtimes 2015), OpenGL 4.1"
 
 // other information
 #define PLUGIN_ABOUT_TITLE "About PandoraGS..."
 #ifdef _WINDOWS
 #define PLUGIN_THANKS      "No$psx, Doomed, J.Walker - for providing useful docs\
  \r\nPete, Tapeq, Asmodean - for sharing public sources\
- \r\nePSXe team - for being helpful and adding game ID spec\
+ \r\nePSXe team - for supporting game ID spec\
  \r\nMednafen - for sharing useful links and tools\
- \r\nThe OpenGL SuperBible, Open.gl - for teaching me OpenGL"
+ \r\nThe OpenGL SuperBible, website open.gl"
 #else
 #define PLUGIN_THANKS      "No$psx, Doomed, J.Walker - for providing useful docs\
  \nPete, Tapeq, Asmodean - for sharing public sources\
- \nePSXe team - for being helpful and adding game ID spec\
+ \nePSXe team - for supporting game ID spec\
  \nMednafen - for sharing useful links and tools\
- \nThe OpenGL SuperBible, Open.gl - for teaching me OpenGL"
+ \nThe OpenGL SuperBible, website open.gl"
 #endif
 
 // compilation settings - dialog API

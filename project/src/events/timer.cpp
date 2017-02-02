@@ -70,7 +70,7 @@ void Timer::setFrequency(float freqLimit, regionsync_t regMode, bool isInterlace
                 m_targetFreq = (isInterlaced) ? 30000.0f / 1001.0f : 60000.0f / 1001.0f; 
                 break;
             case regionsync_t::palStd: // PAL - standard
-                m_targetFreq = (isInterlaced) ? 25.0f : 50.0f ; 
+                m_targetFreq = (isInterlaced) ? 25.0f : 50.0f; 
                 break;
         }
     }
