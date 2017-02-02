@@ -7,16 +7,24 @@ License :     GPLv2
 Description : configuration file or registry input/output
 *******************************************************************************/
 #include "../globals.h"
-#include <cstdint>
+#include <cstdio>
 #include <cstdlib>
+#include <cstdint>
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <locale>
+#include <io.h>
+#include <codecvt>
+#include <cctype>
+#include <algorithm>
+#include <functional>
 #include <map>
 #ifdef _WINDOWS
 #include <Windows.h>
 #include <tchar.h>
 #endif
+#include "../events/utils/file_io.h"
 #include "config_file_io.h"
 using namespace config;
 
@@ -27,18 +35,33 @@ using namespace config;
 /// @brief Destroy config key
 /// @param path Key path (without name)
 /// @param fileName Key name
-bool ConfigFileIO<registry_io_mode_t>::remove(std::wstring path, std::wstring fileName)
+/// @return Success
+bool ConfigFileIO<registry_io_mode_t>::remove(std::wstring path, std::wstring keyName)
 {
-
+    HKEY baseKey;
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, (LPCWSTR)(path.c_str()), 0, KEY_ALL_ACCESS, &baseKey) == ERROR_SUCCESS)
+    {
+        RegDeleteKeyEx(baseKey, (LPCWSTR)(keyName.c_str()), KEY_WOW64_32KEY, 0);
+        RegDeleteKeyEx(baseKey, (LPCWSTR)(keyName.c_str()), KEY_WOW64_64KEY, 0);
+        RegCloseKey(baseKey);
+        return true;
+    }
+    return false;
 }
 
 
 /// @brief Read float value
 /// @param[in]  key Registry key item
 /// @param[out] outFloatVal Output value
-inline void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, float& outFloatVal)
+void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, float& outFloatVal)
 {
-
+    char buffer[32];
+    memset(buffer, 0, sizeof(buffer));
+    m_keySize = sizeof(buffer) - 1;
+    if (RegQueryValueEx(m_regKey, (LPCWSTR)key, 0, &m_keyStatus, (PBYTE)buffer, &m_keySize) == ERROR_SUCCESS)
+    {
+        outFloatVal = static_cast<float>(atof(buffer));
+    }
 }
 
 /// @brief Read char string value
@@ -46,7 +69,14 @@ inline void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, float& ou
 /// @param[out] outStringVal Output value
 void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, char* outStringVal, size_t length)
 {
-
+    WCHAR buffer[32];
+    memset(buffer, 0, sizeof(buffer));
+    m_keySize = sizeof(buffer) - 1;
+    if (RegQueryValueEx(m_regKey, (LPCWSTR)key, 0, &m_keyStatus, (PBYTE)buffer, &m_keySize) == ERROR_SUCCESS)
+    {
+        std::string val = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(buffer);
+        strncpy_s(outStringVal, length, val.c_str(), val.size());
+    }
 }
 
 /// @brief  Read standard string value
@@ -54,7 +84,13 @@ void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, char* outStringV
 /// @param[out] outStringVal Output value
 void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::string& outStringVal)
 {
-
+    WCHAR buffer[256];
+    memset(buffer, 0, sizeof(buffer));
+    m_keySize = sizeof(buffer) - 1;
+    if (RegQueryValueEx(m_regKey, (LPCWSTR)key, 0, &m_keyStatus, (LPBYTE)buffer, &m_keySize) == ERROR_SUCCESS)
+    {
+        outStringVal = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(buffer);
+    }
 }
 
 /// @brief Read wide string value
@@ -62,7 +98,13 @@ void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::string& out
 /// @param[out] outWideStringVal Output value
 void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::wstring& outWideStringVal)
 {
-
+    WCHAR buffer[256];
+    memset(buffer, 0, sizeof(buffer));
+    m_keySize = sizeof(buffer) - 1;
+    if (RegQueryValueEx(m_regKey, (LPCWSTR)key, 0, &m_keyStatus, (LPBYTE)buffer, &m_keySize) == ERROR_SUCCESS)
+    {
+        outWideStringVal = buffer;
+    }
 }
 
 
@@ -71,7 +113,10 @@ void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::wstring& ou
 /// @param[in]  val Written value
 void ConfigFileIO<registry_io_mode_t>::writeFloat(const wchar_t* key, float val)
 {
-
+    char buffer[32];
+    memset(buffer, 0, sizeof(buffer));
+    _snprintf_s(buffer, sizeof(buffer), "%f", val);
+    RegSetValueEx(m_regKey, (LPCWSTR)key, 0, REG_SZ, (PBYTE)buffer, strlen(buffer));
 }
 
 /// @brief Write char string value
@@ -79,7 +124,7 @@ void ConfigFileIO<registry_io_mode_t>::writeFloat(const wchar_t* key, float val)
 /// @param[in]  val Written value
 void ConfigFileIO<registry_io_mode_t>::writeString(const wchar_t* key, char* val, size_t length)
 {
-
+    RegSetValueEx(m_regKey, (LPCWSTR)key, 0, REG_SZ, (PBYTE)val, length);
 }
 
 /// @brief Write standard string value
@@ -87,7 +132,7 @@ void ConfigFileIO<registry_io_mode_t>::writeString(const wchar_t* key, char* val
 /// @param[in]  val Written value
 void ConfigFileIO<registry_io_mode_t>::writeString(const wchar_t* key, std::string& val)
 {
-
+    RegSetValueEx(m_regKey, (LPCWSTR)key, 0, REG_SZ, (PBYTE)(val.c_str()), val.size());
 }
 
 /// @brief Write wide string value
@@ -95,7 +140,7 @@ void ConfigFileIO<registry_io_mode_t>::writeString(const wchar_t* key, std::stri
 /// @param[in]  val Written value
 void ConfigFileIO<registry_io_mode_t>::writeWideString(const wchar_t* key, std::wstring& val)
 {
-
+    RegSetValueEx(m_regKey, (LPCWSTR)key, 0, REG_BINARY, (LPBYTE)(val.c_str()), val.size());
 }
 #endif
 
@@ -132,6 +177,7 @@ void ConfigFileIO<file_io_mode_t>::close()
     if (m_openMode != file_io_mode_t::none)
     {
         m_file.close();
+        m_fileData.clear();
         m_openMode = file_io_mode_t::none;
     }
 }
@@ -139,17 +185,61 @@ void ConfigFileIO<file_io_mode_t>::close()
 /// @brief Read and index all values
 void ConfigFileIO<file_io_mode_t>::createContentIndex()
 {
-    //... lire chaque ligne
-        //... si pas vide, séparer clé de valeur
-            //... si clé pas vide, insérer dans map
+    // set UTF-8 charset
+    const std::codecvt_utf8<wchar_t>* converter = new std::codecvt_utf8<wchar_t>();
+    const std::locale utf8_locale = std::locale(std::locale::empty(), converter);
+    m_file.imbue(utf8_locale);
+
+    std::wstring buffer;
+    std::getline(m_file, buffer); // first line
+    while (!m_file.eof())
+    {
+        if (!buffer.empty())
+        {
+            // trim leading/trailing spaces
+            buffer.erase(buffer.begin(), std::find_if(buffer.begin(), buffer.end(), std::not1(std::ptr_fun<int,int>(std::isspace))));
+            buffer.erase(std::find_if(buffer.rbegin(), buffer.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), buffer.end());
+            if (!buffer.empty())
+            {
+                // add entry to hashmap
+                size_t sepPos = buffer.find(L';');
+                if (sepPos != std::wstring::npos && sepPos > 0) // split
+                {
+                    if (sepPos < buffer.size() - 1)
+                        m_fileData[buffer.substr(0, sepPos)] = buffer.substr(sepPos + 1);
+                    else
+                        m_fileData[buffer.substr(0, sepPos)] = L"";
+                }
+            }
+        }
+        std::getline(m_file, buffer); // next line
+    }
 }
 
 /// @brief Destroy config file
 /// @param path File path (without name)
 /// @param fileName File name
+/// @return Success
 bool ConfigFileIO<file_io_mode_t>::remove(std::wstring path, std::wstring fileName)
 {
-    //...
+    std::string basePath = events::utils::FileIO::getWritableFilePath(); // get base folder path
+
+    #ifdef _WINDOWS
+    std::wstring fullPath = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(basePath);
+    if (fullPath.size() > 0 && fullPath.at(fullPath.size() - 1) != L'/') // absolute path: replace slashes
+    {
+        for (std::wstring::size_type i = 0; (i = path.find(L'/', i)) != std::wstring::npos; ++i)
+            path.replace(i, 1, L"\\");
+    }
+    fullPath += path + fileName;
+    return (_wunlink(fullPath.c_str()) == 0); // remove file
+
+    #else
+    // linux/UNIX - no support for wide string path -> convert
+    basePath += std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(path);
+    basePath += std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(fileName);
+    return (unlink(basePath.c_str()) == 0); // remove file
+    #endif
 }
 
 
@@ -172,8 +262,12 @@ void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, char* outStringVal, 
 {
     if (m_openMode != file_io_mode_t::read || m_fileData.find(key) == m_fileData.end())
         return;
-    std::string buffer(m_fileData[key].begin(), m_fileData[key].end());
+    std::string buffer = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(m_fileData[key]);
+    #ifdef _WINDOWS
+    strncpy_s(outStringVal, length, buffer.c_str(), buffer.size());
+    #else
     strcpy(outStringVal, buffer.c_str());
+    #endif
 }
 
 /// @brief  Read standard string value
@@ -183,7 +277,7 @@ void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, std::string& outStri
 {
     if (m_openMode != file_io_mode_t::read || m_fileData.find(key) == m_fileData.end())
         return;
-    outStringVal = std::string(m_fileData[key].begin(), m_fileData[key].end());
+    outStringVal = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(m_fileData[key]);
 }
 
 /// @brief Read wide string value
@@ -241,8 +335,9 @@ void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, char* val, si
 {
     if (m_openMode != file_io_mode_t::write)
         return;
-    std::string buffer(val);
-    std::wstring valStr = std::wstring(key) + std::wstring(L";") + std::wstring(buffer.begin(), buffer.end()) + std::wstring(L"\n");
+    std::wstring valStr = std::wstring(key) + std::wstring(L";");
+    valStr += std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(val);
+    valStr += std::wstring(L"\n");
     m_file.write(valStr.c_str(), valStr.size());
 }
 
@@ -253,7 +348,9 @@ void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, std::string& 
 {
     if (m_openMode != file_io_mode_t::write)
         return;
-    std::wstring valStr = std::wstring(key) + std::wstring(L";") + std::wstring(val.begin(), val.end()) + std::wstring(L"\n");
+    std::wstring valStr = std::wstring(key) + std::wstring(L";");
+    valStr += std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(val);
+    valStr += std::wstring(L"\n");
     m_file.write(valStr.c_str(), valStr.size());
 }
 

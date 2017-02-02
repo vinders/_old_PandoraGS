@@ -23,12 +23,14 @@ using namespace config;
 #define CONFIG_FILE_GAMES L"games"
 #ifdef _WINDOWS
 #define CONFIG_PATH L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS"
+#define CONFIG_DIRECTORY_PATH CONFIG_PATH
 #define CONFIG_PROFILE_PATH_PREFIX L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\profile"
 #define CONFIG_GAMES_PATH L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\games"
 #define CONFIG_INTERNAL_FILE_TYPE config::registry_io_mode_t
 #define CONFIG_INTERNAL_FILE_WRITE_TYPE config::registry_io_mode_t::write
 #else
-#define CONFIG_PATH L"games/PandoraGS"
+#define CONFIG_PATH L"games/PandoraGS/config"
+#define CONFIG_DIRECTORY_PATH L"games/PandoraGS/"
 #define CONFIG_PROFILE_PATH_PREFIX L"games/PandoraGS/profile"
 #define CONFIG_GAMES_PATH L"games/PandoraGS/games"
 #define CONFIG_INTERNAL_FILE_TYPE config::file_io_mode_t
@@ -366,7 +368,7 @@ void ConfigIO::writeConfigProfileValues(ConfigFileIO<T>& writer, ConfigProfile& 
 void ConfigIO::removeConfigProfile(uint32_t id)
 {
     std::wstring fileName = std::wstring(CONFIG_FILE_PROFILE_PREFIX) + std::to_wstring(id);
-    if (ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE>::remove(CONFIG_PATH, fileName) == false)
+    if (ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE>::remove(CONFIG_DIRECTORY_PATH, fileName) == false)
         throw std::runtime_error("Could not remove config profile file or reg key");
 }
 

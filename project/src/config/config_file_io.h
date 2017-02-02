@@ -60,7 +60,7 @@ namespace config
 
     public:
         /// @brief Create registry IO tool
-        ConfigFileIO() : m_openMode(registry_io_mode_t::none) {}
+        ConfigFileIO() : m_openMode(registry_io_mode_t::none), m_keyStatus(0) {}
         /// @brief Destroy registry IO tool
         ~ConfigFileIO()
         {
@@ -87,7 +87,8 @@ namespace config
         /// @brief Destroy config key
         /// @param path Key path (without name)
         /// @param fileName Key name
-        static bool remove(std::wstring path, std::wstring fileName);
+        /// @return Success
+        static bool remove(std::wstring path, std::wstring keyName);
 
         /// @brief Read boolean value
         /// @param[in]  key Registry key item
@@ -145,7 +146,7 @@ namespace config
         /// @brief Read float value
         /// @param[in]  key Registry key item
         /// @param[out] outFloatVal Output value
-        inline void read(const wchar_t* key, float& outFloatVal);
+        void read(const wchar_t* key, float& outFloatVal);
         /// @brief Read char string value
         /// @param[in]  key Registry key item
         /// @param[out] outStringVal Output value
@@ -239,6 +240,7 @@ namespace config
         /// @brief Destroy config file
         /// @param path File path (without name)
         /// @param fileName File name
+        /// @return Success
         static bool remove(std::wstring path, std::wstring fileName);
     private:
         /// @brief Read and index all values
