@@ -94,7 +94,7 @@ void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, char* outStringV
 /// @param[out] outStringVal Output value
 void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::string& outStringVal)
 {
-    WCHAR buffer[256];
+    WCHAR buffer[MAX_PATH];
     memset(buffer, 0, sizeof(buffer));
     m_keySize = sizeof(buffer) - 1;
     if (::RegQueryValueEx(m_regKey, (LPCWSTR)key, 0, &m_keyStatus, (LPBYTE)buffer, &m_keySize) == ERROR_SUCCESS)
@@ -108,12 +108,72 @@ void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::string& out
 /// @param[out] outWideStringVal Output value
 void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::wstring& outWideStringVal)
 {
-    WCHAR buffer[256];
+    WCHAR buffer[MAX_PATH];
     memset(buffer, 0, sizeof(buffer));
     m_keySize = sizeof(buffer) - 1;
     if (::RegQueryValueEx(m_regKey, (LPCWSTR)key, 0, &m_keyStatus, (LPBYTE)buffer, &m_keySize) == ERROR_SUCCESS)
     {
         outWideStringVal = buffer;
+    }
+}
+
+
+/// @brief Read all available values
+/// @param[out] outData Output values
+void ConfigFileIO<registry_io_mode_t>::readAll(std::map<std::string, uint32_t>& outData)
+{
+    std::map<std::wstring, std::wstring> values;
+    mapAllValues(values);
+    for (auto it = values.begin(); it != values.end(); ++it)
+    {
+        std::string key = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(it->first);
+        outData[key] = std::stoi(it->second);
+    }
+}
+
+/// @brief Read all available values
+/// @param[out] outData Output values
+void ConfigFileIO<registry_io_mode_t>::readAll(std::map<std::wstring, std::wstring>& outData)
+{
+    mapAllValues(outData);
+}
+
+/// @brief Create hash-map with all available values
+/// @param[out] outData Output map
+void ConfigFileIO<registry_io_mode_t>::mapAllValues(std::map<std::wstring, std::wstring>& outData)
+{
+    TCHAR    classNameBuffer[MAX_PATH] = TEXT("");
+    DWORD    classNameSize = sizeof(classNameBuffer);
+    DWORD    subkeysNb = 0, subkeysMaxSize, maxClassData;
+    DWORD    valuesNb = 0, valuesMaxSize, maxValueData;
+    DWORD    securityDescriptorSize;
+    FILETIME lastWriteTime;
+
+    // get key information
+    if (RegQueryInfoKey(m_regKey, classNameBuffer, &classNameSize, NULL, &subkeysNb, &subkeysMaxSize, &maxClassData,
+        &valuesNb, &valuesMaxSize, &maxValueData, &securityDescriptorSize, &lastWriteTime) == ERROR_SUCCESS)
+    {
+        // enumerate the key values 
+        std::wstring mapKey;
+        std::wstring mapVal;
+        WCHAR  valueIdentifier[64];
+        DWORD valueMaxSize;
+        for (uint32_t i = 0u; i < valuesNb; i++)
+        {
+            valueMaxSize = sizeof(valueIdentifier);
+            memset(valueIdentifier, 0x0, valueMaxSize);
+            if (RegEnumValue(m_regKey, static_cast<DWORD>(i), valueIdentifier, &valueMaxSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+            {
+                // read entry
+                mapKey = valueIdentifier;
+                read(mapKey.c_str(), mapVal);
+                if (mapVal.empty() == false)
+                {
+                    outData[mapKey] = mapVal; // add entry
+                    mapVal = L""; // reset
+                }
+            }
+        }
     }
 }
 
@@ -298,7 +358,7 @@ void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, float& outFloatVal)
 {
     if (m_openMode != file_io_mode_t::read || m_fileData.find(key) == m_fileData.end())
         return;
-    outFloatVal = static_cast<float>(std::stoi(m_fileData[key]));
+    outFloatVal = static_cast<float>(std::stof(m_fileData[key]));
     if (outFloatVal != 0.0f)
         outFloatVal /= 1000.0f;
 }
@@ -336,6 +396,26 @@ void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, std::wstring& outWid
     if (m_openMode != file_io_mode_t::read || m_fileData.find(key) == m_fileData.end())
         return;
     outWideStringVal = m_fileData[key];
+}
+
+
+/// @brief Read all available values
+/// @param[out] outData Output values
+void ConfigFileIO<file_io_mode_t>::readAll(std::map<std::string, uint32_t>& outData)
+{
+    for (auto it = m_fileData.begin(); it != m_fileData.end(); ++it)
+    {
+        std::string key = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(it->first);
+        outData[key] = std::stoi(it->second);
+    }
+}
+
+/// @brief Read all available values
+/// @param[out] outData Output values
+void ConfigFileIO<file_io_mode_t>::readAll(std::map<std::wstring, std::wstring>& outData)
+{
+    for (auto it = m_fileData.begin(); it != m_fileData.end(); ++it)
+        outData[it->first] = it->second;
 }
 
 

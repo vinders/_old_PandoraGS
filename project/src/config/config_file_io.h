@@ -169,6 +169,16 @@ namespace config
         /// @param[out] outWideStringVal Output value
         void read(const wchar_t* key, std::wstring& outWideStringVal);
 
+        /// @brief Read all available values
+        /// @param[out] outData Output values
+        void readAll(std::map<std::string, uint32_t>& outData);
+        /// @brief Read all available values
+        /// @param[out] outData Output values
+        void readAll(std::map<std::wstring, std::wstring>& outData);
+        /// @brief Create hash-map with all available values
+        /// @param[out] outData Output map
+        void mapAllValues(std::map<std::wstring, std::wstring>& outData);
+
         /// @brief Write boolean value
         /// @param[in]  key Registry key item
         /// @param[in]  val Written value
@@ -332,6 +342,13 @@ namespace config
         /// @param[in]  key Registry key item
         /// @param[out] outWideStringVal Output value
         void read(const wchar_t* key, std::wstring& outWideStringVal);
+
+        /// @brief Read all available values
+        /// @param[out] outData Output values
+        void readAll(std::map<std::string, uint32_t>& outData);
+        /// @brief Read all available values
+        /// @param[out] outData Output values
+        void readAll(std::map<std::wstring, std::wstring>& outData);
 
         /// @brief Write boolean value
         /// @param[in]  key File entry

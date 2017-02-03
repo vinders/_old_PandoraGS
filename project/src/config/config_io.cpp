@@ -12,6 +12,7 @@ Description : configuration input/output toolbox
 #include <string>
 #include <vector>
 #include <list>
+#include <map>
 #include <stdexcept>
 #include "config_file_io.h"
 #include "config_profile.h"
@@ -421,12 +422,50 @@ uint32_t ConfigIO::getGameAssociation(std::string& gameExecutableId)
 /// @param associations List of associated games/profiles
 void ConfigIO::setProfileAssociations(std::list<game_profile_association_t>& associations)
 {
+    #ifdef _WINDOWS
+    // remove all previous associations
+    std::wstring wideKey = CONFIG_FILE_GAMES;
+    ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE>::remove(CONFIG_DIRECTORY_PATH, wideKey);
+    #endif
 
+    // create association file/registry key
+    ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE> writer;
+    if (writer.open(CONFIG_GAMES_PATH, CONFIG_INTERNAL_FILE_WRITE_TYPE) == false)
+        throw std::runtime_error("Could not create or replace game/profile association file or reg key");
+
+    // set new associations
+    for (auto it = associations.begin(); it != associations.end(); ++it)
+    {
+        writer.writeInt(it->gameExecutableId, it->profileId);
+    }
+    writer.close();
 }
 
 /// @brief Get the list of all the game/profile associations (settings)
 /// @param outAssociations Destination variable for returned list
 void ConfigIO::getProfileAssociations(std::list<game_profile_association_t>& outAssociations)
 {
+    // open game/profile associations
+    ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE> reader;
+    if (reader.open(CONFIG_GAMES_PATH))
+    {
+        // read all associations
+        std::map<std::string, uint32_t> values;
+        reader.readAll(values);
+        reader.close();
 
+        // convert and return data
+        outAssociations.clear();
+        if (values.empty() == false)
+        {
+            for (auto it = values.begin(); it != values.end(); ++it)
+            {
+                game_profile_association_t data;
+                data.gameExecutableId = it->first;
+                data.profileId = it->second;
+                outAssociations.push_back(data);
+            }
+            values.clear();
+        }
+    }
 }
