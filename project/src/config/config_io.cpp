@@ -28,6 +28,7 @@ using namespace config;
 #define CONFIG_GAMES_PATH L"Software\\Vision Thing\\PSEmu Pro\\GPU\\PandoraGS\\games"
 #define CONFIG_INTERNAL_FILE_TYPE config::registry_io_mode_t
 #define CONFIG_INTERNAL_FILE_WRITE_TYPE config::registry_io_mode_t::write
+#define CONFIG_INTERNAL_FILE_APPEND_TYPE config::registry_io_mode_t::append
 #else
 #define CONFIG_PATH L"games/PandoraGS/config"
 #define CONFIG_DIRECTORY_PATH L"games/PandoraGS/"
@@ -35,6 +36,7 @@ using namespace config;
 #define CONFIG_GAMES_PATH L"games/PandoraGS/games"
 #define CONFIG_INTERNAL_FILE_TYPE config::file_io_mode_t
 #define CONFIG_INTERNAL_FILE_WRITE_TYPE config::file_io_mode_t::write
+#define CONFIG_INTERNAL_FILE_APPEND_TYPE config::file_io_mode_t::append
 #endif
 
 
@@ -82,7 +84,7 @@ void ConfigIO::loadConfig(std::vector<std::wstring>* pOutProfileNames)
         if (Config::display.fullscreenRes.x == 0u || Config::display.fullscreenRes.y == 0u)
             display::utils::DisplayWindow::readScreenSize(Config::display.fullscreenRes.x, Config::display.fullscreenRes.y);
         // check mininmum window resolution
-        if (Config::display.windowRes.x < 320uL)
+        if (Config::display.windowRes.x < 320u)
             Config::display.windowRes.x = 640u;
         if (Config::display.windowRes.y < 240u)
             Config::display.windowRes.y = 480u;
@@ -379,7 +381,20 @@ void ConfigIO::removeConfigProfile(uint32_t id)
 /// @throw Saving failure
 void ConfigIO::setGameAssocation(uint32_t profileId, std::string& gameExecutableId)
 {
+    if (gameExecutableId.empty())
+        return;
 
+    // open association, if available
+    ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE> writer;
+    if (writer.open(CONFIG_GAMES_PATH, CONFIG_INTERNAL_FILE_APPEND_TYPE))
+    {
+        // write if not default profile (or overwrite if removal fails)
+        if (writer.removeValue(gameExecutableId) == false || profileId > 0u)
+        {
+            writer.writeInt(gameExecutableId, profileId);
+        }
+        writer.close();
+    }
 }
 
 /// @brief Get the profile ID associated with a game (ingame)
@@ -387,11 +402,17 @@ void ConfigIO::setGameAssocation(uint32_t profileId, std::string& gameExecutable
 /// @return Associated profile ID (or 0)
 uint32_t ConfigIO::getGameAssociation(std::string& gameExecutableId)
 {
+    if (gameExecutableId.empty())
+        return 0u;
+
+    // open association, if available
     uint32_t profileId = 0;
-
-
-    //...
-
+    ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE> reader;
+    if (reader.open(CONFIG_GAMES_PATH))
+    {
+        reader.read(gameExecutableId, profileId);
+        reader.close();
+    }
     return profileId;
 }
 

@@ -54,7 +54,7 @@ void Config::init()
 
     // load default profile
     s_currentProfileId = 0u;
-    s_profiles[0] = ConfigIO::loadConfigProfile(0u);
+    s_profiles[0] = ConfigIO::loadConfigProfile(0u, false);
 
     s_isInitialized = true;
     unlock();
@@ -138,7 +138,7 @@ ConfigProfile* Config::getProfile(uint32_t index)
 
     // if no yet loaded, load profile
     if (s_profiles[index] == NULL)
-        s_profiles[index] = ConfigIO::loadConfigProfile(index);
+        s_profiles[index] = ConfigIO::loadConfigProfile(index, false);
     unlock();
     return s_profiles[index];
 }
@@ -178,7 +178,7 @@ void Config::useProfile(uint32_t index)
     // if no yet loaded, load profile
     if (s_profiles[index] == NULL)
     {
-        s_profiles[index] = ConfigIO::loadConfigProfile(index);
+        s_profiles[index] = ConfigIO::loadConfigProfile(index, false);
     }
     // set profile as active
     s_currentProfileId = index;

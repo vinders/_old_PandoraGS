@@ -27,8 +27,9 @@ namespace config
     enum class registry_io_mode_t : uint32_t
     {
         none = 0,
-        read = 1, ///< Open and read registry key
-        write = 2 ///< Create / overwrite registry key
+        read = 1,  ///< Open and read registry key
+        write = 2, ///< Create / overwrite registry key
+        append = 3 ///< Open and write registry key
     };
     #endif
 
@@ -37,8 +38,9 @@ namespace config
     enum class file_io_mode_t : uint32_t
     {
         none = 0,
-        read = 1, ///< Open and read data file (csv)
-        write = 2 ///< Create / overwrite data file (csv)
+        read = 1,  ///< Open and read data file (csv)
+        write = 2, ///< Create / overwrite data file (csv)
+        append = 3 ///< Open and write at the end of data file (csv)
     };
 
     template<typename T> class ConfigFileIO;
@@ -73,14 +75,17 @@ namespace config
         /// @param accessMode IO mode
         bool open(std::wstring path, registry_io_mode_t accessMode = registry_io_mode_t::read)
         {
-            return (RegOpenKeyEx(HKEY_CURRENT_USER, (LPCWSTR)(path.c_str()), 0, KEY_ALL_ACCESS, &m_regKey) == ERROR_SUCCESS);
+            if (accessMode != registry_io_mode_t::write)
+                return (RegOpenKeyEx(HKEY_CURRENT_USER, (LPCWSTR)(path.c_str()), 0, KEY_ALL_ACCESS, &m_regKey) == ERROR_SUCCESS);
+            else
+                return (RegCreateKeyEx(HKEY_CURRENT_USER, (LPCWSTR)(path.c_str()), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &m_regKey, &m_keyStatus) == ERROR_SUCCESS);
         }
         /// @brief Close data source
         inline void close()
         {
             if (m_openMode != registry_io_mode_t::none)
             {
-                RegCloseKey(m_regKey);
+                ::RegCloseKey(m_regKey);
                 m_openMode = registry_io_mode_t::none;
             }
         }
@@ -88,7 +93,7 @@ namespace config
         /// @param path Key path (without name)
         /// @param fileName Key name
         /// @return Success
-        static bool remove(std::wstring path, std::wstring keyName);
+        static bool remove(std::wstring path, std::wstring& keyName);
 
         /// @brief Read boolean value
         /// @param[in]  key Registry key item
@@ -97,7 +102,7 @@ namespace config
         inline bool read(const wchar_t* key, bool& outBoolVal)
         {
             m_keySize = sizeof(DWORD);
-            if (RegQueryValueEx(m_regKey, (LPCWSTR)key, 0, &m_keyStatus, (LPBYTE)&m_regBuffer, &m_keySize) == ERROR_SUCCESS)
+            if (::RegQueryValueEx(m_regKey, (LPCWSTR)key, 0, &m_keyStatus, (LPBYTE)&m_regBuffer, &m_keySize) == ERROR_SUCCESS)
             {
                 outBoolVal = (m_regBuffer != 0uL);
                 return true;
@@ -123,7 +128,7 @@ namespace config
         inline bool read(const wchar_t* key, uint32_t& outIntVal)
         {
             m_keySize = sizeof(DWORD);
-            if (RegQueryValueEx(m_regKey, (LPCWSTR)key, 0, &m_keyStatus, (LPBYTE)&m_regBuffer, &m_keySize) == ERROR_SUCCESS)
+            if (::RegQueryValueEx(m_regKey, (LPCWSTR)key, 0, &m_keyStatus, (LPBYTE)&m_regBuffer, &m_keySize) == ERROR_SUCCESS)
             {
                 outIntVal = (uint32_t)m_regBuffer;
                 return true;
@@ -143,6 +148,10 @@ namespace config
             else
                 outIntTypeVal = defaultIntTypeVal;
         }
+        /// @brief Read integer value
+        /// @param[in]  key File entry
+        /// @param[out] outIntVal Output value
+        void read(std::string& key, uint32_t& outIntVal);
         /// @brief Read float value
         /// @param[in]  key Registry key item
         /// @param[out] outFloatVal Output value
@@ -166,7 +175,7 @@ namespace config
         inline void writeBool(const wchar_t* key, bool val)
         {
             m_regBuffer = (val) ? 1uL : 0uL;
-            RegSetValueEx(m_regKey, (LPCWSTR)key, 0, REG_DWORD, (LPBYTE)&m_regBuffer, sizeof(val));
+            ::RegSetValueEx(m_regKey, (LPCWSTR)key, 0, REG_DWORD, (LPBYTE)&m_regBuffer, sizeof(val));
         }
         /// @brief Write boolean-typed enum value
         /// @param[in]  key Registry key item
@@ -182,7 +191,7 @@ namespace config
         inline void writeInt(const wchar_t* key, uint32_t val)
         {
             m_regBuffer = val;
-            RegSetValueEx(m_regKey, (LPCWSTR)key, 0, REG_DWORD, (LPBYTE)&m_regBuffer, sizeof(val));
+            ::RegSetValueEx(m_regKey, (LPCWSTR)key, 0, REG_DWORD, (LPBYTE)&m_regBuffer, sizeof(val));
         }
         /// @brief Write integer-typed enum value
         /// @param[in]  key Registry key item
@@ -191,6 +200,10 @@ namespace config
         {
             writeInt(key, static_cast<uint32_t>(val));
         }
+        /// @brief Write float value
+        /// @param[in]  key Registry key item
+        /// @param[in]  val Written value
+        void writeInt(std::string& key, uint32_t val);
         /// @brief Write float value
         /// @param[in]  key Registry key item
         /// @param[in]  val Written value
@@ -207,6 +220,11 @@ namespace config
         /// @param[in]  key Registry key item
         /// @param[in]  val Written value
         void writeWideString(const wchar_t* key, std::wstring& val);
+
+        /// @brief Remove existing value from file
+        /// @param[in]  key Entry
+        /// @return Success
+        bool removeValue(std::string& key);
     };
     #endif
 
@@ -241,14 +259,14 @@ namespace config
         /// @param path File path (without name)
         /// @param fileName File name
         /// @return Success
-        static bool remove(std::wstring path, std::wstring fileName);
+        static bool remove(std::wstring path, std::wstring& fileName);
     private:
         /// @brief Read and index all values
         void createContentIndex();
 
     public:
         /// @brief Read boolean value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[out] outBoolVal Output value
         /// @return     Success
         inline bool read(const wchar_t* key, bool& outBoolVal)
@@ -259,7 +277,7 @@ namespace config
             return true;
         }
         /// @brief Read boolean-typed enum value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[out] outBoolTypeVal Output value
         /// @param[in]  defaultBoolTypeVal Default value (if not found or invalid)
         template<class T> inline void read(const wchar_t* key, T& outBoolTypeVal, T defaultBoolTypeVal)
@@ -271,7 +289,7 @@ namespace config
                 outBoolTypeVal = defaultBoolTypeVal;
         }
         /// @brief Read integer value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[out] outIntVal Output value
         /// @return     Success
         inline bool read(const wchar_t* key, uint32_t& outIntVal)
@@ -282,7 +300,7 @@ namespace config
             return true;
         }
         /// @brief Read integer-typed enum value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[out] outIntTypeVal Output value
         /// @param[in]  superiorIntLimit Superior limit (max allowed value + 1)
         /// @param[in]  defaultIntTypeVal Default value (if not found or invalid)
@@ -294,16 +312,20 @@ namespace config
             else
                 outIntTypeVal = defaultIntTypeVal;
         }
+        /// @brief Read integer value
+        /// @param[in]  key File entry
+        /// @param[out] outIntVal Output value
+        void read(std::string& key, uint32_t& outIntVal);
         /// @brief Read float value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[out] outFloatVal Output value
         void read(const wchar_t* key, float& outFloatVal);
         /// @brief Read char string value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[out] outStringVal Output value
         void read(const wchar_t* key, char* outStringVal, size_t length);
         /// @brief  Read standard string value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[out] outStringVal Output value
         void read(const wchar_t* key, std::string& outStringVal);
         /// @brief Read wide string value
@@ -312,11 +334,11 @@ namespace config
         void read(const wchar_t* key, std::wstring& outWideStringVal);
 
         /// @brief Write boolean value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[in]  val Written value
         void writeBool(const wchar_t* key, bool val);
         /// @brief Write boolean-typed enum value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[in]  val Written value
         template<class T> inline void writeBoolType(const wchar_t* key, T val)
         {
@@ -324,11 +346,11 @@ namespace config
             writeBoolBool(key, buffer);
         }
         /// @brief Write integer value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[in]  val Written value
         void writeInt(const wchar_t* key, uint32_t val);
         /// @brief Write integer-typed enum value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[in]  val Written value
         template<class T> inline void writeIntType(const wchar_t* key, T val)
         {
@@ -338,18 +360,45 @@ namespace config
         /// @brief Write float value
         /// @param[in]  key Registry key item
         /// @param[in]  val Written value
+        void writeInt(std::string& key, uint32_t val);
+        /// @brief Write float value
+        /// @param[in]  key File entry
+        /// @param[in]  val Written value
         void writeFloat(const wchar_t* key, float val);
         /// @brief Write char string value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[in]  val Written value
         void writeString(const wchar_t* key, char* val, size_t length);
         /// @brief Write standard string value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[in]  val Written value
         void writeString(const wchar_t* key, std::string& val);
         /// @brief Write wide string value
-        /// @param[in]  key Registry key item
+        /// @param[in]  key File entry
         /// @param[in]  val Written value
         void writeWideString(const wchar_t* key, std::wstring& val);
+
+        /// @brief Remove existing value from file
+        /// @param[in]  key Entry
+        /// @return Success
+        bool removeValue(std::string& key);
+
+    private:
+        /// @brief Write value at the end of the file
+        /// @param[in]  key File entry
+        /// @param[in]  val Written value
+        inline void appendValue(const wchar_t* key, std::wstring& val)
+        {
+            std::wstring valStr = std::wstring(key) + std::wstring(L";") + val + std::wstring(L"\n");
+            m_file.write(valStr.c_str(), valStr.size());
+        }
+        /// @brief Write value at the end of the file
+        /// @param[in]  key File entry
+        /// @param[in]  val Written value
+        inline void appendValue(const std::wstring& key, std::wstring& val)
+        {
+            std::wstring valStr = key + std::wstring(L";") + val + std::wstring(L"\n");
+            m_file.write(valStr.c_str(), valStr.size());
+        }
     };
 }

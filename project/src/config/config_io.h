@@ -55,7 +55,7 @@ namespace config
         /// @param isNameRead Read profile name (true) or ignore (false)
         /// @return Allocated config profile container (with loaded values)
         /// @throw Memory allocation failure
-        static ConfigProfile* loadConfigProfile(uint32_t id, bool isNameRead = false);
+        static ConfigProfile* loadConfigProfile(uint32_t id, bool isNameRead = true);
         /// @brief Import profile values (external file)
         /// @param id New profile identifier
         /// @param path Import file path
