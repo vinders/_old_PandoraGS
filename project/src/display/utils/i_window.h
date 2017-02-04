@@ -10,8 +10,6 @@ Description : window management - interface
 
 #include <cstdint>
 #ifdef _WINDOWS
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 
@@ -66,13 +64,11 @@ namespace display
         class IWindow
         {
         public:
-            virtual ~IWindow() {}
-            
             /// @brief Display window on screen
-            /// @param width Window width
-            /// @param height Window height
-            /// @param flag Special flag
-            virtual void show(uint32_t width, uint32_t height, int32_t flag) = 0;
+            /// @param[in] width   Window width
+            /// @param[in] height  Window height
+            /// @param[in] flag    Special flag
+            virtual void show(const uint32_t width, const uint32_t height, const int32_t flag) = 0;
 
             /// @brief Hide existing window
             virtual void hide() = 0;

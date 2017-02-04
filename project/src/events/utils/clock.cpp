@@ -6,8 +6,7 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : high-resolution clock
 *******************************************************************************/
-#pragma once
-
+#include "../../globals.h"
 #include <cstdlib>
 #include <cstdint>
 #include <ctime>
@@ -23,9 +22,9 @@ using namespace events::utils;
 
 
 /// @brief Set frequency and change time mode
-/// @param defaultFrequency Clock default frequency
-/// @param preferedMode Prefered time mode (if available)
-void Clock::setClockConfig(float frequency, events::timemode_t preferedMode)
+/// @param[in] defaultFrequency  Clock default frequency
+/// @param[in] preferedMode      Prefered time mode (if available)
+void Clock::setClockConfig(const float frequency, const events::timemode_t preferedMode) noexcept
 {
     // set time mode (if available) and period duration
     #ifdef _WINDOWS
@@ -42,7 +41,7 @@ void Clock::setClockConfig(float frequency, events::timemode_t preferedMode)
 }
 
 /// @brief Set frequency
-void Clock::setFrequency(float frequency)
+void Clock::setFrequency(const float frequency) noexcept
 {
     // set time mode (if available) and period duration
     #ifdef _WINDOWS
@@ -59,13 +58,13 @@ void Clock::setFrequency(float frequency)
 
     // calculate dropped decimals
     m_periodTruncated = static_cast<ticks_t>(m_periodTruncated);
-    m_periodDrop = m_period - (float)m_periodTruncated;
+    m_periodDrop = m_period - static_cast<float>(m_periodTruncated);
     m_droppedTickParts = 0.0f;
 }
 
 
 /// @brief Reset time reference
-void Clock::reset()
+void Clock::reset() noexcept
 {
     #ifdef _WINDOWS
     if (m_timeMode == events::timemode_t::highResCounter)
@@ -75,7 +74,7 @@ void Clock::reset()
         m_freqCheckTime.LowPart = m_previousTime.LowPart;
     }
     #endif
-    m_previousTicks = (events::ticks_t)timeGetTime();
+    m_previousTicks = static_cast<events::ticks_t>(timeGetTime());
     m_freqCheckTicks = m_previousTicks;
     m_droppedTickParts = 0.0f;
     m_periodCount = 1;
@@ -84,8 +83,8 @@ void Clock::reset()
 
 
 /// @brief Wait for one period after time reference
-/// @return Number of ticks that occured too late (after desired time reference)
-events::ticks_t Clock::wait()
+/// @returns Number of ticks that occured too late (after desired time reference)
+events::ticks_t Clock::wait() noexcept
 {
     events::ticks_t currentTicks, elapsedTicks, lateTicks;
     uint32_t waitLoopCount = 0uL;
@@ -93,7 +92,7 @@ events::ticks_t Clock::wait()
     ++m_periodCount;
 
     #ifdef _WINDOWS
-    // high resolution time sync (qpc)
+    // high-resolution time sync (qpc)
     if (m_timeMode == events::timemode_t::highResCounter)
     {
         // wait until end of period
@@ -121,7 +120,7 @@ events::ticks_t Clock::wait()
         m_previousTime.LowPart = currentTime.LowPart;
         m_previousTicks = currentTicks;
     }
-    // low resolution time sync (system timer)
+    // low-resolution time sync (system timer)
     else
     #endif
     {
@@ -162,16 +161,16 @@ events::ticks_t Clock::wait()
     m_droppedTickParts += m_periodDrop;
     if (m_droppedTickParts >= 1.0f)
     {
-        elapsedTicks = static_cast<ticks_t>(m_droppedTickParts);
+        elapsedTicks = static_cast<ticks_t>(m_droppedTickParts); // use integer var to remove decimal part
         m_ticksToWait += elapsedTicks;
-        m_droppedTickParts -= (float)elapsedTicks;
+        m_droppedTickParts -= static_cast<float>(elapsedTicks);
     }
     return lateTicks; // number of ticks too late
 }
 
 
 /// @brief Calculate real number of periods per second
-float Clock::checkFrequency()
+float Clock::checkFrequency() noexcept
 {
     #ifdef _WINDOWS
     LARGE_INTEGER checkTime;
@@ -179,7 +178,7 @@ float Clock::checkFrequency()
     events::ticks_t checkTicks;
     float frequency;
 
-    // high resolution counter
+    // high-resolution counter
     #ifdef _WINDOWS
     if (m_timeMode == timemode_t::highResCounter)
     {
@@ -187,18 +186,18 @@ float Clock::checkFrequency()
         QueryPerformanceCounter(&checkTime);
         checkTicks = timeGetTime();
         ticks_t elapsedTicks = checkTime.LowPart - m_freqCheckTime.LowPart;
-        if (elapsedTicks > (m_cpuFreq.LowPart >> 1)) // max value exceeded -> use low resolution counter
+        if (elapsedTicks > (m_cpuFreq.LowPart >> 1)) // max value exceeded -> use low-resolution counter
             elapsedTicks = (m_cpuFreq.LowPart * (checkTicks - m_freqCheckTicks)) / 1000;
         if (elapsedTicks == 0uL) // avoid division by zero
             elapsedTicks = 1uL;
 
         // calculate frequency
-        frequency = (float)m_periodCount * ((float)m_cpuFreq.LowPart / (float)elapsedTicks);
+        frequency = static_cast<float>(m_periodCount) * (static_cast<float>(m_cpuFreq.LowPart) / static_cast<float>(elapsedTicks));
 
         m_freqCheckTime.HighPart = checkTime.HighPart;
         m_freqCheckTime.LowPart = checkTime.LowPart;
     }
-    // low resolution counter
+    // low-resolution counter
     else
     #endif
     {
@@ -209,7 +208,7 @@ float Clock::checkFrequency()
             elapsedTicks = 1uL;
 
         // calculate frequency
-        frequency = (float)m_periodCount * (1000.0f / (float)elapsedTicks);
+        frequency = static_cast<float>(m_periodCount) * (1000.0f / static_cast<float>(elapsedTicks));
     }
 
     m_freqCheckTicks = checkTicks;
@@ -220,7 +219,7 @@ float Clock::checkFrequency()
 
 #ifndef _WINDOWS
 /// @brief Linux-Unix compatible time system
-unsigned long Clock::timeGetTime()
+unsigned long Clock::timeGetTime() noexcept
 {
     struct timeval tv;
     gettimeofday(&tv, 0);

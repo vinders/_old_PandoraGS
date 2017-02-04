@@ -30,49 +30,49 @@ namespace events
 
         private:
             /// @brief Create logger instance
-            Logger();
+            Logger() noexcept;
         public:
 
             // -- singleton -- ---------------------------------------------------------
 
             /// @brief Create or get existing singleton instance
-            /// @return Log utility singleton instance
-            static Logger* getInstance();
+            /// @returns Log utility singleton instance
+            static Logger* getInstance() noexcept;
 
             /// @brief Close log utility singleton instance
-            static void closeInstance();
+            static void closeInstance() noexcept;
 
 
             // -- getters / setters -- -------------------------------------------------
 
             /// @brief Set the log file path
-            /// @param filePath Log file path
-            void setFilePath(const std::string filePath);
+            /// @param[in] filePath  Log file path
+            void setFilePath(const std::string filePath) noexcept;
 
             /// @brief Get the log file path
-            /// @return Log file path
-            std::string getFilePath() const;
+            /// @returns Log file path
+            std::string getFilePath() const noexcept;
 
             /// @brief Get formatted date/time string
-            /// @return Date/time
-            void getDateTime(std::string& outDate, std::string& outTime) const;
+            /// @returns Date/time
+            void getDateTime(std::string& outDate, std::string& outTime) const noexcept;
 
 
             // -- log writing -- -------------------------------------------------------
 
             /// @brief Write general entry in log file
-            /// @param origin Message origin (ClassName.MethodName)
-            /// @param type Message type description
-            /// @param message Message content
-            void writeEntry(const std::string origin, const std::string type, const std::string message);
+            /// @param[in] origin   Message origin (ClassName.MethodName)
+            /// @param[in] type     Message type description
+            /// @param[in] message  Message content
+            void writeEntry(const std::string origin, const std::string type, const std::string message) noexcept;
 
             /// @brief Write error or warning entry in log file
-            /// @param origin Message origin (ClassName.MethodName)
-            /// @param message Message content (concatenated with errno message if available)
-            void writeErrorEntry(const std::string origin, std::string message);
+            /// @param[in] origin   Message origin (ClassName.MethodName)
+            /// @param[in] message  Message content (concatenated with errno message if available)
+            void writeErrorEntry(const std::string origin, std::string message) noexcept;
 
             /// @brief Destroy log file
-            /// @throw Removal failure
+            /// @throws runtime_error  Removal failure
             void removeLogFile();
         };
     }

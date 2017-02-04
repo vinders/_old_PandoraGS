@@ -17,6 +17,7 @@ namespace lang
 {
     /// @class MenuLang
     /// @brief Translation utility for config dialog
+    /// @see ILang
     class ConfigLang : public ILang
     {
     public:
@@ -26,25 +27,25 @@ namespace lang
         /// @brief Create uninitialized language resource (for config dialog)
         ConfigLang() {}
         /// @brief Create language resource (for config dialog)
-        /// @param code Language code
-        /// @param filePath Language file path (optional)
-        ConfigLang(langcode_t code, std::wstring filePath = L"pandoraGS.lang")
+        /// @param[in] code      Language code
+        /// @param[in] filePath  Language file path (optional)
+        ConfigLang(const langcode_t code, const std::wstring filePath = L"pandoraGS.lang"s)
         {
             setLanguage(code, filePath);
         }
 
         /// @brief Set english values
-        virtual void setLanguageEnglish();
+        virtual void setLanguageEnglish() noexcept override;
         /// @brief Set spanish values
-        virtual void setLanguageSpanish();
+        virtual void setLanguageSpanish() noexcept override;
         /// @brief Set french values
-        virtual void setLanguageFrench();
+        virtual void setLanguageFrench() noexcept override;
         /// @brief Set german values
-        virtual void setLanguageGerman();
+        virtual void setLanguageGerman() noexcept override;
 
         /// @brief Read values from file (error if not found)
-        /// @param filePath Language file path
-        /// @throw File not found or not accessible
-        virtual void setLanguageFromFile(std::wstring& filePath);
+        /// @param[in] filePath  Language file path
+        /// @throws invalid_argument  File not found or not accessible
+        virtual void setLanguageFromFile(const std::wstring& filePath) override;
     };
 }

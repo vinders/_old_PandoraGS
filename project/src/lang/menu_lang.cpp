@@ -16,32 +16,32 @@ using namespace lang;
 
 
 /// @brief Set english values
-void MenuLang::setLanguageEnglish()
+void MenuLang::setLanguageEnglish() noexcept
 {
 
 }
 
 /// @brief Set spanish values
-void MenuLang::setLanguageSpanish()
+void MenuLang::setLanguageSpanish() noexcept
 {
 
 }
 
 /// @brief Set french values
-void MenuLang::setLanguageFrench()
+void MenuLang::setLanguageFrench() noexcept
 {
 
 }
 
 /// @brief Set german values
-void MenuLang::setLanguageGerman()
+void MenuLang::setLanguageGerman() noexcept
 {
 
 }
 
 /// @brief Read values from file (english if not found)
-/// @param filePath Language file path
-void MenuLang::setLanguageFromFile(std::wstring& filePath)
+/// @param[in] filePath  Language file path
+void MenuLang::setLanguageFromFile(const std::wstring& filePath)
 {
     setLanguageEnglish(); // default values
 
@@ -52,7 +52,7 @@ void MenuLang::setLanguageFromFile(std::wstring& filePath)
         in.open(filePath, std::ifstream::in);
         if (!in.is_open())
         {
-            events::utils::Logger::getInstance()->writeErrorEntry("MenuLang.setLanguageFromFile", "File not found or not accessible.");
+            events::utils::Logger::getInstance()->writeErrorEntry("MenuLang.setLanguageFromFile"s, "File not found or not accessible."s);
             return;
         }
 
@@ -62,6 +62,6 @@ void MenuLang::setLanguageFromFile(std::wstring& filePath)
     }
     catch (const std::exception& exc) // in-game -> no exception
     {
-        events::utils::Logger::getInstance()->writeErrorEntry("MenuLang.setLanguageFromFile", exc.what());
+        events::utils::Logger::getInstance()->writeErrorEntry("MenuLang.setLanguageFromFile"s, exc.what());
     }
 }

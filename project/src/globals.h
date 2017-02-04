@@ -60,9 +60,9 @@ Description : global constants and settings
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#ifndef _CRT_NONSTDC_NO_DEPRECATE
-#define _CRT_NONSTDC_NO_DEPRECATE
-#endif
+//#ifndef _CRT_NONSTDC_NO_DEPRECATE
+//#define _CRT_NONSTDC_NO_DEPRECATE
+//#endif
 
 // functions / macros
 #define snprintf _snprintf
@@ -70,21 +70,6 @@ Description : global constants and settings
 // win32 resources identifiers
 #include "res/targetver.h"
 #include "res/resource.h"
-
-// C++11 alternatives
-#ifdef _WINDOWS
-    #ifdef _MSC_VER 
-        #if _MSC_VER <= 1800
-        #define NOEXCEPT
-        #else
-        #define NOEXCEPT noexcept
-        #endif
-    #else
-    #define NOEXCEPT noexcept
-    #endif
-#else
-#define NOEXCEPT noexcept
-#endif
 
 
 // -- SYSTEM COMPATIBILITY - LINUX/UNIX -- -------------------------------------

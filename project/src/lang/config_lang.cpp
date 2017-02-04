@@ -16,33 +16,33 @@ using namespace lang;
 
 
 /// @brief Set english values
-void ConfigLang::setLanguageEnglish()
+void ConfigLang::setLanguageEnglish() noexcept
 {
 
 }
 
 /// @brief Set spanish values
-void ConfigLang::setLanguageSpanish()
+void ConfigLang::setLanguageSpanish() noexcept
 {
 
 }
 
 /// @brief Set french values
-void ConfigLang::setLanguageFrench()
+void ConfigLang::setLanguageFrench() noexcept
 {
 
 }
 
 /// @brief Set german values
-void ConfigLang::setLanguageGerman()
+void ConfigLang::setLanguageGerman() noexcept
 {
 
 }
 
 /// @brief Read values from file (error if not found)
-/// @param filePath Language file path
-/// @throw File not found or not accessible
-void ConfigLang::setLanguageFromFile(std::wstring& filePath)
+/// @param[in] filePath  Language file path
+/// @throws invalid_argument  File not found or not accessible
+void ConfigLang::setLanguageFromFile(const std::wstring& filePath)
 {
     setLanguageEnglish(); // default values
 

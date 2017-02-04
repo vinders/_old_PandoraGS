@@ -23,19 +23,17 @@ namespace display
         class VertexShaderDefinition
         {
         private:
-            std::string* m_pDefinition;
+            std::string m_definition; ///< Generated shader code
 
         public:
             /// @brief Create vertex shader definition (based on current config)
             VertexShaderDefinition();
-            /// @brief Destroy vertex shader definition
-            ~VertexShaderDefinition();
 
             /// @brief Get vertex shader definition
-            /// @return Shader definition string
-            inline const char* getDefinition()
+            /// @returns Shader definition string
+            inline const char* getDefinition() const
             {
-                return m_pDefinition->c_str();
+                return m_definition.c_str();
             }
         };
     }

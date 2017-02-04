@@ -13,7 +13,9 @@ Description : console output window management
 #include <io.h>
 #include <fcntl.h>
 #ifdef _WINDOWS
-#define _CRT_SECURE_NO_WARNINGS
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+//#define _CRT_SECURE_NO_WARNINGS
 #include <Windows.h>
 #include <tchar.h>
 #else
@@ -25,9 +27,9 @@ using namespace display::utils;
 
 
 /// @brief Display window on screen
-/// @param bufferWidth Console buffer width
-/// @param bufferHeight Console buffer height
-/// @param height Window height (zero to keep buffer height)
+/// @param[in] bufferWidth   Console buffer width
+/// @param[in] bufferHeight  Console buffer height
+/// @param[in] height        Window height (zero to keep same as buffer height)
 void ConsoleWindow::show(uint32_t bufferWidth, uint32_t bufferHeight, int32_t height)
 {
     if (m_isVisible)
@@ -62,7 +64,7 @@ void ConsoleWindow::show(uint32_t bufferWidth, uint32_t bufferHeight, int32_t he
     #endif
 
     // redirect output stream
-    if (m_hfOutput == NULL)
+    if (m_hfOutput == nullptr)
     {
         #ifdef _WINDOWS
         HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -84,7 +86,7 @@ void ConsoleWindow::hide()
         return;
 
     // close output stream
-    if (m_hfOutput != NULL)
+    if (m_hfOutput != nullptr)
     {
         fflush(stdout);
         fclose(m_hfOutput);

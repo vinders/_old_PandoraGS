@@ -7,7 +7,10 @@ License :     GPLv2
 Description : user & system input listener
 *******************************************************************************/
 #include "../globals.h"
+#include <functional>
 #ifdef _WINDOWS
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 #include "listener.h"
@@ -32,17 +35,18 @@ bool Listener::s_isPaused = false; ///< Game is currently paused
 
 #ifdef _WINDOWS
 /// @brief Start event listener
-/// @param hWindow Managed window handle
-/// @param isScnSvDisabled Screen-saver disabled or not
-/// @param pTriggerKeys Key/trigger association array
-void Listener::start(HWND hWindow, bool isScnSvDisabled, char* pTriggerKeys)
+/// @param[in] hWindow          Managed window handle
+/// @param[in] isScnSvDisabled  Screen-saver disabled or not
+/// @param[in] pTriggerKeys     Key/trigger association array
+void Listener::start(HWND hWindow, const bool isScnSvDisabled, const char* pTriggerKeys)
 {
     if (s_isActive)
         return;
 
     // set key / control association
     memcpy(s_pTriggerKeys, pTriggerKeys, EVENT_KEYS_STRING_LENGTH);
-    memset(s_pHandlers, 0x0, EVENT_ARRAY_LENGTH);
+    for (int32_t i = 0; i < EVENT_ARRAY_LENGTH; ++i)
+        s_pHandlers[i] = nullptr;
 
     // start event listener + save original handler
     if (!s_pDefaultListener)
@@ -56,6 +60,7 @@ void Listener::start(HWND hWindow, bool isScnSvDisabled, char* pTriggerKeys)
     s_isScreenSaverDisabled = isScnSvDisabled;
     s_isLocked = false;
     s_isPaused = false;
+    s_isKeyDown = false;
     s_isActive = true;
 }
 #else
@@ -94,10 +99,10 @@ void Listener::stop()
 
 #ifdef _WINDOWS
 /// @brief Handle events in Windows
-/// @param hWindow Managed window handle
-/// @param eventType Event type
-/// @param wpCode Command code
-/// @param lpInfo Additional information
+/// @param[in] hWindow    Managed window handle
+/// @param[in] eventType  Event type
+/// @param[in] wpCode     Command code
+/// @param[in] lpInfo     Additional information
 LRESULT CALLBACK Listener::listen(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM lpInfo)
 {
     if (isLocked() == false)
@@ -114,9 +119,10 @@ LRESULT CALLBACK Listener::listen(HWND hWindow, UINT eventType, WPARAM wpCode, L
             // key pressed
             case WM_KEYDOWN:
             {
-                if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::fastForward)])) // fast-forward
+                if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::fastForward)]) && s_isKeyDown == false) // fast-forward
                 {
-                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::fastForward)] && !s_isPaused)
+                    s_isKeyDown = true;
+                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::fastForward)] != nullptr && !s_isPaused)
                         s_pHandlers[static_cast<uint32_t>(event_trigger_t::fastForward)](1);
                 }
                 break;
@@ -126,7 +132,7 @@ LRESULT CALLBACK Listener::listen(HWND hWindow, UINT eventType, WPARAM wpCode, L
             {
                 if (wpCode == VK_RETURN) // window mode
                 {
-                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::windowMode)] && !s_isPaused)
+                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::windowMode)] != nullptr && !s_isPaused)
                         s_pHandlers[static_cast<uint32_t>(event_trigger_t::windowMode)](0);
                 }
                 break;
@@ -137,7 +143,7 @@ LRESULT CALLBACK Listener::listen(HWND hWindow, UINT eventType, WPARAM wpCode, L
                 if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::pause)])) // pause
                 {
                     s_isPaused = (s_isPaused == false);
-                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::pause)])
+                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::pause)] != nullptr)
                         s_pHandlers[static_cast<uint32_t>(event_trigger_t::pause)]((int32_t)s_isPaused);
                     break;
                 }
@@ -147,13 +153,14 @@ LRESULT CALLBACK Listener::listen(HWND hWindow, UINT eventType, WPARAM wpCode, L
                 // speed modifications
                 if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::fastForward)]))
                 {
-                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::fastForward)])
+                    s_isKeyDown = false;
+                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::fastForward)] != nullptr)
                         s_pHandlers[static_cast<uint32_t>(event_trigger_t::fastForward)](0);
                     break;
                 }
                 if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::slowMotion)]))
                 {
-                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::slowMotion)])
+                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::slowMotion)] != nullptr)
                         s_pHandlers[static_cast<uint32_t>(event_trigger_t::slowMotion)](0);
                     break;
                 }
@@ -161,31 +168,31 @@ LRESULT CALLBACK Listener::listen(HWND hWindow, UINT eventType, WPARAM wpCode, L
                 // profile management
                 if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::menuToggle)])) // show/hide menu
                 {
-                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuToggle)])
+                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuToggle)] != nullptr)
                         s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuToggle)](0);
                     break;
                 }
                 if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::menuAccept)])) // change profile
                 {
-                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuAccept)])
+                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuAccept)] != nullptr)
                         s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuAccept)](2);
                     break;
                 }
                 if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::menuDefault)]))
                 {
-                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuDefault)])
+                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuDefault)] != nullptr)
                         s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuDefault)](0);
                     break;
                 }
                 if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::menuPrev)]))
                 {
-                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuPrev)])
+                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuPrev)] != nullptr)
                         s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuPrev)](-1);
                     break;
                 }
                 if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::menuNext)]))
                 {
-                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuNext)])
+                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuNext)] != nullptr)
                         s_pHandlers[static_cast<uint32_t>(event_trigger_t::menuNext)](1);
                     break;
                 }
@@ -193,13 +200,13 @@ LRESULT CALLBACK Listener::listen(HWND hWindow, UINT eventType, WPARAM wpCode, L
                 // miscellaneous
                 if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::fps)])) // fps display
                 {
-                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::fps)])
+                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::fps)] != nullptr)
                         s_pHandlers[static_cast<uint32_t>(event_trigger_t::fps)](0);
                     break;
                 }
                 if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::ratioMode)])) // screen ratio mode
                 {
-                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::ratioMode)])
+                    if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::ratioMode)] != nullptr)
                         s_pHandlers[static_cast<uint32_t>(event_trigger_t::ratioMode)](0);
                     break;
                 }
@@ -208,7 +215,7 @@ LRESULT CALLBACK Listener::listen(HWND hWindow, UINT eventType, WPARAM wpCode, L
             case WM_WINDOWPOSCHANGED:
             {
                 // only in window mode
-                if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::windowSize)])
+                if (s_pHandlers[static_cast<uint32_t>(event_trigger_t::windowSize)] != nullptr)
                 {
                     lock();
                     if (wpCode == SIZE_MAXIMIZED || wpCode == SIZE_RESTORED) // not minimized
@@ -244,7 +251,7 @@ LRESULT CALLBACK Listener::listen(HWND hWindow, UINT eventType, WPARAM wpCode, L
 
 #else
 /// @brief Handle events in Linux
-/// @param keycode">Pressed key code
+/// @param[in] keycode  Pressed key code
 void InputManager::GPUkeypressed(int keycode)
 {
     switch (keycode)

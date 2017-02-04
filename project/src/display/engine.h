@@ -36,7 +36,8 @@ namespace display
 
     public:
         /// @brief Create and initialize display window
-        /// @param window Parent window handle
+        /// @param[in] window  Parent window handle
+        /// @throws runtime_error  Window creation failure
         static void createDisplayWindow(window_handle_t window);
 
         /// @brief Close display window and restore menu
@@ -49,7 +50,7 @@ namespace display
         // -- rendering API management -- --------------------------------------
 
         /// @brief Initialize rendering API
-        /// @throw API init failure
+        /// @throws runtime_error API init failure
         static void initGL();
 
         /// @brief Cleanup and close rendering API

@@ -20,12 +20,12 @@ private:
 
 public:
     /// @brief Initialize instance handle
-    /// @param hModule Module handle
-    static void setInstance(HANDLE* hModule);
+    /// @param[in] hModule  Module instance handle
+    static void setInstance(const HANDLE* hModule) noexcept;
 
     /// @brief Get main instance handle
-    /// @return Instance handle
-    static inline HINSTANCE getInstance()
+    /// @returns Instance handle
+    static inline HINSTANCE getInstance() noexcept
     {
         return s_hInstance;
     }

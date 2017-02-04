@@ -17,6 +17,7 @@ namespace lang
 {
     /// @class MenuLang
     /// @brief Translation utility for in-game plugin menu
+    /// @see ILang
     class MenuLang : public ILang
     {
     public:
@@ -26,24 +27,24 @@ namespace lang
         /// @brief Create uninitialized language resource (for in-game menu)
         MenuLang() {}
         /// @brief Create language resource (for in-game menu)
-        /// @param code Language code
-        /// @param filePath Language file path
-        MenuLang(langcode_t code, std::wstring& filePath)
+        /// @param[in] code      Language code
+        /// @param[in] filePath  Reference to language file path
+        MenuLang(const langcode_t code, const std::wstring& filePath)
         {
             setLanguage(code, filePath);
         }
 
         /// @brief Set english values
-        virtual void setLanguageEnglish();
+        virtual void setLanguageEnglish() noexcept override;
         /// @brief Set spanish values
-        virtual void setLanguageSpanish();
+        virtual void setLanguageSpanish() noexcept override;
         /// @brief Set french values
-        virtual void setLanguageFrench();
+        virtual void setLanguageFrench() noexcept override;
         /// @brief Set german values
-        virtual void setLanguageGerman();
+        virtual void setLanguageGerman() noexcept override;
 
         /// @brief Read values from file (english if not found)
-        /// @param filePath Language file path
-        virtual void setLanguageFromFile(std::wstring& filePath);
+        /// @param[in] filePath  Language file path
+        virtual void setLanguageFromFile(const std::wstring& filePath) override;
     };
 }

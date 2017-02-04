@@ -17,26 +17,22 @@ using namespace display::effects;
 FragmentShaderDefinition::FragmentShaderDefinition()
 {
     // input/output + main function
-    m_pDefinition = new std::string(
+    m_definition.reserve(32000);
+    m_definition =
         "#version 410          \n"
         "in vec3 color;        \n" // R, G, B
         "in uint transparency; \n" // semi-transparency
         " "
         "out vec4 frag_color;  \n"
         " "
-        "void main() {");
+        "void main() {"s;
 
     //...
 
-    *m_pDefinition +=
+    m_definition +=
         "    frag_color = vec4(color, 1.0);"
-        "}\n";
+        "}\n"s;
 
     // function blocks
     //...
-}
-/// @brief Destroy fragment shader definition
-FragmentShaderDefinition::~FragmentShaderDefinition()
-{
-    delete m_pDefinition;
 }

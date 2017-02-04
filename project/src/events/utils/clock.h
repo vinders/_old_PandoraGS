@@ -11,8 +11,6 @@ Description : high-resolution clock
 #include <cstdlib>
 #include <cstdint>
 #ifdef _WINDOWS
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 
@@ -36,8 +34,8 @@ namespace events
     /// @brief Timing modes
     enum class timemode_t : uint32_t
     {
-        multimediaClock = 0u, // low res, steady
-        highResCounter = 1u   // high res, unstable
+        multimediaClock = 0u, ///< Low-resolution, steady
+        highResCounter = 1u   ///< High-resolution, unstable
     };
     #define TIMEMODE_LENGTH 2
 
@@ -60,14 +58,14 @@ namespace events
 
             // time references
             #ifdef _WINDOWS
-            LARGE_INTEGER m_previousTime; ///< Last time reference (high-res)
+            LARGE_INTEGER m_previousTime;  ///< Last time reference (high-res)
             #endif
-            ticks_t m_previousTicks;      ///< Last ticks reference (low-res)
-            ticks_t m_ticksToWait;        ///< Number of ticks required before next period
-            float m_droppedTickParts;     ///< Ticks decimal part dropped in calculation (if period is not an integer)
+            ticks_t m_previousTicks;       ///< Last ticks reference (low-res)
+            ticks_t m_ticksToWait;         ///< Number of ticks required before next period
+            float m_droppedTickParts;      ///< Ticks decimal part dropped in calculation (if period is not an integer)
 
             // measures
-            int32_t m_periodCount;  ///< Number of periods since last check
+            int32_t m_periodCount;         ///< Number of periods since last check
             #ifdef _WINDOWS
             LARGE_INTEGER m_freqCheckTime; ///< Last frequency check time reference (high-res)
             #endif
@@ -76,52 +74,52 @@ namespace events
 
         public:
             /// @brief Create default clock
-            Clock() : m_period(20.0f), m_periodTruncated((ticks_t)20uL), m_periodDrop(0.0f), m_ticksToWait((ticks_t)0uL),
+            Clock() noexcept : m_period(20.0f), m_periodTruncated((ticks_t)20uL), m_periodDrop(0.0f), m_ticksToWait((ticks_t)0uL),
                       m_timeMode(events::timemode_t::multimediaClock), m_droppedTickParts(0.0f), m_periodCount(1) {}
             /// @brief Initialize clock
-            /// @param defaultFrequency Clock default frequency
-            /// @param preferedMode Prefered time mode (if available)
-            Clock(float defaultFrequency, events::timemode_t preferedMode)
+            /// @param[in] defaultFrequency  Clock default frequency
+            /// @param[in] preferedMode      Prefered time mode (if available)
+            Clock(const float defaultFrequency, const events::timemode_t preferedMode) noexcept
             {
                 setClockConfig(defaultFrequency, preferedMode);
                 reset();
             }
 
             /// @brief Reset time reference
-            void reset();
+            void reset() noexcept;
 
             /// @brief Wait for one period after time reference
-            /// @return Number of ticks that occured too late (after desired time reference)
-            events::ticks_t wait();
+            /// @returns Number of ticks that occured too late (after desired time reference)
+            events::ticks_t wait() noexcept;
             /// @brief Skip one period (no wait)
-            inline void skip()
+            inline void skip() noexcept
             {
                 ++m_periodCount;
             }
 
             /// @brief Calculate real number of periods per second
-            float checkFrequency();
+            float checkFrequency() noexcept;
 
 
             // -- getters / setters -- -----------------------------------------
 
             /// @brief Set frequency and change time mode
-            /// @param frequency Clock frequency
-            /// @param preferedMode Prefered time mode (if available)
-            void setClockConfig(float frequency, events::timemode_t preferedMode);
+            /// @param[in] frequency     Clock frequency
+            /// @param[in] preferedMode  Prefered time mode (if available)
+            void setClockConfig(const float frequency, const events::timemode_t preferedMode) noexcept;
             /// @brief Set frequency
-            /// @param frequency Clock frequency
-            void setFrequency(float frequency);
+            /// @param[in] frequency  Clock frequency
+            void setFrequency(const float frequency) noexcept;
 
             /// @brief Get period duration
-            /// @return Period value (ticks)
-            inline float getPeriodDuration() const
+            /// @returns Period value (ticks)
+            inline float getPeriodDuration() const noexcept
             {
                 return m_period;
             }
             /// @brief Add custom duration for current period
-            /// @return Period value (ticks)
-            inline void addCustomDuration(events::ticks_t duration)
+            /// @returns Period value (ticks)
+            inline void addCustomDuration(const events::ticks_t duration) noexcept
             {
                 m_ticksToWait += duration;
             }
@@ -129,7 +127,7 @@ namespace events
 
             #ifndef _WINDOWS
             /// @brief Linux-Unix compatible time system
-            static unsigned long timeGetTime();
+            static unsigned long timeGetTime() noexcept;
             #endif
         };
     }

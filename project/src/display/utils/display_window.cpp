@@ -10,6 +10,8 @@ Description : graphics output window management
 #include <cstdlib>
 #include <cstring>
 #ifdef _WINDOWS
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <tchar.h>
 #else
@@ -22,16 +24,16 @@ using namespace display::utils;
 
 
 /// @brief Display window on screen
-/// @param width Window width (ignored if fullscreen)
-/// @param height Window height (ignored if fullscreen)
-/// @param windowMode Window mode : fullscreen, fixed window, resizable window
-void DisplayWindow::show(uint32_t width, uint32_t height, int32_t windowMode)
+/// @param[in] width       Window width (ignored if fullscreen)
+/// @param[in] height      Window height (ignored if fullscreen)
+/// @param[in] windowMode  Window mode : fullscreen, fixed window, resizable window
+void DisplayWindow::show(const uint32_t width, const uint32_t height, const int32_t windowMode)
 {
     if (m_isVisible)
         return;
     
     // set window visual style
-    setWindowStyle(windowMode);
+    setWindowStyle(static_cast<window_mode_t>(windowMode));
     //if (windowMode == static_cast<int32_t>(window_mode_t::fullscreen))
         //...ChangeDisplaySettings ...
 
@@ -77,8 +79,8 @@ void DisplayWindow::hide()
 }
 
 /// @brief Clear window content
-/// @param context Current device context
-/// @param clearedZone Cleared zone (rectangle)
+/// @param[in] context      Current device context
+/// @param[in] clearedZone  Cleared zone (rectangle)
 void DisplayWindow::clear(display::device_handle_t context, display::rect_t& clearedZone)
 {
     if (m_isVisible == false)
@@ -96,8 +98,8 @@ void DisplayWindow::clear(display::device_handle_t context, display::rect_t& cle
 // -- getters / setters -- ---------------------------------------------
 
 /// @brief Prepare visual style for display window
-/// @param outWidth Width destination variable
-void DisplayWindow::setWindowStyle(int32_t windowMode)
+/// @param[in] windowMode  Window display mode
+void DisplayWindow::setWindowStyle(const window_mode_t windowMode)
 {
     // set new window style
     #ifdef _WINDOWS
@@ -106,11 +108,11 @@ void DisplayWindow::setWindowStyle(int32_t windowMode)
     m_sourceStyle = dwStyle; // save source window state, to be able to restore it
     switch (windowMode)
     {
-        case static_cast<int32_t>(window_mode_t::fullscreen): 
+        case (window_mode_t::fullscreen): 
             m_windowMode = window_mode_t::fullscreen;
             dwStyle = CS_OWNDC; break;
 
-        case static_cast<int32_t>(window_mode_t::resizable): 
+        case (window_mode_t::resizable): 
             m_windowMode = window_mode_t::resizable;
             dwStyle |= (WS_BORDER | WS_CAPTION | CS_OWNDC); break;
 
@@ -153,7 +155,7 @@ void DisplayWindow::restoreWindowStyle()
     #ifdef _WINDOWS
     if (m_sourceMenu)
         SetMenu(m_window, m_sourceMenu);
-    m_sourceMenu = NULL;
+    m_sourceMenu = nullptr;
     #else
     // Linux/UNIX version
     //...
@@ -161,8 +163,8 @@ void DisplayWindow::restoreWindowStyle()
 }
 
 /// @brief Get current window size
-/// @param outWidth Width destination variable
-/// @param outHeight Height destination variable
+/// @param[out] outWidth   Width destination variable
+/// @param[out] outHeight  Height destination variable
 bool DisplayWindow::getWindowSize(uint32_t& outWidth, uint32_t& outHeight)
 {
     #ifdef _WINDOWS
@@ -178,9 +180,10 @@ bool DisplayWindow::getWindowSize(uint32_t& outWidth, uint32_t& outHeight)
 }
 
 /// @brief Initialize window pixel format and fill window
-/// @param resolution Display resolution (X, Y)
-/// @param colorMode Display color mode
-void DisplayWindow::setPixelFormat(display::coord_t resolution, display::window_color_mode_t colorMode)
+/// @param[in] resolution  Display resolution (X, Y)
+/// @param[in] colorMode   Display color mode
+/// @throws runtime_error  Pixel format config failure
+void DisplayWindow::setPixelFormat(const display::coord_t resolution, const display::window_color_mode_t colorMode)
 {
     #ifdef _WINDOWS
     display::device_handle_t deviceContext = GetDC(m_window);
@@ -236,9 +239,9 @@ void DisplayWindow::setPixelFormat(display::coord_t resolution, display::window_
 }
 
 /// @brief Read screen display size
-/// @param outWidth Width destination variable
-/// @param outHeight Height destination variable
-void DisplayWindow::readScreenSize(uint32_t& outWidth, uint32_t& outHeight)
+/// @param[out] outWidth   Width destination variable
+/// @param[out] outHeight  Height destination variable
+void DisplayWindow::readScreenSize(uint32_t& outWidth, uint32_t& outHeight) noexcept
 {
     #ifdef _WINDOWS
     int screenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -257,8 +260,8 @@ void DisplayWindow::readScreenSize(uint32_t& outWidth, uint32_t& outHeight)
 }
 
 /// @brief Enable or disable screen saver
-/// @param isEnabled Enabled/disabled
-void DisplayWindow::setScreenSaver(bool isEnabled)
+/// @param[in] isEnabled  Enabled/disabled
+void DisplayWindow::setScreenSaver(const bool isEnabled)
 {
     #ifdef _WINDOWS
     // dynamic thread state system call

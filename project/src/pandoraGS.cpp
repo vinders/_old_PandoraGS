@@ -18,7 +18,10 @@ HINSTANCE PandoraGS::s_hInstance = NULL; ///< Executed instance handle
 
 
 /// @brief Main library entry point
-/// @return Success indicator
+/// @param[in] hModule     Module instance
+/// @param[in] dwReason    Library call flag
+/// @param[in] lpReserved  Initialization and cleanup settings
+/// @returns   Success indicator
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 {
     PandoraGS::setInstance(&hModule);
@@ -26,9 +29,9 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 }
 
 /// @brief Initialize instance handle
-/// @param hModule Module handle
-void PandoraGS::setInstance(HANDLE* hModule)
+/// @param[in] hModule  Module instance handle
+void PandoraGS::setInstance(const HANDLE* hModule) noexcept
 {
-    s_hInstance = (HINSTANCE)*hModule;
+    s_hInstance = static_cast<HINSTANCE>(*hModule);
 }
 #endif

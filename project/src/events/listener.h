@@ -9,9 +9,8 @@ Description : user & system input listener
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #ifdef _WINDOWS
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 
@@ -56,7 +55,7 @@ namespace events
     #define EVENT_KEYS_STRING_LENGTH 11 // configurable events: 0-9 + end character
 
     // @brief Event handler
-    typedef void(*event_handler_t)(int32_t);
+    typedef std::function<void(int32_t)> event_handler_t;
 
 
     /// @class Listener
@@ -77,17 +76,18 @@ namespace events
         static event_handler_t s_pHandlers[EVENT_ARRAY_LENGTH]; ///< Handler/trigger association array
 
         // listener status
-        static bool s_isLocked; ///< Listener locked (busy or temporarily disabled)
-        static bool s_isPaused; ///< Game is currently paused
+        static bool s_isLocked;  ///< Listener locked (busy or temporarily disabled)
+        static bool s_isPaused;  ///< Game is currently paused
+        static bool s_isKeyDown; ///< Key status (for keydown events)
 
 
     public:
         #ifdef _WINDOWS
         /// @brief Start event listener
-        /// @param hWindow Managed window handle
-        /// @param isScnSvDisabled Screen-saver disabled or not
-        /// @param pTriggerKeys Key/trigger association array
-        static void start(HWND hWindow, bool isScnSvDisabled, char* pTriggerKeys);
+        /// @param[in] hWindow          Managed window handle
+        /// @param[in] isScnSvDisabled  Screen-saver disabled or not
+        /// @param[in] pTriggerKeys     Key/trigger association array
+        static void start(HWND hWindow, const bool isScnSvDisabled, const char* pTriggerKeys);
         #else
         static void start(char* pTriggerKeys);
         #endif
@@ -97,10 +97,10 @@ namespace events
 
         #ifdef _WINDOWS
         /// @brief Handle events in Windows
-        /// @param hWindow Managed window handle
-        /// @param eventType Event type
-        /// @param wpCode Command code
-        /// @param lpInfo Additional information
+        /// @param[in] hWindow    Managed window handle
+        /// @param[in] eventType  Event type
+        /// @param[in] wpCode     Command code
+        /// @param[in] lpInfo     Additional information
         static LRESULT CALLBACK listen(HWND hWindow, UINT eventType, WPARAM wpCode, LPARAM lpInfo);
         #else
         /// @brief Handle events in Linux
@@ -109,45 +109,45 @@ namespace events
         #endif
 
         /// @brief Set handler for an event
-        /// @param eventId Event type
-        /// @param handler Pointer to event handler
-        static void registerEvent(event_trigger_t eventId, event_handler_t handler)
+        /// @param[in] eventId  Event type
+        /// @param[in] handler  Reference to event handler
+        static void registerEvent(const event_trigger_t eventId, event_handler_t& handler) noexcept
         {
             s_pHandlers[static_cast<uint32_t>(eventId)] = handler;
         }
 
         /// @brief Disable handling of an event
-        /// @param eventId Event type
-        static void disableEvent(event_trigger_t eventId)
+        /// @param[in] eventId  Event type
+        static void disableEvent(const event_trigger_t eventId) noexcept
         {
-            s_pHandlers[static_cast<uint32_t>(eventId)] = NULL;
+            s_pHandlers[static_cast<uint32_t>(eventId)] = nullptr;
         }
 
 
         // -- lock -- ----------------------------------------------------------
 
         /// @brief Lock listener
-        static inline void lock()
+        static inline void lock() noexcept
         {
             s_isLocked = true;
         }
 
         /// @brief Unlock listener
-        static inline void unlock()
+        static inline void unlock() noexcept
         {
             s_isLocked = false;
         }
 
         /// @brief Get lock status
-        /// @return Lock status
-        static inline bool isLocked()
+        /// @returns Lock status
+        static inline bool isLocked() noexcept
         {
             return s_isLocked;
         }
 
         /// @brief Get pause status
-        /// @return Pause status
-        static inline bool isPaused()
+        /// @returns Pause status
+        static inline bool isPaused() noexcept
         {
             return s_isPaused;
         }

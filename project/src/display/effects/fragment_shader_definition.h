@@ -23,19 +23,17 @@ namespace display
         class FragmentShaderDefinition
         {
         private:
-            std::string* m_pDefinition;
+            std::string m_definition; ///< Generated shader code
 
         public:
             /// @brief Create fragment shader definition (based on current config)
             FragmentShaderDefinition();
-            /// @brief Destroy fragment shader definition
-            ~FragmentShaderDefinition();
 
             /// @brief Get fragment shader definition
-            /// @return Shader definition string
-            inline const char* getDefinition()
+            /// @returns Shader definition string
+            inline const char* getDefinition() const
             {
-                return m_pDefinition->c_str();
+                return m_definition.c_str();
             }
         };
     }

@@ -20,8 +20,8 @@ namespace events
     enum class regionsync_t : int32_t
     {
         undefined = -1,
-        ntsc = 0,    ///< NTSC - console chip timing
-        pal = 1,     ///< PAL - console chip timing
+        ntsc = 0,    ///< NTSC - chip timing
+        pal = 1,     ///< PAL - chip timing
         ntscStd = 2, ///< NTSC - standard rate
         palStd = 3   ///< PAL - standard rate
     };
@@ -69,12 +69,12 @@ namespace events
 
     public:
         /// @brief Create default timer
-        Timer() : m_targetFreq(50.0f), m_isInterlaced(false), m_speedMode(speed_t::normal), m_skipMode(skipmode_t::disabled),
-                  m_timeout((ticks_t)42uL), m_measuredFreq(0.0f), m_periodsToSkip(0), m_lateTicks((ticks_t)0uL), m_isResetPending(true) {}
+        Timer() noexcept : m_targetFreq(50.0f), m_isInterlaced(false), m_speedMode(speed_t::normal), m_skipMode(skipmode_t::disabled),
+                           m_timeout((ticks_t)42uL), m_measuredFreq(0.0f), m_periodsToSkip(0), m_lateTicks((ticks_t)0uL), m_isResetPending(true) {}
         /// @brief Initialize timer
         /// @param timeMode Prefered time mode
-        Timer(timemode_t timeMode) : m_targetFreq(59.94f), m_isInterlaced(false), m_speedMode(speed_t::normal), m_skipMode(skipmode_t::disabled),
-                                     m_timeout((ticks_t)52uL), m_measuredFreq(0.0f), m_periodsToSkip(0), m_lateTicks((ticks_t)0uL), m_isResetPending(false)
+        Timer(timemode_t timeMode) noexcept : m_targetFreq(59.94f), m_isInterlaced(false), m_speedMode(speed_t::normal), m_skipMode(skipmode_t::disabled),
+                                              m_timeout((ticks_t)52uL), m_measuredFreq(0.0f), m_periodsToSkip(0), m_lateTicks((ticks_t)0uL), m_isResetPending(false)
         {
             m_clock.setClockConfig(59.94f, timeMode);
         }
@@ -82,20 +82,20 @@ namespace events
         // -- timer settings -- ----------------------------------------------------
 
         /// @brief Set time management mode
-        /// @param timeMode Prefered time mode
-        void setTimeMode(timemode_t timeMode);
+        /// @param[in] timeMode  Prefered time mode
+        void setTimeMode(const timemode_t timeMode) noexcept;
         /// @brief Set timer frequency
-        /// @param freqLimit Frequency max limit
-        /// @param regMode Regional sync mode
-        /// @param isInterlaced Interlacing
-        void setFrequency(float freqLimit, regionsync_t regMode, bool isInterlaced);
+        /// @param[in] freqLimit     Frequency max limit
+        /// @param[in] regMode       Regional sync mode
+        /// @param[in] isInterlaced  Interlacing
+        void setFrequency(const float freqLimit, const regionsync_t regMode, const bool isInterlaced) noexcept;
         /// @brief Set period skipping mode
-        /// @param isEnabled Enable skipping
-        /// @param isHalfSkip Skip max one period out of two
-        void setSkippingMode(bool isEnabled, bool isAlternatedSkip);
+        /// @param[in] isEnabled   Enable skipping
+        /// @param[in] isHalfSkip  Skip max one period out of two
+        void setSkippingMode(const bool isEnabled, const bool isAlternatedSkip) noexcept;
 
         /// @brief Reset time reference
-        inline void resetTimeReference()
+        inline void resetTimeReference() noexcept
         {
             m_speedMode = speed_t::normal;
             if (m_periodsToSkip > 0 && m_isInterlaced)
@@ -110,37 +110,37 @@ namespace events
         // -- time operations -- ---------------------------------------------------
 
         /// @brief Wait for one period (after previous time reference) + optional skipping
-        /// @param isWaiting Limit frequency
-        /// @param isOddPeriod Odd period (if interlaced)
-        void wait(bool isWaiting, bool isOddPeriod);
+        /// @param[in] isWaiting    Limit frequency
+        /// @param[in] isOddPeriod  Odd period (if interlaced)
+        void wait(const bool isWaiting, const bool isOddPeriod) noexcept;
 
         /// @brief Check if current period should be skipped
-        /// @return Skip indicator (boolean)
-        inline bool isPeriodSkipped()
+        /// @returns Skip indicator (boolean)
+        inline bool isPeriodSkipped() const noexcept
         {
             return (m_periodsToSkip > 0);
         }
 
     private:
         /// @brief Set skipping for upcoming periods
-        /// @param isOddPeriod Odd period (if interlaced)
-        void setSkipping(bool isOddPeriod);
+        /// @param[in] isOddPeriod  Odd period (if interlaced)
+        void setSkipping(const bool isOddPeriod) noexcept;
 
         /// @brief Process temporary speed modification
-        /// @return Continue time calculation (true) or exit function (false)
-        bool processSpeedAlteration();
+        /// @returns Continue time calculation (true) or exit function (false)
+        bool processSpeedAlteration() noexcept;
 
     public:
         // -- time measures -- -----------------------------------------------------
 
         /// @brief Calculate current number of effective periods per second
-        inline void checkFrequency()
+        inline void checkFrequency() noexcept
         {
             m_measuredFreq = m_clock.checkFrequency();
         }
         /// @brief Get current number of effective periods per second
-        /// @return Current periods per second
-        inline float getMeasuredFrequency()
+        /// @returns Current periods per second
+        inline float getMeasuredFrequency() const noexcept
         {
             return m_measuredFreq;
         }
@@ -149,21 +149,21 @@ namespace events
         // -- events -- ------------------------------------------------------------
 
         /// @brief Toggle slow motion mode - event handler
-        /// @param flag Unused
-        void toggleSlowMode(int32_t flag)
+        /// @param[in] flag  Unused
+        void toggleSlowMode(int32_t flag) noexcept
         {
             m_speedMode = (m_speedMode == speed_t::normal) ? speed_t::slow : speed_t::normal;
         }
         /// @brief Toggle fast mode - event handler
-        /// @param speedStatus Desired fast-speed status boolean (on / off)
-        void setFastMode(int32_t speedStatus)
+        /// @param[in] speedStatus  Desired fast-speed status boolean (on / off)
+        void setFastMode(int32_t speedStatus) noexcept
         {
             m_speedIteration = 0;
             m_speedMode = (speedStatus != 0) ? speed_t::fast : speed_t::normal;
         }
         /// @brief Toggle pause mode - event handler
-        /// @param pauseStatus Desired pause status boolean (on / off)
-        void setPauseMode(int32_t pauseStatus)
+        /// @param[in] pauseStatus  Desired pause status boolean (on / off)
+        void setPauseMode(int32_t pauseStatus) noexcept
         {
             m_speedMode = (pauseStatus != 0) ? speed_t::pause : speed_t::normal;
         }

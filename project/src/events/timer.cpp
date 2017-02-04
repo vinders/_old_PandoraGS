@@ -19,8 +19,8 @@ using namespace events;
 // -- timer settings -- ----------------------------------------------------
 
 /// @brief Set time management mode
-/// @param timeMode Prefered time mode
-void Timer::setTimeMode(timemode_t timeMode)
+/// @param[in] timeMode  Prefered time mode
+void Timer::setTimeMode(const timemode_t timeMode) noexcept
 {
     m_isInterlaced = false;
     m_speedMode = speed_t::normal;
@@ -34,14 +34,14 @@ void Timer::setTimeMode(timemode_t timeMode)
 }
 
 /// @brief Set timer frequency
-/// @param freqLimit Frequency max limit
-/// @param regMode Regional sync mode
-/// @param isInterlaced Interlacing
-void Timer::setFrequency(float freqLimit, regionsync_t regMode, bool isInterlaced)
+/// @param[in] freqLimit     Frequency max limit
+/// @param[in] regMode       Regional sync mode
+/// @param[in] isInterlaced  Interlacing
+void Timer::setFrequency(const float freqLimit, const regionsync_t regMode, const bool isInterlaced) noexcept
 {
     // set fixed framerate limit
     m_targetFreq = 59.94f;
-    if (freqLimit > 0.02f) // freqLimit > 0 (+ float error offset) = fixed
+    if (freqLimit > 0.01f) // freqLimit > 0 (+ float error offset) = fixed
     {
         m_targetFreq = freqLimit;
     }
@@ -66,10 +66,10 @@ void Timer::setFrequency(float freqLimit, regionsync_t regMode, bool isInterlace
                     m_targetFreq = 33868800.0f / 680595.00f; // 49.76351
                 break;
             }
-            case regionsync_t::ntscStd: // NTSC - standard
+            case regionsync_t::ntscStd: // NTSC - standard rate
                 m_targetFreq = (isInterlaced) ? 30000.0f / 1001.0f : 60000.0f / 1001.0f; 
                 break;
-            case regionsync_t::palStd: // PAL - standard
+            case regionsync_t::palStd: // PAL - standard rate
                 m_targetFreq = (isInterlaced) ? 25.0f : 50.0f; 
                 break;
         }
@@ -88,9 +88,9 @@ void Timer::setFrequency(float freqLimit, regionsync_t regMode, bool isInterlace
 }
 
 /// @brief Set period skipping mode
-/// @param isEnabled Enable skipping
-/// @param isHalfSkip Skip max one period out of two
-void Timer::setSkippingMode(bool isEnabled, bool isAlternatedSkip)
+/// @param[in] isEnabled   Enable skipping
+/// @param[in] isHalfSkip  Skip max one period out of two
+void Timer::setSkippingMode(const bool isEnabled, const bool isAlternatedSkip) noexcept
 {
     if (isEnabled)
         m_skipMode = (isAlternatedSkip) ? skipmode_t::alternate : skipmode_t::standard;
@@ -102,9 +102,9 @@ void Timer::setSkippingMode(bool isEnabled, bool isAlternatedSkip)
 // -- time operations -- ---------------------------------------------------
 
 /// @brief Wait for one period (after previous time reference) + optional skipping
-/// @param isLimited Limit frequency
-/// @param isOddPeriod Odd period (if interlaced)
-void Timer::wait(bool isWaiting, bool isOddPeriod)
+/// @param[in] isLimited    Limit frequency
+/// @param[in] isOddPeriod  Odd period (if interlaced)
+void Timer::wait(const bool isWaiting, const bool isOddPeriod) noexcept
 {
     // reset time reference
     if (m_isResetPending)
@@ -141,15 +141,18 @@ void Timer::wait(bool isWaiting, bool isOddPeriod)
 
 
 /// @brief Set skipping for upcoming periods
-/// @param isOddPeriod Odd period (if interlaced)
-void Timer::setSkipping(bool isOddPeriod)
+/// @param[in] isOddPeriod  Odd period (if interlaced)
+void Timer::setSkipping(const bool isOddPeriod) noexcept
 {
     // standard skipping mode
     if (m_skipMode == skipmode_t::standard)
     {
         if (m_lateTicks >= m_timeout)
         {
-            float latePeriods = static_cast<float>(m_lateTicks) / m_clock.getPeriodDuration();
+            float periodDuration = m_clock.getPeriodDuration();
+            if (periodDuration == 0.0f)
+                periodDuration = 1000.0f / 59.94f;
+            float latePeriods = static_cast<float>(m_lateTicks) / periodDuration;
 
             if (m_isInterlaced) // interlacing
             {
@@ -187,8 +190,8 @@ void Timer::setSkipping(bool isOddPeriod)
 }
 
 /// @brief Process temporary speed modification
-/// @return Continue time calculation (true) or exit function (false)
-bool Timer::processSpeedAlteration()
+/// @returns Continue time calculation (true) or exit function (false)
+bool Timer::processSpeedAlteration() noexcept
 {
     switch (m_speedMode)
     {

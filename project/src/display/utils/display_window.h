@@ -31,6 +31,7 @@ namespace display
 
         /// @class DisplayWindow
         /// @brief Graphics output window management
+        /// @see IWindow
         class DisplayWindow : public IWindow
         {
         private:
@@ -54,48 +55,49 @@ namespace display
             }
             
             /// @brief Display window on screen
-            /// @param width Window width (ignored if fullscreen)
-            /// @param height Window height (ignored if fullscreen)
-            /// @param windowMode Window mode : fullscreen, fixed window, resizable window
-            virtual void show(uint32_t width, uint32_t height, int32_t windowMode);
+            /// @param[in] width       Window width (ignored if fullscreen)
+            /// @param[in] height      Window height (ignored if fullscreen)
+            /// @param[in] windowMode  Window mode : fullscreen, fixed window, resizable window
+            virtual void show(const uint32_t width, const uint32_t height, const int32_t windowMode) override;
 
             /// @brief Hide existing window
-            virtual void hide();
+            virtual void hide() override;
 
             /// @brief Clear window content
-            /// @param context Current device context
-            /// @param clearedZone Cleared zone (rectangle)
-            virtual void clear(display::device_handle_t context, display::rect_t& clearedZone);
+            /// @param[in] context      Current device context
+            /// @param[in] clearedZone  Cleared zone (rectangle)
+            void clear(display::device_handle_t context, display::rect_t& clearedZone);
 
 
             // -- getters / setters -- -----------------------------------------
         private:
             /// @brief Prepare visual style for display window
-            /// @param outWidth Width destination variable
-            void setWindowStyle(int32_t windowMode);
+            /// @param[in] windowMode  Window display mode
+            void setWindowStyle(const window_mode_t windowMode);
 
             /// @brief Restore source visual style
             void restoreWindowStyle();
 
         public:
             /// @brief Get current window size
-            /// @param outWidth Width destination variable
-            /// @param outHeight Height destination variable
+            /// @param[out] outWidth   Width destination variable
+            /// @param[out] outHeight  Height destination variable
             bool getWindowSize(uint32_t& outWidth, uint32_t& outHeight);
 
             /// @brief Initialize window pixel format and fill window
-            /// @param resolution Display resolution (X, Y)
-            /// @param colorMode Display color mode
-            void setPixelFormat(display::coord_t resolution, display::window_color_mode_t colorMode);
+            /// @param[in] resolution  Display resolution (X, Y)
+            /// @param[in] colorMode   Display color mode
+            /// @throws runtime_error  Pixel format config failure
+            void setPixelFormat(const display::coord_t resolution, const display::window_color_mode_t colorMode);
 
             /// @brief Read screen display size
-            /// @param outWidth Width destination variable
-            /// @param outHeight Height destination variable
-            static void readScreenSize(uint32_t& outWidth, uint32_t& outHeight);
+            /// @param[out] outWidth   Width destination variable
+            /// @param[out] outHeight  Height destination variable
+            static void readScreenSize(uint32_t& outWidth, uint32_t& outHeight) noexcept;
 
             /// @brief Enable or disable screen-saver
-            /// @param isEnabled Enabled/disabled
-            static void setScreenSaver(bool isEnabled);
+            /// @param[in] isEnabled  Enabled/disabled
+            static void setScreenSaver(const bool isEnabled);
         };
     }
 }

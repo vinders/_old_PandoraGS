@@ -12,7 +12,6 @@ Description : in-game language/translation - common interface
 #include <string>
 
 #define LANGCODE_DEFAULT lang::langcode_t::english
-#define LANG_NAMES_LIST {L" English",L" Español",L" Français",L" Deutsch",L" External file..."}
 
 /// @namespace lang
 /// Language utilities
@@ -20,15 +19,18 @@ namespace lang
 {
     /// @enum langcode_t
     /// @brief Language codes
-    enum class langcode_t : uint32_t // languages
+    enum class langcode_t : uint32_t
     {
-        english = 0,
-        spanish = 1,
-        french = 2,
-        german = 3,
-        customFile = 1000 // external file
+        english = 0u,
+        spanish = 1u,
+        french = 2u,
+        german = 3u,
+        customFile = 0x0FFFFu ///< External file
     };
     #define LANGCODE_LAST_INTERNAL lang::langcode_t::german
+
+    /// @brief Language names
+    const std::wstring langcodeNames[] = { L" English"s, L" Español"s, L" Français"s, L" Deutsch"s };
 
 
     /// @class MenuLang
@@ -37,9 +39,9 @@ namespace lang
     {
     public:
         /// @brief Set game language values (necessary)
-        /// @param code Language code
-        /// @param filePath Language file path
-        void setLanguage(langcode_t code, std::wstring& filePath)
+        /// @param[in] code      Language code
+        /// @param[in] filePath  Language file path
+        void setLanguage(const langcode_t code, const std::wstring& filePath)
         {
             switch (code)
             {
@@ -53,16 +55,16 @@ namespace lang
         }
 
         /// @brief Set english values
-        virtual void setLanguageEnglish() = 0;
+        virtual void setLanguageEnglish() noexcept = 0;
         /// @brief Set spanish values
-        virtual void setLanguageSpanish() = 0;
+        virtual void setLanguageSpanish() noexcept = 0;
         /// @brief Set french values
-        virtual void setLanguageFrench() = 0;
+        virtual void setLanguageFrench() noexcept = 0;
         /// @brief Set german values
-        virtual void setLanguageGerman() = 0;
+        virtual void setLanguageGerman() noexcept = 0;
 
         /// @brief Read values from file
-        /// @param filePath Language file path
-        virtual void setLanguageFromFile(std::wstring& filePath) = 0;
+        /// @param[in] filePath  Language file path
+        virtual void setLanguageFromFile(const std::wstring& filePath) = 0;
     };
 }

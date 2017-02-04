@@ -8,6 +8,8 @@ Description : rendering engine - graphics API management
 *******************************************************************************/
 #include "../globals.h"
 #ifdef _WINDOWS
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 #include "../vendor/opengl.h" // openGL includes
@@ -23,21 +25,22 @@ bool Engine::s_isInitialized = false; ///< Rendering engine initialization statu
 GLuint Engine::s_programId = 0;       ///< Rendering pipeline program identifier
 
 // window management
-utils::DisplayWindow* Engine::s_pWindowManager = NULL;     ///< Main window
-device_handle_t Engine::s_windowDeviceContext = 0; ///< Window device context
+utils::DisplayWindow* Engine::s_pWindowManager = nullptr; ///< Main window
+device_handle_t Engine::s_windowDeviceContext = 0;        ///< Window device context
 #ifdef _WINDOWS
 HGLRC Engine::s_openGlRenderContext; ///< API rendering context
 #else
-GLFWwindow* Engine::s_openGlRenderContext = NULL; ///< API window context
+GLFWwindow* Engine::s_openGlRenderContext = nullptr; ///< API window context
 #endif
 
 
 /// @brief Create and initialize display window
-/// @param window Parent window handle
+/// @param[in] window  Parent window handle
+/// @throws runtime_error  Window creation failure
 void Engine::createDisplayWindow(window_handle_t window)
 {
     // create display window
-    utils::DisplayWindow* pWindowManager = NULL;
+    utils::DisplayWindow* pWindowManager = nullptr;
     try
     {
         pWindowManager = new utils::DisplayWindow(window);
@@ -50,7 +53,7 @@ void Engine::createDisplayWindow(window_handle_t window)
     }
     catch (...)
     {
-        if (pWindowManager != NULL)
+        if (pWindowManager != nullptr)
             delete pWindowManager;
         throw;
     }
@@ -66,7 +69,7 @@ void Engine::createDisplayWindow(window_handle_t window)
 void Engine::closeDisplayWindow()
 {
     utils::DisplayWindow* pWindowManager = s_pWindowManager;
-    s_pWindowManager = NULL; // lock render()
+    s_pWindowManager = nullptr; // lock render()
 
     // close API and window
     closeGL();
@@ -83,7 +86,7 @@ void Engine::render()
 {
     if (s_isInitialized == false)
     {
-        if (s_pWindowManager != NULL)
+        if (s_pWindowManager != nullptr)
             initGL();
         return;
     }
@@ -94,7 +97,7 @@ void Engine::render()
 // -- rendering API management -- --------------------------------------
 
 /// @brief Initialize rendering API
-/// @throw API init failure
+/// @throws runtime_error API init failure
 void Engine::initGL()
 {
     if (s_isInitialized == true)

@@ -8,6 +8,8 @@ Description : console output window management
 *******************************************************************************/
 #pragma once
 
+#include <cstdio>
+#include <cstdlib>
 #include "i_window.h"
 
 /// @namespace display
@@ -20,6 +22,7 @@ namespace display
     {
         /// @class ConsoleWindow
         /// @brief Console output window management
+        /// @see IWindow
         class ConsoleWindow : public IWindow
         {
         private:
@@ -29,7 +32,7 @@ namespace display
             
         public:
             /// @brief Create window manager
-            ConsoleWindow() : m_isVisible(false), m_hfOutput(NULL) {}
+            ConsoleWindow() : m_isVisible(false), m_hfOutput(nullptr) {}
             /// @brief Destroy window manager
             ~ConsoleWindow()
             {
@@ -37,16 +40,16 @@ namespace display
             }
             
             /// @brief Display window on screen
-            /// @param bufferWidth Console buffer width
-            /// @param bufferHeight Console buffer height
-            /// @param height Window height (zero to keep buffer height)
-            virtual void show(uint32_t bufferWidth, uint32_t bufferHeight, int32_t height);
+            /// @param[in] bufferWidth   Console buffer width
+            /// @param[in] bufferHeight  Console buffer height
+            /// @param[in] height        Window height (zero to keep same as buffer height)
+            virtual void show(const uint32_t bufferWidth, const uint32_t bufferHeight, const int32_t height) override;
 
             /// @brief Hide existing window
-            virtual void hide();
+            virtual void hide() override;
 
             /// @brief Clear window content
-            virtual void clear();
+            void clear();
         };
     }
 }
