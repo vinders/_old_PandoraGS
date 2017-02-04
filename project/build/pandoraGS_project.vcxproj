@@ -115,6 +115,7 @@
     <ClCompile Include="..\src\display\utils\console_window.cpp" />
     <ClCompile Include="..\src\display\utils\display_window.cpp" />
     <ClCompile Include="..\src\events\listener.cpp" />
+    <ClCompile Include="..\src\events\menu.cpp" />
     <ClCompile Include="..\src\events\timer.cpp" />
     <ClCompile Include="..\src\events\utils\clock.cpp" />
     <ClCompile Include="..\src\events\utils\file_io.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="..\src\display\utils\display_window.h" />
     <ClInclude Include="..\src\display\utils\i_window.h" />
     <ClInclude Include="..\src\events\listener.h" />
+    <ClInclude Include="..\src\events\menu.h" />
     <ClInclude Include="..\src\events\timer.h" />
     <ClInclude Include="..\src\events\utils\file_io.h" />
     <ClInclude Include="..\src\events\utils\clock.h" />
