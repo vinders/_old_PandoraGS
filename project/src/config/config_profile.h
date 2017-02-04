@@ -61,7 +61,7 @@ namespace config
 
     public:
         bool isExternalShaders;       ///< Use external shaders (bypass built-in effects)
-        std::wstring shadersPath;     ///< External shaders path
+        std::string shadersPath;      ///< External shaders path
 
         config_screen_t display;       ///< Screen / display settings
         config_scaling_t scaling;      ///< Smoothing / upscaling settings

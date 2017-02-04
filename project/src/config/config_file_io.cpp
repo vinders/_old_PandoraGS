@@ -228,7 +228,7 @@ void ConfigFileIO<registry_io_mode_t>::writeString(const wchar_t* key, std::stri
 /// @brief Write wide string value
 /// @param[in]  key Registry key item
 /// @param[in]  val Written value
-void ConfigFileIO<registry_io_mode_t>::writeWideString(const wchar_t* key, std::wstring& val)
+void ConfigFileIO<registry_io_mode_t>::writeString(const wchar_t* key, std::wstring& val)
 {
     ::RegSetValueEx(m_regKey, (LPCWSTR)key, 0, REG_BINARY, (LPBYTE)(val.c_str()), val.size());
 }
@@ -499,7 +499,7 @@ void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, std::string& 
 /// @brief Write wide string value
 /// @param[in]  key File entry
 /// @param[in]  val Written value
-void ConfigFileIO<file_io_mode_t>::writeWideString(const wchar_t* key, std::wstring& val)
+void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, std::wstring& val)
 {
     if (static_cast<uint32_t>(m_openMode) < static_cast<uint32_t>(file_io_mode_t::write))
         return;

@@ -116,7 +116,7 @@ void ConfigIO::saveConfig(bool hasProfiles, std::vector<ConfigProfile*>& profile
 
     // write config data
     writer.writeIntType(L"Lang", Config::langCode);
-    writer.writeWideString(L"LangFile", Config::langFilePath);
+    writer.writeString(L"LangFile", Config::langFilePath);
 
     writer.writeIntType(L"WinMode", Config::display.windowMode);
     writer.writeInt(L"FullResX", Config::display.fullscreenRes.x);
@@ -332,9 +332,9 @@ void ConfigIO::exportConfigProfile(ConfigProfile& profile, std::wstring& path)
 template<typename T>
 void ConfigIO::writeConfigProfileValues(ConfigFileIO<T>& writer, ConfigProfile& profile)
 {
-    writer.writeWideString(L"ProfileName", profile.getProfileName());
+    writer.writeString(L"ProfileName", profile.getProfileName());
     writer.writeBool(L"ExternShader", profile.isExternalShaders);
-    writer.writeWideString(L"ExternShaderPath", profile.shadersPath);
+    writer.writeString(L"ExternShaderPath", profile.shadersPath);
 
     writer.writeInt(L"IntResX", profile.display.internalRes.x);
     writer.writeInt(L"IntResY", profile.display.internalRes.y);

@@ -30,7 +30,7 @@ ConfigProfile::ConfigProfile(uint32_t id, std::wstring name)
     m_profileId = id;
     m_profileName = name;
     isExternalShaders = false;
-    shadersPath = L"./gpuShader";
+    shadersPath = "./gpuShader";
     fixBits = 0u;
 }
 

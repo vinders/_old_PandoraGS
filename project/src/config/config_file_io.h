@@ -232,7 +232,7 @@ namespace config
         /// @brief Write wide string value
         /// @param[in]  key Registry key item
         /// @param[in]  val Written value
-        void writeWideString(const wchar_t* key, std::wstring& val);
+        void writeString(const wchar_t* key, std::wstring& val);
 
         /// @brief Remove existing value from file
         /// @param[in]  key Entry
@@ -396,7 +396,7 @@ namespace config
         /// @brief Write wide string value
         /// @param[in]  key File entry
         /// @param[in]  val Written value
-        void writeWideString(const wchar_t* key, std::wstring& val);
+        void writeString(const wchar_t* key, std::wstring& val);
 
         /// @brief Remove existing value from file
         /// @param[in]  key Entry
