@@ -74,32 +74,32 @@ namespace config
 
     public:
         /// @brief Create profile container (with preset values)
-        /// @param id Profile unique identifier
-        ConfigProfile(uint32_t id);
+        /// @param[in] id  Profile unique identifier
+        ConfigProfile(const uint32_t id) noexcept;
         /// @brief Create profile container (with preset values)
-        /// @param id Profile unique identifier
-        /// @param name Profile name
-        ConfigProfile(uint32_t id, std::wstring name);
+        /// @param[in] id    Profile unique identifier
+        /// @param[in] name  Profile name
+        ConfigProfile(const uint32_t id, const std::wstring name) noexcept;
         /// @brief Copy profile container
-        /// @param copy Profile container to copy
-        ConfigProfile(ConfigProfile& copy);
+        /// @param[in] copy  Profile container to copy
+        ConfigProfile(const ConfigProfile& copy) noexcept;
 
         /// @brief Set profile preset values
-        /// @param preset Default values to use
-        void setPresetValues(const config_preset_t preset);
+        /// @param[in] preset  Default values to use
+        void setPresetValues(const config_preset_t preset) noexcept;
 
 
         // -- getters -- -------------------------------------------------------
 
         /// @brief Get profile identifier
-        /// @return Profile ID
-        uint32_t getProfileId()
+        /// @returns Profile ID
+        inline uint32_t getProfileId() const noexcept
         {
             return m_profileId;
         }
         /// @brief Get profile name
-        /// @return Reference to profile name
-        std::wstring& getProfileName()
+        /// @returns Reference to profile name
+        inline std::wstring& getProfileName() noexcept
         {
             return m_profileName;
         }
@@ -108,36 +108,36 @@ namespace config
         // -- fix bits management -- -------------------------------------------
 
         /// @brief Enable fix bits/summary>
-        /// @param bits Fix bits mask
-        inline void setFix(uint32_t bits)
+        /// @param[in] bits  Fix bits mask
+        inline void setFix(const uint32_t bits) noexcept
         {
             fixBits |= bits;
         }
         /// @brief Disable fix bits
-        /// @param bits Fix bits mask
-        inline void unsetFix(uint32_t bits)
+        /// @param[in] bits  Fix bits mask
+        inline void unsetFix(const uint32_t bits) noexcept
         {
             fixBits &= ~bits;
         }
 
         /// @brief Check if fix bits are active
-        /// @param bits Bit(s) mask
-        /// @return True if all requested bits are active
-        inline bool getFix(uint32_t bits)
+        /// @param[in] bits  Bit(s) mask
+        /// @returns True if all requested bits are active
+        inline bool getFix(const uint32_t bits) const noexcept
         {
             return ((fixBits & bits) == bits);
         }
         /// @brief Check if at least one fix bit is active
-        /// @param bits Bit(s) mask
-        /// @return True if any of the requested bits is active
-        inline bool getAnyFix(uint32_t bits)
+        /// @param[in] bits  Bit(s) mask
+        /// @returns True if any of the requested bits is active
+        inline bool getAnyFix(const uint32_t bits) const noexcept
         {
             return ((fixBits & bits) != 0);
         }
         /// @brief Check if fix bit is disabled
-        /// @param bits Bit(s) mask (will return true if all are disabled)
-        /// @return True if none of the requested bits are active
-        inline bool getNotFix(uint32_t bits)
+        /// @param[in] bits  Bit(s) mask (will return true if all are disabled)
+        /// @returns True if none of the requested bits are active
+        inline bool getNotFix(const uint32_t bits) const noexcept
         {
             return ((fixBits & bits) == 0);
         }

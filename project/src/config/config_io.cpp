@@ -20,6 +20,7 @@ Description : configuration input/output toolbox
 #include "config_io.h"
 using namespace config;
 
+// config paths (files / registry keys)
 #define CONFIG_FILE_PROFILE_PREFIX L"profile"
 #define CONFIG_FILE_GAMES L"games"
 #ifdef _WINDOWS
@@ -42,7 +43,7 @@ using namespace config;
 
 
 /// @brief Load configuration values
-/// @param pOutProfileNames Profile name list to complete (or NULL to ignore it)
+/// @param[out] pOutProfileNames  Profile name list to complete (or NULL to ignore it)
 void ConfigIO::loadConfig(std::vector<std::wstring>* pOutProfileNames)
 {
     // open main file/registry key (if available)
@@ -91,23 +92,23 @@ void ConfigIO::loadConfig(std::vector<std::wstring>* pOutProfileNames)
             Config::display.windowRes.y = 480u;
 
         // load list of profile names (optional)
-        if (pOutProfileNames != NULL)
+        if (pOutProfileNames != nullptr)
         {
             listProfileNames(profileCount, *pOutProfileNames);
         }
     }
     // if no config available, set default profile name
-    else if (pOutProfileNames != NULL)
+    else if (pOutProfileNames != nullptr)
     {
-        pOutProfileNames->push_back(L"<default>");
+        pOutProfileNames->push_back(L"<default>"s);
     }
 }
 
 /// @brief Save config values
-/// @param hasProfiles Also save contained profiles (true) / only save main config (false)
-/// @param profiles Array of config profiles (necessary, even if profiles not saved)
-/// @throw Saving failure
-void ConfigIO::saveConfig(bool hasProfiles, std::vector<ConfigProfile*>& profiles)
+/// @param[in] hasProfiles  Also save contained profiles (true) / only save main config (false)
+/// @param[in] profiles     Array of config profiles (necessary, even if profiles not saved)
+/// @throws runtime_error  Saving failure
+void ConfigIO::saveConfig(const bool hasProfiles, const std::vector<ConfigProfile*>& profiles)
 {
     // create main file/registry key
     ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE> writer;
@@ -151,12 +152,12 @@ void ConfigIO::saveConfig(bool hasProfiles, std::vector<ConfigProfile*>& profile
 }
 
 /// @brief Initialize list of profile names
-/// @param profileCount Number of profiles to read
-/// @param profileNames Reference to list of names to complete
-void ConfigIO::listProfileNames(uint32_t profileCount, std::vector<std::wstring>& profileNames)
+/// @param[in]  profileCount   Number of profiles to read
+/// @param[out] profileNames  Reference to list of names to complete
+void ConfigIO::listProfileNames(const uint32_t profileCount, std::vector<std::wstring>& profileNames)
 {
     // set default profile name
-    profileNames.push_back(L"<default>");
+    profileNames.push_back(L"<default>"s);
 
     // get names of other profiles
     if (profileCount > 1)
@@ -174,18 +175,17 @@ void ConfigIO::listProfileNames(uint32_t profileCount, std::vector<std::wstring>
                 profileNames.push_back(buffer);
             }
             else
-                profileNames.push_back(L"<undefined>");
+                profileNames.push_back(L"<undefined>"s);
         }
     }
 }
 
 
 /// @brief Load specific profile values
-/// @param id Profile identifier
-/// @param isNameRead Read profile name (true) or ignore (false)
-/// @return Allocated config profile container (with loaded values)
-/// @throw Memory allocation failure
-ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id, bool isNameRead)
+/// @param[in] id          Profile identifier
+/// @param[in] isNameRead  Read profile name (true) or ignore (false)
+/// @returns Allocated config profile container (with loaded values)
+ConfigProfile* ConfigIO::loadConfigProfile(const uint32_t id, const bool isNameRead)
 {
     ConfigProfile* pProfile = nullptr;
 
@@ -198,7 +198,7 @@ ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id, bool isNameRead)
         if (isNameRead)
         {
             // read profile name
-            std::wstring profileName = L"<undefined>";
+            std::wstring profileName = L"<undefined>"s;
             reader.read(L"ProfileName", profileName);
             pProfile = new ConfigProfile(id, profileName);
         }
@@ -213,7 +213,7 @@ ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id, bool isNameRead)
     else
     {
         if (isNameRead)
-            pProfile = new ConfigProfile(id, (id == 0u) ? L"<default>" : L"<undefined>");
+            pProfile = new ConfigProfile(id, (id == 0u) ? L"<default>"s : L"<undefined>"s);
         else
             pProfile = new ConfigProfile(id);
         pProfile->setPresetValues(config::config_preset_t::standard);
@@ -222,11 +222,11 @@ ConfigProfile* ConfigIO::loadConfigProfile(uint32_t id, bool isNameRead)
 }
 
 /// @brief Import profile values (external file)
-/// @param id New profile identifier
-/// @param path Import file path
-/// @return Allocated config profile container (with loaded values)
-/// @throw Memory allocation failure
-ConfigProfile* ConfigIO::importConfigProfile(uint32_t id, std::wstring& path)
+/// @param[in] id    New profile identifier
+/// @param[in] path  Import file path
+/// @returns Allocated config profile container (with loaded values)
+/// @throws invalid_argument  File not found
+ConfigProfile* ConfigIO::importConfigProfile(const uint32_t id, const std::wstring& path)
 {
     ConfigProfile* pProfile = nullptr;
 
@@ -236,7 +236,7 @@ ConfigProfile* ConfigIO::importConfigProfile(uint32_t id, std::wstring& path)
         throw std::invalid_argument("The file could not be opened, is not accessible or is corrupted.");
 
     // read profile name + create container
-    std::wstring profileName = L"<undefined>";
+    std::wstring profileName = L"<undefined>"s;
     reader.read(L"ProfileName", profileName);
     pProfile = new ConfigProfile(id, profileName);
 
@@ -248,7 +248,7 @@ ConfigProfile* ConfigIO::importConfigProfile(uint32_t id, std::wstring& path)
 
 /// @brief Load profile values
 /// @param reader Data source reader
-/// @param profile Profile to complete
+/// @param[out] profile Profile to complete
 template<typename T>
 void ConfigIO::readConfigProfileValues(ConfigFileIO<T>& reader, ConfigProfile& profile)
 {
@@ -294,10 +294,11 @@ void ConfigIO::readConfigProfileValues(ConfigFileIO<T>& reader, ConfigProfile& p
 }
 
 
+
 /// @brief Save profile values
-/// @param profile Config profile container with values
-/// @throw Saving failure
-void ConfigIO::saveConfigProfile(ConfigProfile& profile)
+/// @param[in] profile  Config profile container with values
+/// @throws runtime_error  Saving failure
+void ConfigIO::saveConfigProfile(const ConfigProfile& profile)
 {
     // create profile file/registry key
     ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE> writer;
@@ -311,10 +312,10 @@ void ConfigIO::saveConfigProfile(ConfigProfile& profile)
 }
 
 /// @brief Export profile values (external file)
-/// @param profile Config profile container with values
-/// @param path Export file path
-/// @throw Export failure
-void ConfigIO::exportConfigProfile(ConfigProfile& profile, std::wstring& path)
+/// @param[in] profile  Config profile container with values
+/// @param[in] path     Export file path
+/// @throws runtime_error  Export failure
+void ConfigIO::exportConfigProfile(const ConfigProfile& profile, const std::wstring& path)
 {
     // create export file
     ConfigFileIO<file_io_mode_t> writer;
@@ -327,10 +328,10 @@ void ConfigIO::exportConfigProfile(ConfigProfile& profile, std::wstring& path)
 }
 
 /// @brief Write profile values
-/// @param writer Data destination manager
-/// @param profile Source profile
+/// @param[in] writer   Data destination manager
+/// @param[in] profile  Source profile
 template<typename T>
-void ConfigIO::writeConfigProfileValues(ConfigFileIO<T>& writer, ConfigProfile& profile)
+void ConfigIO::writeConfigProfileValues(ConfigFileIO<T>& writer, const ConfigProfile& profile)
 {
     writer.writeString(L"ProfileName", profile.getProfileName());
     writer.writeBool(L"ExternShader", profile.isExternalShaders);
@@ -365,10 +366,11 @@ void ConfigIO::writeConfigProfileValues(ConfigFileIO<T>& writer, ConfigProfile& 
 }
 
 
+
 /// @brief Remove profile (won't change associations !)
-/// @param id Profile identifier
-/// @throw Saving failure
-void ConfigIO::removeConfigProfile(uint32_t id)
+/// @param[in] id  Profile identifier
+/// @throws runtime_error  Saving failure
+void ConfigIO::removeConfigProfile(const uint32_t id)
 {
     std::wstring fileName = std::wstring(CONFIG_FILE_PROFILE_PREFIX) + std::to_wstring(id);
     if (ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE>::remove(CONFIG_DIRECTORY_PATH, fileName) == false)
@@ -377,10 +379,9 @@ void ConfigIO::removeConfigProfile(uint32_t id)
 
 
 /// @brief Remember a game/profile association (ingame)
-/// @param profileId Profile ID to associate with game
-/// @param gameExecutableId Game identifier
-/// @throw Saving failure
-void ConfigIO::setGameAssocation(uint32_t profileId, std::string& gameExecutableId)
+/// @param[in] profileId         Profile ID to associate with game
+/// @param[in] gameExecutableId  Game identifier
+void ConfigIO::setGameAssocation(const uint32_t profileId, const std::string& gameExecutableId)
 {
     if (gameExecutableId.empty())
         return;
@@ -399,9 +400,9 @@ void ConfigIO::setGameAssocation(uint32_t profileId, std::string& gameExecutable
 }
 
 /// @brief Get the profile ID associated with a game (ingame)
-/// @param gameExecutableId Game identifier
-/// @return Associated profile ID (or 0)
-uint32_t ConfigIO::getGameAssociation(std::string& gameExecutableId)
+/// @param[in] gameExecutableId  Game identifier
+/// @returns Associated profile ID (or 0)
+uint32_t ConfigIO::getGameAssociation(const std::string& gameExecutableId)
 {
     if (gameExecutableId.empty())
         return 0u;
@@ -419,8 +420,8 @@ uint32_t ConfigIO::getGameAssociation(std::string& gameExecutableId)
 
 
 /// @brief Set the game/profile associations (settings)
-/// @param associations List of associated games/profiles
-void ConfigIO::setProfileAssociations(std::list<game_profile_association_t>& associations)
+/// @param[in] associations  List of associated games/profiles
+void ConfigIO::setProfileAssociations(const std::list<game_profile_association_t>& associations)
 {
     #ifdef _WINDOWS
     // remove all previous associations
@@ -442,7 +443,7 @@ void ConfigIO::setProfileAssociations(std::list<game_profile_association_t>& ass
 }
 
 /// @brief Get the list of all the game/profile associations (settings)
-/// @param outAssociations Destination variable for returned list
+/// @param[out] outAssociations  Destination variable for returned list
 void ConfigIO::getProfileAssociations(std::list<game_profile_association_t>& outAssociations)
 {
     // open game/profile associations

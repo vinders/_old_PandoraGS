@@ -14,8 +14,8 @@ using namespace config;
 
 
 /// @brief Create profile container
-/// @param id Profile unique identifier
-ConfigProfile::ConfigProfile(uint32_t id)
+/// @param[in] id  Profile unique identifier
+ConfigProfile::ConfigProfile(const uint32_t id) noexcept
 {
     m_profileId = id;
     isExternalShaders = false;
@@ -23,20 +23,20 @@ ConfigProfile::ConfigProfile(uint32_t id)
 }
 
 /// @brief Create profile container
-/// @param id Profile unique identifier
-/// @param name Profile name
-ConfigProfile::ConfigProfile(uint32_t id, std::wstring name)
+/// @param[in] id    Profile unique identifier
+/// @param[in] name  Profile name
+ConfigProfile::ConfigProfile(const uint32_t id, const std::wstring name) noexcept
 {
     m_profileId = id;
     m_profileName = name;
     isExternalShaders = false;
-    shadersPath = "./gpuShader";
+    shadersPath = "./gpuShader"s;
     fixBits = 0u;
 }
 
 /// @brief Copy profile container
-/// @param copy Profile container to copy
-ConfigProfile::ConfigProfile(ConfigProfile& copy)
+/// @param[in] copy  Profile container to copy
+ConfigProfile::ConfigProfile(const ConfigProfile& copy) noexcept
 {
     m_profileId = copy.m_profileId;
     m_profileName = copy.m_profileName;
@@ -53,8 +53,8 @@ ConfigProfile::ConfigProfile(ConfigProfile& copy)
 }
 
 /// @brief Set profile preset values
-/// @param preset Default values to use
-void ConfigProfile::setPresetValues(const config_preset_t preset)
+/// @param[in] preset  Default values to use
+void ConfigProfile::setPresetValues(const config_preset_t preset) noexcept
 {
     // preset values
     switch (preset)

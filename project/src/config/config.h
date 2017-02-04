@@ -59,32 +59,32 @@ namespace config
         static void close();
 
         /// @brief Set default config values
-        /// @param isKeyBindingReset Also reset event-trigger key bindings
-        static void reset(bool isKeyBindingReset);
+        /// @param[in] isKeyBindingReset  Also reset event-trigger key bindings
+        static void reset(const bool isKeyBindingReset) noexcept;
         /// @brief Reset event-trigger key bindings
-        static void resetKeyBindings();
+        static void resetKeyBindings() noexcept;
 
         /// @brief Check if config / profile is initialized
-        /// @return Status (true = ready)
-        static inline bool isConfigReady()
+        /// @returns Status (true = ready)
+        static inline bool isConfigReady() noexcept
         {
             return s_isReady;
         }
         
     private:
         /// @brief Set status to "not ready"
-        static void lock()
+        static inline void lock() noexcept
         {
             s_isReady = false;
         }
         /// @brief Wait while status is "not ready"
-        static void waitLock()
+        static inline void waitLock() noexcept
         {
             while (s_isReady == false)
                 std::this_thread::yield();
         }
         /// @brief Set status to "ready"
-        static void unlock()
+        static inline void unlock() noexcept
         {
             s_isReady = true;
         }
@@ -93,12 +93,12 @@ namespace config
         // -- profile management -- --------------------------------------------
 
         /// @brief Get specific profile
-        /// @param index Profile index (0 based)
-        /// @return Profile at the specified index (if available)
-        static ConfigProfile* getProfile(uint32_t index);
+        /// @param[in] index  Profile index (0 based)
+        /// @returns Profile at the specified index (if available)
+        static ConfigProfile* getProfile(const uint32_t index);
         /// @brief Get current profile
-        /// @return Current profile
-        static inline ConfigProfile* getCurrentProfile()
+        /// @returns Current profile
+        static inline ConfigProfile* getCurrentProfile() noexcept
         {
             if (s_isInitialized == false)
                 return nullptr;
@@ -106,8 +106,8 @@ namespace config
         }
 
         /// @brief Count available profiles
-        /// @return Profile array length
-        static uint32_t countProfiles()
+        /// @returns Profile array length
+        static inline uint32_t countProfiles() noexcept
         {
             return s_profiles.size();
         }
@@ -119,64 +119,63 @@ namespace config
         static void useDefaultProfile();
 
         /// @brief Set specific profile as current (if available)
-        /// @param index Profile index (0 based)
-        /// @throw Memory allocation failure
-        static void useProfile(uint32_t index);
+        /// @param[in] index  Profile index (0 based)
+        static void useProfile(const uint32_t index);
 
         /// @brief Get current profile ID
-        /// @return Current profile ID
-        static inline uint32_t getCurrentProfileId()
+        /// @returns Current profile ID
+        static inline uint32_t getCurrentProfileId() noexcept
         {
             return s_currentProfileId;
         }
         /// @brief Get ID of profile before specified ID
-        /// @param currentId Specified ID
-        /// @return Previous profile ID
-        static uint32_t getPrevProfileId(uint32_t currentId);
+        /// @param[in] currentId  Specified ID
+        /// @returns Previous profile ID
+        static uint32_t getPrevProfileId(const uint32_t currentId) noexcept;
         /// @brief Get ID of profile after specified ID
-        /// @param currentId Specified ID
-        /// @return Next profile ID
-        static uint32_t getNextProfileId(uint32_t currentId);
+        /// @param[in] currentId  Specified ID
+        /// @returns Next profile ID
+        static uint32_t getNextProfileId(const uint32_t currentId) noexcept;
 
         /// @brief Get specific profile name
-        /// @param index Profile index (0 based)
-        /// @return Name of profile at the specified index (if available)
-        static std::wstring* getProfileName(uint32_t index);
+        /// @param[in] index  Profile index (0 based)
+        /// @returns Name of profile at the specified index (if available)
+        static std::wstring* getProfileName(const uint32_t index) noexcept;
 
 
         // -- fix bits management -- -------------------------------------------
 
         /// @brief Enable fix bits/summary>
-        /// @param bits Fix bits mask
-        static inline void setGlobalFix(uint32_t bits)
+        /// @param[in] bits  Fix bits mask
+        static inline void setGlobalFix(const uint32_t bits) noexcept
         {
             configFixBits |= bits;
         }
         /// @brief Disable fix bits
-        /// @param bits Fix bits mask
-        static inline void unsetGlobalFix(uint32_t bits)
+        /// @param[in] bits  Fix bits mask
+        static inline void unsetGlobalFix(const uint32_t bits) noexcept
         {
             configFixBits &= ~bits;
         }
 
         /// @brief Check if fix bits are active
-        /// @param bits Bit(s) mask
-        /// @return True if all the requested bits are active
-        static inline bool getGlobalFix(uint32_t bits)
+        /// @param[in] bits  Bit(s) mask
+        /// @returns True if all the requested bits are active
+        static inline bool getGlobalFix(const uint32_t bits) noexcept
         {
             return ((configFixBits & bits) == bits);
         }
         /// @brief Check if at least one fix bit is active
-        /// @param bits Bit(s) mask
-        /// @return True if any of the requested bits is active
-        static inline bool getAnyGlobalFix(uint32_t bits)
+        /// @param[in] bits  Bit(s) mask
+        /// @returns True if any of the requested bits is active
+        static inline bool getAnyGlobalFix(const uint32_t bits) noexcept
         {
             return ((configFixBits & bits) != 0);
         }
         /// @brief Check if fix bit is disabled
-        /// @param bits Bit(s) mask (will return true if all are disabled)
-        /// @return True if none of the requested bits are active
-        static inline bool getNotGlobalFix(uint32_t bits)
+        /// @param[in] bits  Bit(s) mask (will return true if all are disabled)
+        /// @returns True if none of the requested bits are active
+        static inline bool getNotGlobalFix(const uint32_t bits) noexcept
         {
             return ((configFixBits & bits) == 0);
         }

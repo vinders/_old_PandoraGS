@@ -34,24 +34,24 @@ using namespace config;
 
 #ifdef _WINDOWS
 /// @brief Convert registry string to standard type
-/// @param[out] outVal Standard output value
-/// @param[in] sourceVal Registry string
+/// @param[out] outVal     Standard output value
+/// @param[in]  sourceVal  Registry string
 template<typename T>
-void convertFromRegString(T& outVal, WCHAR sourceVal[]);
-template<> void convertFromRegString<std::string>(std::string& outVal, WCHAR sourceVal[])
+void convertFromRegString(T& outVal, const WCHAR sourceVal[]);
+template<> void convertFromRegString<std::string>(std::string& outVal, const WCHAR sourceVal[])
 {
     outVal = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(sourceVal);
 }
-template<> void convertFromRegString<std::wstring>(std::wstring& outVal, WCHAR sourceVal[])
+template<> void convertFromRegString<std::wstring>(std::wstring& outVal, const WCHAR sourceVal[])
 {
     outVal = sourceVal;
 }
 
 /// @brief Destroy config key
-/// @param path Key path (without name)
-/// @param fileName Key name
-/// @return Success
-bool ConfigFileIO<registry_io_mode_t>::remove(std::wstring path, std::wstring& keyName)
+/// @param[in] path      Key path (without name)
+/// @param[in] fileName  Key name
+/// @returns Success
+bool ConfigFileIO<registry_io_mode_t>::remove(const std::wstring path, const std::wstring& keyName)
 {
     HKEY baseKey;
     if (::RegOpenKeyEx(HKEY_CURRENT_USER, (LPCWSTR)(path.c_str()), 0, KEY_ALL_ACCESS, &baseKey) == ERROR_SUCCESS)
@@ -66,17 +66,17 @@ bool ConfigFileIO<registry_io_mode_t>::remove(std::wstring path, std::wstring& k
 
 
 /// @brief Read integer value
-/// @param[in]  key File entry
-/// @param[out] outIntVal Output value
-void ConfigFileIO<registry_io_mode_t>::read(std::string& key, uint32_t& outIntVal)
+/// @param[in]  key        File entry
+/// @param[out] outIntVal  Output value
+void ConfigFileIO<registry_io_mode_t>::read(const std::string& key, uint32_t& outIntVal)
 {
     std::wstring wideKey = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(key);
     read(wideKey.c_str(), outIntVal);
 }
 
 /// @brief Read float value
-/// @param[in]  key Registry key item
-/// @param[out] outFloatVal Output value
+/// @param[in]  key          Registry key item
+/// @param[out] outFloatVal  Output value
 void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, float& outFloatVal)
 {
     char buffer[32];
@@ -89,9 +89,10 @@ void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, float& outFloatV
 }
 
 /// @brief Read char string value
-/// @param[in]  key Registry key item
-/// @param[out] outStringVal Output value
-void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, char* outStringVal, size_t length)
+/// @param[in]  key           Registry key item
+/// @param[out] outStringVal  Output value
+/// @param[in]  length        Output value max length
+void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, char* outStringVal, const size_t length)
 {
     char buffer[32];
     memset(buffer, 0, sizeof(buffer));
@@ -104,8 +105,8 @@ void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, char* outStringV
 }
 
 /// @brief  Read standard string value
-/// @param[in]  key Registry key item
-/// @param[out] outStringVal Output value
+/// @param[in]  key           Registry key item
+/// @param[out] outStringVal  Output value
 void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::string& outStringVal)
 {
     WCHAR buffer[MAX_PATH];
@@ -118,8 +119,8 @@ void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::string& out
 }
 
 /// @brief Read wide string value
-/// @param[in]  key Registry key item
-/// @param[out] outWideStringVal Output value
+/// @param[in]  key               Registry key item
+/// @param[out] outWideStringVal  Output value
 void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::wstring& outWideStringVal)
 {
     WCHAR buffer[MAX_PATH];
@@ -133,21 +134,21 @@ void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::wstring& ou
 
 
 /// @brief Read all available values
-/// @param[out] outData Output values
+/// @param[out] outData  Output values
 void ConfigFileIO<registry_io_mode_t>::readAll(std::map<std::string, uint32_t>& outData)
 {
     mapAllValues<std::string,uint32_t>(outData);
 }
 
 /// @brief Read all available values
-/// @param[out] outData Output values
+/// @param[out] outData  Output values
 void ConfigFileIO<registry_io_mode_t>::readAll(std::map<std::wstring, std::wstring>& outData)
 {
     mapAllValues<std::wstring,std::wstring>(outData);
 }
 
 /// @brief Create hash-map with all available values
-/// @param[out] outData Output map
+/// @param[out] outData  Output map
 template <typename KeyType, typename ValType>
 void ConfigFileIO<registry_io_mode_t>::mapAllValues(std::map<KeyType,ValType>& outData)
 {
@@ -190,17 +191,17 @@ void ConfigFileIO<registry_io_mode_t>::mapAllValues(std::map<KeyType,ValType>& o
 
 
 /// @brief Write float value
-/// @param[in]  key Registry key item
-/// @param[in]  val Written value
-void ConfigFileIO<registry_io_mode_t>::writeInt(std::string& key, uint32_t val)
+/// @param[in] key  Registry key item
+/// @param[in] val  Written value
+void ConfigFileIO<registry_io_mode_t>::writeInt(const std::string& key, const uint32_t val)
 {
     std::wstring wideKey = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(key);
     writeInt(wideKey.c_str(), val);
 }
 
 /// @brief Write float value
-/// @param[in]  key Registry key item
-/// @param[in]  val Written value
+/// @param[in] key  Registry key item
+/// @param[in] val  Written value
 void ConfigFileIO<registry_io_mode_t>::writeFloat(const wchar_t* key, float val)
 {
     char buffer[32];
@@ -210,33 +211,34 @@ void ConfigFileIO<registry_io_mode_t>::writeFloat(const wchar_t* key, float val)
 }
 
 /// @brief Write char string value
-/// @param[in]  key Registry key item
-/// @param[in]  val Written value
-void ConfigFileIO<registry_io_mode_t>::writeString(const wchar_t* key, char* val, size_t length)
+/// @param[in] key     Registry key item
+/// @param[in] val     Written value
+/// @param[in] length  Value length
+void ConfigFileIO<registry_io_mode_t>::writeString(const wchar_t* key, const char* val, const size_t length)
 {
     ::RegSetValueEx(m_regKey, (LPCWSTR)key, 0, REG_SZ, (PBYTE)val, length);
 }
 
 /// @brief Write standard string value
-/// @param[in]  key Registry key item
-/// @param[in]  val Written value
-void ConfigFileIO<registry_io_mode_t>::writeString(const wchar_t* key, std::string& val)
+/// @param[in] key  Registry key item
+/// @param[in] val  Written value
+void ConfigFileIO<registry_io_mode_t>::writeString(const wchar_t* key, const std::string& val)
 {
     ::RegSetValueEx(m_regKey, (LPCWSTR)key, 0, REG_SZ, (PBYTE)(val.c_str()), val.size());
 }
 
 /// @brief Write wide string value
-/// @param[in]  key Registry key item
-/// @param[in]  val Written value
-void ConfigFileIO<registry_io_mode_t>::writeString(const wchar_t* key, std::wstring& val)
+/// @param[in] key  Registry key item
+/// @param[in] val  Written value
+void ConfigFileIO<registry_io_mode_t>::writeString(const wchar_t* key, const std::wstring& val)
 {
     ::RegSetValueEx(m_regKey, (LPCWSTR)key, 0, REG_BINARY, (LPBYTE)(val.c_str()), val.size());
 }
 
 /// @brief Remove existing value from file
-/// @param[in]  key Entry
-/// @return Success
-bool ConfigFileIO<registry_io_mode_t>::removeValue(std::string& key)
+/// @param[in] key  Entry
+/// @returns Success
+bool ConfigFileIO<registry_io_mode_t>::removeValue(const std::string& key)
 {
     std::wstring wideKey = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(key);
     char buffer[64];
@@ -252,9 +254,9 @@ bool ConfigFileIO<registry_io_mode_t>::removeValue(std::string& key)
 // -- external config file -- ----------------------------------------------
 
 /// @brief Open data source
-/// @param path File path
-/// @param fileMode IO mode
-bool ConfigFileIO<file_io_mode_t>::open(std::wstring path, file_io_mode_t fileMode)
+/// @param[in] path      File path
+/// @param[in] fileMode  IO mode
+bool ConfigFileIO<file_io_mode_t>::open(const std::wstring path, const file_io_mode_t fileMode)
 {
     // open file
     if (fileMode == file_io_mode_t::read) // open / read
@@ -327,10 +329,10 @@ void ConfigFileIO<file_io_mode_t>::createContentIndex()
 }
 
 /// @brief Destroy config file
-/// @param path File path (without name)
-/// @param fileName File name
-/// @return Success
-bool ConfigFileIO<file_io_mode_t>::remove(std::wstring path, std::wstring& fileName)
+/// @param[in] path      File path (without name)
+/// @param[in] fileName  File name
+/// @returns Success
+bool ConfigFileIO<file_io_mode_t>::remove(std::wstring path, const std::wstring& fileName)
 {
     std::string basePath = events::utils::FileIO::getWritableFilePath(); // get base folder path
 
@@ -354,17 +356,17 @@ bool ConfigFileIO<file_io_mode_t>::remove(std::wstring path, std::wstring& fileN
 
 
 /// @brief Read integer value
-/// @param[in]  key File entry
-/// @param[out] outIntVal Output value
-void ConfigFileIO<file_io_mode_t>::read(std::string& key, uint32_t& outIntVal)
+/// @param[in]  key        File entry
+/// @param[out] outIntVal  Output value
+void ConfigFileIO<file_io_mode_t>::read(const std::string& key, uint32_t& outIntVal)
 {
     std::wstring wideKey = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(key);
     read(wideKey.c_str(), outIntVal);
 }
 
 /// @brief Read float value
-/// @param[in]  key File entry
-/// @param[out] outFloatVal Output value
+/// @param[in]  key          File entry
+/// @param[out] outFloatVal  Output value
 void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, float& outFloatVal)
 {
     if (m_openMode != file_io_mode_t::read || m_fileData.find(key) == m_fileData.end())
@@ -375,9 +377,10 @@ void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, float& outFloatVal)
 }
 
 /// @brief Read char string value
-/// @param[in]  key File entry
-/// @param[out] outStringVal Output value
-void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, char* outStringVal, size_t length)
+/// @param[in]  key           File entry
+/// @param[out] outStringVal  Output value
+/// @param[in]  length        Output value max length
+void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, char* outStringVal, const size_t length)
 {
     if (m_openMode != file_io_mode_t::read || m_fileData.find(key) == m_fileData.end())
         return;
@@ -390,8 +393,8 @@ void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, char* outStringVal, 
 }
 
 /// @brief  Read standard string value
-/// @param[in]  key File entry
-/// @param[out] outStringVal Output value
+/// @param[in]  key           File entry
+/// @param[out] outStringVal  Output value
 void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, std::string& outStringVal)
 {
     if (m_openMode != file_io_mode_t::read || m_fileData.find(key) == m_fileData.end())
@@ -400,8 +403,8 @@ void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, std::string& outStri
 }
 
 /// @brief Read wide string value
-/// @param[in]  key File entry
-/// @param[out] outWideStringVal Output value
+/// @param[in]  key               File entry
+/// @param[out] outWideStringVal  Output value
 void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, std::wstring& outWideStringVal)
 {
     if (m_openMode != file_io_mode_t::read || m_fileData.find(key) == m_fileData.end())
@@ -411,7 +414,7 @@ void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, std::wstring& outWid
 
 
 /// @brief Read all available values
-/// @param[out] outData Output values
+/// @param[out] outData  Output values
 void ConfigFileIO<file_io_mode_t>::readAll(std::map<std::string, uint32_t>& outData)
 {
     for (auto it = m_fileData.begin(); it != m_fileData.end(); ++it)
@@ -422,7 +425,7 @@ void ConfigFileIO<file_io_mode_t>::readAll(std::map<std::string, uint32_t>& outD
 }
 
 /// @brief Read all available values
-/// @param[out] outData Output values
+/// @param[out] outData  Output values
 void ConfigFileIO<file_io_mode_t>::readAll(std::map<std::wstring, std::wstring>& outData)
 {
     for (auto it = m_fileData.begin(); it != m_fileData.end(); ++it)
@@ -431,9 +434,9 @@ void ConfigFileIO<file_io_mode_t>::readAll(std::map<std::wstring, std::wstring>&
 
 
 /// @brief Write boolean value
-/// @param[in]  key File entry
-/// @param[in]  val Written value
-void ConfigFileIO<file_io_mode_t>::writeBool(const wchar_t* key, bool val)
+/// @param[in] key  File entry
+/// @param[in] val  Written value
+void ConfigFileIO<file_io_mode_t>::writeBool(const wchar_t* key, const bool val)
 {
     if (static_cast<uint32_t>(m_openMode) < static_cast<uint32_t>(file_io_mode_t::write))
         return;
@@ -442,9 +445,9 @@ void ConfigFileIO<file_io_mode_t>::writeBool(const wchar_t* key, bool val)
 }
 
 /// @brief Write integer value
-/// @param[in]  key File entry
-/// @param[in]  val Written value
-void ConfigFileIO<file_io_mode_t>::writeInt(const wchar_t* key, uint32_t val)
+/// @param[in] key  File entry
+/// @param[in] val  Written value
+void ConfigFileIO<file_io_mode_t>::writeInt(const wchar_t* key, const uint32_t val)
 {
     if (static_cast<uint32_t>(m_openMode) < static_cast<uint32_t>(file_io_mode_t::write))
         return;
@@ -453,17 +456,17 @@ void ConfigFileIO<file_io_mode_t>::writeInt(const wchar_t* key, uint32_t val)
 }
 
 /// @brief Write float value
-/// @param[in]  key Registry key item
-/// @param[in]  val Written value
-void ConfigFileIO<file_io_mode_t>::writeInt(std::string& key, uint32_t val)
+/// @param[in] key  Registry key item
+/// @param[in] val  Written value
+void ConfigFileIO<file_io_mode_t>::writeInt(std::string& key, const uint32_t val)
 {
     std::wstring wideKey = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(key);
     writeInt(wideKey.c_str(), val);
 }
 
 /// @brief Write float value
-/// @param[in]  key File entry
-/// @param[in]  val Written value
+/// @param[in] key  File entry
+/// @param[in] val  Written value
 void ConfigFileIO<file_io_mode_t>::writeFloat(const wchar_t* key, float val)
 {
     if (static_cast<uint32_t>(m_openMode) < static_cast<uint32_t>(file_io_mode_t::write))
@@ -475,9 +478,10 @@ void ConfigFileIO<file_io_mode_t>::writeFloat(const wchar_t* key, float val)
 }
 
 /// @brief Write char string value
-/// @param[in]  key File entry
-/// @param[in]  val Written value
-void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, char* val, size_t length)
+/// @param[in] key     File entry
+/// @param[in] val     Written value
+/// @param[in] length  Value length
+void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, const char* val, const size_t length)
 {
     if (static_cast<uint32_t>(m_openMode) < static_cast<uint32_t>(file_io_mode_t::write))
         return;
@@ -486,9 +490,9 @@ void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, char* val, si
 }
 
 /// @brief Write standard string value
-/// @param[in]  key File entry
-/// @param[in]  val Written value
-void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, std::string& val)
+/// @param[in] key  File entry
+/// @param[in] val  Written value
+void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, const std::string& val)
 {
     if (static_cast<uint32_t>(m_openMode) < static_cast<uint32_t>(file_io_mode_t::write))
         return;
@@ -497,9 +501,9 @@ void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, std::string& 
 }
 
 /// @brief Write wide string value
-/// @param[in]  key File entry
-/// @param[in]  val Written value
-void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, std::wstring& val)
+/// @param[in] key  File entry
+/// @param[in] val  Written value
+void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, const std::wstring& val)
 {
     if (static_cast<uint32_t>(m_openMode) < static_cast<uint32_t>(file_io_mode_t::write))
         return;
@@ -508,8 +512,8 @@ void ConfigFileIO<file_io_mode_t>::writeString(const wchar_t* key, std::wstring&
 
 
 /// @brief Remove existing value from file
-/// @param[in]  key Entry
-bool ConfigFileIO<file_io_mode_t>::removeValue(std::string& key)
+/// @param[in] key  Entry
+bool ConfigFileIO<file_io_mode_t>::removeValue(const std::string& key)
 {
     if (static_cast<uint32_t>(m_openMode) < static_cast<uint32_t>(file_io_mode_t::write))
         return false;

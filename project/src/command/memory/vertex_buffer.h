@@ -48,6 +48,8 @@ namespace command
             std::vector<uint32_t>* m_pTextureInfos; ///< Vertex texture informations
 
         public:
+            /// @brief Create default vertex buffer
+            VertexBuffer();
             /// @brief Create and configure vertex buffer
             /// @param baseCapacity Base capacity (pre-allocated number of vertices)
             /// @param isTextured Use texture data
@@ -55,12 +57,17 @@ namespace command
             /// @brief Destroy vertex buffer
             ~VertexBuffer();
 
+            /// @brief Configure vertex buffer
+            /// @param baseCapacity Base capacity (pre-allocated number of vertices)
+            /// @param isTextured Use texture data
+            void init(uint32_t baseCapacity, bool isTextured);
+
             /// @brief Clear vertex buffer (remove content)
             inline void clear()
             {
                 m_pVertexCoords->clear();
                 m_pVertexColors->clear();
-                if (m_pTextureInfos != NULL)
+                if (m_pTextureInfos != nullptr)
                     m_pTextureInfos->clear();
             }
 
@@ -82,7 +89,7 @@ namespace command
             inline void push(vertex_pos_t& pCoords, vertex_color_t& color, vertex_texture_t& tex)
             {
                 push(pCoords, color);
-                if (m_pTextureInfos != NULL)
+                if (m_pTextureInfos != nullptr)
                 {
                     m_pTextureInfos->push_back(tex);
                 }
@@ -113,10 +120,10 @@ namespace command
                 {
                     *ppOutCoords = &((*m_pVertexCoords)[0]);
                     *ppOutColors = &((*m_pVertexColors)[0]);
-                    if (m_pTextureInfos != NULL)
+                    if (m_pTextureInfos != nullptr)
                         *ppOutTextures = &((*m_pTextureInfos)[0]);
                     else
-                        *ppOutTextures = NULL;
+                        *ppOutTextures = nullptr;
 
                     return m_pVertexColors->size();
                 }

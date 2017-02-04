@@ -38,71 +38,69 @@ namespace config
     {
     public:
         /// @brief Load configuration values
-        /// @param pOutProfileNames Profile name list to complete (or NULL to ignore it)
+        /// @param[out] pOutProfileNames  Profile name list to complete (or NULL to ignore it)
         static void loadConfig(std::vector<std::wstring>* pOutProfileNames = NULL);
         /// @brief Save config values
-        /// @param hasProfiles Also save contained profiles (true) / only save main config (false)
-        /// @param profiles Array of config profiles (necessary, even if profiles not saved)
-        /// @throw Saving failure
-        static void saveConfig(bool hasProfiles, std::vector<ConfigProfile*>& profiles);
+        /// @param[in] hasProfiles  Also save contained profiles (true) / only save main config (false)
+        /// @param[in] profiles     Array of config profiles (necessary, even if profiles not saved)
+        /// @throws runtime_error  Saving failure
+        static void saveConfig(const bool hasProfiles, const std::vector<ConfigProfile*>& profiles);
         /// @brief Initialize list of profile names
-        /// @param profileCount Number of profiles to read
-        /// @param profileNames Reference to list of names to complete
-        static void listProfileNames(uint32_t profileCount, std::vector<std::wstring>& profileNames);
+        /// @param[in]  profileCount  Number of profiles to read
+        /// @param[out] profileNames  Reference to list of names to complete
+        static void listProfileNames(const uint32_t profileCount, std::vector<std::wstring>& profileNames);
 
         /// @brief Load profile values
-        /// @param id Profile identifier
-        /// @param isNameRead Read profile name (true) or ignore (false)
-        /// @return Allocated config profile container (with loaded values)
-        /// @throw Memory allocation failure
-        static ConfigProfile* loadConfigProfile(uint32_t id, bool isNameRead = true);
+        /// @param[in] id          Profile identifier
+        /// @param[in] isNameRead  Read profile name (true) or ignore (false)
+        /// @returns Allocated config profile container (with loaded values)
+        static ConfigProfile* loadConfigProfile(const uint32_t id, const bool isNameRead = true);
         /// @brief Import profile values (external file)
-        /// @param id New profile identifier
-        /// @param path Import file path
-        /// @return Allocated config profile container (with loaded values)
-        /// @throw Memory allocation failure
-        static ConfigProfile* importConfigProfile(uint32_t id, std::wstring& path);
+        /// @param[in] id    New profile identifier
+        /// @param[in] path  Import file path
+        /// @returns Allocated config profile container (with loaded values)
+        /// @throws invalid_argument  File not found
+        static ConfigProfile* importConfigProfile(const uint32_t id, const std::wstring& path);
         /// @brief Read profile values
-        /// @param reader Data source reader
-        /// @param profile Profile to complete
+        /// @param[in]  reader   Data source reader
+        /// @param[out] profile  Profile to complete
         template<typename T>
         static void readConfigProfileValues(ConfigFileIO<T>& reader, ConfigProfile& profile);
 
         /// @brief Save profile values
-        /// @param profile Config profile container with values
-        /// @throw Saving failure
-        static void saveConfigProfile(ConfigProfile& profile);
+        /// @param[in] profile  Config profile container with values
+        /// @throws runtime_error  Saving failure
+        static void saveConfigProfile(const ConfigProfile& profile);
         /// @brief Export profile values (external file)
-        /// @param profile Config profile container with values
-        /// @param path Export file path
-        /// @throw Export failure
-        static void exportConfigProfile(ConfigProfile& profile, std::wstring& path);
+        /// @param[in] profile  Config profile container with values
+        /// @param[in] path     Export file path
+        /// @throws runtime_error  Export failure
+        static void exportConfigProfile(const ConfigProfile& profile, const std::wstring& path);
         /// @brief Write profile values
-        /// @param writer Data destination manager
-        /// @param profile Source profile
+        /// @param[in] writer   Data destination manager
+        /// @param[in] profile  Source profile
         template<typename T>
-        static void writeConfigProfileValues(ConfigFileIO<T>& writer, ConfigProfile& profile);
+        static void writeConfigProfileValues(ConfigFileIO<T>& writer, const ConfigProfile& profile);
 
         /// @brief Remove profile (won't change associations !)
-        /// @param id Profile identifier
-        /// @throw Saving failure
-        static void removeConfigProfile(uint32_t id); // !!! change profile associations BEFORE calling this !!!
+        /// @param[in] id  Profile identifier
+        /// @throws runtime_error  Saving failure
+        static void removeConfigProfile(const uint32_t id); // !!! change profile associations BEFORE calling this !!!
 
         /// @brief Remember a game/profile association (ingame)
-        /// @param profileId Profile ID to associate with game
-        /// @param gameExecutableId Game identifier
-        /// @throw Saving failure
-        static void setGameAssocation(uint32_t profileId, std::string& gameExecutableId);
+        /// @param[in] profileId         Profile ID to associate with game
+        /// @param[in] gameExecutableId  Game identifier
+        static void setGameAssocation(const uint32_t profileId, const std::string& gameExecutableId);
         /// @brief Get the profile ID associated with a game (ingame)
-        /// @param gameExecutableId Game identifier
-        /// @return Associated profile ID (or 0)
-        static uint32_t getGameAssociation(std::string& gameExecutableId);
+        /// @param[in] gameExecutableId  Game identifier
+        /// @returns Associated profile ID (or 0)
+        static uint32_t getGameAssociation(const std::string& gameExecutableId);
 
         /// @brief Set the game/profile associations (settings)
-        /// @param associations List of associated games/profiles
-        static void setProfileAssociations(std::list<game_profile_association_t>& associations);
+        /// @param[in] associations  List of associated games/profiles
+        static void setProfileAssociations(const std::list<game_profile_association_t>& associations);
         /// @brief Get the list of all the game/profile associations (settings)
-        /// @param outAssociations Destination variable for returned list
+        /// @param[out] outAssociations  Destination variable for returned list
         static void getProfileAssociations(std::list<game_profile_association_t>& outAssociations);
     };
 }

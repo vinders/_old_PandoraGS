@@ -41,7 +41,7 @@ void Config::init()
 
     // set default values
     langCode = LANGCODE_DEFAULT;
-    langFilePath = L"./pandoraGS.lang";
+    langFilePath = L"./pandoraGS.lang"s;
     memset(events.pTriggerKeys, 0x0, EVENT_KEYS_STRING_LENGTH);
     reset(true);
 
@@ -50,7 +50,7 @@ void Config::init()
     // initialize profile array
     s_profiles.reserve(s_profileNames.size());
     for (int i = s_profileNames.size(); i > 0; --i)
-        s_profiles.push_back(NULL);
+        s_profiles.push_back(nullptr);
 
     // load default profile
     s_currentProfileId = 0u;
@@ -70,9 +70,9 @@ void Config::close()
     // clear profile array
     for (auto it = s_profiles.begin(); it != s_profiles.end(); ++it)
     {
-        if (*it != NULL)
+        if (*it != nullptr)
             delete *it;
-        *it = NULL;
+        *it = nullptr;
     }
     s_profiles.clear();
     s_profileNames.clear();
@@ -82,8 +82,8 @@ void Config::close()
 }
 
 /// @brief Set default config values
-/// @param isKeyBindingReset Also reset event-trigger key bindings
-void Config::reset(bool isKeyBindingReset)
+/// @param[in] isKeyBindingReset  Also reset event-trigger key bindings
+void Config::reset(const bool isKeyBindingReset) noexcept
 {
     Config::display.windowMode = display::utils::window_mode_t::fullscreen;
     Config::display.fullscreenRes = { RESOLUTION_AUTODETECT, RESOLUTION_AUTODETECT };
@@ -105,7 +105,7 @@ void Config::reset(bool isKeyBindingReset)
 }
 
 /// @brief Reset event-trigger key bindings
-void Config::resetKeyBindings()
+void Config::resetKeyBindings() noexcept
 {
     events.pTriggerKeys[static_cast<int32_t>(events::event_trigger_t::menuToggle)] = VK_INSERT;
     events.pTriggerKeys[static_cast<int32_t>(events::event_trigger_t::menuPrev)] = VK_PRIOR;
@@ -125,20 +125,20 @@ void Config::resetKeyBindings()
 // -- profile management -- --------------------------------------------
 
 /// @brief Get specific profile
-/// @param index Profile index (0 based)
-/// @return Profile at the specified index (if available)
-ConfigProfile* Config::getProfile(uint32_t index)
+/// @param[in] index  Profile index (0 based)
+/// @returns Profile at the specified index (if available)
+ConfigProfile* Config::getProfile(const uint32_t index)
 {
     waitLock();
     lock();
     if (s_isInitialized == false || index >= countProfiles())
     {
         unlock();
-        return NULL;
+        return nullptr;
     }
 
     // if no yet loaded, load profile
-    if (s_profiles[index] == NULL)
+    if (s_profiles[index] == nullptr)
         s_profiles[index] = ConfigIO::loadConfigProfile(index, true);
     unlock();
     return s_profiles[index];
@@ -159,7 +159,7 @@ void Config::useDefaultProfile()
     }
 
     // if no yet loaded, load profile
-    if (s_profiles[0] == NULL)
+    if (s_profiles[0] == nullptr)
     {
         s_profiles[0] = ConfigIO::loadConfigProfile(0u, false);
     }
@@ -169,9 +169,8 @@ void Config::useDefaultProfile()
 }
 
 /// @brief Set specific profile as current (if available)
-/// @param index Profile index (0 based)
-/// @throw Memory allocation failure
-void Config::useProfile(uint32_t index)
+/// @param[in] index  Profile index (0 based)
+void Config::useProfile(const uint32_t index)
 {
     waitLock();
     lock();
@@ -182,7 +181,7 @@ void Config::useProfile(uint32_t index)
     }
 
     // if no yet loaded, load profile
-    if (s_profiles[index] == NULL)
+    if (s_profiles[index] == nullptr)
     {
         s_profiles[index] = ConfigIO::loadConfigProfile(index, false);
     }
@@ -192,48 +191,50 @@ void Config::useProfile(uint32_t index)
 }
 
 /// @brief Get ID of profile before specified ID
-/// @param currentId Specified ID
-/// @return Previous profile ID
-uint32_t Config::getPrevProfileId(uint32_t currentId)
+/// @param[in] currentId  Specified ID
+/// @returns Previous profile ID
+uint32_t Config::getPrevProfileId(const uint32_t currentId) noexcept
 {
     waitLock();
     if (s_isInitialized == false)
         return 0u;
 
     // calculate previous ID
+    uint32_t requestedId;
     if (currentId > 0u)
-        currentId -= 1u;
+        requestedId = currentId - 1u;
     else if (!s_profiles.empty())
-        currentId = countProfiles() - 1u;
+        requestedId = countProfiles() - 1u;
     else
-        currentId = 0u;
-    return currentId;
+        requestedId = 0u;
+    return requestedId;
 }
 
 /// @brief Get ID of profile after specified ID
-/// @param currentId Specified ID
-/// @return Next profile ID
-uint32_t Config::getNextProfileId(uint32_t currentId)
+/// @param[in] currentId  Specified ID
+/// @returns Next profile ID
+uint32_t Config::getNextProfileId(const uint32_t currentId) noexcept
 {
     waitLock();
     if (s_isInitialized == false)
         return 0u;
 
     // calculate next ID
+    uint32_t requestedId;
     if (s_profiles.empty() || currentId >= (countProfiles() - 1u))
-        currentId = 0u;
+        requestedId = 0u;
     else
-        currentId += 1u;
-    return currentId;
+        requestedId = currentId + 1u;
+    return requestedId;
 }
 
 /// @brief Get specific profile name
-/// @param index Profile index (0 based)
-/// @return Name of profile at the specified index (if available)
-std::wstring* Config::getProfileName(uint32_t index)
+/// @param[in] index  Profile index (0 based)
+/// @returns Name of profile at the specified index (if available)
+std::wstring* Config::getProfileName(const uint32_t index) noexcept
 {
     waitLock();
     if (s_isInitialized == false || index >= countProfiles())
-        return NULL;
+        return nullptr;
     return &s_profileNames[index];
 }
