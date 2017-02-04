@@ -7,21 +7,26 @@ License :     GPLv2
 Description : rendering shader builder
 *******************************************************************************/
 #include "../globals.h"
-#include "shader.h"
+#include <cstdio>
+#include <cstdlib>
+#include <stdexcept>
+#include "../events/utils/logger.h"
 #include "effects/vertex_shader_definition.h"
 #include "effects/fragment_shader_definition.h"
+#include "shader.h"
 using namespace display;
 
 
-/// @brief Create and load shader
-/// @param programId Rendering pipeline program
-/// @param type Type of shader
-Shader::Shader(GLuint& programId, shadertype_t type)
+/// @brief Load external shader
+/// @param[in] programId  Rendering pipeline program
+/// @param[in] type       Type of shader
+/// @param[in] path       File path (if external shader) or empty value (built-in)
+Shader::Shader(const GLuint& programId, const shadertype_t type, const std::string& path)
 {
     switch (type)
     {
-        case shadertype_t::vertex: setVertexShader(); break;
-        case shadertype_t::fragment: setFragmentShader(); break;
+        case shadertype_t::vertex: setVertexShader(path); break;
+        case shadertype_t::fragment: setFragmentShader(path); break;
     }
 
     m_programId = programId;
@@ -35,28 +40,96 @@ Shader::~Shader()
     glDeleteShader(m_shader);
 }
 
-/// @brief Create custom vertex shader (based on current config)
-void Shader::setVertexShader()
-{
-    // create shader definition (based on current config)
-    display::effects::VertexShaderDefinition shaderDefBuilder;
 
-    // load string definition into shader
-    const char* shaderDef = shaderDefBuilder.getDefinition();
+/// @brief Create custom vertex shader (based on current config)
+/// @param[in] path  File path (if external shader) or empty (built-in)
+void Shader::setVertexShader(const std::string& path)
+{
     m_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(m_shader, 1, &shaderDef, NULL);
-    glCompileShader(m_shader);
+    if (path.empty() || loadShaderFromFile(path) == false) // built-in or external (if valid file)
+    {
+        // create shader definition (based on current config)
+        display::effects::VertexShaderDefinition shaderDefBuilder;
+
+        // load string definition into shader
+        const char* shaderDef = shaderDefBuilder.getDefinition();
+        glShaderSource(m_shader, 1, &shaderDef, NULL);
+        glCompileShader(m_shader);
+
+        // check validity
+        GLint status = 0;
+        glGetShaderiv(m_shader, GL_COMPILE_STATUS, &status);
+        if (!status)
+            events::utils::Logger::getInstance()->writeErrorEntry("Shader.setVertexShader"s, s"Built-in shader compilation failure");
+    }
 }
 
 /// @brief Create custom fragment shader (based on current config)
-void Shader::setFragmentShader()
+/// @param[in] path  File path (if external shader) or empty (built-in)
+void Shader::setFragmentShader(const std::string& path)
 {
-    // create shader definition (based on current config)
-    display::effects::FragmentShaderDefinition shaderDefBuilder;
-
-    // load string definition into shader
-    const char* shaderDef = shaderDefBuilder.getDefinition();
     m_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(m_shader, 1, &shaderDef, NULL);
-    glCompileShader(m_shader);
+    if (path.empty() || loadShaderFromFile(path) == false) // built-in or external (if valid file)
+    {
+        // create shader definition (based on current config)
+        display::effects::FragmentShaderDefinition shaderDefBuilder;
+
+        // load string definition into shader
+        const char* shaderDef = shaderDefBuilder.getDefinition();
+        glShaderSource(m_shader, 1, &shaderDef, NULL);
+        glCompileShader(m_shader);
+
+        // check validity
+        GLint status = 0;
+        glGetShaderiv(m_shader, GL_COMPILE_STATUS, &status);
+        if (!status)
+            events::utils::Logger::getInstance()->writeErrorEntry("Shader.setVertexShader"s, s"Built-in shader compilation failure");
+    }
+}
+
+
+/// @brief Load external shader from file
+/// @param[in] path  File path
+/// @returns Success (validity)
+bool Shader::loadShaderFromFile(const std::string& path) noexcept
+{
+    try
+    {
+        // open file
+        FILE* shaderFd = fopen(path.c_str(), "rb");
+        if (!shaderFd)
+            throw std::invalid_argument("Shader file not found or corrupted.");
+        // get file size
+        fseek(shaderFd, 0, SEEK_END);
+        size_t fileSize = ftell(shaderFd);
+        fseek(shaderFd, 0, SEEK_SET);
+
+        // read entire file
+        char* shaderDef = new char[fileSize + 1];
+        if (shaderDef == nullptr)
+        {
+            fclose(shaderFd);
+            throw std::runtime_error("Shader definition allocation failure. File may be too big?");
+        }
+        fread(shaderDef, 1, fileSize, shaderFd);
+        shaderDef[fileSize] = '\0';
+        fclose(shaderFd);
+
+        // load string definition into shader
+        glShaderSource(m_shader, 1, &shaderDef, NULL);
+        glCompileShader(m_shader);
+        delete [] shaderDef;
+
+        // check validity
+        GLint status = 0;
+        glGetShaderiv(m_shader, GL_COMPILE_STATUS, &status);
+        if (!status)
+            throw std::invalid_argument("Shader file compilation failure. File contains invalid code.");
+    }
+    catch (const std::exception& exc)
+    {
+        events::utils::Logger::getInstance()->writeErrorEntry("Shader.loadShaderFromFile : "s + path, exc.what());
+        return false;
+    }
+    return true;
 }

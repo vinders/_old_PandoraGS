@@ -34,16 +34,25 @@ namespace display
         GLuint m_shader;    ///< Shader identifier
 
     public:
-        /// @brief Create and load shader
-        /// @param programId Rendering pipeline program
-        /// @param type Type of shader
-        Shader(GLuint& programId, shadertype_t type);
+        /// @brief Load external shader
+        /// @param[in] programId  Rendering pipeline program
+        /// @param[in] type       Type of shader
+        /// @param[in] path       File path (if external shader) or empty value (built-in)
+        Shader(const GLuint& programId, const shadertype_t type, const std::string& path = ""s);
         /// @brief Disable and destroy shader
         ~Shader();
 
+    private:
         /// @brief Create custom vertex shader (based on current config)
-        void setVertexShader();
+        /// @param[in] path  File path (if external shader) or empty (built-in)
+        void setVertexShader(const std::string& path);
         /// @brief Create custom fragment shader (based on current config)
-        void setFragmentShader();
+        /// @param[in] path  File path (if external shader) or empty (built-in)
+        void setFragmentShader(const std::string& path);
+
+        /// @brief Load external shader from file
+        /// @param[in] path  File path
+        /// @returns Success (validity)
+        bool loadShaderFromFile(const std::string& path) noexcept;
     };
 }
