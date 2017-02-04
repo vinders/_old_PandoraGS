@@ -52,7 +52,7 @@ namespace config
 
 
     public:
-        /// @brief Create config container (default values, no profile)
+        /// @brief Create config container (default values + default profile)
         static void init();
 
         /// @brief Close config container and profiles

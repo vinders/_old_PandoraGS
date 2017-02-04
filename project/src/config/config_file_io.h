@@ -175,10 +175,13 @@ namespace config
         /// @brief Read all available values
         /// @param[out] outData Output values
         void readAll(std::map<std::wstring, std::wstring>& outData);
+    private:
         /// @brief Create hash-map with all available values
         /// @param[out] outData Output map
-        void mapAllValues(std::map<std::wstring, std::wstring>& outData);
+        template <typename KeyType, typename ValType>
+        void mapAllValues(std::map<KeyType, ValType>& outData);
 
+    public:
         /// @brief Write boolean value
         /// @param[in]  key Registry key item
         /// @param[in]  val Written value
@@ -418,4 +421,32 @@ namespace config
             m_file.write(valStr.c_str(), valStr.size());
         }
     };
+
+
+    // -- common template tools -- ---------------------------------------------
+
+    /// @brief Check if empty value
+    /// @param[in] val Value to check
+    template<typename T>
+    bool isEmptyValue(T& val);
+    template<> inline bool isEmptyValue<uint32_t>(uint32_t& val)
+    {
+        return (val == 0u);
+    }
+    template<> inline bool isEmptyValue<std::wstring>(std::wstring& val)
+    {
+        return (val.empty());
+    }
+    /// @brief Set empty value
+    /// @param[out] outVal Value to reset
+    template<typename T>
+    void setEmptyValue(T& outVal);
+    template<> inline void setEmptyValue<uint32_t>(uint32_t& outVal)
+    {
+        outVal = 0u;
+    }
+    template<> inline void setEmptyValue<std::wstring>(std::wstring& outVal)
+    {
+        outVal = L"";
+    }
 }

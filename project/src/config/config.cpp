@@ -70,7 +70,8 @@ void Config::close()
     // clear profile array
     for (auto it = s_profiles.begin(); it != s_profiles.end(); ++it)
     {
-        delete *it;
+        if (*it != NULL)
+            delete *it;
         *it = NULL;
     }
     s_profiles.clear();
@@ -138,7 +139,7 @@ ConfigProfile* Config::getProfile(uint32_t index)
 
     // if no yet loaded, load profile
     if (s_profiles[index] == NULL)
-        s_profiles[index] = ConfigIO::loadConfigProfile(index, false);
+        s_profiles[index] = ConfigIO::loadConfigProfile(index, true);
     unlock();
     return s_profiles[index];
 }
@@ -157,6 +158,11 @@ void Config::useDefaultProfile()
         return;
     }
 
+    // if no yet loaded, load profile
+    if (s_profiles[0] == NULL)
+    {
+        s_profiles[0] = ConfigIO::loadConfigProfile(0u, false);
+    }
     // set profile as active
     s_currentProfileId = 0u;
     unlock();

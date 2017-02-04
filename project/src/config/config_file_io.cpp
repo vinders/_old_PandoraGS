@@ -33,6 +33,20 @@ using namespace config;
 // -- registry key -- ------------------------------------------------------
 
 #ifdef _WINDOWS
+/// @brief Convert registry string to standard type
+/// @param[out] outVal Standard output value
+/// @param[in] sourceVal Registry string
+template<typename T>
+void convertFromRegString(T& outVal, WCHAR sourceVal[]);
+template<> void convertFromRegString<std::string>(std::string& outVal, WCHAR sourceVal[])
+{
+    outVal = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(sourceVal);
+}
+template<> void convertFromRegString<std::wstring>(std::wstring& outVal, WCHAR sourceVal[])
+{
+    outVal = sourceVal;
+}
+
 /// @brief Destroy config key
 /// @param path Key path (without name)
 /// @param fileName Key name
@@ -122,25 +136,20 @@ void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::wstring& ou
 /// @param[out] outData Output values
 void ConfigFileIO<registry_io_mode_t>::readAll(std::map<std::string, uint32_t>& outData)
 {
-    std::map<std::wstring, std::wstring> values;
-    mapAllValues(values);
-    for (auto it = values.begin(); it != values.end(); ++it)
-    {
-        std::string key = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(it->first);
-        outData[key] = std::stoi(it->second);
-    }
+    mapAllValues<std::string,uint32_t>(outData);
 }
 
 /// @brief Read all available values
 /// @param[out] outData Output values
 void ConfigFileIO<registry_io_mode_t>::readAll(std::map<std::wstring, std::wstring>& outData)
 {
-    mapAllValues(outData);
+    mapAllValues<std::wstring,std::wstring>(outData);
 }
 
 /// @brief Create hash-map with all available values
 /// @param[out] outData Output map
-void ConfigFileIO<registry_io_mode_t>::mapAllValues(std::map<std::wstring, std::wstring>& outData)
+template <typename KeyType, typename ValType>
+void ConfigFileIO<registry_io_mode_t>::mapAllValues(std::map<KeyType,ValType>& outData)
 {
     TCHAR    classNameBuffer[MAX_PATH] = TEXT("");
     DWORD    classNameSize = sizeof(classNameBuffer);
@@ -153,10 +162,12 @@ void ConfigFileIO<registry_io_mode_t>::mapAllValues(std::map<std::wstring, std::
     if (RegQueryInfoKey(m_regKey, classNameBuffer, &classNameSize, NULL, &subkeysNb, &subkeysMaxSize, &maxClassData,
         &valuesNb, &valuesMaxSize, &maxValueData, &securityDescriptorSize, &lastWriteTime) == ERROR_SUCCESS)
     {
+        KeyType mapKey;
+        ValType mapVal;
+        setEmptyValue(mapVal);
+
         // enumerate the key values 
-        std::wstring mapKey;
-        std::wstring mapVal;
-        WCHAR  valueIdentifier[64];
+        WCHAR valueIdentifier[32];
         DWORD valueMaxSize;
         for (uint32_t i = 0u; i < valuesNb; i++)
         {
@@ -165,12 +176,12 @@ void ConfigFileIO<registry_io_mode_t>::mapAllValues(std::map<std::wstring, std::
             if (RegEnumValue(m_regKey, static_cast<DWORD>(i), valueIdentifier, &valueMaxSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
             {
                 // read entry
-                mapKey = valueIdentifier;
-                read(mapKey.c_str(), mapVal);
-                if (mapVal.empty() == false)
+                convertFromRegString(mapKey, valueIdentifier);
+                read(valueIdentifier, mapVal);
+                if (isEmptyValue(mapVal) == false)
                 {
                     outData[mapKey] = mapVal; // add entry
-                    mapVal = L""; // reset
+                    setEmptyValue(mapVal);
                 }
             }
         }
