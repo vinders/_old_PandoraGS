@@ -14,9 +14,7 @@ using namespace command;
 
 
 /// @brief Create default vertex buffer
-/// @param baseCapacity Base capacity (pre-allocated number of vertices)
-/// @param isTextured Use texture data
-memory::VertexBuffer::VertexBuffer(uint32_t baseCapacity, bool isTextured)
+memory::VertexBuffer::VertexBuffer()
 {
     m_pVertexCoords = new std::vector<float>();
     m_pVertexColors = new std::vector<uint32_t>();
@@ -24,9 +22,9 @@ memory::VertexBuffer::VertexBuffer(uint32_t baseCapacity, bool isTextured)
 }
 
 /// @brief Create and configure vertex buffer
-/// @param baseCapacity Base capacity (pre-allocated number of vertices)
-/// @param isTextured Use texture data
-memory::VertexBuffer::VertexBuffer(uint32_t baseCapacity, bool isTextured)
+/// @param[in] baseCapacity  Base capacity (pre-allocated number of vertices)
+/// @param[in] isTextured    Use texture data
+memory::VertexBuffer::VertexBuffer(const uint32_t baseCapacity, const bool isTextured)
 {
     m_pVertexCoords = new std::vector<float>();
     m_pVertexColors = new std::vector<uint32_t>();
@@ -45,12 +43,12 @@ memory::VertexBuffer::~VertexBuffer()
 
 
 /// @brief Configure vertex buffer
-/// @param baseCapacity Base capacity (pre-allocated number of vertices)
-/// @param isTextured Use texture data
-void memory::VertexBuffer::init(uint32_t baseCapacity, bool isTextured)
+/// @param[in] baseCapacity  Base capacity (pre-allocated number of vertices)
+/// @param[in] isTextured    Use texture data
+void memory::VertexBuffer::init(const uint32_t baseCapacity, const bool isTextured)
 {
     // coords (X, Y, Z)
-    m_pVertexCoords->reserve(baseCapacity * 3);
+    m_pVertexCoords->reserve(baseCapacity * 3u);
     // colors
     m_pVertexColors->reserve(baseCapacity);
 

@@ -18,9 +18,9 @@ using namespace command::memory;
 
 
 /// @brief Create uninitialized memory image
-VideoMemory::VideoMemory()
+VideoMemory::VideoMemory() noexcept
 {
-    m_pVramImage = NULL;
+    m_pVramImage = nullptr;
     m_bufferSize = VRAM_BUFFER_SIZE * 1024;
 }
 
@@ -31,17 +31,17 @@ VideoMemory::~VideoMemory()
 }
 
 /// @brief Memory allocation and initialization
-/// @param isDoubledSize Use doubled buffer size (for Zinc)
-/// @throw Memory allocation failure
-void VideoMemory::init(bool isDoubledSize)
+/// @param[in] isDoubledSize  Use doubled buffer size (for Zinc)
+/// @throws runtime_error  Memory allocation failure
+void VideoMemory::init(const bool isDoubledSize)
 {
     // allocate VRAM image
-    if (m_pVramImage == NULL)
+    if (m_pVramImage == nullptr)
     {
         m_isDoubledSize = isDoubledSize;
         m_bufferSize = (isDoubledSize) ? (VRAM_BUFFER_SIZE * 2 * 1024) : (VRAM_BUFFER_SIZE * 1024);
         m_totalSize = (m_bufferSize * 2) + (VRAM_OFFSET_SIZE * 2 * 1024); // 2 buffers + security offset
-        if ((m_pVramImage = (uint8_t*)malloc(m_totalSize)) == NULL)
+        if ((m_pVramImage = (uint8_t*)malloc(m_totalSize)) == nullptr)
             throw std::runtime_error("VideoMemory.init: VRAM allocation failure");
     }
 
@@ -56,9 +56,9 @@ void VideoMemory::init(bool isDoubledSize)
 /// @brief Destroy memory image
 void VideoMemory::close()
 {
-    if (m_pVramImage != NULL)
+    if (m_pVramImage != nullptr)
     {
         free(m_pVramImage);
-        m_pVramImage = NULL;
+        m_pVramImage = nullptr;
     }
 }

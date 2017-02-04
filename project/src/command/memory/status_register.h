@@ -49,7 +49,7 @@ namespace command
 
         public:
             /// @brief Initialize status
-            static inline void init()
+            static inline void init() noexcept
             {
                 s_statusReg = GPUSTATUS_INIT;
             }
@@ -58,40 +58,40 @@ namespace command
             // -- status getters/setters -- ------------------------------------
 
             /// @brief Activate specific status bit(s) in status register
-            /// @param statusBits Bits mask to set
-            static inline void setStatus(uint32_t statusBits)
+            /// @param[in] statusBits  Bits mask to set
+            static inline void setStatus(const uint32_t statusBits) noexcept
             {
                 s_statusReg |= statusBits;
             }
             /// @brief Remove specific status bit(s) in status register
-            /// @param statusBits Bits mask to remove
-            static inline void unsetStatus(uint32_t statusBits)
+            /// @param[in] statusBits  Bits mask to remove
+            static inline void unsetStatus(const uint32_t statusBits) noexcept
             {
                 s_statusReg &= ~statusBits;
             }
             /// @brief Set full status register
-            /// @param status Status register
-            static inline void setStatusRegister(uint32_t status)
+            /// @param[in] status  Status register
+            static inline void setStatusRegister(const uint32_t status) noexcept
             {
                 s_statusReg = status;
             }
             /// @brief Check if status bit is active in status register
-            /// @param statusBits Bit(s) mask
-            /// @return True if at least one bit is active
-            static inline bool getStatus(uint32_t statusBit)
+            /// @param[in] statusBits  Bit(s) mask
+            /// @returns True if at least one bit is active
+            static inline bool getStatus(const uint32_t statusBit) noexcept
             {
                 return ((s_statusReg & statusBit) != 0);
             }
             /// @brief Get specific status bit(s) from status register
-            /// @param statusBits Bits mask
-            /// @return Bit map
-            static inline int32_t getStatusBits(uint32_t statusBits)
+            /// @param[in] statusBits  Bits mask
+            /// @returns Bit map
+            static inline int32_t getStatusBits(const uint32_t statusBits) noexcept
             {
                 return (s_statusReg & statusBits);
             }
             /// @brief Get full status register
-            /// @return Status register
-            static inline uint32_t getStatusRegister()
+            /// @returns Status register
+            static inline uint32_t getStatusRegister() noexcept
             {
                 return s_statusReg;
             }
@@ -100,13 +100,13 @@ namespace command
             // -- busy/idle sequence -- ----------------------------------------
 
             /// @brief Init fake busy/idle sequence sequence
-            static inline void initFakeBusySequence()
+            static inline void initFakeBusySequence() noexcept
             {
                 s_busyEmuSequence = 4; // set busy/idle sequence
             }
 
             /// @brief Set fake busy/idle sequence step
-            static inline void setFakeBusyStep()
+            static inline void setFakeBusyStep() noexcept
             {
                 // busy/idle sequence (while drawing)
                 if (s_busyEmuSequence)
@@ -114,7 +114,7 @@ namespace command
                     --s_busyEmuSequence;
                     if (s_busyEmuSequence & 0x1) // busy if odd number
                         unsetStatus(GPUSTATUS_IDLE | GPUSTATUS_READYFORCOMMANDS);
-                    else // idle
+                    else
                         setStatus(GPUSTATUS_IDLE | GPUSTATUS_READYFORCOMMANDS);
                 }
             }

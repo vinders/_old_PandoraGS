@@ -47,23 +47,24 @@ namespace command
             std::vector<uint32_t>* m_pVertexColors; ///< Vertex colors
             std::vector<uint32_t>* m_pTextureInfos; ///< Vertex texture informations
 
+
         public:
             /// @brief Create default vertex buffer
             VertexBuffer();
             /// @brief Create and configure vertex buffer
-            /// @param baseCapacity Base capacity (pre-allocated number of vertices)
-            /// @param isTextured Use texture data
-            VertexBuffer(uint32_t baseCapacity, bool isTextured);
+            /// @param[in] baseCapacity  Base capacity (pre-allocated number of vertices)
+            /// @param[in] isTextured    Use texture data
+            VertexBuffer(const uint32_t baseCapacity, const bool isTextured);
             /// @brief Destroy vertex buffer
             ~VertexBuffer();
 
             /// @brief Configure vertex buffer
-            /// @param baseCapacity Base capacity (pre-allocated number of vertices)
-            /// @param isTextured Use texture data
-            void init(uint32_t baseCapacity, bool isTextured);
+            /// @param[in] baseCapacity  Base capacity (pre-allocated number of vertices)
+            /// @param[in] isTextured    Use texture data
+            void init(const uint32_t baseCapacity, const bool isTextured);
 
             /// @brief Clear vertex buffer (remove content)
-            inline void clear()
+            inline void clear() noexcept
             {
                 m_pVertexCoords->clear();
                 m_pVertexColors->clear();
@@ -72,38 +73,36 @@ namespace command
             }
 
             /// @brief Add non-textured elements at the end of the buffer
-            /// @param pCoords Vertex coordinates to insert
-            /// @param color Vertex color to insert
-            inline void push(vertex_pos_t& pCoords, vertex_color_t color)
+            /// @param[in] pCoords  Vertex coordinates to insert
+            /// @param[in] color    Vertex color to insert
+            inline void push(const vertex_pos_t& coords, const vertex_color_t color)
             {
-                m_pVertexCoords->push_back(pCoords.x);
-                m_pVertexCoords->push_back(pCoords.y);
-                m_pVertexCoords->push_back(pCoords.z);
+                m_pVertexCoords->push_back(coords.x);
+                m_pVertexCoords->push_back(coords.y);
+                m_pVertexCoords->push_back(coords.z);
                 m_pVertexColors->push_back(color);
             }
 
             /// @brief Add non-textured elements at the end of the buffer
-            /// @param pCoords Vertex coordinates to insert
-            /// @param color Vertex color to insert
-            /// @param tex Texture information to insert
-            inline void push(vertex_pos_t& pCoords, vertex_color_t& color, vertex_texture_t& tex)
+            /// @param[in] pCoords  Vertex coordinates to insert
+            /// @param[in] color    Vertex color to insert
+            /// @param[in] tex      Texture information to insert
+            inline void push(const vertex_pos_t& coords, const vertex_color_t& color, const vertex_texture_t& tex)
             {
-                push(pCoords, color);
+                push(coords, color);
                 if (m_pTextureInfos != nullptr)
-                {
                     m_pTextureInfos->push_back(tex);
-                }
             }
 
             /// @brief Extract simple vertices as arrays (coordinates, colors)
-            /// @param ppOutCoords Destination for array of vertex coordinates
-            /// @param ppOutColors Destination for array of vertex colors
-            inline size_t read(float** ppOutCoords, uint32_t** ppOutColors)
+            /// @param[out] pOutCoords  Destination for array of vertex coordinates
+            /// @param[out] pOutColors  Destination for array of vertex colors
+            inline size_t read(float*& pOutCoords, uint32_t*& pOutColors) noexcept
             {
                 if (m_pVertexColors->size() > 0)
                 {
-                    *ppOutCoords = &((*m_pVertexCoords)[0]);
-                    *ppOutColors = &((*m_pVertexColors)[0]);
+                    pOutCoords = &((*m_pVertexCoords)[0]);
+                    pOutColors = &((*m_pVertexColors)[0]);
 
                     return m_pVertexColors->size();
                 }
@@ -111,19 +110,19 @@ namespace command
             }
 
             /// @brief Extract textured vertices as arrays (coordinates, colors, texture information)
-            /// @param ppOutCoords Destination for array of vertex coordinates
-            /// @param ppOutColors Destination for array of vertex colors
-            /// @param ppOutColors Destination for array of vertex texture information
-            inline size_t read(float** ppOutCoords, uint32_t** ppOutColors, uint32_t** ppOutTextures)
+            /// @param[out] pOutCoords    Destination for array of vertex coordinates
+            /// @param[out] pOutColors    Destination for array of vertex colors
+            /// @param[out] pOutTextures  Destination for array of vertex texture information
+            inline size_t read(float*& pOutCoords, uint32_t*& pOutColors, uint32_t*& pOutTextures) noexcept
             {
                 if (m_pVertexColors->size() > 0)
                 {
-                    *ppOutCoords = &((*m_pVertexCoords)[0]);
-                    *ppOutColors = &((*m_pVertexColors)[0]);
+                    pOutCoords = &((*m_pVertexCoords)[0]);
+                    pOutColors = &((*m_pVertexColors)[0]);
                     if (m_pTextureInfos != nullptr)
-                        *ppOutTextures = &((*m_pTextureInfos)[0]);
+                        pOutTextures = &((*m_pTextureInfos)[0]);
                     else
-                        *ppOutTextures = nullptr;
+                        pOutTextures = nullptr;
 
                     return m_pVertexColors->size();
                 }

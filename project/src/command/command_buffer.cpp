@@ -14,7 +14,7 @@ using namespace command;
 
 
 /// @brief Set "busy" status
-void CommandBuffer::lock()
+void CommandBuffer::lock() noexcept
 {
     while (m_isBusy)
         std::this_thread::yield();
@@ -22,7 +22,7 @@ void CommandBuffer::lock()
 }
 
 /// @brief Set "available" status
-void CommandBuffer::unlock()
+void CommandBuffer::unlock() noexcept
 {
     m_isBusy = false;
 }

@@ -30,9 +30,9 @@ namespace command
 
     private:
         /// @brief Set "busy" status
-        void lock();
+        void lock() noexcept;
         /// @brief Set "available" status
-        void unlock();
+        void unlock() noexcept;
 
     public:
         /// @brief Create GPU command buffer
