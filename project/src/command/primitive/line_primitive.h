@@ -31,6 +31,8 @@ namespace command
             rgb24_t color;       ///< Primitive ID (pad) + line color (RGB)
             vertex_f1_t vertex0; ///< Vertex coordinates
             vertex_f1_t vertex1; ///< Vertex coordinates
+            // rendering information
+            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
 
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
         };
@@ -46,6 +48,8 @@ namespace command
 
             vertex_g1_t vertex0; ///< Primitive ID (pad) + vertex color/coordinates
             vertex_g1_t vertex1; ///< Vertex color/coordinates
+            // rendering information
+            inline bool isOpaque()  { return ((vertex0.color.raw & 0x2000000) == 0uL); }
 
             static inline size_t size() { return 4; } ///< Length (32-bit blocks)
         };
@@ -77,6 +81,8 @@ namespace command
             vertex_f1_t vertex0; ///< Vertex coordinates
             vertex_f1_t vertex1; ///< Vertex coordinates
             vertex_f1_t vertex2; ///< Vertex coordinates OR end code (0x55555555)
+            // rendering information
+            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
 
             // Maximum length : 1 color + up to 254 vertices (or 253 vertices + end code)
             static inline size_t minSize() { return 3; }            ///< Minimum length (at least 1 color + 2 vertices)
@@ -98,6 +104,8 @@ namespace command
             vertex_g1_t vertex0; ///< Primitive ID (pad) + vertex color/coordinates
             vertex_g1_t vertex1; ///< Vertex color/coordinates
             vertex_g1_t vertex2; ///< Vertex color/coordinates OR end code (0x55555555)
+            // rendering information
+            inline bool isOpaque()  { return ((vertex0.color.raw & 0x2000000) == 0uL); }
 
             // Maximum length : up to 127 vertices/colors + end code
             static inline size_t minSize() { return 4; }            ///< Minimum length (at least 2 colors + 2 vertices)
@@ -166,7 +174,7 @@ namespace command
                 if (m_count < line_gp_t::maxSize() 
                  && (m_count < line_gp_t::minSize() || line_gp_t::isEndCode(*m_pCurrentVertex) == false))
                 {
-                    m_pCurrentVertex += vertex_g1_t::size();
+                    m_pCurrentVertex += vertex_g1_t::size(); // + 2 blocks -> no need to check if "even" position
                     return true;
                 }
                 return false;

@@ -23,17 +23,17 @@ Description : global constants and settings
 // other information
 #define PLUGIN_ABOUT_TITLE "About PandoraGS..."
 #ifdef _WINDOWS
-#define PLUGIN_THANKS      "No$psx, Doomed, J.Walker - for providing useful docs\
+#define PLUGIN_THANKS      "No$psx, Doomed - for providing useful docs\
  \r\nPete, Tapeq, Asmodean - for sharing public sources\
  \r\nePSXe team - for supporting game ID spec\
  \r\nMednafen - for sharing useful links and tools\
- \r\nThe OpenGL SuperBible, website open.gl"
+ \r\nThe OpenGL SuperBible and website open.gl"
 #else
-#define PLUGIN_THANKS      "No$psx, Doomed, J.Walker - for providing useful docs\
+#define PLUGIN_THANKS      "No$psx, Doomed - for providing useful docs\
  \nPete, Tapeq, Asmodean - for sharing public sources\
  \nePSXe team - for supporting game ID spec\
  \nMednafen - for sharing useful links and tools\
- \nThe OpenGL SuperBible, website open.gl"
+ \nThe OpenGL SuperBible and website open.gl"
 #endif
 
 // compilation settings - dialog API
