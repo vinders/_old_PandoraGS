@@ -7,3 +7,16 @@ License :     GPLv2
 Description : unit testing utility
 *******************************************************************************/
 #pragma once
+
+#include "globals.h"
+
+/// @brief Plugin - full unit testing
+/// @param pWinData  Window handle reference
+/// @returns Success indicator
+long CALLBACK GPUtestUnits(void* pWinData);
+
+/// @brief Plugin - primitive testing
+/// @param pData      Primitive raw data
+/// @param len        Primitive data length (number of 32bits blocks)
+/// @param isFlipped  Flip indicator (only for rectangles)
+void CALLBACK GPUtestPrimitive(unsigned long* pData, int len, bool isFlipped);
