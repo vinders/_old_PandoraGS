@@ -25,7 +25,7 @@ namespace command
         struct line_f2_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID (pad) + line color (RGB)
@@ -41,7 +41,7 @@ namespace command
         struct line_g2_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             vertex_g1_t vertex0; ///< Primitive ID (pad) + vertex color/coordinates
@@ -57,8 +57,8 @@ namespace command
         /// @brief Poly-line common base
         struct poly_line_common_t
         {
-            static inline size_t maxSize() { return 255; } ///< Maximum length
-            static inline bool isEndCode(command::cmd_block_t data) ///< End code verification
+            static inline size_t maxSize() { return 255; }                ///< Maximum length
+            static inline bool isEndCode(const command::cmd_block_t data) ///< End code verification
             {
                 return ((data & 0xF000F000) == 0x50005000);
             }
@@ -70,7 +70,7 @@ namespace command
         struct line_fp_t : public poly_line_common_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID (pad) + line color (RGB)
@@ -79,8 +79,8 @@ namespace command
             vertex_f1_t vertex2; ///< Vertex coordinates OR end code (0x55555555)
 
             // Maximum length : 1 color + up to 254 vertices (or 253 vertices + end code)
-            static inline size_t minSize() { return 3; }   ///< Minimum length (at least 1 color + 2 vertices)
-            static inline bool isLineEndable(size_t position) ///< Check if line data block can be the last
+            static inline size_t minSize() { return 3; }            ///< Minimum length (at least 1 color + 2 vertices)
+            static inline bool isLineEndable(const size_t position) ///< Check if line data block can be the last
             {
                 return (position >= minSize());
             }
@@ -92,7 +92,7 @@ namespace command
         struct line_gp_t : public poly_line_common_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             vertex_g1_t vertex0; ///< Primitive ID (pad) + vertex color/coordinates
@@ -100,8 +100,8 @@ namespace command
             vertex_g1_t vertex2; ///< Vertex color/coordinates OR end code (0x55555555)
 
             // Maximum length : up to 127 vertices/colors + end code
-            static inline size_t minSize() { return 4; }   ///< Minimum length (at least 2 colors + 2 vertices)
-            static inline bool isLineEndable(size_t position) ///< Check if line data block can be the last
+            static inline size_t minSize() { return 4; }            ///< Minimum length (at least 2 colors + 2 vertices)
+            static inline bool isLineEndable(const size_t position) ///< Check if line data block can be the last
             {
                 return (position >= minSize() && (position & 0x1) == 0); // N*(color+vertex) -> even number
             }
@@ -115,17 +115,17 @@ namespace command
         struct line_fp_iterator
         {
         private:
-            size_t m_count;                ///< Read units count
+            size_t m_count; ///< Count read units
             command::cmd_block_t* m_pCurrentVertex; ///< Current vertex reference
 
         public:
             /// @brief Create iterator for flat poly-line
-            /// @param dataSource Reference to poly-line container
+            /// @param[in] dataSource  Reference to poly-line container
             line_fp_iterator(line_fp_t& dataSource) : m_count(1), m_pCurrentVertex(&(dataSource.vertex0.raw)) {}
 
             /// @brief Select next element (if available)
-            /// @return Success (or end of line)
-            inline bool next()
+            /// @returns Success (or end of line)
+            inline bool next() noexcept
             {
                 if (++m_count < line_fp_t::maxSize() 
                  && (m_count < line_fp_t::minSize() || line_fp_t::isEndCode(*m_pCurrentVertex) == false))
@@ -137,7 +137,7 @@ namespace command
             }
 
             /// @brief Extract current value
-            /// @return Reference to current value
+            /// @returns Reference to current value
             inline vertex_f1_t* read()
             {
                 return (vertex_f1_t*)(m_pCurrentVertex);
@@ -150,17 +150,17 @@ namespace command
         struct line_gp_iterator
         {
         private:
-            size_t m_count;                ///< Read units count
+            size_t m_count; ///< Count read units
             command::cmd_block_t* m_pCurrentVertex; ///< Current vertex reference
 
         public:
             /// @brief Create iterator for flat poly-line
-            /// @param dataSource Reference to poly-line container
+            /// @param[in] dataSource  Reference to poly-line container
             line_gp_iterator(line_gp_t& dataSource) : m_count(0), m_pCurrentVertex(&(dataSource.vertex0.color.raw)) {}
 
             /// @brief Select next element (if available)
-            /// @return Success (or end of line)
-            inline bool next()
+            /// @returns Success (or end of line)
+            inline bool next() noexcept
             {
                 m_count += vertex_g1_t::size();
                 if (m_count < line_gp_t::maxSize() 
@@ -173,7 +173,7 @@ namespace command
             }
 
             /// @brief Extract current value
-            /// @return Reference to current value
+            /// @returns Reference to current value
             inline vertex_g1_t* read()
             {
                 return (vertex_g1_t*)(m_pCurrentVertex);

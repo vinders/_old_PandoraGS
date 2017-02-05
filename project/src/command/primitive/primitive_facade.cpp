@@ -16,8 +16,9 @@ Description : primitive drawing facade
 #include "attribute.h"
 using namespace command::primitive;
 
-command::memory::VideoMemory* PrimitiveFacade::s_pVramAccess = NULL;         ///< VRAM access used by primitives
-command::FrameBufferSettings* PrimitiveFacade::s_pDrawSettingsAccess = NULL; ///< Frame buffer settings used by primitives
+bool PrimitiveFacade::s_isInitialized = nullptr;                                ///< References status
+command::memory::VideoMemory* PrimitiveFacade::s_pVramAccess = nullptr;         ///< VRAM access used by primitives
+command::FrameBufferSettings* PrimitiveFacade::s_pDrawSettingsAccess = nullptr; ///< Frame buffer settings used by primitives
 
 // multi-commands definition macros
 #define CMDx4(cmd,size)  {cmd,size},{cmd,size},{cmd,size},{cmd,size}

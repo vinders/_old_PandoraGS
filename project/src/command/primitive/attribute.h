@@ -28,7 +28,7 @@ namespace command
             command::cmd_block_t raw; ///< Raw attribute data block
         public:
             /// @brief Process attribute
-            /// @param pData Raw attribute data pointer
+            /// @param[in] pData  Raw attribute data pointer
             static void process(cmd_block_t* pData);
 
             // attribute values
@@ -62,7 +62,7 @@ namespace command
             command::cmd_block_t raw; ///< Raw attribute data block
         public:
             /// @brief Process attribute
-            /// @param pData Raw attribute data pointer
+            /// @param[in] pData  Raw attribute data pointer
             static void process(command::cmd_block_t* pData);
 
             // attribute values
@@ -84,7 +84,7 @@ namespace command
             command::cmd_block_t raw; ///< Raw attribute data block
         public:
             /// @brief Process attribute
-            /// @param pData Raw attribute data pointer
+            /// @param[in] pData  Raw attribute data pointer
             static void process(command::cmd_block_t* pData);
 
             // attribute values
@@ -103,7 +103,7 @@ namespace command
             command::cmd_block_t raw; ///< Raw attribute data block
         public:
             /// @brief Process attribute
-            /// @param pData Raw attribute data pointer
+            /// @param[in] pData  Raw attribute data pointer
             static void process(command::cmd_block_t* pData);
 
             // attribute values
@@ -122,7 +122,7 @@ namespace command
             command::cmd_block_t raw; ///< Raw attribute data block
         public:
             /// @brief Process attribute
-            /// @param pData Raw attribute data pointer
+            /// @param[in] pData  Raw attribute data pointer
             static void process(command::cmd_block_t* pData);
 
             // attribute values
@@ -145,7 +145,7 @@ namespace command
             command::cmd_block_t raw; ///< Raw attribute data block
         public:
             /// @brief Process attribute
-            /// @param pData Raw attribute data pointer
+            /// @param[in] pData  Raw attribute data pointer
             static void process(command::cmd_block_t* pData);
 
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)

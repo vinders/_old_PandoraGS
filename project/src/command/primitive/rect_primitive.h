@@ -25,7 +25,7 @@ namespace command
         struct fill_area_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color;   ///< Primitive ID + rectangle color (RGB)
@@ -44,7 +44,7 @@ namespace command
         struct tile_f_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color;  ///< Primitive ID + tile color (RGB)
@@ -59,7 +59,7 @@ namespace command
         struct tile_f1_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color; ///< Primitive ID + tile color (RGB)
@@ -74,7 +74,7 @@ namespace command
         struct tile_f8_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color; ///< Primitive ID + tile color (RGB)
@@ -89,7 +89,7 @@ namespace command
         struct tile_f16_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color; ///< Primitive ID + tile color (RGB)
@@ -106,7 +106,7 @@ namespace command
         struct sprite_f_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID + tile color (RGB)
@@ -123,7 +123,7 @@ namespace command
         struct sprite_f1_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID + tile color (RGB)
@@ -139,7 +139,7 @@ namespace command
         struct sprite_f8_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID + tile color (RGB)
@@ -155,7 +155,7 @@ namespace command
         struct sprite_f16_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID + tile color (RGB)

@@ -15,7 +15,7 @@ using namespace command::primitive;
 // -- primitive units - lines -- ---------------------------------------
 
 /// @brief Process flat-shaded line
-/// @param pData Raw primitive data pointer
+/// @param[in] pData  Raw primitive data pointer
 void line_f2_t::process(command::cmd_block_t* pData)
 {
     line_f2_t* pPrim = (line_f2_t*)pData;
@@ -24,7 +24,7 @@ void line_f2_t::process(command::cmd_block_t* pData)
 }
 
 /// @brief Process gouraud-shaded line
-/// @param pData Raw primitive data pointer
+/// @param[in] pData  Raw primitive data pointer
 void line_g2_t::process(command::cmd_block_t* pData)
 {
     line_g2_t* pPrim = (line_g2_t*)pData;
@@ -36,7 +36,7 @@ void line_g2_t::process(command::cmd_block_t* pData)
 // -- primitive units - poly-lines -- ----------------------------------
 
 /// @brief Process flat-shaded poly-line
-/// @param pData Raw primitive data pointer
+/// @param[in] pData  Raw primitive data pointer
 void line_fp_t::process(command::cmd_block_t* pData)
 {
     line_fp_t* pPrim = (line_fp_t*)pData;
@@ -50,7 +50,7 @@ void line_fp_t::process(command::cmd_block_t* pData)
 }
 
 /// @brief Process gouraud-shaded poly-line
-/// @param pData Raw primitive data pointer
+/// @param[in] pData  Raw primitive data pointer
 void line_gp_t::process(command::cmd_block_t* pData)
 {
     line_gp_t* pPrim = (line_gp_t*)pData;

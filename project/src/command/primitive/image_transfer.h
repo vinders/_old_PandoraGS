@@ -28,7 +28,7 @@ namespace command
             command::cmd_block_t cmd;       ///< Command ID
         public:
             /// @brief Process attribute
-            /// @param pData Raw command data pointer
+            /// @param[in] pData  Raw command data pointer
             static void process(command::cmd_block_t* pData);
 
             static inline size_t size() { return 1; } ///< Length (32-bit blocks)
@@ -40,7 +40,7 @@ namespace command
         struct img_load_t
         {
             /// @brief Process attribute
-            /// @param pData Raw command data pointer
+            /// @param[in] pData  Raw command data pointer
             static void process(command::cmd_block_t* pData);
 
             command::cmd_block_t cmd; ///< Command ID
@@ -60,7 +60,7 @@ namespace command
         struct img_store_t
         {
             /// @brief Process attribute
-            /// @param pData Raw command data pointer
+            /// @param[in] pData  Raw command data pointer
             static void process(command::cmd_block_t* pData);
 
             command::cmd_block_t cmd; ///< Command ID
@@ -78,7 +78,7 @@ namespace command
         struct img_move_t
         {
             /// @brief Process attribute
-            /// @param pData Raw command data pointer
+            /// @param[in] pData  Raw command data pointer
             static void process(command::cmd_block_t* pData);
 
             command::cmd_block_t cmd; ///< Command ID

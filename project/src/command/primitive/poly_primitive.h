@@ -34,7 +34,7 @@ namespace command
         struct poly_f3_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID (pad) + triangle color (RGB)
@@ -51,7 +51,7 @@ namespace command
         struct poly_f4_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color;       ///< Primitive ID (pad) + quad color (RGB)
@@ -69,7 +69,7 @@ namespace command
         struct poly_ft3_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color;        ///< Primitive ID (pad) + triangle color (RGB)
@@ -91,7 +91,7 @@ namespace command
         struct poly_ft4_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             rgb24_t color;        ///< Primitive ID (pad) + quad color (RGB)
@@ -116,7 +116,7 @@ namespace command
         struct poly_g3_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             vertex_g1_t vertex0; ///< Primitive ID + vertex color/coordinates
@@ -132,7 +132,7 @@ namespace command
         struct poly_g4_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             vertex_g1_t vertex0; ///< Primitive ID + vertex color/coordinates
@@ -149,7 +149,7 @@ namespace command
         struct poly_gt3_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             vertex_gt1_t vertex0; ///< Primitive ID + vertex color/coordinates/texture (CLUT)
@@ -170,7 +170,7 @@ namespace command
         struct poly_gt4_t
         {
             /// @brief Process primitive
-            /// @param pData Raw primitive data pointer
+            /// @param[in] pData  Raw primitive data pointer
             static void process(command::cmd_block_t* pData);
 
             vertex_gt1_t vertex0; ///< Primitive ID + vertex color/coordinates/texture (CLUT)
