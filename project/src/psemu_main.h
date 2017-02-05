@@ -29,12 +29,12 @@ This file can be used only to develop PSEmu Plugins. Other usage is highly prohi
 #define SAVESTATE_ERR               0L
 
 // GPU test return values
-#define PSE_GPU_SUCCESS			    0L // success, everything configured, and went OK
-#define PSE_GPU_ERR_NOTCONFIGURED	1L // this driver is not configured
+#define PSE_GPU_SUCCESS             0L // success, everything configured, and went OK
+#define PSE_GPU_ERR_NOTCONFIGURED   1L // this driver is not configured
 // gpuQueryS.flags
-#define PSE_GPU_FLAGS_WINDOWED		1L // this driver requests windowed mode
+#define PSE_GPU_FLAGS_WINDOWED      1L // this driver requests windowed mode
 // gpuQueryS.status
-#define PSE_GPU_STATUS_WINDOWWRONG	1L // this driver cannot operate in this windowed mode
+#define PSE_GPU_STATUS_WINDOWWRONG  1L // this driver cannot operate in this windowed mode
 
 // CDR test return values
 #define PSE_CDR_SUCCESS             0L  // success, everything configured, and went OK
