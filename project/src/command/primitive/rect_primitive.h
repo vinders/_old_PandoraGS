@@ -9,6 +9,7 @@ Description : rectangle primitive (tile / sprite)
 #pragma once
 
 #include "primitive_common.h"
+#pragma pack(push, 4)
 
 /// @namespace command
 /// GPU commands management
@@ -207,3 +208,4 @@ namespace command
         */
     }
 }
+#pragma pack(pop)

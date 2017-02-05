@@ -9,6 +9,7 @@ Description : polygon primitive (triangle / quad)
 #pragma once
 
 #include "primitive_common.h"
+#pragma pack(push, 4)
 
 // quad to triangle
 #define POLY0_vertex0 vertex0
@@ -228,3 +229,4 @@ namespace command
         */
     }
 }
+#pragma pack(pop)

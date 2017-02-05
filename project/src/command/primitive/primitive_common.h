@@ -11,6 +11,7 @@ Description : drawing primitive - common types
 #include <cstdint>
 #include <cstddef>
 #include <vector>
+#pragma pack(push, 4)
 
 /// @namespace command
 /// GPU commands management
@@ -179,3 +180,4 @@ namespace command
         };
     }
 }
+#pragma pack(pop)

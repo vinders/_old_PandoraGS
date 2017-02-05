@@ -10,6 +10,7 @@ Description : polygon primitive (triangle / quad)
 #include "primitive_facade.h"
 #include "poly_primitive.h"
 using namespace command::primitive;
+#pragma pack(push, 4)
 
 
 // -- primitive units - flat polygons -- -------------------------------
@@ -88,3 +89,5 @@ void poly_gt4_t::process(command::cmd_block_t* pData)
 
     //...
 }
+
+#pragma pack(pop)

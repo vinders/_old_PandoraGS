@@ -10,6 +10,7 @@ Description : image transfer command
 #include "primitive_facade.h"
 #include "image_transfer.h"
 using namespace command::primitive;
+#pragma pack(push, 4)
 
 
 // -- attribute types - data transfer settings -- --------------------------
@@ -47,3 +48,5 @@ void img_move_t::process(command::cmd_block_t* pData)
 
     //...
 }
+
+#pragma pack(pop)

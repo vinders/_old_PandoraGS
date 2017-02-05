@@ -10,6 +10,7 @@ Description : line primitive (line / poly-line)
 #include "primitive_facade.h"
 #include "line_primitive.h"
 using namespace command::primitive;
+#pragma pack(push, 4)
 
 
 // -- primitive units - lines -- ---------------------------------------
@@ -62,3 +63,5 @@ void line_gp_t::process(command::cmd_block_t* pData)
         it.read();//...
     } while (it.next());
 }
+
+#pragma pack(pop)
