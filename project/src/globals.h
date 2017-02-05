@@ -60,12 +60,6 @@ Description : global constants and settings
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-//#ifndef _CRT_NONSTDC_NO_DEPRECATE
-//#define _CRT_NONSTDC_NO_DEPRECATE
-//#endif
-
-// functions / macros
-#define snprintf _snprintf
 
 // win32 resources identifiers
 #include "res/targetver.h"

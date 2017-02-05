@@ -6,6 +6,9 @@ Description : PSEmu GPU library interface
 #pragma once
 
 #include "globals.h"
+#ifdef _WINDOWS
+#include <Windows.h>
+#endif
 
 /*  PSEmu Plugin Developer Kit Header definition - (C)1998 Vision Thing
 This file can be used only to develop PSEmu Plugins. Other usage is highly prohibited.

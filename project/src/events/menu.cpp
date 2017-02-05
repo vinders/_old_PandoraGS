@@ -47,7 +47,7 @@ void Menu::setSelectedIndex(const uint32_t index)
 
 /// @brief Show menu
 /// @param[in] flag  Event flag (unused)
-void Menu::show(int32_t flag = 0)
+void Menu::show(int32_t flag)
 {
     setSelectedIndex(config::Config::getCurrentProfileId());
     m_isVisible = true;
@@ -55,7 +55,7 @@ void Menu::show(int32_t flag = 0)
 
 /// @brief Hide menu
 /// @param[in] flag  Event flag (unused)
-void Menu::hide(int32_t flag = 0)
+void Menu::hide(int32_t flag)
 {
     m_isVisible = false;
 }
