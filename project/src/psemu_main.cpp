@@ -7,6 +7,8 @@ License :     GPLv2
 Description : PSEmu GPU library interface
 *******************************************************************************/
 #include "globals.h"
+#include <cstdlib>
+#include <string>
 #include "pandoraGS.h"
 #include "config/config.h"
 #include "events/listener.h"
@@ -15,6 +17,7 @@ Description : PSEmu GPU library interface
 #include "command/dispatcher.h"
 #include "display/engine.h"
 #include "psemu_main.h"
+using namespace std;
 
 
 // -- driver base interface -- -------------------------------------------------
@@ -23,7 +26,34 @@ Description : PSEmu GPU library interface
 /// @returns Success indicator
 long CALLBACK GPUinit()
 {
+    try
+    {
+        // initialize config
+        config::Config::init();
 
+        // apply settings
+        //...lang
+        //...memory + status
+        //...timer
+
+        // open debug window
+        if (config::Config::events.isDebugMode)
+        {
+            //...console output window
+        }
+    }
+    catch (const std::runtime_error& runExc)
+    {
+        events::utils::Logger::getInstance()->writeErrorEntry("GPUinit"s, runExc.what());
+        GPUshutdown();
+        return PSE_INIT_ERR_NOTCONFIGURED;
+    }
+    catch (const std::exception& exc)
+    {
+        events::utils::Logger::getInstance()->writeErrorEntry("GPUinit"s, exc.what());
+        GPUshutdown();
+        return PSE_ERR_FATAL;
+    }
     return PSE_INIT_SUCCESS;
 }
 
@@ -31,7 +61,20 @@ long CALLBACK GPUinit()
 /// @returns Success indicator
 long CALLBACK GPUshutdown()
 {
+    // close debug window
+    if (config::Config::events.isDebugMode)
+    {
+        //...close console output window
+    }
 
+    // close renderer
+    //...engine
+    //...memory + status
+    //...lang
+
+    // close config
+    config::Config::close();
+    events::utils::Logger::closeInstance();
     return PSE_SUCCESS;
 }
 
@@ -50,7 +93,24 @@ long CALLBACK GPUopen(HWND hWindow)
 long CALLBACK GPUopen(unsigned long* pDisplayId, char* pCaption, char* pConfigFile)
 #endif
 {
+    try
+    {
 
+        //...
+
+    }
+    catch (const std::runtime_error& runExc)
+    {
+        events::utils::Logger::getInstance()->writeErrorEntry("GPUopen"s, runExc.what());
+        GPUclose();
+        return PSE_GPU_ERR_NOTCONFIGURED;
+    }
+    catch (const std::exception& exc)
+    {
+        events::utils::Logger::getInstance()->writeErrorEntry("GPUopen"s, exc.what());
+        GPUclose();
+        return PSE_ERR_FATAL;
+    }
     return PSE_GPU_SUCCESS;
 }
 
@@ -233,21 +293,21 @@ char* GPUgetLibInfos()
 /// @param flags  Display flags
 void CALLBACK GPUdisplayFlags(unsigned long flags)
 {
-
+    
 }
 
 /// @brief Enable/disable frame limit from emulator
 /// @param option  Status (1 = limit / 0 = none)
 void CALLBACK GPUsetframelimit(unsigned long option)
 {
-
+    //...indicateur séparé pour ne pas "écraser" config user ? -> utilisé si limite auto ou désactivée ?
 }
 
 /// @brief Set custom fixes from emulator
 /// @param fixBits  Fixes (bits)
 void CALLBACK GPUsetfix(unsigned long fixBits)
 {
-
+    config::Config::runtimeFixBits = fixBits;
 }
 
 /// @brief Set game executable ID (for config profiles associations)
