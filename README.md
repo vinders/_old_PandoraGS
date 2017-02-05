@@ -11,7 +11,7 @@ PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu compatible).
 
     Author       : Romain Vinders
     Languages    : English, French, Spanish, German (or external file)
-    Build        : Visual Studio 2015+ / GCC 4.9+
+    Build        : Visual Studio 2015+
     Requirements : Windows NT 6.0+ (Vista, 7, 8, 10+),
                    Visual C++ Runtimes 2015 (x86),
                    OpenGL 4.1 compatible drivers,
@@ -30,7 +30,7 @@ PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu compatible).
 * test utilities - unit testing, rendering primitive testing, rendering demo, dialog launcher
 
 ###Currently done:
-* refactoring - classes, memory management, FIFO buffer, renderer management, C++14 usage
+* refactoring - data transfers, memory management, FIFO buffer, renderer management
 * refactoring - dialog management - add OS abstraction layer
 * testing - reorganize unit testing, improve test tool
 
