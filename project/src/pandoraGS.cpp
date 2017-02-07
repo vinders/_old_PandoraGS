@@ -18,13 +18,25 @@ HINSTANCE PandoraGS::s_hInstance = NULL; ///< Executed instance handle
 
 
 /// @brief Main library entry point
-/// @param[in] hModule     Module instance
-/// @param[in] dwReason    Library call flag
-/// @param[in] lpReserved  Initialization and cleanup settings
+/// @param[in] hModule    Module instance
+/// @param[in] reason     Library call flag
+/// @param[in] pReserved  Initialization and cleanup settings
 /// @returns   Success indicator
-BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HANDLE hModule, DWORD reason, LPVOID pReserved)
 {
-    PandoraGS::setInstance(&hModule);
+	switch (reason)
+	{
+		case DLL_PROCESS_DETACH: // detach
+		{
+			HANDLE hEmptyModule = nullptr;
+			PandoraGS::setInstance(&hEmptyModule);
+		}
+		default: // attach
+		{
+			PandoraGS::setInstance(&hModule);
+			break;
+		}
+	}
     return TRUE;
 }
 

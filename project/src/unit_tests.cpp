@@ -7,9 +7,12 @@ License :     GPLv2
 Description : unit testing utility
 *******************************************************************************/
 #include "globals.h"
+#include <string>
+using namespace std::literals::string_literals;
 #include "psemu_main.h"
 #include "pandoraGS.h"
 #include "unit_tests.h"
+using namespace std;
 
 
 /// @brief Plugin - full unit testing
