@@ -1,114 +1,52 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{b07fb969-fc62-4fd3-9abc-ae9433fd87f3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\vendor">
-      <UniqueIdentifier>{763e401b-9898-4672-8c38-65ac1f6a805c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\lang">
-      <UniqueIdentifier>{c73d6b4c-1a2c-47ce-81d6-c860f3b032d6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\display">
-      <UniqueIdentifier>{2e5ec620-e6b4-4179-aa6f-a40eaf444d6a}</UniqueIdentifier>
+    <Filter Include="Source Files\command">
+      <UniqueIdentifier>{4688c5ec-e482-446b-92f9-6c44fb8b2c23}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\config">
-      <UniqueIdentifier>{302dcdd7-9230-4a9d-890a-332f5a897396}</UniqueIdentifier>
+      <UniqueIdentifier>{9495585d-5faa-46a4-9afc-a94a81565485}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\command">
-      <UniqueIdentifier>{63e8534a-2904-426c-8759-8bc9f4680876}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\display\utils">
-      <UniqueIdentifier>{0dcde7e2-66b9-44fe-9114-a3c79c822842}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\config\dialog">
-      <UniqueIdentifier>{ff641dab-dd58-4955-b2ca-ac9ff4f05d41}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\command\primitive">
-      <UniqueIdentifier>{0e70a75d-5a5d-402c-a979-4146865e3017}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\command\memory">
-      <UniqueIdentifier>{b11de079-83e4-4ee2-b024-fad148eb302e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\display\effects">
-      <UniqueIdentifier>{5ddb9996-9cd3-4e30-a1f6-e555623a132d}</UniqueIdentifier>
+    <Filter Include="Source Files\display">
+      <UniqueIdentifier>{acbbb44e-df5c-4a6c-934a-6f8f62285f79}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\events">
-      <UniqueIdentifier>{8efec250-59b2-4e53-811c-a355a5ae2e99}</UniqueIdentifier>
+      <UniqueIdentifier>{6538e60c-d980-4355-9345-ff40e8df8244}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\lang">
+      <UniqueIdentifier>{d7625d11-5169-4b0c-9fc4-f1f448e1012b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\vendor">
+      <UniqueIdentifier>{a232085a-806e-4d0b-9dd4-863a3876cca7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\events\utils">
-      <UniqueIdentifier>{750aec66-227b-47e4-9dc7-996f4a2a9447}</UniqueIdentifier>
+      <UniqueIdentifier>{52be54d3-1a37-465b-a837-25bc583c2d4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\display\effects">
+      <UniqueIdentifier>{21d0eb0c-1587-47e3-93f0-bdee5923a4c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\display\utils">
+      <UniqueIdentifier>{27dbadf2-1308-422b-9905-6f6807f173ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\config\dialog">
+      <UniqueIdentifier>{ccf63aff-d947-460d-a7b5-54dbd3fe8bb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\command\memory">
+      <UniqueIdentifier>{b4e990c9-2c78-4bc7-9888-93f83d8e9f42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\command\primitive">
+      <UniqueIdentifier>{00d29869-6c72-4c95-80f4-a085e010c6fe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\lang\config_lang.cpp">
-      <Filter>Source Files\lang</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\lang\menu_lang.cpp">
-      <Filter>Source Files\lang</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\events\listener.cpp">
-      <Filter>Source Files\events</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\events\timer.cpp">
-      <Filter>Source Files\events</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\events\utils\logger.cpp">
-      <Filter>Source Files\events\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\display\engine.cpp">
-      <Filter>Source Files\display</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\display\shader.cpp">
-      <Filter>Source Files\display</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\display\utils\console_window.cpp">
-      <Filter>Source Files\display\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\display\utils\display_window.cpp">
-      <Filter>Source Files\display\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\config\config.cpp">
-      <Filter>Source Files\config</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\config\config_io.cpp">
-      <Filter>Source Files\config</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\config\config_profile.cpp">
-      <Filter>Source Files\config</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\command\command_buffer.cpp">
-      <Filter>Source Files\command</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\command\frame_buffer_settings.cpp">
-      <Filter>Source Files\command</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\command\memory\status_register.cpp">
-      <Filter>Source Files\command\memory</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\command\memory\video_memory.cpp">
-      <Filter>Source Files\command\memory</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\command\memory\video_memory_io.cpp">
-      <Filter>Source Files\command\memory</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\command\primitive\line_primitive.cpp">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\command\primitive\poly_primitive.cpp">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\command\primitive\rect_primitive.cpp">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\vendor\glew.cpp">
-      <Filter>Source Files\vendor</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\pandoraGS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -121,61 +59,190 @@
     <ClCompile Include="..\src\unit_tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\command\dispatcher.cpp">
+    <ClCompile Include="..\src\command\primitive\attribute.cpp">
+      <Filter>Source Files\command\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\events\utils\clock.cpp">
+      <Filter>Source Files\events\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\command\command_buffer.cpp">
       <Filter>Source Files\command</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\config.cpp">
+      <Filter>Source Files\config</Filter>
     </ClCompile>
     <ClCompile Include="..\src\config\config_file_io.cpp">
       <Filter>Source Files\config</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\command\primitive\attribute.cpp">
-      <Filter>Source Files\command\primitive</Filter>
+    <ClCompile Include="..\src\config\config_io.cpp">
+      <Filter>Source Files\config</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\command\memory\vertex_buffer.cpp">
-      <Filter>Source Files\command\memory</Filter>
+    <ClCompile Include="..\src\config\config_profile.cpp">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lang\config_lang.cpp">
+      <Filter>Source Files\lang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lang\menu_lang.cpp">
+      <Filter>Source Files\lang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\display\utils\console_window.cpp">
+      <Filter>Source Files\display\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\display\utils\display_window.cpp">
+      <Filter>Source Files\display\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\display\engine.cpp">
+      <Filter>Source Files\display</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\command\dispatcher.cpp">
+      <Filter>Source Files\command</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\command\frame_buffer_settings.cpp">
+      <Filter>Source Files\command</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\events\utils\file_io.cpp">
+      <Filter>Source Files\events\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\display\effects\fragment_shader_definition.cpp">
+      <Filter>Source Files\display\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vendor\glew.cpp">
+      <Filter>Source Files\vendor</Filter>
     </ClCompile>
     <ClCompile Include="..\src\command\primitive\image_transfer.cpp">
+      <Filter>Source Files\command\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\command\primitive\line_primitive.cpp">
+      <Filter>Source Files\command\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\command\primitive\poly_primitive.cpp">
       <Filter>Source Files\command\primitive</Filter>
     </ClCompile>
     <ClCompile Include="..\src\command\primitive\primitive_facade.cpp">
       <Filter>Source Files\command\primitive</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\display\effects\fragment_shader_definition.cpp">
-      <Filter>Source Files\display\effects</Filter>
+    <ClCompile Include="..\src\command\primitive\rect_primitive.cpp">
+      <Filter>Source Files\command\primitive</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\display\effects\vertex_shader_definition.cpp">
-      <Filter>Source Files\display\effects</Filter>
+    <ClCompile Include="..\src\events\listener.cpp">
+      <Filter>Source Files\events</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\events\utils\file_io.cpp">
-      <Filter>Source Files\events\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\events\utils\clock.cpp">
+    <ClCompile Include="..\src\events\utils\logger.cpp">
       <Filter>Source Files\events\utils</Filter>
     </ClCompile>
     <ClCompile Include="..\src\events\menu.cpp">
       <Filter>Source Files\events</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\display\shader.cpp">
+      <Filter>Source Files\display</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\command\memory\status_register.cpp">
+      <Filter>Source Files\command\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\command\memory\vertex_buffer.cpp">
+      <Filter>Source Files\command\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\display\effects\vertex_shader_definition.cpp">
+      <Filter>Source Files\display\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\events\timer.cpp">
+      <Filter>Source Files\events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\command\memory\video_memory_io.cpp">
+      <Filter>Source Files\command\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\command\memory\video_memory.cpp">
+      <Filter>Source Files\command\memory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\lang\config_lang.h">
-      <Filter>Source Files\lang</Filter>
+    <ClInclude Include="..\src\res\resource.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\lang\menu_lang.h">
-      <Filter>Source Files\lang</Filter>
+    <ClInclude Include="..\src\res\targetver.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\events\listener.h">
-      <Filter>Source Files\events</Filter>
+    <ClInclude Include="..\src\command\command_buffer.h">
+      <Filter>Source Files\command</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\events\timer.h">
-      <Filter>Source Files\events</Filter>
+    <ClInclude Include="..\src\command\frame_buffer_settings.h">
+      <Filter>Source Files\command</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\events\utils\logger.h">
-      <Filter>Source Files\events\utils</Filter>
+    <ClInclude Include="..\src\command\dispatcher.h">
+      <Filter>Source Files\command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\config.h">
+      <Filter>Source Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\config_common.h">
+      <Filter>Source Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\config_file_io.h">
+      <Filter>Source Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\config_io.h">
+      <Filter>Source Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\config_profile.h">
+      <Filter>Source Files\config</Filter>
     </ClInclude>
     <ClInclude Include="..\src\display\engine.h">
       <Filter>Source Files\display</Filter>
     </ClInclude>
     <ClInclude Include="..\src\display\shader.h">
       <Filter>Source Files\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vendor\wglew.h">
+      <Filter>Source Files\vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vendor\opengl.h">
+      <Filter>Source Files\vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vendor\glxew.h">
+      <Filter>Source Files\vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\lang\i_lang.h">
+      <Filter>Source Files\lang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\lang\menu_lang.h">
+      <Filter>Source Files\lang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\lang\config_lang.h">
+      <Filter>Source Files\lang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\globals.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vendor\glew.h">
+      <Filter>Source Files\vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\unit_tests.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\psemu_main.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\pandoraGS.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\events\listener.h">
+      <Filter>Source Files\events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\events\menu.h">
+      <Filter>Source Files\events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\events\timer.h">
+      <Filter>Source Files\events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\events\utils\clock.h">
+      <Filter>Source Files\events\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\events\utils\file_io.h">
+      <Filter>Source Files\events\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\events\utils\logger.h">
+      <Filter>Source Files\events\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\src\display\utils\console_window.h">
       <Filter>Source Files\display\utils</Filter>
@@ -186,22 +253,37 @@
     <ClInclude Include="..\src\display\utils\i_window.h">
       <Filter>Source Files\display\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\config\config.h">
-      <Filter>Source Files\config</Filter>
+    <ClInclude Include="..\src\display\effects\fragment_shader_definition.h">
+      <Filter>Source Files\display\effects</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\config\config_io.h">
-      <Filter>Source Files\config</Filter>
+    <ClInclude Include="..\src\display\effects\vertex_shader_definition.h">
+      <Filter>Source Files\display\effects</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\config\config_profile.h">
-      <Filter>Source Files\config</Filter>
+    <ClInclude Include="..\src\command\primitive\attribute.h">
+      <Filter>Source Files\command\primitive</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\command\command_buffer.h">
-      <Filter>Source Files\command</Filter>
+    <ClInclude Include="..\src\command\primitive\image_transfer.h">
+      <Filter>Source Files\command\primitive</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\command\frame_buffer_settings.h">
-      <Filter>Source Files\command</Filter>
+    <ClInclude Include="..\src\command\primitive\line_primitive.h">
+      <Filter>Source Files\command\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\command\primitive\poly_primitive.h">
+      <Filter>Source Files\command\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\command\primitive\primitive_common.h">
+      <Filter>Source Files\command\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\command\primitive\primitive_facade.h">
+      <Filter>Source Files\command\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\command\primitive\rect_primitive.h">
+      <Filter>Source Files\command\primitive</Filter>
     </ClInclude>
     <ClInclude Include="..\src\command\memory\status_register.h">
+      <Filter>Source Files\command\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\command\memory\vertex_buffer.h">
       <Filter>Source Files\command\memory</Filter>
     </ClInclude>
     <ClInclude Include="..\src\command\memory\video_memory.h">
@@ -212,87 +294,6 @@
     </ClInclude>
     <ClInclude Include="..\src\command\memory\video_memory_iterator.hpp">
       <Filter>Source Files\command\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\command\primitive\line_primitive.h">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\command\primitive\poly_primitive.h">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\command\primitive\rect_primitive.h">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\vendor\glew.h">
-      <Filter>Source Files\vendor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\vendor\glxew.h">
-      <Filter>Source Files\vendor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\vendor\opengl.h">
-      <Filter>Source Files\vendor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\vendor\wglew.h">
-      <Filter>Source Files\vendor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\globals.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\pandoraGS.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\psemu_main.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\unit_tests.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\command\dispatcher.h">
-      <Filter>Source Files\command</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\res\resource.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\res\targetver.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\config\config_file_io.h">
-      <Filter>Source Files\config</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\command\primitive\attribute.h">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\command\memory\vertex_buffer.h">
-      <Filter>Source Files\command\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\command\primitive\image_transfer.h">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\command\primitive\primitive_common.h">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\command\primitive\primitive_facade.h">
-      <Filter>Source Files\command\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\display\effects\fragment_shader_definition.h">
-      <Filter>Source Files\display\effects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\display\effects\vertex_shader_definition.h">
-      <Filter>Source Files\display\effects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\events\utils\file_io.h">
-      <Filter>Source Files\events\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\config\config_common.h">
-      <Filter>Source Files\config</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\lang\i_lang.h">
-      <Filter>Source Files\lang</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\events\utils\clock.h">
-      <Filter>Source Files\events\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\events\menu.h">
-      <Filter>Source Files\events</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

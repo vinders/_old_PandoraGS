@@ -1,47 +1,68 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Includes">
-      <UniqueIdentifier>{717f401b-9d30-4450-94fd-dab3708b9c2b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{91a854bf-b992-4653-8f09-51e0ed2d3598}</UniqueIdentifier>
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{12145722-94be-4d27-a78f-6502137410fb}</UniqueIdentifier>
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Includes">
+      <UniqueIdentifier>{4512e150-6d3a-44d4-91c4-442ad6906795}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\psemu_main.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="..\test_tool\demo.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\test_tool\main.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\test_tool\primitive.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\test_tool\window.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\unit_tests.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="..\test_tool_src\res\resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test_tool_src\res\targetver.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test_tool_src\demo.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test_tool_src\primitive.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test_tool_src\tool_main.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test_tool_src\windowManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\test_tool\demo.cpp">
+    <ResourceCompile Include="..\test_tool_src\test_tool.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\test_tool_src\res\small.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\test_tool_src\res\test_tool.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\test_tool_src\demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\test_tool\main.cpp">
+    <ClCompile Include="..\test_tool_src\primitive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\test_tool\primitive.cpp">
+    <ClCompile Include="..\test_tool_src\tool_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\test_tool\window.cpp">
+    <ClCompile Include="..\test_tool_src\windowManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
