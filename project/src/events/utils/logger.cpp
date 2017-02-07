@@ -23,6 +23,7 @@ Description : event log utility
 #include <sys/types.h>
 #include <pwd.h>
 #endif
+using namespace std::literals::string_literals;
 #include "file_io.h"
 #include "logger.h"
 using namespace events::utils;

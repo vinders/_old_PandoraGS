@@ -12,6 +12,9 @@ Description : rendering engine - graphics API management
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
+#include <string>
+#include <stdexcept>
+using namespace std::literals::string_literals;
 #include "../vendor/opengl.h" // openGL includes
 #include "../config/config.h"
 #include "utils/display_window.h"

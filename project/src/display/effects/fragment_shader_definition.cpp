@@ -8,6 +8,7 @@ Description : fragment shader definition builder
 *******************************************************************************/
 #include "../../globals.h"
 #include <string>
+using namespace std::literals::string_literals;
 #include "../../config/config.h"
 #include "fragment_shader_definition.h"
 using namespace display::effects;

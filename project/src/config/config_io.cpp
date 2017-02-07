@@ -14,6 +14,7 @@ Description : configuration input/output toolbox
 #include <list>
 #include <map>
 #include <stdexcept>
+using namespace std::literals::string_literals;
 #include "config_file_io.h"
 #include "config_profile.h"
 #include "config.h"
@@ -298,7 +299,7 @@ void ConfigIO::readConfigProfileValues(ConfigFileIO<T>& reader, ConfigProfile& p
 /// @brief Save profile values
 /// @param[in] profile  Config profile container with values
 /// @throws runtime_error  Saving failure
-void ConfigIO::saveConfigProfile(const ConfigProfile& profile)
+void ConfigIO::saveConfigProfile(ConfigProfile& profile)
 {
     // create profile file/registry key
     ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE> writer;
@@ -315,7 +316,7 @@ void ConfigIO::saveConfigProfile(const ConfigProfile& profile)
 /// @param[in] profile  Config profile container with values
 /// @param[in] path     Export file path
 /// @throws runtime_error  Export failure
-void ConfigIO::exportConfigProfile(const ConfigProfile& profile, const std::wstring& path)
+void ConfigIO::exportConfigProfile(ConfigProfile& profile, const std::wstring& path)
 {
     // create export file
     ConfigFileIO<file_io_mode_t> writer;
@@ -331,7 +332,7 @@ void ConfigIO::exportConfigProfile(const ConfigProfile& profile, const std::wstr
 /// @param[in] writer   Data destination manager
 /// @param[in] profile  Source profile
 template<typename T>
-void ConfigIO::writeConfigProfileValues(ConfigFileIO<T>& writer, const ConfigProfile& profile)
+void ConfigIO::writeConfigProfileValues(ConfigFileIO<T>& writer, ConfigProfile& profile)
 {
     writer.writeString(L"ProfileName", profile.getProfileName());
     writer.writeBool(L"ExternShader", profile.isExternalShaders);

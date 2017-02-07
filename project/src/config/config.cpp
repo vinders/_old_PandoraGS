@@ -11,6 +11,7 @@ Description : configuration container
 #include <cstring>
 #include <string>
 #include <vector>
+using namespace std::literals::string_literals;
 #include "config_common.h"
 #include "config_profile.h"
 #include "config_io.h"

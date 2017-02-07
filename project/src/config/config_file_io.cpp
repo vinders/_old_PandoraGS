@@ -25,6 +25,7 @@ Description : configuration file or registry input/output
 #include <tchar.h>
 #include <winerror.h>
 #endif
+using namespace std::literals::string_literals;
 #include "../events/utils/file_io.h"
 #include "config_file_io.h"
 using namespace config;

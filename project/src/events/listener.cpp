@@ -29,8 +29,9 @@ char Listener::s_pTriggerKeys[EVENT_KEYS_STRING_LENGTH];   ///< Key/trigger asso
 event_handler_t Listener::s_pHandlers[EVENT_ARRAY_LENGTH]; ///< Handler/trigger association array
 
 // listener status
-bool Listener::s_isLocked = false; ///< Listener locked (busy or temporarily disabled)
-bool Listener::s_isPaused = false; ///< Game is currently paused
+bool Listener::s_isLocked = false;  ///< Listener locked (busy or temporarily disabled)
+bool Listener::s_isPaused = false;  ///< Game is currently paused
+bool Listener::s_isKeyDown = false; ///< Key status (for keydown events)
 
 
 #ifdef _WINDOWS

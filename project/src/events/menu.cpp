@@ -11,6 +11,7 @@ Description : game menu
 #include <cstdint>
 #include <string>
 #include <thread>
+using namespace std::literals::string_literals;
 #include "../config/config.h"
 #include "menu.h"
 using namespace events;

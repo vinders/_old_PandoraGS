@@ -9,6 +9,7 @@ Description : PSEmu GPU library interface
 #include "globals.h"
 #include <cstdlib>
 #include <string>
+using namespace std::literals::string_literals;
 #include "pandoraGS.h"
 #include "config/config.h"
 #include "events/listener.h"
@@ -363,9 +364,9 @@ void CALLBACK GPUcursor(int player, int x, int y)
 }
 
 /// @brief Trigger screen vibration
-/// @param small  Small rumble value
-/// @param big    Big rumble value (if != 0, 'small' will be ignored)
-void CALLBACK GPUvisualVibration(unsigned long small, unsigned long big)
+/// @param smallRumble  Small rumble value
+/// @param bigRumble    Big rumble value (if != 0, 'small' will be ignored)
+void CALLBACK GPUvisualVibration(unsigned long smallRumble, unsigned long bigRumble)
 {
 
 }

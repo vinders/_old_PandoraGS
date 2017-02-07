@@ -11,6 +11,7 @@ Description : config dialog language/translation utility
 #include <fstream>
 #include <string>
 #include <stdexcept>
+using namespace std::literals::string_literals;
 #include "config_lang.h"
 using namespace lang;
 

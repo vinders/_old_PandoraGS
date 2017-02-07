@@ -9,6 +9,7 @@ Description : configuration profile container
 #include "../globals.h"
 #include <cstring>
 #include <string>
+using namespace std::literals::string_literals;
 #include "config_profile.h"
 using namespace config;
 

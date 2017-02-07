@@ -9,7 +9,9 @@ Description : rendering shader builder
 #include "../globals.h"
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 #include <stdexcept>
+using namespace std::literals::string_literals;
 #include "../events/utils/logger.h"
 #include "effects/vertex_shader_definition.h"
 #include "effects/fragment_shader_definition.h"
@@ -60,7 +62,7 @@ void Shader::setVertexShader(const std::string& path)
         GLint status = 0;
         glGetShaderiv(m_shader, GL_COMPILE_STATUS, &status);
         if (!status)
-            events::utils::Logger::getInstance()->writeErrorEntry("Shader.setVertexShader"s, s"Built-in shader compilation failure");
+            events::utils::Logger::getInstance()->writeErrorEntry("Shader.setVertexShader"s, "Built-in shader compilation failure"s);
     }
 }
 
@@ -83,7 +85,7 @@ void Shader::setFragmentShader(const std::string& path)
         GLint status = 0;
         glGetShaderiv(m_shader, GL_COMPILE_STATUS, &status);
         if (!status)
-            events::utils::Logger::getInstance()->writeErrorEntry("Shader.setVertexShader"s, s"Built-in shader compilation failure");
+            events::utils::Logger::getInstance()->writeErrorEntry("Shader.setVertexShader"s, "Built-in shader compilation failure"s);
     }
 }
 
@@ -96,29 +98,36 @@ bool Shader::loadShaderFromFile(const std::string& path) noexcept
     try
     {
         // open file
-        FILE* shaderFd = fopen(path.c_str(), "rb");
-        if (!shaderFd)
+		FILE* shaderFd = nullptr;
+		#ifdef _WINDOWS
+		if (fopen_s(&shaderFd, path.c_str(), "rb") != 0)
+			throw std::invalid_argument("Shader file not found or corrupted.");
+		#else
+		shaderFd = fopen(path.c_str(), "rb");
+        if (shaderFd == nullptr)
             throw std::invalid_argument("Shader file not found or corrupted.");
+		#endif
         // get file size
         fseek(shaderFd, 0, SEEK_END);
         size_t fileSize = ftell(shaderFd);
         fseek(shaderFd, 0, SEEK_SET);
 
         // read entire file
-        char* shaderDef = new char[fileSize + 1];
-        if (shaderDef == nullptr)
+        char* pShaderDef = new char[fileSize + 1];
+        if (pShaderDef == nullptr)
         {
             fclose(shaderFd);
             throw std::runtime_error("Shader definition allocation failure. File may be too big?");
         }
-        fread(shaderDef, 1, fileSize, shaderFd);
-        shaderDef[fileSize] = '\0';
+        fread(pShaderDef, 1, fileSize, shaderFd);
+		pShaderDef[fileSize] = '\0';
         fclose(shaderFd);
 
         // load string definition into shader
-        glShaderSource(m_shader, 1, &shaderDef, NULL);
+		const char* pShaderConstDef = pShaderDef;
+        glShaderSource(m_shader, 1, &pShaderConstDef, NULL);
         glCompileShader(m_shader);
-        delete [] shaderDef;
+        delete [] pShaderDef;
 
         // check validity
         GLint status = 0;

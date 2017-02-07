@@ -203,9 +203,9 @@ void CALLBACK GPUdisplayText(char* pText);
 /// @param y       Cursor vertical position (0-255)
 void CALLBACK GPUcursor(int player, int x, int y);
 /// @brief Trigger screen vibration
-/// @param small  Small rumble value
-/// @param big    Big rumble value (if != 0, 'small' will be ignored)
-void CALLBACK GPUvisualVibration(unsigned long small, unsigned long big);
+/// @param smallRumble  Small rumble value
+/// @param bigRumble    Big rumble value (if != 0, 'small' will be ignored)
+void CALLBACK GPUvisualVibration(unsigned long smallRumble, unsigned long bigRumble);
 
 
 // -- unit testing -- ----------------------------------------------------------

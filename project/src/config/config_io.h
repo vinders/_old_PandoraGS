@@ -70,17 +70,17 @@ namespace config
         /// @brief Save profile values
         /// @param[in] profile  Config profile container with values
         /// @throws runtime_error  Saving failure
-        static void saveConfigProfile(const ConfigProfile& profile);
+        static void saveConfigProfile(ConfigProfile& profile);
         /// @brief Export profile values (external file)
         /// @param[in] profile  Config profile container with values
         /// @param[in] path     Export file path
         /// @throws runtime_error  Export failure
-        static void exportConfigProfile(const ConfigProfile& profile, const std::wstring& path);
+        static void exportConfigProfile(ConfigProfile& profile, const std::wstring& path);
         /// @brief Write profile values
         /// @param[in] writer   Data destination manager
         /// @param[in] profile  Source profile
         template<typename T>
-        static void writeConfigProfileValues(ConfigFileIO<T>& writer, const ConfigProfile& profile);
+        static void writeConfigProfileValues(ConfigFileIO<T>& writer, ConfigProfile& profile);
 
         /// @brief Remove profile (won't change associations !)
         /// @param[in] id  Profile identifier

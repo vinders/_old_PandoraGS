@@ -25,6 +25,7 @@ Description : file IO toolbox
 #include <sys/types.h>
 #include <pwd.h>
 #endif
+using namespace std::literals::string_literals;
 #include "file_io.h"
 using namespace events::utils;
 

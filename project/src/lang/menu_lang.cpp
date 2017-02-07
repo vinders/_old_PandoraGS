@@ -10,6 +10,7 @@ Description : in-game menu language/translation utility
 #include <iostream>
 #include <fstream>
 #include <string>
+using namespace std::literals::string_literals;
 #include "../events/utils/logger.h"
 #include "menu_lang.h"
 using namespace lang;
