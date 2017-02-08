@@ -26,16 +26,16 @@
     <ClInclude Include="..\test_tool_src\res\targetver.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\test_tool_src\demo.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\test_tool_src\primitive.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\test_tool_src\tool_main.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\test_tool_src\windowManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test_tool_src\plugin_loader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test_tool_src\primitive_builder.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -53,16 +53,16 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\test_tool_src\demo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\test_tool_src\primitive.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\test_tool_src\tool_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\test_tool_src\windowManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test_tool_src\plugin_loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test_tool_src\primitive_builder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

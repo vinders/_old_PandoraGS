@@ -159,8 +159,8 @@
   <ItemGroup>
     <ClInclude Include="..\src\psemu_main.h" />
     <ClInclude Include="..\src\unit_tests.h" />
-    <ClInclude Include="..\test_tool_src\demo.h" />
-    <ClInclude Include="..\test_tool_src\primitive.h" />
+    <ClInclude Include="..\test_tool_src\plugin_loader.h" />
+    <ClInclude Include="..\test_tool_src\primitive_builder.h" />
     <ClInclude Include="..\test_tool_src\res\resource.h" />
     <ClInclude Include="..\test_tool_src\res\targetver.h" />
     <ClInclude Include="..\test_tool_src\tool_main.h" />
@@ -174,8 +174,8 @@
     <Image Include="..\test_tool_src\res\test_tool.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\test_tool_src\demo.cpp" />
-    <ClCompile Include="..\test_tool_src\primitive.cpp" />
+    <ClCompile Include="..\test_tool_src\plugin_loader.cpp" />
+    <ClCompile Include="..\test_tool_src\primitive_builder.cpp" />
     <ClCompile Include="..\test_tool_src\tool_main.cpp" />
     <ClCompile Include="..\test_tool_src\windowManager.cpp" />
   </ItemGroup>
