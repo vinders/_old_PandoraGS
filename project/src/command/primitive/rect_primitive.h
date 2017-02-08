@@ -51,8 +51,8 @@ namespace command
             rgb24_t color;  ///< Primitive ID + tile color (RGB)
             rect16_t coord; ///< Position (top-left) + size (width/height)
             // rendering information
-            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
 
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
         };
@@ -69,8 +69,8 @@ namespace command
             rgb24_t color; ///< Primitive ID + tile color (RGB)
             coord16_t pos; ///< Position (top-left)
             // rendering information
-            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
 
             static inline size_t size() { return 2; } ///< Length (32-bit blocks)
         };
@@ -87,8 +87,8 @@ namespace command
             rgb24_t color; ///< Primitive ID + tile color (RGB)
             coord16_t pos; ///< Position (top-left)
             // rendering information
-            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
 
             static inline size_t size() { return 2; } ///< Length (32-bit blocks)
         };
@@ -105,8 +105,8 @@ namespace command
             rgb24_t color; ///< Primitive ID + tile color (RGB)
             coord16_t pos; ///< Position (top-left)
             // rendering information
-            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
 
             static inline size_t size() { return 2; } ///< Length (32-bit blocks)
         };
@@ -127,8 +127,8 @@ namespace command
             coord8_tx_t texture; ///< Sprite texture coordinates + CLUT
             coord16_t range;     ///< Size (width/height)
             // rendering information
-            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
 
             static inline size_t size() { return 4; } ///< Length (32-bit blocks)
         };
@@ -146,8 +146,8 @@ namespace command
             coord16_t pos;       ///< Position (top-left)
             coord8_tx_t texture; ///< Sprite texture coordinates + CLUT
             // rendering information
-            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
 
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
         };
@@ -165,8 +165,8 @@ namespace command
             coord16_t pos;       ///< Position (top-left)
             coord8_tx_t texture; ///< Sprite texture coordinates + CLUT
             // rendering information
-            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
 
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
         };
@@ -184,8 +184,8 @@ namespace command
             coord16_t pos;       ///< Position (top-left)
             coord8_tx_t texture; ///< Sprite texture coordinates + CLUT
             // rendering information
-            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
 
             static inline size_t size() { return 3; } ///< Length (32-bit blocks)
         };

@@ -43,8 +43,8 @@ namespace command
             vertex_f1_t vertex1; ///< Vertex coordinates
             vertex_f1_t vertex2; ///< Vertex coordinates
             // rendering information
-            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
 
             static inline size_t size() { return 4; } ///< Length (32-bit blocks)
         };
@@ -64,8 +64,8 @@ namespace command
             vertex_f1_t vertex2; ///< Vertex coordinates (bottom-left)
             vertex_f1_t vertex3; ///< Vertex coordinates (bottom-right)
             // rendering information
-            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
 
             static inline size_t size() { return 5; } ///< Length (32-bit blocks)
         };
@@ -84,8 +84,8 @@ namespace command
             vertex_ft1_t vertex1; ///< Vertex coordinates/texture (texpage)
             vertex_ft1_t vertex2; ///< Vertex coordinates
             // rendering information
-            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
             // texture information
             inline command::cmd_block_t clutX()    { return vertex0.texture.clutX(); }
             inline command::cmd_block_t clutY()    { return vertex0.texture.clutY(); }
@@ -110,8 +110,8 @@ namespace command
             vertex_ft1_t vertex2; ///< Vertex coordinates
             vertex_ft1_t vertex3; ///< Vertex coordinates
             // rendering information
-            inline bool isOpaque()  { return ((color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
             // texture information
             inline command::cmd_block_t clutX()    { return vertex0.texture.clutX(); }
             inline command::cmd_block_t clutY()    { return vertex0.texture.clutY(); }
@@ -136,8 +136,8 @@ namespace command
             vertex_g1_t vertex1; ///< Vertex color/coordinates
             vertex_g1_t vertex2; ///< Vertex color/coordinates
             // rendering information
-            inline bool isOpaque()  { return ((vertex0.color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((vertex0.color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((vertex0.color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((vertex0.color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
 
             static inline size_t size() { return 6; } ///< Length (32-bit blocks)
         };
@@ -156,8 +156,8 @@ namespace command
             vertex_g1_t vertex2; ///< Vertex color/coordinates
             vertex_g1_t vertex3; ///< Vertex color/coordinates
             // rendering information
-            inline bool isOpaque()  { return ((vertex0.color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((vertex0.color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((vertex0.color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((vertex0.color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
 
             static inline size_t size() { return 8; } ///< Length (32-bit blocks)
         };
@@ -175,8 +175,8 @@ namespace command
             vertex_gt1_t vertex1; ///< Vertex color/coordinates/texture (texpage)
             vertex_gt1_t vertex2; ///< Vertex color/coordinates
             // rendering information
-            inline bool isOpaque()  { return ((vertex0.color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((vertex0.color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((vertex0.color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((vertex0.color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
             // texture information
             inline command::cmd_block_t clutX()    { return vertex0.texture.clutX(); }
             inline command::cmd_block_t clutY()    { return vertex0.texture.clutY(); }
@@ -200,8 +200,8 @@ namespace command
             vertex_gt1_t vertex2; ///< Vertex color/coordinates
             vertex_gt1_t vertex3; ///< Vertex color/coordinates
             // rendering information
-            inline bool isOpaque()  { return ((vertex0.color.raw & 0x2000000) == 0uL); }
-            inline bool isBlended() { return ((vertex0.color.raw & 0x1000000) == 0uL); }
+            inline bool isOpaque()  { return ((vertex0.color.raw & PRIMITIVE_STP_BIT) == 0uL); }
+            inline bool isBlended() { return ((vertex0.color.raw & PRIMITIVE_BLEND_BIT) == 0uL); }
             // texture information
             inline command::cmd_block_t clutX()    { return vertex0.texture.clutX(); }
             inline command::cmd_block_t clutY()    { return vertex0.texture.clutY(); }

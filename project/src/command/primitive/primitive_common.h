@@ -13,6 +13,9 @@ Description : drawing primitive - common types
 #include <vector>
 #pragma pack(push, 4)
 
+#define PRIMITIVE_STP_BIT   0x2000000 // semi-transparency bit
+#define PRIMITIVE_BLEND_BIT 0x1000000 // blending bit
+
 /// @namespace command
 /// GPU commands management
 namespace command
