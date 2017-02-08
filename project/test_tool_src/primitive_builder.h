@@ -107,10 +107,10 @@ public:
     /// @param[out] ppOutData  Primitive data chain
     /// @param[in] descr       Primitive descriptor
     /// @returns Data length (number of 32-bit blocks)
-    static size_t PrimitiveBuilder::createLine(unsigned long** pData, const line_descriptor_t& descr);
+    static size_t PrimitiveBuilder::createLine(unsigned long** ppOutData, const line_descriptor_t& descr);
     /// @brief Create primitive - rectangle
     /// @param[out] ppOutData  Primitive data chain
     /// @param[in] descr       Primitive descriptor
     /// @returns Data length (number of 32-bit blocks)
-    static size_t PrimitiveBuilder::processRectangle(unsigned long** pData, const rect_descriptor_t& descr);
+    static size_t PrimitiveBuilder::createRectangle(unsigned long** ppOutData, const rect_descriptor_t& descr);
 };

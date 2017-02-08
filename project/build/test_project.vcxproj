@@ -164,7 +164,7 @@
     <ClInclude Include="..\test_tool_src\res\resource.h" />
     <ClInclude Include="..\test_tool_src\res\targetver.h" />
     <ClInclude Include="..\test_tool_src\tool_main.h" />
-    <ClInclude Include="..\test_tool_src\windowManager.h" />
+    <ClInclude Include="..\test_tool_src\window_manager.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\test_tool_src\test_tool.rc" />
@@ -177,7 +177,7 @@
     <ClCompile Include="..\test_tool_src\plugin_loader.cpp" />
     <ClCompile Include="..\test_tool_src\primitive_builder.cpp" />
     <ClCompile Include="..\test_tool_src\tool_main.cpp" />
-    <ClCompile Include="..\test_tool_src\windowManager.cpp" />
+    <ClCompile Include="..\test_tool_src\window_manager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

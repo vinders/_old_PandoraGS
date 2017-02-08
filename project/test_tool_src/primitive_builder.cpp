@@ -156,7 +156,7 @@ size_t PrimitiveBuilder::createPolygon(unsigned long** ppOutData, const poly_des
 /// @param[out] ppOutData  Primitive data chain
 /// @param[in] descr       Primitive descriptor
 /// @returns Data length (number of 32-bit blocks)
-size_t PrimitiveBuilder::createLine(unsigned long** pData, const line_descriptor_t& descr)
+size_t PrimitiveBuilder::createLine(unsigned long** ppOutData, const line_descriptor_t& descr)
 {
     if (ppOutData == nullptr)
         return 0;
@@ -218,7 +218,7 @@ size_t PrimitiveBuilder::createLine(unsigned long** pData, const line_descriptor
 /// @param[out] ppOutData  Primitive data chain
 /// @param[in] descr       Primitive descriptor
 /// @returns Data length (number of 32-bit blocks)
-size_t PrimitiveBuilder::processRectangle(unsigned long** pData, const rect_descriptor_t& descr)
+size_t PrimitiveBuilder::createRectangle(unsigned long** ppOutData, const rect_descriptor_t& descr)
 {
     if (ppOutData == nullptr)
         return 0;
@@ -238,13 +238,13 @@ size_t PrimitiveBuilder::processRectangle(unsigned long** pData, const rect_desc
             len = 4;
             pPrim = new unsigned long[4];
             pPrim[2] = 0;
-            pPrim[3] = descr.coords[1];
+            pPrim[3] = descr.coords[1].x & 0x0FFFF | ((descr.coords[1].y & 0x0FFFF) << 16);
         }
         else
         {
             len = 3;
             pPrim = new unsigned long[3];
-            pPrim[2] = descr.coords[1];
+            pPrim[2] = descr.coords[1].x & 0x0FFFF | ((descr.coords[1].y & 0x0FFFF) << 16);
         }
     }
     else
@@ -262,7 +262,7 @@ size_t PrimitiveBuilder::processRectangle(unsigned long** pData, const rect_desc
         }
     }
     pPrim[0] = descr.color | primId;
-    pPrim[1] = descr.coords[0];
+    pPrim[1] = descr.coords[0].x & 0x0FFFF | ((descr.coords[0].y & 0x0FFFF) << 16);
     
     *ppOutData = pPrim;
     return len;

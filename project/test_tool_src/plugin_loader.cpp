@@ -10,6 +10,7 @@ Description : PandoraGS test utility -- GPU plugin loader
 #include <stdexcept>
 using namespace std;
 #include "../src/psemu_main.h"
+#include "../src/unit_tests.h"
 #include "primitive_builder.h"
 #include "plugin_loader.h"
 
