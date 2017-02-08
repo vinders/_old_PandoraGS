@@ -6,6 +6,7 @@ Description : PandoraGS test utility -- GPU plugin loader
 #pragma once
 
 #include <cstdint>
+#include "primitive_builder.h"
 
 /// @class PluginLoader
 /// @brief GPU plugin loader
@@ -23,7 +24,8 @@ public:
     ~PluginLoader();
 
     /// @brief Load unit testing
-    void checkUnits();
+    /// @returns Success
+    bool checkUnits();
     
     /// @brief Draw polygon primitive
     /// @param[in] type               Type of shape (triangle/quad, flat/gouraud)

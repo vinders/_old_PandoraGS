@@ -9,8 +9,8 @@ Description : PandoraGS test utility -- GPU plugin loader
 #include <string>
 #include <stdexcept>
 using namespace std;
-#include "../src/psemu_main.h"
-#include "../src/unit_tests.h"
+#include "../src/psemu_main.h" // plugin PSEmu interface
+#include "../src/unit_tests.h" // plugin unit testing interface
 #include "primitive_builder.h"
 #include "plugin_loader.h"
 
@@ -41,9 +41,10 @@ PluginLoader::~PluginLoader()
 
 
 /// @brief Load unit testing
-void PluginLoader::checkUnits()
+/// @returns Success
+bool PluginLoader::checkUnits()
 {
-    GPUtestUnits((void*)m_hWindow);
+    return (GPUtestUnits(m_hWindow) == 0);
 }
 
 /// @brief Process and display primitive

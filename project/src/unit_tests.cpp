@@ -15,10 +15,19 @@ using namespace std::literals::string_literals;
 using namespace std;
 
 
+#ifdef _WINDOWS
 /// @brief Plugin - full unit testing
-/// @param pWinData  Window handle reference
+/// @param hWindow  Main window handle
 /// @returns Success indicator
-long CALLBACK GPUtestUnits(void* pWinData)
+long CALLBACK GPUtestUnits(HWND hWindow)
+#else
+/// @brief Plugin - full unit testing
+/// @param pDisplayId   Display identifier
+/// @param pCaption     Window caption
+/// @param pConfigFile  Config file path
+/// @returns Success indicator
+long CALLBACK GPUtestUnits(unsigned long* pDisplayId, char* pCaption, char* pConfigFile)
+#endif
 {
 
     return PSE_SUCCESS;
@@ -27,8 +36,7 @@ long CALLBACK GPUtestUnits(void* pWinData)
 /// @brief Plugin - primitive testing
 /// @param pData      Primitive raw data
 /// @param len        Primitive data length (number of 32bits blocks)
-/// @param isFlipped  Flip indicator (only for rectangles)
-void CALLBACK GPUtestPrimitive(unsigned long* pData, int len, bool isFlipped)
+void CALLBACK GPUtestPrimitive(unsigned long* pData, int len)
 {
 
 }
