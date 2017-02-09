@@ -97,20 +97,48 @@ public:
     /// @param[out] ppOutData  Primitive data chain
     /// @param[in] color       Fill color
     /// @returns Data length (number of 32-bit blocks)
-    static size_t PrimitiveBuilder::createAreaFiller(unsigned long** ppOutData, const uint32_t color);
+    static size_t createAreaFiller(unsigned long** ppOutData, const uint32_t color);
     /// @brief Create primitive - polygon
     /// @param[out] ppOutData  Primitive data chain
     /// @param[in] descr       Primitive descriptor
     /// @returns Data length (number of 32-bit blocks)
-    static size_t PrimitiveBuilder::createPolygon(unsigned long** ppOutData, const poly_descriptor_t& descr);
+    static size_t createPolygon(unsigned long** ppOutData, const poly_descriptor_t& descr);
     /// @brief Create primitive - line
     /// @param[out] ppOutData  Primitive data chain
     /// @param[in] descr       Primitive descriptor
     /// @returns Data length (number of 32-bit blocks)
-    static size_t PrimitiveBuilder::createLine(unsigned long** ppOutData, const line_descriptor_t& descr);
+    static size_t createLine(unsigned long** ppOutData, const line_descriptor_t& descr);
     /// @brief Create primitive - rectangle
     /// @param[out] ppOutData  Primitive data chain
     /// @param[in] descr       Primitive descriptor
     /// @returns Data length (number of 32-bit blocks)
-    static size_t PrimitiveBuilder::createRectangle(unsigned long** ppOutData, const rect_descriptor_t& descr);
+    static size_t createRectangle(unsigned long** ppOutData, const rect_descriptor_t& descr);
+
+	/// @brief Print list of primitive categories
+	/// @returns Number of items
+	static uint32_t listPrimitiveCategories();
+	/// @brief Print list of shape types/sizes
+	/// @param[in] category  Primitive category
+	/// @returns Number of items
+	static uint32_t listShapeTypes(const primitive_category_t category);
+	/// @brief Print list of primitive rendering types
+	/// @returns Number of items
+	static uint32_t listRenderingTypes();
+
+	/// @brief Convert user input to primitive category
+	/// @param[in] input  Input value
+	/// @returns Category
+	static primitive_category_t getPrimitiveCategory(const int32_t input);
+	/// @brief Convert user input to shape type
+	/// @param[in] input  Input value
+	/// @returns Shape type
+	static shape_type_t getShapeType(const int32_t input);
+	/// @brief Convert user input to shape type
+	/// @param[in] input  Input value
+	/// @returns Shape type
+	static rectangle_type_t getRectangleType(const int32_t input);
+	/// @brief Convert user input to rendering type
+	/// @param[in] input  Input value
+	/// @returns Rendering type
+	static shape_rendering_t getRenderingType(const int32_t input);
 };
