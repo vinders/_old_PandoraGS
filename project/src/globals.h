@@ -46,6 +46,7 @@ Description : global constants and settings
 #endif
 // compilation settings - trace psemu calls
 #define _TRACE_CALLS     0 // 0 - disabled / 1 - enabled
+#define _UNITTEST_APP_NAME "UNITTEST.001"
 
 
 // -- SYSTEM COMPATIBILITY - WINDOWS -- ----------------------------------------

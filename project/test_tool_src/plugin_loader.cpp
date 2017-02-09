@@ -24,7 +24,7 @@ PluginLoader::PluginLoader(HWND hWindow)
     if (GPUinit())
         throw std::runtime_error("GPUinit command failed");
     // start renderer
-    GPUsetExeName("UNITTEST.001");
+    GPUsetExeName(_UNITTEST_APP_NAME);
     if (GPUopen(hWindow))
         throw std::runtime_error("GPUopen command failed");
     m_hWindow = hWindow;
@@ -72,7 +72,7 @@ void PluginLoader::drawPolygon(shape_type_t type, shape_rendering_t rendering, b
     
     // clear texture cache
     //...
-    // set texture page
+    // set texture page + window + draw area
     //...
     // set semi-transparency mode
     //...
@@ -106,6 +106,10 @@ void PluginLoader::drawLine(shape_type_t type, bool isSemiTransparent)
     len = PrimitiveBuilder::createAreaFiller(&pData, 0);
     processPrimitive(pData, len);
     
+	// clear texture cache
+	//...
+	// set texture page + window + draw area
+	//...
     // set semi-transparency mode
     //...
     
@@ -141,7 +145,7 @@ void PluginLoader::drawRectangle(rectangle_type_t type, shape_rendering_t render
     
     // clear texture cache
     //...
-    // set texture page
+    // set texture page + window + draw area
     //...
     // set semi-transparency mode
     //...
