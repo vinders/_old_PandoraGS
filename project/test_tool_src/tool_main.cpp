@@ -17,14 +17,19 @@ using namespace std;
 
 
 /// @brief Test utility - window creation
+/// @param[in] hInstance      Application instance handle
+/// @param[in] hPrevInstance  Previous instance handle
+/// @param[in] lpCmdLine      Command line arguments
+/// @param[in] nCmdShow       Startup window display flag
 /// @returns Exit code
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPTSTR lpCmdLine, _In_ int nCmdShow)
 {
-    return createMenuWindow(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+	WindowManager menu(hInstance, hPrevInstance, lpCmdLine);
+	return menu.showDialog(nCmdShow);
 }
 
 /// @brief Plugin dialog testing
-/// @param type  Dialog type
+/// @param[in] type  Dialog type
 void openDialog(plugin_dialog_t type)
 {
     if (type == plugin_dialog_t::config)
@@ -34,7 +39,7 @@ void openDialog(plugin_dialog_t type)
 }
 
 /// @brief Launch plugin and start demonstration sequence
-/// @param hWindow  Main window handle
+/// @param[in] hWindow  Main window handle
 void startDemoSequence(HWND hWindow)
 {
     try
@@ -49,7 +54,7 @@ void startDemoSequence(HWND hWindow)
 }
 
 /// @brief Load plugin unit testing system
-/// @param hWindow  Main window handle
+/// @param[in] hWindow  Main window handle
 void startUnitTesting(HWND hWindow)
 {
     try
@@ -70,7 +75,7 @@ void startUnitTesting(HWND hWindow)
 }
 
 /// @brief Custom primitive testing
-/// @param hWindow  Main window handle
+/// @param[in] hWindow  Main window handle
 void startPrimitiveTesting(HWND hWindow)
 {
     try
