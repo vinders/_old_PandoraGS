@@ -27,12 +27,11 @@ PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu compatible).
 * configuration dialog - user-friendly UI with tabs
 * multilanguage support and error log system
 * debug mode - debug terminal + vram data export
-* test utilities - unit testing, rendering primitive testing, rendering demo, dialog launcher
+* test utilities - unit testing, primitive testing, rendering demo, dialog launcher
 
 ###Currently done:
 * refactoring - data transfers, memory management, FIFO buffer, renderer management
 * refactoring - dialog management - add OS abstraction layer
-* testing - reorganize unit testing, improve test tool
 
 ###To do:
 * processing and rendering of primitives and attributes
