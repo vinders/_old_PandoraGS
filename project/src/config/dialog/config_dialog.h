@@ -9,7 +9,11 @@ Description : configuration dialog
 #pragma once
 
 #include <stack>
+#if _DIALOGAPI == DIALOGAPI_WIN32
+#include <Windows.h>
+#endif
 #include "../config.h"
+#include "../../lang/config_lang.h"
 #include "controls/tabbed_dialog.h"
 
 /// @namespace config
@@ -27,6 +31,7 @@ namespace config
         {
         private:
 			static std::stack<ConfigDialog*> s_stackedSelfReferences; ///< Static references to non-static dialogs
+			lang::ConfigLang m_languageResource; ///< Language resources
 
 
         public:

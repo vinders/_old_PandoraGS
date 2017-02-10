@@ -9,6 +9,7 @@ Description : dialog control
 #pragma once
 
 #include "../../../globals.h"
+#include <cstdint>
 #include <stack>
 #include <functional>
 #if _DIALOGAPI == DIALOGAPI_WIN32
@@ -26,7 +27,7 @@ namespace config
 		#if _DIALOGAPI == DIALOGAPI_WIN32
 		typedef HWND window_handle_t; ///< Window handle
 		typedef HINSTANCE library_instance_t; ///< Library instance
-		typedef std::function<INT_PTR(HWND,UINT,WPARAM,LPARAM)> dialog_event_handler_t; ///< Event handling sub-function
+		typedef std::function<INT_PTR(HWND,UINT,WPARAM,LPARAM)> dialog_event_handler_t; ///< Event handling function
 		#else
 		typedef int32_t window_handle_t; ///< Window handle
 		typedef int32_t library_instance_t; ///< Library instance
@@ -46,6 +47,19 @@ namespace config
         /// Dialog controls
         namespace controls
         {
+			#if _DIALOGAPI == DIALOGAPI_WIN32
+			/// @struct draw_event_args_t
+			/// @brief Drawing event arguments
+			struct draw_event_args_t
+			{
+				HWND window;
+				HDC context;
+			};
+			#else
+			typedef int32_t draw_event_args_t; ///< Drawing event arguments
+			#endif
+
+
             /// @class Dialog
             /// @brief Dialog control
             class Dialog

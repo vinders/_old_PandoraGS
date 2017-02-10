@@ -25,7 +25,11 @@ std::stack<ConfigDialog*> ConfigDialog::s_stackedSelfReferences; ///< Static ref
 /// @throws invalid_argument  Invalid instance
 ConfigDialog::ConfigDialog(library_instance_t instance) : TabbedDialog(instance)
 {
-	//...init config
+	// load config values
+	config::Config::init();
+	m_languageResource.setLanguage(config::Config::langCode, config::Config::langFilePath);
+
+	// set dialog pages
 	//...init pages and tabs
 		//créer les tab_association_t et les insérer dans m_tabs avec paramètres appropriés pour boutons
 }
@@ -34,7 +38,7 @@ ConfigDialog::ConfigDialog(library_instance_t instance) : TabbedDialog(instance)
 ConfigDialog::~ConfigDialog()
 {
 	//...delete pages and tabs
-	//...close config
+	config::Config::close();
 }
 
 
@@ -98,7 +102,10 @@ INT_PTR ConfigDialog::configDialogEventHandler(HWND hWindow, UINT msg, WPARAM wP
 
 				// language change
 				case IDC_LANG_LIST:
-					/*...*/
+					if (HIWORD(wParam) == CBN_SELCHANGE)
+					{
+						//return onLanguageChange(hWindow);
+					}
 					break;
 			}
 			break;

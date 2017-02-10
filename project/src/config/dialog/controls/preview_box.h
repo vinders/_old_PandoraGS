@@ -24,7 +24,8 @@ namespace config
             /// @brief Previex picture box
             class PreviewBox
             {
-                
+
+				//invalidate
             };
         }
     }
