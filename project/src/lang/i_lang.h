@@ -10,6 +10,7 @@ Description : in-game language/translation - common interface
 
 #include <cstdint>
 #include <string>
+using namespace std::literals::string_literals;
 
 #define LANGCODE_DEFAULT lang::langcode_t::english
 

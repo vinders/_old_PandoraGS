@@ -12,6 +12,7 @@ Description : PSEmu GPU library interface
 using namespace std::literals::string_literals;
 #include "pandoraGS.h"
 #include "config/config.h"
+#include "config/dialog/config_dialog.h"
 #include "events/listener.h"
 #include "events/menu.h"
 #include "events/utils/logger.h"
@@ -232,14 +233,31 @@ long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem)
 /// @returns Success indicator
 long CALLBACK GPUconfigure()
 {
-
+	try
+	{
+		config::dialog::ConfigDialog configDialog(static_cast<config::dialog::library_instance_t>(PandoraGS::getInstance()));
+		configDialog.showDialog();
+	}
+	catch (std::exception exc)
+	{
+		events::utils::Logger::getInstance()->writeErrorEntry("GPUconfigure"s, exc.what());
+		return PSE_ERR_FATAL;
+	}
     return PSE_SUCCESS;
 }
 
 /// @brief Open plugin 'about' dialog box
 void CALLBACK GPUabout()
 {
-
+	try
+	{
+		config::dialog::controls::Dialog aboutDialog(static_cast<config::dialog::library_instance_t>(PandoraGS::getInstance()));
+		aboutDialog.showDialog(IDD_ABOUT_DIALOG);
+	}
+	catch (std::exception exc)
+	{
+		events::utils::Logger::getInstance()->writeErrorEntry("GPUabout"s, exc.what());
+	}
 }
 
 /// @brief Check if plugin works

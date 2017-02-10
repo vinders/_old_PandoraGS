@@ -8,7 +8,7 @@ Description : advanced tab control
 *******************************************************************************/
 #pragma once
 
-#include <array>
+#include <vector>
 #include <memory>
 #include "tab_button.h"
 #include "tab_page.h"
@@ -39,10 +39,10 @@ namespace config
             class TabControl
             {
             protected:
-                std::array<tab_association_t> m_pages;
+                std::vector<tab_association_t> m_pages;
                 
             public:
-                TabControl();
+				TabControl() {}
                 
                 //void clear();
                 //void addTab(tab_association_t& tabData);

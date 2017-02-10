@@ -9,6 +9,7 @@ Description : GPU library entry point
 #pragma once
 #ifdef _WINDOWS
 
+#include <cstdint>
 #include <Windows.h>
 
 /// @class PandoraGS
@@ -29,6 +30,20 @@ public:
     {
         return s_hInstance;
     }
+};
+
+#else
+/// @class PandoraGS
+/// @brief PandoraGS library - entry point
+class PandoraGS
+{
+public:
+	/// @brief Get main instance handle
+	/// @returns Instance handle
+	static inline int32_t getInstance() noexcept
+	{
+		return 0;//...
+	}
 };
 
 #endif
