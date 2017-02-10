@@ -45,6 +45,9 @@
     <Filter Include="Source Files\command\primitive">
       <UniqueIdentifier>{00d29869-6c72-4c95-80f4-a085e010c6fe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\config\dialog\controls">
+      <UniqueIdentifier>{f2ad0992-c369-41d0-b613-116a56e9ad96}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\pandoraGS.cpp">
@@ -154,6 +157,39 @@
     </ClCompile>
     <ClCompile Include="..\src\command\memory\video_memory.cpp">
       <Filter>Source Files\command\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\config_dialog.cpp">
+      <Filter>Source Files\config\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\general_page.cpp">
+      <Filter>Source Files\config\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\manager_page.cpp">
+      <Filter>Source Files\config\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\profile_page.cpp">
+      <Filter>Source Files\config\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\controls\dialog.cpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\controls\group_box.cpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\controls\preview_box.cpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\controls\tab_button.cpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\controls\tab_control.cpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\controls\tab_page.cpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\controls\tabbed_dialog.cpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -294,6 +330,39 @@
     </ClInclude>
     <ClInclude Include="..\src\command\memory\video_memory_iterator.hpp">
       <Filter>Source Files\command\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\config_dialog.h">
+      <Filter>Source Files\config\dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\general_page.h">
+      <Filter>Source Files\config\dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\manager_page.h">
+      <Filter>Source Files\config\dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\profile_page.h">
+      <Filter>Source Files\config\dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\controls\dialog.h">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\controls\group_box.h">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\controls\preview_box.h">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\controls\tab_button.h">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\controls\tab_control.h">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\controls\tab_page.h">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\controls\tabbed_dialog.h">
+      <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
