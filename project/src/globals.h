@@ -21,6 +21,8 @@ Description : global constants and settings
 #define PLUGIN_TECH        "C++14 (VC++ runtimes 2015), OpenGL 4.1"
 
 // other information
+#define LOGO_WIDTH   140
+#define LOGO_HEIGHT  44
 #define PLUGIN_ABOUT_TITLE "About PandoraGS..."
 #ifdef _WINDOWS
 #define PLUGIN_THANKS      "No$psx, Doomed - for providing useful docs\

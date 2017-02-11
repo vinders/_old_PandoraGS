@@ -55,10 +55,6 @@ namespace config
                 /// @brief Create tab control
                 TabControl() : m_activePageIndex(-1) {}
 
-                /// @brief Trigger control drawing
-                /// @param[in] args  Event arguments
-                void paint(paint_event_args_t args);
-                
                 /// @brief Remove all tabs
                 void clear() noexcept
                 {
@@ -71,6 +67,17 @@ namespace config
                 {
                     m_pages.push_back(tab_association_t(data));
                 }
+
+
+                /// @brief Create tab control in dialog
+                /// @param[in] window      Window handle
+                /// @param[in] offset      Vertical offset for first tab button
+                /// @param[in] width       Tab button width
+                void create(window_handle_t window, const uint32_t offset, const uint32_t width);
+
+                /// @brief Trigger control drawing
+                /// @param[in] args  Event arguments
+                void paint(paint_event_args_t args);
             };
         }
     }

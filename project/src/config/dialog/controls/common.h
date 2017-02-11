@@ -41,6 +41,7 @@ namespace config
 
             #if _DIALOGAPI == DIALOGAPI_WIN32
             typedef HINSTANCE library_instance_t; ///< Library instance
+            typedef HWND window_handle_t; ///< Window handle
 
             /// @struct paint_event_args_t
             /// @brief Drawing event arguments
@@ -53,6 +54,7 @@ namespace config
 
             #else
             typedef int32_t library_instance_t; ///< Library instance
+            typedef int32_t window_handle_t; ///< Window handle
 
             // @struct paint_event_args_t
             /// @brief Drawing event arguments
