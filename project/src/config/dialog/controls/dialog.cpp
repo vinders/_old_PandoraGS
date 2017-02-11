@@ -19,6 +19,7 @@ Description : dialog control
 #include "dialog.h"
 using namespace config::dialog;
 using namespace config::dialog::controls;
+using namespace std::literals::string_literals;
 
 Dialog* Dialog::s_dialogRefBuffer = nullptr; ///< Dialog reference buffer (pass non-static data to static handler)
 
@@ -29,6 +30,7 @@ Dialog* Dialog::s_dialogRefBuffer = nullptr; ///< Dialog reference buffer (pass 
 Dialog::Dialog(library_instance_t instance)
 {
 	m_dialogData.dialogResult = dialog_result_t::cancel;
+	m_instance = instance;
 	#if _DIALOGAPI == DIALOGAPI_WIN32
 	if ((HINSTANCE)instance == (HINSTANCE)INVALID_HANDLE_VALUE 
 	 && (HINSTANCE)(m_instance = (library_instance_t)GetModuleHandle(NULL)) == (HINSTANCE)INVALID_HANDLE_VALUE)
@@ -60,7 +62,7 @@ dialog_result_t Dialog::showDialog(const int32_t resourceId, const bool isStyleE
 		ACTCTX actCtx;
 		ZeroMemory(&actCtx, sizeof(actCtx));
 		actCtx.cbSize = sizeof(actCtx);
-		actCtx.hModule = m_instance;
+		actCtx.hModule = (HINSTANCE)m_instance;
 		actCtx.lpResourceName = MAKEINTRESOURCE(IDS_ACTIVATION_CONTEXT);
 		actCtx.dwFlags = ACTCTX_FLAG_HMODULE_VALID | ACTCTX_FLAG_RESOURCE_NAME_VALID;
 
@@ -74,8 +76,7 @@ dialog_result_t Dialog::showDialog(const int32_t resourceId, const bool isStyleE
 	// open modal dialog box
 	s_dialogRefBuffer = this;
 	m_dialogData.dialogResult = dialog_result_t::error;
-	bool isSuccess = (DialogBox(static_cast<HINSTANCE>(m_instance), MAKEINTRESOURCE(resourceId),
-								static_cast<HWND>(hWindow), (DLGPROC)dialogEventHandler) >= 0);
+	bool isSuccess = (DialogBox(static_cast<HINSTANCE>(m_instance), MAKEINTRESOURCE(resourceId), static_cast<HWND>(hWindow), (DLGPROC)dialogEventHandler) > 0);
 	s_dialogRefBuffer = nullptr;
 
 	// disable visual style (if enabled here)
@@ -87,7 +88,10 @@ dialog_result_t Dialog::showDialog(const int32_t resourceId, const bool isStyleE
 	}
 
 	if (isSuccess == false) // error -> report
-		throw std::runtime_error("Dialog opening/init failure");
+	{
+		DWORD code = GetLastError();
+		throw std::runtime_error("Dialog opening/init failure - code "s + std::to_string(static_cast<uint32_t>(code)));
+	}
 	return m_dialogData.dialogResult;
 }
 #else
@@ -136,7 +140,7 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
 			{
 				if (pDialog->isRegisteredEvent(dialog_event_t::init)) // call handler
 					return pDialog->getEventHandler(dialog_event_t::init).handler(pDialog, hWindow, wParam, lParam);
-				break;
+				return (INT_PTR)TRUE; break;
 			}
 			case WM_PAINT:
 			{
@@ -159,7 +163,7 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
 					// save and close button
 					case IDOK:
 					{
-						if (pDialog->isRegisteredEvent(dialog_event_t::confirm) == false // no handler (-> close directly) or handler returns true
+						if (pDialog->isRegisteredEvent(dialog_event_t::confirm) == false // no handler (close directly) or handler returns true
 						 || pDialog->getEventHandler(dialog_event_t::confirm).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
 						{
 							EndDialog(hWindow, TRUE);
@@ -173,7 +177,7 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
 					// cancel and close button
 					case IDCANCEL:
 					{
-						if (pDialog->isRegisteredEvent(dialog_event_t::cancel) == false // no handler (-> close directly) or handler returns true
+						if (pDialog->isRegisteredEvent(dialog_event_t::cancel) == false // no handler (close directly) or handler returns true
 						 || pDialog->getEventHandler(dialog_event_t::cancel).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
 						{
 							EndDialog(hWindow, TRUE);
@@ -197,7 +201,7 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
 			}
 			case WM_CLOSE: // close button/shortcut
 			{
-				if (pDialog->isRegisteredEvent(dialog_event_t::cancel) == false // no handler (-> close directly) or handler returns true
+				if (pDialog->isRegisteredEvent(dialog_event_t::cancel) == false // no handler (close directly) or handler returns true
 				 || pDialog->getEventHandler(dialog_event_t::cancel).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
 				{
 					EndDialog(hWindow, TRUE);
