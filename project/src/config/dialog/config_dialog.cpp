@@ -9,21 +9,22 @@ Description : configuration dialog
 #include "../../globals.h"
 #include <string>
 #include <stdexcept>
+#include <functional>
 #include <stack>
 #include <memory>
 #include "../../res/resource.h"
+#include "controls/common.h"
 #include "controls/dialog.h"
 #include "config_dialog.h"
 using namespace config::dialog;
-
-std::stack<ConfigDialog*> ConfigDialog::s_stackedSelfReferences; ///< Static references to non-static dialogs
+using namespace config::dialog::controls;
 
 
 /// @brief Create dialog box
 /// @param[in] instance  Current instance handle
 /// @throws runtime_error     Dialog creation error
 /// @throws invalid_argument  Invalid instance
-ConfigDialog::ConfigDialog(library_instance_t instance) : TabbedDialog(instance)
+ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance)
 {
 	// load config values
 	config::Config::init();
@@ -32,6 +33,19 @@ ConfigDialog::ConfigDialog(library_instance_t instance) : TabbedDialog(instance)
 	// set dialog pages
 	//...init pages and tabs
 		//créer les tab_association_t et les insérer dans m_tabs avec paramètres appropriés pour boutons
+
+	// set event handlers
+	dialog_event_handler_t eventHandler;
+	eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onInit);
+	Dialog::registerEvent(dialog_event_t::init, eventHandler);
+	eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onPaint);
+	Dialog::registerEvent(dialog_event_t::paint, eventHandler);
+	eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onDrawItem);
+	Dialog::registerEvent(dialog_event_t::drawItem, eventHandler);
+	eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onCommand);
+	Dialog::registerEvent(dialog_event_t::command, eventHandler);
+	eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onConfirm);
+	Dialog::registerEvent(dialog_event_t::confirm, eventHandler);
 }
 
 /// @brief Destroy dialog box
@@ -41,82 +55,76 @@ ConfigDialog::~ConfigDialog()
 	config::Config::close();
 }
 
-
 /// @brief Display modal dialog box
 /// @returns Dialog result
 /// @throws runtime_error  Dialog creation/display error
 dialog_result_t ConfigDialog::showDialog()
 {
-	dialog_result_t result = dialog_result_t::cancel;
-	try
-	{
-		s_stackedSelfReferences.push(this);
-		result = showCustomDialog(IDD_CONFIG_DIALOG, configDialogEventHandler);
-		s_stackedSelfReferences.pop();
-	}
-	catch (...)
-	{
-		s_stackedSelfReferences.pop();
-		throw;
-	}
-	return result;
+	return Dialog::showDialog(IDD_CONFIG_DIALOG, true);
 }
 
 
+/// @brief Initialization event handler
+DIALOG_EVENT_RETURN ConfigDialog::onInit(DIALOG_EVENT_HANDLER_ARGUMENTS)
 #if _DIALOGAPI == DIALOGAPI_WIN32
-/// @brief Dialog event handler
-/// @param[in] hWindow  Window handle
-/// @param[in] msg      Event message
-/// @param[in] wParam   Command
-/// @param[in] lParam   Informations
-/// @returns Event result
-INT_PTR ConfigDialog::configDialogEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	switch (msg)
-	{
-		// dialog drawing
-		case WM_INITDIALOG: /*...*/ break;
-		case WM_PAINT:      /*...*/ break;
-		case WM_DRAWITEM:   /*...*/ break;
-
-		// dialog controls
-		case WM_COMMAND:
-		{
-			switch (LOWORD(wParam))
-			{
-				// save and close button
-				case IDOK:
-					if (/*...validation...*/true)
-					{
-						EndDialog(hWindow, TRUE);
-						s_latestResult = dialog_result_t::confirm;
-						return (INT_PTR)TRUE;
-					}
-					break;
-
-				// cancel and close button
-				case IDCANCEL:
-					EndDialog(hWindow, TRUE);
-					s_latestResult = dialog_result_t::cancel;
-					return (INT_PTR)TRUE;
-
-				// language change
-				case IDC_LANG_LIST:
-					if (HIWORD(wParam) == CBN_SELCHANGE)
-					{
-						//return onLanguageChange(hWindow);
-					}
-					break;
-			}
-			break;
-		}
-		case WM_CLOSE: // close button/shortcut
-			EndDialog(hWindow, TRUE);
-			s_latestResult = dialog_result_t::cancel;
-			return (INT_PTR)TRUE; break;
-	}
 	return (INT_PTR)FALSE;
+}
+#else
+{
+	return 0;//...
 }
 #endif
 
+
+/// @brief Paint event handler - draw dialog
+DIALOG_EVENT_RETURN ConfigDialog::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
+#if _DIALOGAPI == DIALOGAPI_WIN32
+{
+	return (INT_PTR)FALSE;
+}
+#else
+{
+	return 0;//...
+}
+#endif
+
+
+/// @brief Sub-control drawing event handler - draw component
+DIALOG_EVENT_RETURN ConfigDialog::onDrawItem(DIALOG_EVENT_HANDLER_ARGUMENTS)
+#if _DIALOGAPI == DIALOGAPI_WIN32
+{
+	return (INT_PTR)FALSE;
+}
+#else
+{
+	return 0;//...
+}
+#endif
+
+
+/// @brief Sub-control command event handler
+DIALOG_EVENT_RETURN ConfigDialog::onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS)
+#if _DIALOGAPI == DIALOGAPI_WIN32
+{
+	return (INT_PTR)FALSE;
+}
+#else
+{
+	return 0;//...
+}
+#endif
+
+
+/// @brief Dialog confirm event handler - check validity
+DIALOG_EVENT_RETURN ConfigDialog::onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
+#if _DIALOGAPI == DIALOGAPI_WIN32
+{
+	return (INT_PTR)TRUE;
+}
+#else
+{
+	return 0;//...
+}
+#endif
 

@@ -11,7 +11,7 @@ Description : advanced tab control
 #include <cstdint>
 #include <vector>
 #include <memory>
-#include "dialog.h"
+#include "common.h"
 #include "tab_button.h"
 #include "tab_page.h"
 
@@ -57,7 +57,7 @@ namespace config
 
 				/// @brief Trigger control drawing
 				/// @param[in] args  Event arguments
-				void invalidate(draw_event_args_t args);
+				void paint(paint_event_args_t args);
                 
 				/// @brief Remove all tabs
 				void clear() noexcept

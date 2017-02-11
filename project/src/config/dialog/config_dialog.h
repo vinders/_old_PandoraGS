@@ -13,8 +13,10 @@ Description : configuration dialog
 #include <Windows.h>
 #endif
 #include "../config.h"
+#include "controls/common.h"
+#include "controls/dialog.h"
+#include "controls/tab_control.h"
 #include "../../lang/config_lang.h"
-#include "controls/tabbed_dialog.h"
 
 /// @namespace config
 /// Configuration management
@@ -27,11 +29,11 @@ namespace config
         /// @class ConfigDialog
         /// @brief Configuration dialog
         /// @see TabbedDialog
-        class ConfigDialog : private controls::TabbedDialog
+        class ConfigDialog : private controls::Dialog
         {
         private:
-			static std::stack<ConfigDialog*> s_stackedSelfReferences; ///< Static references to non-static dialogs
 			lang::ConfigLang m_languageResource; ///< Language resources
+			controls::TabControl m_tabs;         ///< Advanced tab control
 
 
         public:
@@ -39,25 +41,29 @@ namespace config
 			/// @param[in] instance  Current instance handle
 			/// @throws runtime_error     Dialog creation error
 			/// @throws invalid_argument  Invalid instance
-			ConfigDialog(library_instance_t instance);
+			ConfigDialog(controls::library_instance_t instance);
 			/// @brief Destroy dialog box
 			~ConfigDialog();
 
 			/// @brief Display modal dialog box
 			/// @returns Dialog result
 			/// @throws runtime_error  Dialog creation/display error
-			dialog_result_t showDialog();
+			controls::dialog_result_t showDialog();
+
 
 		private:
-			#if _DIALOGAPI == DIALOGAPI_WIN32
-			/// @brief Dialog event handler
-			/// @param[in] hWindow  Window handle
-			/// @param[in] msg      Event message
-			/// @param[in] wParam   Command
-			/// @param[in] lParam   Informations
-			/// @returns Event result
-			static INT_PTR configDialogEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
-			#endif
+			// -- event handlers -- --------------------------------------------
+
+			/// @brief Initialization event handler
+			static DIALOG_EVENT_RETURN onInit(DIALOG_EVENT_HANDLER_ARGUMENTS);
+			/// @brief Paint event handler - draw dialog
+			static DIALOG_EVENT_RETURN onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS);
+			/// @brief Sub-control drawing event handler - draw component
+			static DIALOG_EVENT_RETURN onDrawItem(DIALOG_EVENT_HANDLER_ARGUMENTS);
+			/// @brief Sub-control command event handler
+			static DIALOG_EVENT_RETURN onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS);
+			/// @brief Dialog confirm event handler - check validity
+			static DIALOG_EVENT_RETURN onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
         };
     }
 }

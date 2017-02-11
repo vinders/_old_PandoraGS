@@ -9,9 +9,7 @@ Description : tab button for tab control
 #pragma once
 
 #include <cstdint>
-#if _DIALOGAPI == DIALOGAPI_WIN32
-#include <Windows.h>
-#endif
+#include "common.h"
 
 /// @namespace config
 /// Configuration management
@@ -25,21 +23,6 @@ namespace config
         /// Dialog controls
         namespace controls
         {
-			#if _DIALOGAPI == DIALOGAPI_WIN32
-			/// @struct draw_button_event_args_t
-			/// @brief Button drawing event arguments
-			struct draw_button_event_args_t
-			{
-				HWND window;
-				HDC context;
-				bool isSelected;
-				bool isHover;
-			};
-			#else
-			typedef int32_t draw_button_event_args_t; ///< Button drawing event arguments
-			#endif
-
-
             /// @class TabButton
             /// @brief Tab button for tab control
             class TabButton
@@ -56,7 +39,7 @@ namespace config
 
 				/// @brief Trigger control drawing
 				/// @param[in] args  Event arguments
-				void invalidate(draw_button_event_args_t& args);
+				void paint(paint_control_event_args_t& args);
             };
         }
     }

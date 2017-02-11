@@ -22,7 +22,7 @@ using namespace config::dialog::controls;
 
 /// @brief Trigger control drawing
 /// @param[in] args  Event arguments
-void TabControl::invalidate(draw_event_args_t args)
+void TabControl::paint(paint_event_args_t args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
 

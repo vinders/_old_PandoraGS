@@ -19,7 +19,7 @@ using namespace config::dialog::controls;
 
 /// @brief Trigger control drawing
 /// @param[in] args  Event arguments
-void TabButton::invalidate(draw_button_event_args_t& args)
+void TabButton::paint(paint_control_event_args_t& args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
 

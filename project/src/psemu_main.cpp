@@ -235,7 +235,7 @@ long CALLBACK GPUconfigure()
 {
 	try
 	{
-		config::dialog::ConfigDialog configDialog(static_cast<config::dialog::library_instance_t>(PandoraGS::getInstance()));
+		config::dialog::ConfigDialog configDialog(static_cast<config::dialog::controls::library_instance_t>(PandoraGS::getInstance()));
 		configDialog.showDialog();
 	}
 	catch (std::exception exc)
@@ -251,7 +251,7 @@ void CALLBACK GPUabout()
 {
 	try
 	{
-		config::dialog::controls::Dialog aboutDialog(static_cast<config::dialog::library_instance_t>(PandoraGS::getInstance()));
+		config::dialog::controls::Dialog aboutDialog(static_cast<config::dialog::controls::library_instance_t>(PandoraGS::getInstance()));
 		aboutDialog.showDialog(IDD_ABOUT_DIALOG);
 	}
 	catch (std::exception exc)
