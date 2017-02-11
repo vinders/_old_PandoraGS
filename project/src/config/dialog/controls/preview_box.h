@@ -25,7 +25,7 @@ namespace config
             class PreviewBox
             {
 
-				//invalidate
+                //invalidate
             };
         }
     }

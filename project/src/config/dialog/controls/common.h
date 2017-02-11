@@ -27,48 +27,48 @@ namespace config
         /// Dialog controls
         namespace controls
         {
-			/// @enum dialog_event_t
-			/// @brief Events managed by dialog control
-			enum class dialog_event_t : uint32_t
-			{
-				cancel = 0u,
-				confirm = 1u,
-				init = 2u,
-				paint = 3u,
-				drawItem = 4u,
-				command = 5u
-			};
+            /// @enum dialog_event_t
+            /// @brief Events managed by dialog control
+            enum class dialog_event_t : uint32_t
+            {
+                cancel = 0u,
+                confirm = 1u,
+                init = 2u,
+                paint = 3u,
+                drawItem = 4u,
+                command = 5u
+            };
 
-			#if _DIALOGAPI == DIALOGAPI_WIN32
-			typedef HINSTANCE library_instance_t; ///< Library instance
+            #if _DIALOGAPI == DIALOGAPI_WIN32
+            typedef HINSTANCE library_instance_t; ///< Library instance
 
-			/// @struct paint_event_args_t
-			/// @brief Drawing event arguments
-			struct paint_event_args_t
-			{
-				HWND window;
-				HDC context;
-				uint32_t paintedResourceId;
-			};
+            /// @struct paint_event_args_t
+            /// @brief Drawing event arguments
+            struct paint_event_args_t
+            {
+                HWND window;
+                HDC context;
+                uint32_t paintedResourceId;
+            };
 
-			#else
-			typedef int32_t library_instance_t; ///< Library instance
+            #else
+            typedef int32_t library_instance_t; ///< Library instance
 
-			// @struct paint_event_args_t
-			/// @brief Drawing event arguments
-			struct paint_event_args_t
-			{
-				uint32_t paintedResourceId;
-			};
-			#endif
+            // @struct paint_event_args_t
+            /// @brief Drawing event arguments
+            struct paint_event_args_t
+            {
+                uint32_t paintedResourceId;
+            };
+            #endif
 
-			/// @struct paint_control_event_args_t
-			/// @brief Control drawing event arguments
-			struct paint_control_event_args_t : public paint_event_args_t
-			{
-				bool isSelected;
-				bool isHover;
-			};
+            /// @struct paint_control_event_args_t
+            /// @brief Control drawing event arguments
+            struct paint_control_event_args_t : public paint_event_args_t
+            {
+                bool isSelected;
+                bool isHover;
+            };
         }
     }
 }

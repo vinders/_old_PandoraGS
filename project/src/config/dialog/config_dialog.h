@@ -31,39 +31,39 @@ namespace config
         /// @see TabbedDialog
         class ConfigDialog : private controls::Dialog
         {
-        private:
-			lang::ConfigLang m_languageResource; ///< Language resources
-			controls::TabControl m_tabs;         ///< Advanced tab control
+            private:
+            lang::ConfigLang m_languageResource; ///< Language resources
+            controls::TabControl m_tabs;         ///< Advanced tab control
 
 
         public:
-			/// @brief Create dialog box
-			/// @param[in] instance  Current instance handle
-			/// @throws runtime_error     Dialog creation error
-			/// @throws invalid_argument  Invalid instance
-			ConfigDialog(controls::library_instance_t instance);
-			/// @brief Destroy dialog box
-			~ConfigDialog();
+            /// @brief Create dialog box
+            /// @param[in] instance  Current instance handle
+            /// @throws runtime_error     Dialog creation error
+            /// @throws invalid_argument  Invalid instance
+            ConfigDialog(controls::library_instance_t instance);
+            /// @brief Destroy dialog box
+            ~ConfigDialog();
 
-			/// @brief Display modal dialog box
-			/// @returns Dialog result
-			/// @throws runtime_error  Dialog creation/display error
-			controls::dialog_result_t showDialog();
+            /// @brief Display modal dialog box
+            /// @returns Dialog result
+            /// @throws runtime_error  Dialog creation/display error
+            controls::dialog_result_t showDialog();
 
 
-		private:
-			// -- event handlers -- --------------------------------------------
+        private:
+            // -- event handlers -- --------------------------------------------
 
-			/// @brief Initialization event handler
-			static DIALOG_EVENT_RETURN onInit(DIALOG_EVENT_HANDLER_ARGUMENTS);
-			/// @brief Paint event handler - draw dialog
-			static DIALOG_EVENT_RETURN onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS);
-			/// @brief Sub-control drawing event handler - draw component
-			static DIALOG_EVENT_RETURN onDrawItem(DIALOG_EVENT_HANDLER_ARGUMENTS);
-			/// @brief Sub-control command event handler
-			static DIALOG_EVENT_RETURN onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS);
-			/// @brief Dialog confirm event handler - check validity
-			static DIALOG_EVENT_RETURN onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            /// @brief Initialization event handler
+            static DIALOG_EVENT_RETURN onInit(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            /// @brief Paint event handler - draw dialog
+            static DIALOG_EVENT_RETURN onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            /// @brief Sub-control drawing event handler - draw component
+            static DIALOG_EVENT_RETURN onDrawItem(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            /// @brief Sub-control command event handler
+            static DIALOG_EVENT_RETURN onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            /// @brief Dialog confirm event handler - check validity
+            static DIALOG_EVENT_RETURN onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
         };
     }
 }

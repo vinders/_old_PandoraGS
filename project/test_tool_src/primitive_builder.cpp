@@ -273,24 +273,24 @@ size_t PrimitiveBuilder::createRectangle(unsigned long** ppOutData, const rect_d
 /// @returns Number of items
 uint32_t PrimitiveBuilder::listPrimitiveCategories()
 {
-	printf(" 1 - Polygon (triangle / quad)\n");
-	printf(" 2 - Line (line / poly-line)\n");
-	printf(" 3 - Rectangle (tile / sprite)\n");
-	return 3u;
+    printf(" 1 - Polygon (triangle / quad)\n");
+    printf(" 2 - Line (line / poly-line)\n");
+    printf(" 3 - Rectangle (tile / sprite)\n");
+    return 3u;
 }
 /// @brief Convert user input to primitive category
 /// @param[in] input  Input value
 /// @returns Category
 primitive_category_t PrimitiveBuilder::getPrimitiveCategory(const int32_t input)
 {
-	primitive_category_t val;
-	switch (input)
-	{
-		case 2:  val = primitive_category_t::line; break;
-		case 3:  val = primitive_category_t::rectangle; break;
-		default: val = primitive_category_t::polygon; break;
-	}
-	return val;
+    primitive_category_t val;
+    switch (input)
+    {
+        case 2:  val = primitive_category_t::line; break;
+        case 3:  val = primitive_category_t::rectangle; break;
+        default: val = primitive_category_t::polygon; break;
+    }
+    return val;
 }
 
 /// @brief Print list of shape types/sizes
@@ -298,86 +298,86 @@ primitive_category_t PrimitiveBuilder::getPrimitiveCategory(const int32_t input)
 /// @returns Number of items
 uint32_t PrimitiveBuilder::listShapeTypes(const primitive_category_t category)
 {
-	switch (category)
-	{
-		case primitive_category_t::polygon: 
-			printf(" 1 - Flat-shaded triangle\n");
-			printf(" 2 - Flat-shaded quad\n");
-			printf(" 3 - Gouraud-shaded triangle\n");
-			printf(" 4 - Gouraud-shaded quad\n");
-			break;
-		case primitive_category_t::line:
-			printf(" 1 - Flat-shaded line\n");
-			printf(" 2 - Flat-shaded poly-line\n");
-			printf(" 3 - Gouraud-shaded line\n");
-			printf(" 4 - Gouraud-shaded poly-line\n");
-			break;
-		case primitive_category_t::rectangle:
-			printf(" 1 - Custom sized\n");
-			printf(" 2 - 1x1\n");
-			printf(" 3 - 8x8\n");
-			printf(" 4 - 16x16\n");
-			printf(" Negative value : flip XY\n");
-			break;
-	}
-	return 4u;
+    switch (category)
+    {
+        case primitive_category_t::polygon: 
+            printf(" 1 - Flat-shaded triangle\n");
+            printf(" 2 - Flat-shaded quad\n");
+            printf(" 3 - Gouraud-shaded triangle\n");
+            printf(" 4 - Gouraud-shaded quad\n");
+            break;
+        case primitive_category_t::line:
+            printf(" 1 - Flat-shaded line\n");
+            printf(" 2 - Flat-shaded poly-line\n");
+            printf(" 3 - Gouraud-shaded line\n");
+            printf(" 4 - Gouraud-shaded poly-line\n");
+            break;
+        case primitive_category_t::rectangle:
+            printf(" 1 - Custom sized\n");
+            printf(" 2 - 1x1\n");
+            printf(" 3 - 8x8\n");
+            printf(" 4 - 16x16\n");
+            printf(" Negative value : flip XY\n");
+            break;
+    }
+    return 4u;
 }
 /// @brief Convert user input to shape type
 /// @param[in] input  Input value
 /// @returns Shape type
 shape_type_t PrimitiveBuilder::getShapeType(const int32_t input)
 {
-	shape_type_t val;
-	switch (input)
-	{
-		case 2:  val = shape_type_t::flat_multiple; break;
-		case 3:  val = shape_type_t::gouraud_base; break;
-		case 4:  val = shape_type_t::gouraud_multiple; break;
-		default: val = shape_type_t::flat_base; break;
-	}
-	return val;
+    shape_type_t val;
+    switch (input)
+    {
+        case 2:  val = shape_type_t::flat_multiple; break;
+        case 3:  val = shape_type_t::gouraud_base; break;
+        case 4:  val = shape_type_t::gouraud_multiple; break;
+        default: val = shape_type_t::flat_base; break;
+    }
+    return val;
 }
 /// @brief Convert user input to shape type
 /// @param[in] input  Input value
 /// @returns Shape type
 rectangle_type_t PrimitiveBuilder::getRectangleType(const int32_t input)
 {
-	rectangle_type_t val;
-	switch (input)
-	{
-		case -2:
-		case 2:  val = rectangle_type_t::dot; break;
-		case -3:
-		case 3:  val = rectangle_type_t::size8x8; break;
-		case -4:
-		case 4:  val = rectangle_type_t::size16x16; break;
-		default: val = rectangle_type_t::freeSize; break;
-	}
-	return val;
+    rectangle_type_t val;
+    switch (input)
+    {
+        case -2:
+        case 2:  val = rectangle_type_t::dot; break;
+        case -3:
+        case 3:  val = rectangle_type_t::size8x8; break;
+        case -4:
+        case 4:  val = rectangle_type_t::size16x16; break;
+        default: val = rectangle_type_t::freeSize; break;
+    }
+    return val;
 }
 
 /// @brief Print list of primitive rendering types
 /// @returns Number of items
 uint32_t PrimitiveBuilder::listRenderingTypes()
 {
-	printf(" 1 - Shaded\n");
-	printf(" 2 - Textured\n");
-	printf(" 3 - Shaded with blending\n");
-	printf(" 4 - Textured with blending\n");
-	return 4u;
+    printf(" 1 - Shaded\n");
+    printf(" 2 - Textured\n");
+    printf(" 3 - Shaded with blending\n");
+    printf(" 4 - Textured with blending\n");
+    return 4u;
 }
 /// @brief Convert user input to rendering type
 /// @param[in] input  Input value
 /// @returns Rendering type
 shape_rendering_t PrimitiveBuilder::getRenderingType(const int32_t input)
 {
-	shape_rendering_t val;
-	switch (input)
-	{
-		case 2:  val = shape_rendering_t::textured; break;
-		case 3:  val = shape_rendering_t::shadedBlended; break;
-		case 4:  val = shape_rendering_t::texturedBlended; break;
-		default: val = shape_rendering_t::shaded; break;
-	}
-	return val;
+    shape_rendering_t val;
+    switch (input)
+    {
+        case 2:  val = shape_rendering_t::textured; break;
+        case 3:  val = shape_rendering_t::shadedBlended; break;
+        case 4:  val = shape_rendering_t::texturedBlended; break;
+        default: val = shape_rendering_t::shaded; break;
+    }
+    return val;
 }

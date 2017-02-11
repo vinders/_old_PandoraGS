@@ -27,19 +27,19 @@ namespace config
             /// @brief Tab button for tab control
             class TabButton
             {
-			private:
-				std::string& m_title;   ///< Button title text (reference)
-				uint32_t m_iconIndex; ///< Button icon index
+            private:
+                std::string& m_title;   ///< Button title text (reference)
+                uint32_t m_iconIndex; ///< Button icon index
 
-			public:
-				/// @brief Create tab button
-				/// @param[in] title  Tab name
-				/// @param[in] icon   Icon index
-				TabButton(std::string& title, const uint32_t icon) : m_title(title), m_iconIndex(icon) {}
+            public:
+                /// @brief Create tab button
+                /// @param[in] title  Tab name
+                /// @param[in] icon   Icon index
+                TabButton(std::string& title, const uint32_t icon) : m_title(title), m_iconIndex(icon) {}
 
-				/// @brief Trigger control drawing
-				/// @param[in] args  Event arguments
-				void paint(paint_control_event_args_t& args);
+                /// @brief Trigger control drawing
+                /// @param[in] args  Event arguments
+                void paint(paint_control_event_args_t& args);
             };
         }
     }

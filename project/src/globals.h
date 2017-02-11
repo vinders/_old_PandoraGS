@@ -24,15 +24,15 @@ Description : global constants and settings
 #define PLUGIN_ABOUT_TITLE "About PandoraGS..."
 #ifdef _WINDOWS
 #define PLUGIN_THANKS      "No$psx, Doomed - for providing useful docs\
- \r\nPete, Tapeq, Asmodean - for sharing public sources\
+ \r\nPete, Tapeq - for sharing public sources\
  \r\nePSXe team - for supporting game ID spec\
- \r\nMednafen - for sharing useful links and tools\
+ \r\nMednafen - for sharing useful links/tools\
  \r\nThe OpenGL SuperBible and website open.gl"
 #else
 #define PLUGIN_THANKS      "No$psx, Doomed - for providing useful docs\
- \nPete, Tapeq, Asmodean - for sharing public sources\
+ \nPete, Tapeq - for sharing public sources\
  \nePSXe team - for supporting game ID spec\
- \nMednafen - for sharing useful links and tools\
+ \nMednafen - for sharing useful links/tools\
  \nThe OpenGL SuperBible and website open.gl"
 #endif
 

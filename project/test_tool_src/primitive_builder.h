@@ -114,31 +114,31 @@ public:
     /// @returns Data length (number of 32-bit blocks)
     static size_t createRectangle(unsigned long** ppOutData, const rect_descriptor_t& descr);
 
-	/// @brief Print list of primitive categories
-	/// @returns Number of items
-	static uint32_t listPrimitiveCategories();
-	/// @brief Print list of shape types/sizes
-	/// @param[in] category  Primitive category
-	/// @returns Number of items
-	static uint32_t listShapeTypes(const primitive_category_t category);
-	/// @brief Print list of primitive rendering types
-	/// @returns Number of items
-	static uint32_t listRenderingTypes();
+    /// @brief Print list of primitive categories
+    /// @returns Number of items
+    static uint32_t listPrimitiveCategories();
+    /// @brief Print list of shape types/sizes
+    /// @param[in] category  Primitive category
+    /// @returns Number of items
+    static uint32_t listShapeTypes(const primitive_category_t category);
+    /// @brief Print list of primitive rendering types
+    /// @returns Number of items
+    static uint32_t listRenderingTypes();
 
-	/// @brief Convert user input to primitive category
-	/// @param[in] input  Input value
-	/// @returns Category
-	static primitive_category_t getPrimitiveCategory(const int32_t input);
-	/// @brief Convert user input to shape type
-	/// @param[in] input  Input value
-	/// @returns Shape type
-	static shape_type_t getShapeType(const int32_t input);
-	/// @brief Convert user input to shape type
-	/// @param[in] input  Input value
-	/// @returns Shape type
-	static rectangle_type_t getRectangleType(const int32_t input);
-	/// @brief Convert user input to rendering type
-	/// @param[in] input  Input value
-	/// @returns Rendering type
-	static shape_rendering_t getRenderingType(const int32_t input);
+    /// @brief Convert user input to primitive category
+    /// @param[in] input  Input value
+    /// @returns Category
+    static primitive_category_t getPrimitiveCategory(const int32_t input);
+    /// @brief Convert user input to shape type
+    /// @param[in] input  Input value
+    /// @returns Shape type
+    static shape_type_t getShapeType(const int32_t input);
+    /// @brief Convert user input to shape type
+    /// @param[in] input  Input value
+    /// @returns Shape type
+    static rectangle_type_t getRectangleType(const int32_t input);
+    /// @brief Convert user input to rendering type
+    /// @param[in] input  Input value
+    /// @returns Rendering type
+    static shape_rendering_t getRenderingType(const int32_t input);
 };
