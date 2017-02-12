@@ -18,10 +18,10 @@ namespace config
     /// Configuration dialog management
     namespace dialog
     {
-        /// @class CompatibilitySubPage
+        /// @class ProfileCompatibilityPage
         /// @brief Tab sub-page - compatibility settings
         /// @see TabPage
-        class CompatibilitySubPage : public controls::TabPage
+        class ProfileCompatibilityPage : public controls::TabPage
         {
         private:
         

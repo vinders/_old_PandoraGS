@@ -36,7 +36,7 @@
     <ClCompile Include="..\src\config\config_file_io.cpp" />
     <ClCompile Include="..\src\config\config_io.cpp" />
     <ClCompile Include="..\src\config\config_profile.cpp" />
-    <ClCompile Include="..\src\config\dialog\compatibility_sub_page.cpp" />
+    <ClCompile Include="..\src\config\dialog\profile_compatibility_page.cpp" />
     <ClCompile Include="..\src\config\dialog\config_dialog.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\check_box.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\combo_box.cpp" />
@@ -50,11 +50,11 @@
     <ClCompile Include="..\src\config\dialog\controls\tab_control.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\tab_page.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\track_bar.cpp" />
-    <ClCompile Include="..\src\config\dialog\filtering_sub_page.cpp" />
+    <ClCompile Include="..\src\config\dialog\profile_filtering_page.cpp" />
     <ClCompile Include="..\src\config\dialog\general_page.cpp" />
     <ClCompile Include="..\src\config\dialog\manager_page.cpp" />
     <ClCompile Include="..\src\config\dialog\profile_page.cpp" />
-    <ClCompile Include="..\src\config\dialog\screen_sub_page.cpp" />
+    <ClCompile Include="..\src\config\dialog\profile_screen_page.cpp" />
     <ClCompile Include="..\src\display\effects\fragment_shader_definition.cpp" />
     <ClCompile Include="..\src\display\effects\vertex_shader_definition.cpp" />
     <ClCompile Include="..\src\display\engine.cpp" />
@@ -96,7 +96,7 @@
     <ClInclude Include="..\src\config\config_file_io.h" />
     <ClInclude Include="..\src\config\config_io.h" />
     <ClInclude Include="..\src\config\config_profile.h" />
-    <ClInclude Include="..\src\config\dialog\compatibility_sub_page.h" />
+    <ClInclude Include="..\src\config\dialog\profile_compatibility_page.h" />
     <ClInclude Include="..\src\config\dialog\config_dialog.h" />
     <ClInclude Include="..\src\config\dialog\controls\check_box.h" />
     <ClInclude Include="..\src\config\dialog\controls\combo_box.h" />
@@ -112,11 +112,11 @@
     <ClInclude Include="..\src\config\dialog\controls\tab_control.h" />
     <ClInclude Include="..\src\config\dialog\controls\tab_page.h" />
     <ClInclude Include="..\src\config\dialog\controls\track_bar.h" />
-    <ClInclude Include="..\src\config\dialog\filtering_sub_page.h" />
+    <ClInclude Include="..\src\config\dialog\profile_filtering_page.h" />
     <ClInclude Include="..\src\config\dialog\general_page.h" />
     <ClInclude Include="..\src\config\dialog\manager_page.h" />
     <ClInclude Include="..\src\config\dialog\profile_page.h" />
-    <ClInclude Include="..\src\config\dialog\screen_sub_page.h" />
+    <ClInclude Include="..\src\config\dialog\profile_screen_page.h" />
     <ClInclude Include="..\src\display\effects\fragment_shader_definition.h" />
     <ClInclude Include="..\src\display\effects\vertex_shader_definition.h" />
     <ClInclude Include="..\src\display\engine.h" />

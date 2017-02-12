@@ -200,20 +200,20 @@
     <ClCompile Include="..\src\config\dialog\controls\scrollable_tab_page.cpp">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\config\dialog\compatibility_sub_page.cpp">
-      <Filter>Source Files\config\dialog</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\config\dialog\filtering_sub_page.cpp">
-      <Filter>Source Files\config\dialog</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\config\dialog\screen_sub_page.cpp">
-      <Filter>Source Files\config\dialog</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\config\dialog\controls\msg_box.cpp">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClCompile>
     <ClCompile Include="..\src\config\dialog\controls\file_dialog.cpp">
       <Filter>Source Files\config\dialog\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\profile_compatibility_page.cpp">
+      <Filter>Source Files\config\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\profile_screen_page.cpp">
+      <Filter>Source Files\config\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config\dialog\profile_filtering_page.cpp">
+      <Filter>Source Files\config\dialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -400,15 +400,6 @@
     <ClInclude Include="..\src\config\dialog\controls\scrollable_tab_page.h">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\config\dialog\compatibility_sub_page.h">
-      <Filter>Source Files\config\dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\config\dialog\filtering_sub_page.h">
-      <Filter>Source Files\config\dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\config\dialog\screen_sub_page.h">
-      <Filter>Source Files\config\dialog</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\config\dialog\controls\msg_box.h">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
@@ -417,6 +408,15 @@
     </ClInclude>
     <ClInclude Include="..\src\config\dialog\controls\label.hpp">
       <Filter>Source Files\config\dialog\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\profile_compatibility_page.h">
+      <Filter>Source Files\config\dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\profile_screen_page.h">
+      <Filter>Source Files\config\dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\profile_filtering_page.h">
+      <Filter>Source Files\config\dialog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
