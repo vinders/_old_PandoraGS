@@ -4,7 +4,7 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : custom group box
+Description : track-bar toolset
 *******************************************************************************/
 #pragma once
 
@@ -24,9 +24,9 @@ namespace config
         /// Dialog controls
         namespace controls
         {
-            /// @class GroupBox
-            /// @brief Custom group box
-            class GroupBox
+            /// @class TrackBar
+            /// @brief Track-bar toolset
+            class TrackBar
             {
                 
             };

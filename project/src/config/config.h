@@ -141,6 +141,12 @@ namespace config
         /// @param[in] index  Profile index (0 based)
         /// @returns Name of profile at the specified index (if available)
         static std::wstring* getProfileName(const uint32_t index) noexcept;
+        /// @brief Get list of profile names (only meant for dialogs)
+        /// @returns List of profile names
+        static std::vector<std::wstring>& getAllProfileNames() noexcept
+        {
+            return s_profileNames;
+        }
 
 
         // -- fix bits management -- -------------------------------------------

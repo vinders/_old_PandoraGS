@@ -24,7 +24,8 @@ using namespace config::dialog::controls;
 /// @param[in] window      Window handle
 /// @param[in] offset      Vertical offset for first tab button
 /// @param[in] width       Tab button width
-void TabControl::create(window_handle_t window, const uint32_t offset, const uint32_t width)
+/// @returns Success
+bool TabControl::create(window_handle_t window, const uint32_t offset, const uint32_t width)
 {
     // create tab pages
     //...
@@ -33,8 +34,10 @@ void TabControl::create(window_handle_t window, const uint32_t offset, const uin
     m_activePageIndex = 0;
     for (uint32_t i = 0; i < m_pages.size(); ++i)
     {
-        m_pages.at(i).button->create(window, offset, width);
+        if (m_pages.at(i).button->create(window, offset, width) == false)
+            return false;
     }
+    return true;
 }
 
 

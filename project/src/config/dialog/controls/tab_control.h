@@ -8,6 +8,7 @@ Description : advanced tab control
 *******************************************************************************/
 #pragma once
 
+#include "../../../globals.h"
 #include <cstdint>
 #include <vector>
 #include <memory>
@@ -73,11 +74,15 @@ namespace config
                 /// @param[in] window      Window handle
                 /// @param[in] offset      Vertical offset for first tab button
                 /// @param[in] width       Tab button width
-                void create(window_handle_t window, const uint32_t offset, const uint32_t width);
+                /// @returns Success
+                bool create(window_handle_t window, const uint32_t offset, const uint32_t width);
 
                 /// @brief Trigger control drawing
                 /// @param[in] args  Event arguments
                 void paint(paint_event_args_t args);
+
+                //void onHover(window_handle_t window, const uint32_t tabIndex) {}
+                //void onClick(window_handle_t window, const uint32_t tabIndex) {}
             };
         }
     }

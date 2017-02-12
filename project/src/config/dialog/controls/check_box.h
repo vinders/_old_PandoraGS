@@ -4,7 +4,7 @@ PANDORAGS project - PS1 GPU driver
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : custom group box
+Description : check box / radio button toolset
 *******************************************************************************/
 #pragma once
 
@@ -24,11 +24,22 @@ namespace config
         /// Dialog controls
         namespace controls
         {
-            /// @class GroupBox
-            /// @brief Custom group box
-            class GroupBox
+            /// @class CheckBox
+            /// @brief Check box / radio button toolset
+            class CheckBox
             {
-                
+            public:
+                /// @enum event_t
+                /// @brief Check box event types
+                enum class event_t : uint32_t
+                {
+                    #if _DIALOGAPI == DIALOGAPI_WIN32
+                    clicked = BN_CLICKED
+                    #else
+                    clicked = 1//...
+                    #endif
+                };
+
             };
         }
     }

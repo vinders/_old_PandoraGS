@@ -48,7 +48,7 @@ namespace config
             /// @brief Display modal dialog box
             /// @returns Dialog result
             /// @throws runtime_error  Dialog creation/display error
-            controls::dialog_result_t showDialog();
+            controls::Dialog::result_t showDialog();
 
 
         private:
@@ -64,6 +64,14 @@ namespace config
             static DIALOG_EVENT_RETURN onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS);
             /// @brief Dialog confirm event handler - check validity
             static DIALOG_EVENT_RETURN onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
+
+
+            // -- specialized handlers -- --------------------------------------
+
+            /// @brief Language change event
+            /// @param[in] value  Selected value
+            /// @returns Language validity / file validity
+            bool onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const int32_t value);
         };
     }
 }

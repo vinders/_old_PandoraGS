@@ -10,7 +10,10 @@
 #define IDB_RATIO                       107
 
 #define IDD_CONFIG_DIALOG               110
-#define IDC_LANG_LIST                   111
+#define IDD_FILE_SELECT                 111
+#define IDC_FILE_PATH_EDIT              112
+#define IDC_FILE_BTN_PATH               113
+#define IDC_LANG_LIST                   114
 #define IDD_GENERAL_PAGE                120
 #define IDD_MANAGER_PAGE                121
 #define IDD_PROFILE_PAGE                122

@@ -29,7 +29,8 @@ Dialog* Dialog::s_dialogRefBuffer = nullptr; ///< Dialog reference buffer (pass 
 /// @throws invalid_argument  Invalid instance
 Dialog::Dialog(library_instance_t instance)
 {
-    m_dialogData.dialogResult = dialog_result_t::cancel;
+    m_dialogData.isInitialized = false;
+    m_dialogData.dialogResult = Dialog::result_t::cancel;
     m_instance = instance;
     #if _DIALOGAPI == DIALOGAPI_WIN32
     if ((HINSTANCE)instance == (HINSTANCE)INVALID_HANDLE_VALUE 
@@ -40,11 +41,11 @@ Dialog::Dialog(library_instance_t instance)
 
 
 /// @brief Display modal dialog box
-/// @param[in] dialogId        Dialog description identifier
+/// @param[in] resourceId      Dialog description identifier
 /// @param[in] isStyleEnabled  Enable enhanced visual style
 /// @returns Dialog result
 /// @throws runtime_error  Dialog creation error or runtime error
-dialog_result_t Dialog::showDialog(const int32_t resourceId, const bool isStyleEnabled)
+Dialog::result_t Dialog::showDialog(const int32_t resourceId, const bool isStyleEnabled)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     HANDLE hActCtx = INVALID_HANDLE_VALUE;
@@ -75,7 +76,8 @@ dialog_result_t Dialog::showDialog(const int32_t resourceId, const bool isStyleE
 
     // open modal dialog box
     s_dialogRefBuffer = this;
-    m_dialogData.dialogResult = dialog_result_t::error;
+    m_dialogData.isInitialized = false;
+    m_dialogData.dialogResult = Dialog::result_t::error;
     bool isSuccess = (DialogBox(static_cast<HINSTANCE>(m_instance), MAKEINTRESOURCE(resourceId), static_cast<HWND>(hWindow), (DLGPROC)dialogEventHandler) > 0);
     s_dialogRefBuffer = nullptr;
 
@@ -140,6 +142,7 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
             {
                 if (pDialog->isRegisteredEvent(dialog_event_t::init)) // call handler
                     return pDialog->getEventHandler(dialog_event_t::init).handler(pDialog, hWindow, wParam, lParam);
+                pDialog->m_dialogData.isInitialized = true;
                 return (INT_PTR)TRUE; break;
             }
             case WM_PAINT:
@@ -167,7 +170,7 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
                          || pDialog->getEventHandler(dialog_event_t::confirm).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
                         {
                             EndDialog(hWindow, TRUE);
-                            pDialog->setDialogResult(dialog_result_t::confirm);
+                            pDialog->setDialogResult(Dialog::result_t::confirm);
                             return (INT_PTR)TRUE;
                         }
                         else
@@ -181,7 +184,7 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
                          || pDialog->getEventHandler(dialog_event_t::cancel).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
                         {
                             EndDialog(hWindow, TRUE);
-                            pDialog->setDialogResult(dialog_result_t::cancel);
+                            pDialog->setDialogResult(Dialog::result_t::cancel);
                             return (INT_PTR)TRUE;
                         }
                         else
@@ -191,7 +194,7 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
                     // other command
                     default:
                     {
-                        if (pDialog->isRegisteredEvent(dialog_event_t::command) // call handler
+                        if (pDialog->m_dialogData.isInitialized && pDialog->isRegisteredEvent(dialog_event_t::command) // call handler
                          && pDialog->getEventHandler(dialog_event_t::command).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
                             return (INT_PTR)TRUE;
                         break;
@@ -205,7 +208,7 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
                  || pDialog->getEventHandler(dialog_event_t::cancel).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
                 {
                     EndDialog(hWindow, TRUE);
-                    pDialog->setDialogResult(dialog_result_t::cancel);
+                    pDialog->setDialogResult(Dialog::result_t::cancel);
                     return (INT_PTR)TRUE;
                 }
                 else

@@ -15,25 +15,36 @@ Description : config dialog language/translation utility
 /// Language utilities
 namespace lang
 {
-    /// @struct config_lang_dialog_t
-    /// @brief Config dialog translation - dialog resources
-    struct config_lang_dialog_t
-    {
-        std::wstring confirm;
-        std::wstring cancel;
-        std::wstring generalSettings;
-        std::wstring profileManagement;
-        std::wstring profileSettings;
-    };
-
-
     /// @class MenuLang
     /// @brief Translation utility for config dialog
     /// @see ILang
     class ConfigLang : public ILang
     {
     public:
-        config_lang_dialog_t dialog;
+        /// @struct dialog_t
+        /// @brief Dialog related global translations
+        struct dialog_t
+        {
+            std::wstring confirm;
+            std::wstring cancel;
+            std::wstring generalSettings;
+            std::wstring profileManagement;
+            std::wstring profileSettings;
+        };
+        /// @struct profile_t
+        /// @brief Profile related global translations
+        struct profile_t
+        {
+            std::wstring profileList;
+            std::wstring filteringTab;
+            std::wstring screenTab;
+            std::wstring compatibilityTab;
+        };
+
+
+    public:
+        dialog_t dialog;   ///< Dialog related global translation
+        profile_t profile; ///< Profile related global translations
 
 
     public:

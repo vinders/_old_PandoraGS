@@ -8,6 +8,10 @@ Description : preview picture box
 *******************************************************************************/
 #pragma once
 
+#include "../../../globals.h"
+#include <cstdint>
+#include "common.h"
+
 /// @namespace config
 /// Configuration management
 namespace config

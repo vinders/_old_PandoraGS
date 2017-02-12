@@ -8,11 +8,9 @@ Description : tab button for tab control
 *******************************************************************************/
 #pragma once
 
+#include "../../../globals.h"
 #include <cstdint>
 #include <map>
-#if _DIALOGAPI == DIALOGAPI_WIN32
-#include <Windows.h>
-#endif
 #include "common.h"
 
 /// @namespace config
@@ -78,7 +76,8 @@ namespace config
                 /// @param[in] window      Window handle
                 /// @param[in] offset      Vertical offset for first tab button
                 /// @param[in] width       Tab button width
-                void create(window_handle_t window, const uint32_t offset, const uint32_t width);
+                /// @returns Success
+                bool create(window_handle_t window, const uint32_t offset, const uint32_t width);
 
                 /// @brief Trigger control drawing
                 /// @param[in] args  Event arguments

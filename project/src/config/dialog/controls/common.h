@@ -60,6 +60,8 @@ namespace config
             /// @brief Drawing event arguments
             struct paint_event_args_t
             {
+                int32_t window;
+                int32_t context;
                 uint32_t paintedResourceId;
             };
             #endif

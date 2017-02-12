@@ -106,7 +106,8 @@ TabButton::~TabButton()
 /// @param[in] window  Window handle
 /// @param[in] offset      Vertical offset for first tab button
 /// @param[in] width       Tab button width
-void TabButton::create(window_handle_t window, const uint32_t offset, const uint32_t width)
+/// @returns Success
+bool TabButton::create(window_handle_t window, const uint32_t offset, const uint32_t width)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     // create tab button
@@ -114,6 +115,8 @@ void TabButton::create(window_handle_t window, const uint32_t offset, const uint
     m_tabButtonControl = CreateWindow(L"button", controlName.c_str(), WS_CHILD | WS_VISIBLE | BS_TEXT | BS_BITMAP | BS_BOTTOM | BS_OWNERDRAW,
                                       4, offset + (m_tabNumber * (TAB_HEIGHT + TAB_INTERVAL)), width - 4, TAB_HEIGHT,
                                       static_cast<HWND>(window), (HMENU)m_resourceId, (HINSTANCE)m_instance, NULL);
+    if (!m_tabButtonControl)
+        return false;
 
     HDC hDC = GetDC(static_cast<HWND>(window));
     if (hDC)
@@ -139,10 +142,12 @@ void TabButton::create(window_handle_t window, const uint32_t offset, const uint
         ReleaseDC(static_cast<HWND>(window), hDC);
         SendMessage(m_tabButtonControl, WM_SETFONT, (WPARAM)s_tabFont, (LPARAM)MAKELONG(TRUE, 0));
     }
+    return true;
 }
 #else
 {
     //...
+    return true;
 }
 #endif
 

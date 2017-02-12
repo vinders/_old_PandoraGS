@@ -13,18 +13,28 @@ Description : dialog control
 #include <map>
 #include <stack>
 #include <functional>
-#if _DIALOGAPI == DIALOGAPI_WIN32
-#include <Windows.h>
-#endif
 #include "common.h"
 
 #if _DIALOGAPI == DIALOGAPI_WIN32
 #define DIALOG_EVENT_HANDLER_ARGUMENTS Dialog* pDialog, HWND hWindow, WPARAM wParam, LPARAM lParam
+#define DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES pDialog,hWindow,wParam,lParam
 #define DIALOG_EVENT_RETURN INT_PTR
+#define DIALOG_EVENT_RETURN_VALID (INT_PTR)TRUE
+#define DIALOG_EVENT_RETURN_ERROR (INT_PTR)FALSE
+#define getEventTargetControlId() LOWORD(wParam)
+#define getEventActionType() static_cast<uint32_t>(HIWORD(wParam))
 #else
-#define DIALOG_EVENT_HANDLER_ARGUMENTS void* pDialog
-#define DIALOG_EVENT_RETURN void*
+#define DIALOG_EVENT_HANDLER_ARGUMENTS void* pDialog, int hWindow, int type
+#define DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES pDialog,hWindow,type
+#define DIALOG_EVENT_RETURN int32_t
+#define DIALOG_EVENT_RETURN_VALID 0
+#define DIALOG_EVENT_RETURN_ERROR -1
+#define getEventTargetControlId() (type&0x0FF)
+#define getEventActionType() ((type>>8)&0x0FF)
 #endif
+#define getEventTargetDialogReference(TYPE) *((TYPE*)pDialog)
+#define getEventWindowHandle() static_cast<window_handle_t>(hWindow)
+#define eventActionEquals(VAL) getEventActionType()==static_cast<uint32_t>(VAL)
 
 /// @namespace config
 /// Configuration management
@@ -39,27 +49,11 @@ namespace config
         namespace controls
         {
             class Dialog;
-
             /// @struct dialog_event_handler_t
             /// @brief Event handling function
             struct dialog_event_handler_t
             {
                 std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)> handler;
-            };
-            /// @enum dialog_result_t
-            /// @brief Action performed when closing a dialog
-            enum class dialog_result_t : int32_t
-            {
-                error = -1,
-                cancel = 0,
-                confirm = 1
-            };
-            /// @struct paint_event_args_t
-            /// @brief Drawing event arguments
-            struct dialog_runtime_data_t
-            {
-                dialog_result_t dialogResult; ///< Dialog end result
-                std::map<dialog_event_t, dialog_event_handler_t> registeredHandlers; ///< Registered event handlers
             };
 
 
@@ -67,10 +61,29 @@ namespace config
             /// @brief Dialog control
             class Dialog
             {
+            public:
+                /// @enum result_t
+                /// @brief Action performed when closing a dialog
+                enum class result_t : int32_t
+                {
+                    error = -1,
+                    cancel = 0,
+                    confirm = 1
+                };
+                /// @struct runtime_data_t
+                /// @brief Dialog execution data
+                struct runtime_data_t
+                {
+                    bool isInitialized;
+                    Dialog::result_t dialogResult; ///< Dialog end result
+                    std::map<dialog_event_t, dialog_event_handler_t> registeredHandlers; ///< Registered event handlers
+                };
+
+
             protected:
                 library_instance_t m_instance; ///< Library instance handle
             private:
-                dialog_runtime_data_t m_dialogData; ///< Modal dialog data
+                Dialog::runtime_data_t m_dialogData; ///< Modal dialog data
                 static Dialog* s_dialogRefBuffer; ///< Dialog reference buffer (pass non-static data to static handler)
 
 
@@ -83,11 +96,11 @@ namespace config
                 virtual ~Dialog() {}
 
                 /// @brief Display modal dialog box
-                /// @param[in] dialogId        Dialog description identifier
+                /// @param[in] resourceId      Dialog description identifier
                 /// @param[in] isStyleEnabled  Enable enhanced visual style
                 /// @returns Dialog result
                 /// @throws runtime_error  Dialog creation error or runtime error
-                dialog_result_t showDialog(const int32_t resourceId, const bool isStyleEnabled = false);
+                Dialog::result_t showDialog(const int32_t resourceId, const bool isStyleEnabled = false);
 
 
             protected:
@@ -122,7 +135,7 @@ namespace config
                 }
                 /// @brief Set dialog result
                 /// @param[in] result  Result value
-                inline void setDialogResult(const dialog_result_t result) noexcept
+                inline void setDialogResult(const Dialog::result_t result) noexcept
                 {
                     m_dialogData.dialogResult = result;
                 }
