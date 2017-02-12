@@ -75,21 +75,13 @@ namespace config
                 Dialog::result_t showDialog(const int32_t dialogResourceId, const int32_t fieldResourceId, const int32_t browserResourceId,
                                             const std::wstring& defaultFile = L""s);
 
-            private:
+            public:
                 /// @brief Dialog initialization event handler
                 static DIALOG_EVENT_RETURN onInit(DIALOG_EVENT_HANDLER_ARGUMENTS);
                 /// @brief Dialog command event handler
                 static DIALOG_EVENT_RETURN onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS);
                 /// @brief Dialog confirm event handler - check validity
                 static DIALOG_EVENT_RETURN onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
-
-            protected:
-                /// @brief Virtual method to extend init event processing in child classes
-                virtual void extendInit(DIALOG_EVENT_HANDLER_ARGUMENTS) {}
-                /// @brief Virtual method to extend command event processing in child classes
-                virtual void extendCommand(DIALOG_EVENT_HANDLER_ARGUMENTS) {}
-                /// @brief Virtual method to extend confirm event processing in child classes
-                virtual void extendConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS) {}
             };
         }
     }

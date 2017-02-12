@@ -8,6 +8,9 @@ Description : tab page - profile settings
 *******************************************************************************/
 #pragma once
 
+#include <array>
+#include "../config.h"
+#include "controls/common.h"
 #include "controls/tab_page.h"
 #include "controls/tab_control.h"
 
@@ -25,6 +28,7 @@ namespace config
         class ProfilePage : public controls::TabPage
         {
         private:
+            std::array<ProfilePage,3> m_subPages;
         
         public:    
         };

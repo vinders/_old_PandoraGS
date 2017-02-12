@@ -10,7 +10,6 @@ Description : configuration dialog
 #include <string>
 #include <stdexcept>
 #include <functional>
-#include <stack>
 #include <memory>
 #include "../../lang/config_lang.h"
 #include "../../res/resource.h"

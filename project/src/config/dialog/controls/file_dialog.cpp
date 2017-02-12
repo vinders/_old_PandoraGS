@@ -32,6 +32,8 @@ FileDialog::FileDialog(library_instance_t instance, file_mode_t mode) : Dialog(i
     dialog_event_handler_t eventHandler;
     eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onInit);
     Dialog::registerEvent(dialog_event_t::init, eventHandler);
+    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onCommand);
+    Dialog::registerEvent(dialog_event_t::command, eventHandler);
     eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onConfirm);
     Dialog::registerEvent(dialog_event_t::confirm, eventHandler);
 }
@@ -61,7 +63,6 @@ DIALOG_EVENT_RETURN FileDialog::onInit(DIALOG_EVENT_HANDLER_ARGUMENTS)
     //...pre-fill field with m_filePath
     //...
 
-    parent.extendInit(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES);
     return DIALOG_EVENT_RETURN_VALID;
 }
 
@@ -74,7 +75,6 @@ DIALOG_EVENT_RETURN FileDialog::onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS)
     //...browser
     //...
 
-    parent.extendCommand(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES);
     return DIALOG_EVENT_RETURN_VALID;
 }
 
@@ -87,6 +87,5 @@ DIALOG_EVENT_RETURN FileDialog::onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
     //...check path
     //...
 
-    parent.extendConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES);
     return DIALOG_EVENT_RETURN_VALID;
 }

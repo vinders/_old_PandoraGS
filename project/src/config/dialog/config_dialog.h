@@ -8,10 +8,6 @@ Description : configuration dialog
 *******************************************************************************/
 #pragma once
 
-#include <stack>
-#if _DIALOGAPI == DIALOGAPI_WIN32
-#include <Windows.h>
-#endif
 #include "../config.h"
 #include "controls/common.h"
 #include "controls/dialog.h"
