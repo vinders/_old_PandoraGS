@@ -99,7 +99,7 @@ Dialog::result_t Dialog::showDialog(const int32_t resourceId, const bool isStyle
 #else
 {
     //...
-    return dialog_result_t::cancel;
+    return Dialog::result_t::cancel;
 }
 #endif
 
@@ -140,10 +140,11 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
             // dialog settings
             case WM_INITDIALOG:
             {
+                int32_t success = TRUE;
                 if (pDialog->isRegisteredEvent(dialog_event_t::init)) // call handler
-                    return pDialog->getEventHandler(dialog_event_t::init).handler(pDialog, hWindow, wParam, lParam);
+                    success = pDialog->getEventHandler(dialog_event_t::init).handler(pDialog, hWindow, wParam, lParam);
                 pDialog->m_dialogData.isInitialized = true;
-                return (INT_PTR)TRUE; break;
+                return (INT_PTR)success; break;
             }
             case WM_PAINT:
             {

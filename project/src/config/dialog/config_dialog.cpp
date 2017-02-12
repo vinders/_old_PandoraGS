@@ -39,7 +39,14 @@ ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance)
 {
     // load config values
     config::Config::init();
-    m_languageResource.setLanguage(config::Config::langCode, config::Config::langFilePath);
+    try
+    {
+        m_languageResource.setLanguage(config::Config::langCode, config::Config::langFilePath);
+    }
+    catch (...)
+    {
+        config::Config::langCode = lang::langcode_t::english;
+    }
 
     // set tabs and pages
     tab_association_t tabGeneral, tabManager, tabProfile;
@@ -210,13 +217,13 @@ bool ConfigDialog::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const int32_
             if (Config::langCode != lang::langcode_t::customFile)
             {
                 ComboBox::setSelectedIndex(getEventWindowHandle(), IDC_LANG_LIST, static_cast<int32_t>(Config::langCode));
-                return DIALOG_EVENT_RETURN_VALID;
+                return true;
             }
         }
-        catch (std::exception exc)
+        catch (const std::exception& exc)
         {
             events::utils::Logger::getInstance()->writeErrorEntry("ConfigDialog.onCommand"s, exc.what());
-            return DIALOG_EVENT_RETURN_ERROR;
+            return false;
         }
     }
     else // built-in language
@@ -224,6 +231,18 @@ bool ConfigDialog::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const int32_
         Config::langCode = static_cast<lang::langcode_t>(value);
     }
 
-    m_languageResource.setLanguage(Config::langCode, L""s); // update language resource
-    return DIALOG_EVENT_RETURN_VALID;
+    try
+    {
+        // update language resource
+        m_languageResource.setLanguage(Config::langCode, Config::langFilePath);
+    }
+    catch (const std::exception& exc) // corrupted file
+    {
+        Config::langCode = lang::langcode_t::english;
+        ComboBox::setSelectedIndex(hWindow, IDC_LANG_LIST, static_cast<int32_t>(Config::langCode));
+        MsgBox::showMessage(L"Invalid language file"s, L"Invalid / corrupted language file"s,
+            hWindow, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+        return false;
+    }
+    return true;
 }

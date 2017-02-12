@@ -31,7 +31,7 @@ namespace lang
     #define LANGCODE_LAST_INTERNAL lang::langcode_t::german
 
     /// @brief Language names
-    const std::wstring langcodeNames[] = { L" English"s, L" EspaÃ±ol"s, L" FranÃ§ais"s, L" Deutsch"s, L" External file..."s };
+    const std::wstring langcodeNames[] = { L" English"s, L" Español"s, L" Français"s, L" Deutsch"s, L" External file..."s };
 
 
     /// @class MenuLang

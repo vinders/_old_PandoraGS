@@ -43,13 +43,13 @@ void ConfigLang::setLanguageFrench() noexcept
 {
     dialog.confirm = L"OK"s;
     dialog.cancel  = L"Annuler"s;
-    dialog.generalSettings   = L"Options gÃ©nÃ©rales"s;
+    dialog.generalSettings   = L"Options générales"s;
     dialog.profileManagement = L"Gestion de profils"s;
-    dialog.profileSettings   = L"ParamÃ©trer profil"s;
+    dialog.profileSettings   = L"Paramétrer profil"s;
     profile.profileList = L"Profil courant :"s;
     profile.filteringTab = L"Filtres"s;
     profile.screenTab = L"Affichage et ratio"s;
-    profile.compatibilityTab = L"Options de compatibilitÃ©"s;
+    profile.compatibilityTab = L"Options de compatibilité"s;
     
     //...
 }
