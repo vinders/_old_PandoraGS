@@ -31,12 +31,14 @@ namespace config
             /// @brief Events managed by dialog control
             enum class dialog_event_t : uint32_t
             {
-                cancel = 0u,
+                close = 0u,
                 confirm = 1u,
                 init = 2u,
                 paint = 3u,
                 drawItem = 4u,
-                command = 5u
+                command = 5u,
+                scrollX = 6u,
+                scrollY = 7u
             };
 
             #if _DIALOGAPI == DIALOGAPI_WIN32

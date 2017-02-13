@@ -33,8 +33,8 @@ Dialog::Dialog(library_instance_t instance)
     m_dialogData.dialogResult = Dialog::result_t::cancel;
     m_instance = instance;
     #if _DIALOGAPI == DIALOGAPI_WIN32
-    if ((HINSTANCE)instance == (HINSTANCE)INVALID_HANDLE_VALUE 
-     && (HINSTANCE)(m_instance = (library_instance_t)GetModuleHandle(NULL)) == (HINSTANCE)INVALID_HANDLE_VALUE)
+    if (reinterpret_cast<HINSTANCE>(instance) == reinterpret_cast<HINSTANCE>(DIALOG_USE_BASE_WINDOW)
+     && (HINSTANCE)(m_instance = reinterpret_cast<library_instance_t>(GetModuleHandle(NULL))) == reinterpret_cast<HINSTANCE>(INVALID_HANDLE_VALUE))
         throw std::invalid_argument("Invalid library instance handle");
     #endif
 }
@@ -42,19 +42,28 @@ Dialog::Dialog(library_instance_t instance)
 
 /// @brief Display modal dialog box
 /// @param[in] resourceId      Dialog description identifier
+/// @param[in] hParentWindow   Parent window handle
 /// @param[in] isStyleEnabled  Enable enhanced visual style
 /// @returns Dialog result
 /// @throws runtime_error  Dialog creation error or runtime error
-Dialog::result_t Dialog::showDialog(const int32_t resourceId, const bool isStyleEnabled)
+Dialog::result_t Dialog::showDialog(const int32_t resourceId, window_handle_t hParentWindow, const bool isStyleEnabled)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     HANDLE hActCtx = INVALID_HANDLE_VALUE;
     ULONG_PTR cookie;
 
     // get base window handle
-    HWND hWindow = GetActiveWindow();
-    if (hWindow == (HWND)INVALID_HANDLE_VALUE)
-        throw std::runtime_error("Could not obtain main window handle");
+    HWND hWindow;
+    if (reinterpret_cast<HWND>(hParentWindow) != reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))
+    {
+        hWindow = hParentWindow;
+    }
+    else
+    {
+        hWindow = GetActiveWindow();
+        if (hWindow == reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))
+            throw std::runtime_error("Could not obtain main window handle");
+    }
 
     // visual style init
     static bool isVisualStyleLoaded = false;
@@ -63,7 +72,7 @@ Dialog::result_t Dialog::showDialog(const int32_t resourceId, const bool isStyle
         ACTCTX actCtx;
         ZeroMemory(&actCtx, sizeof(actCtx));
         actCtx.cbSize = sizeof(actCtx);
-        actCtx.hModule = (HINSTANCE)m_instance;
+        actCtx.hModule = reinterpret_cast<HINSTANCE>(m_instance);
         actCtx.lpResourceName = MAKEINTRESOURCE(IDS_ACTIVATION_CONTEXT);
         actCtx.dwFlags = ACTCTX_FLAG_HMODULE_VALID | ACTCTX_FLAG_RESOURCE_NAME_VALID;
 
@@ -78,7 +87,7 @@ Dialog::result_t Dialog::showDialog(const int32_t resourceId, const bool isStyle
     s_dialogRefBuffer = this;
     m_dialogData.isInitialized = false;
     m_dialogData.dialogResult = Dialog::result_t::error;
-    bool isSuccess = (DialogBox(static_cast<HINSTANCE>(m_instance), MAKEINTRESOURCE(resourceId), static_cast<HWND>(hWindow), (DLGPROC)dialogEventHandler) > 0);
+    bool isSuccess = (DialogBox(reinterpret_cast<HINSTANCE>(m_instance), MAKEINTRESOURCE(resourceId), reinterpret_cast<HWND>(hWindow), (DLGPROC)dialogEventHandler) > 0);
     s_dialogRefBuffer = nullptr;
 
     // disable visual style (if enabled here)
@@ -117,7 +126,7 @@ Dialog* Dialog::getCurrentDialog(HWND hWindow)
         if (s_dialogRefBuffer != nullptr)
         {
             pDialog = s_dialogRefBuffer;
-            SetWindowLongPtr(hWindow, GWLP_USERDATA, (LONG_PTR)(pDialog));
+            SetWindowLongPtr(hWindow, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pDialog));
         }
     }
     return pDialog;
@@ -148,14 +157,16 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
             }
             case WM_PAINT:
             {
-                if (pDialog->isRegisteredEvent(dialog_event_t::paint)) // call handler
-                    return pDialog->getEventHandler(dialog_event_t::paint).handler(pDialog, hWindow, wParam, lParam);
+                if (pDialog->isRegisteredEvent(dialog_event_t::paint) // call handler
+                 && pDialog->getEventHandler(dialog_event_t::paint).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                    return (INT_PTR)TRUE;
                 break;
             }
             case WM_DRAWITEM:
             {
-                if (pDialog->isRegisteredEvent(dialog_event_t::drawItem)) // call handler
-                    return pDialog->getEventHandler(dialog_event_t::drawItem).handler(pDialog, hWindow, wParam, lParam);
+                if (pDialog->isRegisteredEvent(dialog_event_t::drawItem) // call handler
+                 && pDialog->getEventHandler(dialog_event_t::drawItem).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                    return (INT_PTR)TRUE;
                 break;
             }
 
@@ -167,12 +178,16 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
                     // save and close button
                     case IDOK:
                     {
-                        if (pDialog->isRegisteredEvent(dialog_event_t::confirm) == false // no handler (close directly) or handler returns true
+                        if (pDialog->isRegisteredEvent(dialog_event_t::confirm) == false // no handler (confirm directly) or handler returns true
                          || pDialog->getEventHandler(dialog_event_t::confirm).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
                         {
-                            EndDialog(hWindow, TRUE);
-                            pDialog->setDialogResult(Dialog::result_t::confirm);
-                            return (INT_PTR)TRUE;
+                            if (pDialog->isRegisteredEvent(dialog_event_t::close) == false // no handler (close directly) or handler returns true
+                             || pDialog->getEventHandler(dialog_event_t::close).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                            {
+                                EndDialog(hWindow, TRUE);
+                                pDialog->setDialogResult(Dialog::result_t::confirm);
+                                return (INT_PTR)TRUE;
+                            }
                         }
                         else
                             return (INT_PTR)FALSE;
@@ -181,8 +196,8 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
                     // cancel and close button
                     case IDCANCEL:
                     {
-                        if (pDialog->isRegisteredEvent(dialog_event_t::cancel) == false // no handler (close directly) or handler returns true
-                         || pDialog->getEventHandler(dialog_event_t::cancel).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                        if (pDialog->isRegisteredEvent(dialog_event_t::close) == false // no handler (close directly) or handler returns true
+                         || pDialog->getEventHandler(dialog_event_t::close).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
                         {
                             EndDialog(hWindow, TRUE);
                             pDialog->setDialogResult(Dialog::result_t::cancel);
@@ -205,8 +220,8 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
             }
             case WM_CLOSE: // close button/shortcut
             {
-                if (pDialog->isRegisteredEvent(dialog_event_t::cancel) == false // no handler (close directly) or handler returns true
-                 || pDialog->getEventHandler(dialog_event_t::cancel).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                if (pDialog->isRegisteredEvent(dialog_event_t::close) == false // no handler (close directly) or handler returns true
+                 || pDialog->getEventHandler(dialog_event_t::close).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
                 {
                     EndDialog(hWindow, TRUE);
                     pDialog->setDialogResult(Dialog::result_t::cancel);

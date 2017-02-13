@@ -50,18 +50,18 @@ ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance)
     // set tabs and pages
     tab_association_t tabGeneral, tabManager, tabProfile;
     tabGeneral.button = std::make_shared<TabButton>(instance, m_languageResource.dialog.generalSettings, IDC_GENERAL_TAB, IDB_CONFIG_ICONS, 1, 48);
-    tabGeneral.page = std::make_shared<GeneralPage>();
+    tabGeneral.page = std::make_shared<GeneralPage>(instance);
     tabManager.button = std::make_shared<TabButton>(instance, m_languageResource.dialog.profileManagement, IDC_MANAGER_TAB, IDB_CONFIG_ICONS, 2, 48);
-    tabManager.page = std::make_shared<ManagerPage>();
+    tabManager.page = std::make_shared<ManagerPage>(instance);
     tabProfile.button = std::make_shared<TabButton>(instance, m_languageResource.dialog.profileSettings, IDC_PROFILE_TAB, IDB_CONFIG_ICONS, 3, 48);
-    tabProfile.page = std::make_shared<ProfilePage>();
+    tabProfile.page = std::make_shared<ProfilePage>(instance);
     // insert pages
     m_tabs.addTab(tabGeneral);
     m_tabs.addTab(tabManager);
     m_tabs.addTab(tabProfile);
 
     // set event handlers
-    dialog_event_handler_t eventHandler;
+    Dialog::event_handler_t eventHandler;
     eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onInit);
     Dialog::registerEvent(dialog_event_t::init, eventHandler);
     eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onPaint);
@@ -72,6 +72,8 @@ ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance)
     Dialog::registerEvent(dialog_event_t::command, eventHandler);
     eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onConfirm);
     Dialog::registerEvent(dialog_event_t::confirm, eventHandler);
+    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onClose);
+    Dialog::registerEvent(dialog_event_t::close, eventHandler);
 }
 
 /// @brief Destroy dialog box
@@ -86,7 +88,7 @@ ConfigDialog::~ConfigDialog()
 /// @throws runtime_error  Dialog creation/display error
 Dialog::result_t ConfigDialog::showDialog()
 {
-    return Dialog::showDialog(IDD_CONFIG_DIALOG, true);
+    return Dialog::showDialog(IDD_CONFIG_DIALOG, reinterpret_cast<window_handle_t>(DIALOG_USE_BASE_WINDOW), true);
 }
 
 
@@ -102,21 +104,23 @@ DIALOG_EVENT_RETURN ConfigDialog::onInit(DIALOG_EVENT_HANDLER_ARGUMENTS)
     ComboBox::initValues(getEventWindowHandle(), IDC_PROFILE_LIST, Config::getAllProfileNames(), 0u);
     Label::setVisible(hWindow, IDC_PROFILE_LIST, false); // hide (only visible when profile tab is active)
     Label::setVisible(hWindow, IDS_PROFILE, false);
-    // translate main dialog buttons
-    Label::setText(hWindow, IDS_PROFILE, parent.m_languageResource.profile.profileList);
-    Label::setText(hWindow, IDOK, parent.m_languageResource.dialog.confirm);
-    Label::setText(hWindow, IDCANCEL, parent.m_languageResource.dialog.cancel);
+    // translate window components
+    parent.onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES, false);
 
     // set language selector
     std::vector<std::wstring> langNames;
-    uint32_t langNumber = static_cast<uint32_t>(LANGCODE_LAST_INTERNAL) + 1; // built-in languages + external
+    uint32_t langNumber = static_cast<uint32_t>(LANGCODE_LAST_INTERNAL) + 1u; // built-in languages + external
     for (uint32_t i = 0u; i <= langNumber; ++i)
         langNames.push_back(lang::langcodeNames[i]);
     ComboBox::initValues(getEventWindowHandle(), IDC_LANG_LIST, langNames, static_cast<int32_t>(Config::langCode));
 
     // add tab control and pages to dialog
     if (parent.m_tabs.create(getEventWindowHandle(), LOGO_HEIGHT + 2, LOGO_WIDTH) == false)
+    {
+        MsgBox::showMessage(L"Initialization error"s, L"Failed to load page content..."s, getEventWindowHandle(), 
+                            MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
         return DIALOG_EVENT_RETURN_ERROR;
+    }
     return DIALOG_EVENT_RETURN_VALID;
 }
 
@@ -128,7 +132,7 @@ DIALOG_EVENT_RETURN ConfigDialog::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
 
     //...
 
-    return DIALOG_EVENT_RETURN_VALID;
+    return DIALOG_EVENT_RETURN_ERROR;
 }
 
 
@@ -139,30 +143,23 @@ DIALOG_EVENT_RETURN ConfigDialog::onDrawItem(DIALOG_EVENT_HANDLER_ARGUMENTS)
 
     //...
 
-    return DIALOG_EVENT_RETURN_VALID;
+    return DIALOG_EVENT_RETURN_ERROR;
 }
 
 
 /// @brief Sub-control command event handler
 DIALOG_EVENT_RETURN ConfigDialog::onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
-    // language change
+    // language selection event
     if (getEventTargetControlId() == IDC_LANG_LIST && eventActionEquals(ComboBox::event_t::selectionChanged))
     {
         int32_t buffer;
         if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDC_LANG_LIST, buffer))
         {
             ConfigDialog& parent = getEventTargetDialogReference(ConfigDialog);
-            if (parent.onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES, buffer))
+            if (parent.onLanguageSelection(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES, buffer))
             {
-                // translate window components
-                Label::setText(hWindow, IDS_PROFILE, parent.m_languageResource.profile.profileList);
-                Label::setText(hWindow, IDOK, parent.m_languageResource.dialog.confirm);
-                Label::setText(hWindow, IDCANCEL, parent.m_languageResource.dialog.cancel);
-                //...force to repaint tab buttons
-                //...
-                //...force to translate tab pages
-                //...
+                parent.onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES, true); // translate window components
             }
             return DIALOG_EVENT_RETURN_ERROR;
         }
@@ -191,13 +188,22 @@ DIALOG_EVENT_RETURN ConfigDialog::onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
 }
 
 
+/// @brief Dialog close event handler
+DIALOG_EVENT_RETURN ConfigDialog::onClose(DIALOG_EVENT_HANDLER_ARGUMENTS)
+{
+    ConfigDialog& parent = getEventTargetDialogReference(ConfigDialog);
+    parent.m_tabs.close();
+    return DIALOG_EVENT_RETURN_VALID;
+}
+
+
 
 // -- specialized handlers -- --------------------------------------
 
-/// @brief Language change event
+/// @brief Language selection event
 /// @param[in] value  Selected value
 /// @returns Language validity / file validity
-bool ConfigDialog::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const int32_t value)
+bool ConfigDialog::onLanguageSelection(DIALOG_EVENT_HANDLER_ARGUMENTS, const int32_t value)
 {
     // select custom language file
     if (value > static_cast<int32_t>(LANGCODE_LAST_INTERNAL))
@@ -205,8 +211,9 @@ bool ConfigDialog::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const int32_
         try
         {
             // open file path choice dialog
-            FileDialog fileDialog(static_cast<config::dialog::controls::library_instance_t>(m_instance), FileDialog::file_mode_t::load);
-            if (fileDialog.showDialog(IDD_IMPORT_DIALOG, IDC_FILE_PATH_EDIT, IDC_FILE_BTN_PATH, Config::langFilePath) == Dialog::result_t::confirm) // file choice success
+            FileDialog fileDialog(reinterpret_cast<config::dialog::controls::library_instance_t>(m_instance), FileDialog::file_mode_t::load);
+            if (fileDialog.showDialog(IDD_FILE_SELECT, IDC_FILE_PATH_EDIT, getEventWindowHandle(), 
+                                      IDC_FILE_BTN_PATH, Config::langFilePath) == Dialog::result_t::confirm) // file choice success
             {
                 Config::langCode = lang::langcode_t::customFile;
                 Config::langFilePath = fileDialog.getFilePath();
@@ -235,7 +242,7 @@ bool ConfigDialog::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const int32_
         // update language resource
         m_languageResource.setLanguage(Config::langCode, Config::langFilePath);
     }
-    catch (const std::exception& exc) // corrupted file
+    catch (...) // corrupted file
     {
         Config::langCode = lang::langcode_t::english;
         ComboBox::setSelectedIndex(hWindow, IDC_LANG_LIST, static_cast<int32_t>(Config::langCode));
@@ -244,4 +251,21 @@ bool ConfigDialog::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const int32_
         return false;
     }
     return true;
+}
+
+
+/// @brief Language change event
+/// @param[in] isRecursive  Also translate controls in child pages or not
+void ConfigDialog::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, bool isRecursive)
+{
+    // translate dialog controls
+    Label::setText(hWindow, IDS_PROFILE, m_languageResource.profile.profileList);
+    Label::setText(hWindow, IDOK, m_languageResource.dialog.confirm);
+    Label::setText(hWindow, IDCANCEL, m_languageResource.dialog.cancel);
+
+    // translate controls in embedded pages
+    if (isRecursive)
+    {
+        m_tabs.onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES);
+    }
 }

@@ -13,6 +13,7 @@ Description : advanced tab control
 #include <commctrl.h>
 #endif
 #include "../../../res/resource.h"
+#include "common.h"
 #include "dialog.h"
 #include "tab_button.h"
 #include "tab_page.h"
@@ -21,17 +22,25 @@ using namespace config::dialog::controls;
 
 
 /// @brief Create tab control in dialog
-/// @param[in] window      Window handle
-/// @param[in] offset      Vertical offset for first tab button
-/// @param[in] width       Tab button width
+/// @param[in] window  Window handle
+/// @param[in] offset  Vertical offset for first tab button
+/// @param[in] width   Tab button width
 /// @returns Success
 bool TabControl::create(window_handle_t window, const uint32_t offset, const uint32_t width)
 {
+    if (m_activePageIndex != -1)
+        close();
+
     // create tab pages
-    //...
+    m_activePageIndex = 0;
+    for (uint32_t i = 0; i < m_pages.size(); ++i)
+    {
+        if (m_pages.at(i).page->create(window, width) == false)
+            return false;
+        m_pages.at(i).page->setVisible(i == 0);
+    }
 
     // create tab buttons
-    m_activePageIndex = 0;
     for (uint32_t i = 0; i < m_pages.size(); ++i)
     {
         if (m_pages.at(i).button->create(window, offset, width) == false)
@@ -41,9 +50,43 @@ bool TabControl::create(window_handle_t window, const uint32_t offset, const uin
 }
 
 
+/// @brief Close control in dialog
+void TabControl::close()
+{
+    if (m_activePageIndex != -1 && m_pages.size() > 0)
+    {
+        for (uint32_t i = 0; i < m_pages.size(); ++i)
+        {
+            m_pages.at(i).page->close();
+            m_pages.at(i).button->close();
+        }
+    }
+    m_activePageIndex = -1;
+}
+
+
+
+// -- event handlers -- --------------------------------------------
+
+/// @brief Language change event
+/// @param[in] instance  Library instance handle
+void TabControl::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS)
+{
+    // refresh tab buttons
+    //...repaint tab buttons
+    //...
+
+    // translate components in pages
+    for (uint32_t i = 0; i < m_pages.size(); ++i)
+    {
+        m_pages.at(i).page->triggerEvent(dialog_event_t::drawItem, IDC_LANG_LIST);
+    }
+}
+
+
 /// @brief Trigger control drawing
 /// @param[in] args  Event arguments
-void TabControl::paint(paint_event_args_t args)
+void TabControl::onPaint(paint_event_args_t args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
 

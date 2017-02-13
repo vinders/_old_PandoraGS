@@ -27,9 +27,10 @@ using namespace std::literals::string_literals;
 /// @param[in] instance  Current instance handle
 /// @param[in] mode      File selection mode
 /// @throws invalid_argument  Invalid instance
-FileDialog::FileDialog(library_instance_t instance, file_mode_t mode) : Dialog(instance), m_mode(mode), m_fieldId(0)
+FileDialog::FileDialog(library_instance_t instance, file_mode_t mode) 
+    : Dialog(instance), m_mode(mode), m_fieldId(0), m_browserId(0), m_filePath(L"./file.csv"s)
 {
-    dialog_event_handler_t eventHandler;
+    Dialog::event_handler_t eventHandler;
     eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onInit);
     Dialog::registerEvent(dialog_event_t::init, eventHandler);
     eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onCommand);
@@ -41,17 +42,18 @@ FileDialog::FileDialog(library_instance_t instance, file_mode_t mode) : Dialog(i
 /// @brief Display modal dialog box
 /// @param[in] dialogResourceId   Dialog description identifier
 /// @param[in] fieldResourceId    File path field identifier
+/// @param[in] hParentWindow      Parent window handle
 /// @param[in] browserResourceId  Browse button identifier
 /// @param[in] defaultFile        Default file path
 /// @returns Dialog result
 /// @throws runtime_error  Dialog creation error or runtime error
-Dialog::result_t FileDialog::showDialog(const int32_t dialogResourceId, const int32_t fieldResourceId, const int32_t browserResourceId, 
-                                        const std::wstring& defaultFile)
+Dialog::result_t FileDialog::showDialog(const int32_t dialogResourceId, const int32_t fieldResourceId, window_handle_t hParentWindow, 
+                                        const int32_t browserResourceId, const std::wstring& defaultFile)
 {
     m_filePath = defaultFile;
     m_fieldId = fieldResourceId;
     m_browserId = browserResourceId;
-    return Dialog::showDialog(dialogResourceId, false);
+    return Dialog::showDialog(dialogResourceId, hParentWindow, false);
 }
 
 
@@ -75,7 +77,7 @@ DIALOG_EVENT_RETURN FileDialog::onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS)
     //...browser
     //...
 
-    return DIALOG_EVENT_RETURN_VALID;
+    return DIALOG_EVENT_RETURN_ERROR;
 }
 
 

@@ -30,8 +30,8 @@ namespace config
             class MsgBox
             {
             public:
-                /// @enum event_t
-                /// @brief Combo box event types
+                /// @enum message_icon_t
+                /// @brief Message box icons
                 enum class message_icon_t : int32_t
                 {
                     #if _DIALOGAPI == DIALOGAPI_WIN32
@@ -50,8 +50,8 @@ namespace config
                     stop = 5
                     #endif
                 };
-                /// @enum event_t
-                /// @brief Combo box event types
+                /// @enum button_set_t
+                /// @brief Message box button sets
                 enum class button_set_t : int32_t
                 {
                     #if _DIALOGAPI == DIALOGAPI_WIN32
@@ -68,6 +68,24 @@ namespace config
                     yesNoCancel = 4,
                     #endif
                 };
+                /// @enum result_t
+                /// @brief Message box results
+                enum class result_t : int32_t
+                {
+                    #if _DIALOGAPI == DIALOGAPI_WIN32
+                    cancel = IDCANCEL,
+                    ok = IDOK,
+                    no = IDNO,
+                    yes = IDYES,
+                    retry = IDRETRY
+                    #else
+                    cancel = 0,
+                    ok = 1,
+                    no = 2,
+                    yes = 3,
+                    retry = 4
+                    #endif
+                };
 
                 /// @brief Show message box
                 /// @param[in] title    Message box title
@@ -75,7 +93,8 @@ namespace config
                 /// @param[in] hWindow  Parent window (use nullptr for non-modal message box)
                 /// @param[in] buttons  Message box buttons (optional)
                 /// @param[in] icon     Message box icon (optional)
-                static void showMessage(const std::wstring& title, const std::wstring& message, window_handle_t hWindow,
+                /// @returns User action
+                static MsgBox::result_t showMessage(const std::wstring& title, const std::wstring& message, window_handle_t hWindow,
                                         const button_set_t buttons = button_set_t::ok, const message_icon_t icon = message_icon_t::none);
             };
         }

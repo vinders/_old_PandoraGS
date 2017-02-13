@@ -8,6 +8,7 @@ Description : tab page - general settings
 *******************************************************************************/
 #pragma once
 
+#include "controls/common.h"
 #include "controls/tab_page.h"
 #include "controls/tab_control.h"
 
@@ -26,7 +27,15 @@ namespace config
         {
         private:
         
-        public:    
+        public:
+            GeneralPage(controls::library_instance_t instance) : controls::TabPage(instance, IDD_GENERAL_PAGE) {}
+
+
+            // -- specialized handlers -- --------------------------------------
+
+            /// @brief Language change event
+            /// @param[in] isRecursive  Also translate controls in child pages or not
+            virtual void onLanguageChange(PAGE_EVENT_HANDLER_ARGUMENTS, bool isRecursive) {}
         };
     }
 }

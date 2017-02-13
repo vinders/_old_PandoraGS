@@ -8,7 +8,8 @@ Description : tab page - profile settings
 *******************************************************************************/
 #pragma once
 
-#include <array>
+#include <vector>
+#include <memory>
 #include "../config.h"
 #include "controls/common.h"
 #include "controls/tab_page.h"
@@ -28,9 +29,17 @@ namespace config
         class ProfilePage : public controls::TabPage
         {
         private:
-            std::array<ProfilePage,3> m_subPages;
+            std::vector<std::shared_ptr<TabPage>> m_subPages;
         
-        public:    
+        public:
+            ProfilePage(controls::library_instance_t instance) : controls::TabPage(instance, IDD_PROFILE_PAGE) {}
+
+
+            // -- specialized handlers -- --------------------------------------
+
+            /// @brief Language change event
+            /// @param[in] isRecursive  Also translate controls in child pages or not
+            virtual void onLanguageChange(PAGE_EVENT_HANDLER_ARGUMENTS, bool isRecursive) {}
         };
     }
 }

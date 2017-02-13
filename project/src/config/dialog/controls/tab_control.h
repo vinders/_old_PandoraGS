@@ -71,16 +71,24 @@ namespace config
 
 
                 /// @brief Create tab control in dialog
-                /// @param[in] window      Window handle
-                /// @param[in] offset      Vertical offset for first tab button
-                /// @param[in] width       Tab button width
+                /// @param[in] window  Window handle
+                /// @param[in] offset  Vertical offset for first tab button
+                /// @param[in] width   Tab button width
                 /// @returns Success
                 bool create(window_handle_t window, const uint32_t offset, const uint32_t width);
+                /// @brief Close control in dialog
+                void close();
+
+
+                // -- event handlers -- --------------------------------------------
+
+                /// @brief Language change event
+                /// @param[in] instance  Library instance handle
+                void onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS);
 
                 /// @brief Trigger control drawing
                 /// @param[in] args  Event arguments
-                void paint(paint_event_args_t args);
-
+                void onPaint(paint_event_args_t args);
                 //void onHover(window_handle_t window, const uint32_t tabIndex) {}
                 //void onClick(window_handle_t window, const uint32_t tabIndex) {}
             };

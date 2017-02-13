@@ -40,7 +40,7 @@ HFONT TabButton::s_tabFont = nullptr; ///< Common font for tab buttons
 /// @param[in] iconSize       Icon size (pixels)
 TabButton::TabButton(library_instance_t instance, std::wstring& title, const uint32_t resourceId, 
                      const uint32_t bmpResourceId, const uint32_t icon, const uint32_t iconSize = 48u)
-    : m_instance(instance), m_title(title), m_resourceId(resourceId), m_bitmapId(bmpResourceId), m_tabButtonControl(nullptr)
+    : m_instance(instance), m_title(title), m_resourceId(resourceId), m_bitmapId(bmpResourceId), m_tabButtonControl(0)
 {
     m_tabNumber = s_activeCount;
     ++s_activeCount;
@@ -53,7 +53,7 @@ TabButton::TabButton(library_instance_t instance, std::wstring& title, const uin
         s_cache[bmpResourceId].iconSize = iconSize;
         s_cache[bmpResourceId].maxIndex = icon;
         s_cache[bmpResourceId].isAlphaChannelSet = false;
-        s_cache[bmpResourceId].bitmapData = (HBITMAP)LoadBitmap(instance, MAKEINTRESOURCE(IDB_CONFIG_ICONS));
+        s_cache[bmpResourceId].bitmapData = reinterpret_cast<HBITMAP>(LoadBitmap(instance, MAKEINTRESOURCE(IDB_CONFIG_ICONS)));
         if (s_cache[bmpResourceId].bitmapData == nullptr)
         {
             s_cache.erase(bmpResourceId);
@@ -72,10 +72,7 @@ TabButton::~TabButton()
 {
     // free resources
     --s_activeCount;
-    #if _DIALOGAPI == DIALOGAPI_WIN32
-    if (m_tabButtonControl != nullptr)
-        DestroyWindow(m_tabButtonControl);
-    #endif
+    close();
 
     if (s_activeCount <= 0u)
     {
@@ -114,11 +111,11 @@ bool TabButton::create(window_handle_t window, const uint32_t offset, const uint
     std::wstring controlName = L"Tab "s + std::to_wstring(m_tabNumber);
     m_tabButtonControl = CreateWindow(L"button", controlName.c_str(), WS_CHILD | WS_VISIBLE | BS_TEXT | BS_BITMAP | BS_BOTTOM | BS_OWNERDRAW,
                                       4, offset + (m_tabNumber * (TAB_HEIGHT + TAB_INTERVAL)), width - 4, TAB_HEIGHT,
-                                      static_cast<HWND>(window), (HMENU)m_resourceId, (HINSTANCE)m_instance, NULL);
-    if (!m_tabButtonControl)
+                                      reinterpret_cast<HWND>(window), reinterpret_cast<HMENU>(m_resourceId), reinterpret_cast<HINSTANCE>(m_instance), NULL);
+    if (!m_tabButtonControl || (HWND)m_tabButtonControl == (HWND)INVALID_HANDLE_VALUE)
         return false;
 
-    HDC hDC = GetDC(static_cast<HWND>(window));
+    HDC hDC = GetDC(reinterpret_cast<HWND>(window));
     if (hDC)
     {
         // set icon bitmap transparency
@@ -139,7 +136,7 @@ bool TabButton::create(window_handle_t window, const uint32_t offset, const uint
             s_tabFont = CreateFontIndirect(&logFont);
         }
         // set font
-        ReleaseDC(static_cast<HWND>(window), hDC);
+        ReleaseDC(reinterpret_cast<HWND>(window), hDC);
         SendMessage(m_tabButtonControl, WM_SETFONT, (WPARAM)s_tabFont, (LPARAM)MAKELONG(TRUE, 0));
     }
     return true;
@@ -150,6 +147,17 @@ bool TabButton::create(window_handle_t window, const uint32_t offset, const uint
     return true;
 }
 #endif
+
+
+/// @brief Close control in dialog
+void TabButton::close()
+{
+#if _DIALOGAPI == DIALOGAPI_WIN32
+    if (m_tabButtonControl && reinterpret_cast<HWND>(m_tabButtonControl) != reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))
+        DestroyWindow(reinterpret_cast<HWND>(m_tabButtonControl));
+#endif
+    m_tabButtonControl = 0;
+}
 
 
 /// @brief Trigger control drawing

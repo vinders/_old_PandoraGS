@@ -29,13 +29,13 @@ Description : global constants and settings
  \r\nPete, Tapeq - for sharing public sources\
  \r\nePSXe team - for supporting game ID spec\
  \r\nMednafen - for sharing useful links/tools\
- \r\nThe OpenGL SuperBible and website open.gl"
+ \r\nThe OpenGL SuperBible and open.gl website"
 #else
 #define PLUGIN_THANKS      "No$psx, Doomed - for providing useful docs\
  \nPete, Tapeq - for sharing public sources\
  \nePSXe team - for supporting game ID spec\
  \nMednafen - for sharing useful links/tools\
- \nThe OpenGL SuperBible and website open.gl"
+ \nThe OpenGL SuperBible and open.gl website"
 #endif
 
 // compilation settings - dialog API

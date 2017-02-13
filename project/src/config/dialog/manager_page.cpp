@@ -36,3 +36,5 @@ onInit
     // add other stuff here
     //...
 }*/
+
+//Button_SetState(GetDlgItem(hWindow,ID_DU_BOUTON), FALSE); // enlever focus de bouton quand relâché

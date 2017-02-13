@@ -32,9 +32,10 @@ Description : dialog control
 #define getEventTargetControlId() (type&0x0FF)
 #define getEventActionType() ((type>>8)&0x0FF)
 #endif
-#define getEventTargetDialogReference(TYPE) *((TYPE*)pDialog)
-#define getEventWindowHandle() static_cast<window_handle_t>(hWindow)
+#define getEventTargetDialogReference(TYPE) *((TYPE*)(pDialog))
+#define getEventWindowHandle() reinterpret_cast<window_handle_t>(hWindow)
 #define eventActionEquals(VAL) getEventActionType()==static_cast<uint32_t>(VAL)
+#define DIALOG_USE_BASE_WINDOW INVALID_HANDLE_VALUE
 
 /// @namespace config
 /// Configuration management
@@ -48,20 +49,17 @@ namespace config
         /// Dialog controls
         namespace controls
         {
-            class Dialog;
-            /// @struct dialog_event_handler_t
-            /// @brief Event handling function
-            struct dialog_event_handler_t
-            {
-                std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)> handler;
-            };
-
-
             /// @class Dialog
             /// @brief Dialog control
             class Dialog
             {
             public:
+                /// @struct dialog_event_handler_t
+                /// @brief Event handling function
+                struct event_handler_t
+                {
+                    std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)> handler;
+                };
                 /// @enum result_t
                 /// @brief Action performed when closing a dialog
                 enum class result_t : int32_t
@@ -76,7 +74,7 @@ namespace config
                 {
                     bool isInitialized;
                     Dialog::result_t dialogResult; ///< Dialog end result
-                    std::map<dialog_event_t, dialog_event_handler_t> registeredHandlers; ///< Registered event handlers
+                    std::map<dialog_event_t, Dialog::event_handler_t> registeredHandlers; ///< Registered event handlers
                 };
 
 
@@ -97,17 +95,18 @@ namespace config
 
                 /// @brief Display modal dialog box
                 /// @param[in] resourceId      Dialog description identifier
+                /// @param[in] hParentWindow   Parent window handle
                 /// @param[in] isStyleEnabled  Enable enhanced visual style
                 /// @returns Dialog result
                 /// @throws runtime_error  Dialog creation error or runtime error
-                Dialog::result_t showDialog(const int32_t resourceId, const bool isStyleEnabled = false);
+                Dialog::result_t showDialog(const int32_t resourceId, window_handle_t hParentWindow = reinterpret_cast<window_handle_t>(DIALOG_USE_BASE_WINDOW),
+                                            const bool isStyleEnabled = false);
 
 
-            protected:
                 /// @brief Register a handler for an event
                 /// @param[in] eventType  Event type
                 /// @param[in] handler    Event handler
-                inline void registerEvent(const dialog_event_t eventType, dialog_event_handler_t& handler) noexcept
+                inline void registerEvent(const dialog_event_t eventType, Dialog::event_handler_t& handler) noexcept
                 {
                     if (handler.handler != nullptr)
                         m_dialogData.registeredHandlers[eventType] = handler;
@@ -127,9 +126,10 @@ namespace config
                 }
 
 
+            private:
                 /// @brief Get event handler (no check)
                 /// @param[in] eventType  Event type
-                inline dialog_event_handler_t& getEventHandler(const dialog_event_t eventType)
+                inline Dialog::event_handler_t& getEventHandler(const dialog_event_t eventType)
                 {
                     return m_dialogData.registeredHandlers[eventType];
                 }
@@ -141,7 +141,6 @@ namespace config
                 }
 
 
-            private:
                 #if _DIALOGAPI == DIALOGAPI_WIN32
                 /// @brief Get current dialog non-static reference
                 /// @param[in] hWindow  Window handle

@@ -41,7 +41,7 @@ namespace config
                 static inline void setText(window_handle_t hWindow, const int32_t resourceId, const std::wstring text) noexcept
                 {
                     #if _DIALOGAPI == DIALOGAPI_WIN32
-                    SetDlgItemText(hWindow, resourceId, (LPCWSTR)text.c_str());
+                    SetDlgItemText(reinterpret_cast<HWND>(hWindow), resourceId, (LPCWSTR)text.c_str());
                     #else
                     //...
                     #endif
@@ -54,7 +54,7 @@ namespace config
                 static inline void setVisible(window_handle_t hWindow, const int32_t resourceId, bool isVisible)
                 {
                     #if _DIALOGAPI == DIALOGAPI_WIN32
-                    HWND hControl = GetDlgItem(hWindow, resourceId);
+                    HWND hControl = GetDlgItem(reinterpret_cast<HWND>(hWindow), resourceId);
                     if (hControl)
                         ShowWindow(hControl, (isVisible) ? SW_SHOW : SW_HIDE);
                     #else

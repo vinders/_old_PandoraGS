@@ -23,3 +23,5 @@ Description : tab page - profile settings
 using namespace config::dialog;
 using namespace config::dialog::controls;
 using namespace std::literals::string_literals;
+
+//Button_SetState(GetDlgItem(hWindow,ID_DU_BOUTON), FALSE); // enlever focus de bouton quand relâché

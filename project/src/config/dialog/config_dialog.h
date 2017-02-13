@@ -60,14 +60,19 @@ namespace config
             static DIALOG_EVENT_RETURN onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS);
             /// @brief Dialog confirm event handler - check validity
             static DIALOG_EVENT_RETURN onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            /// @brief Dialog close event handler
+            static DIALOG_EVENT_RETURN onClose(DIALOG_EVENT_HANDLER_ARGUMENTS);
 
 
             // -- specialized handlers -- --------------------------------------
 
-            /// @brief Language change event
+            /// @brief Language selection event
             /// @param[in] value  Selected value
             /// @returns Language validity / file validity
-            bool onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const int32_t value);
+            bool onLanguageSelection(DIALOG_EVENT_HANDLER_ARGUMENTS, const int32_t value);
+            /// @brief Language change event
+            /// @param[in] isRecursive  Also translate controls in child pages or not
+            void onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, bool isRecursive);
         };
     }
 }

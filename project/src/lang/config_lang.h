@@ -9,6 +9,7 @@ Description : config dialog language/translation utility
 #pragma once
 
 #include <string>
+#include <map>
 #include "i_lang.h"
 
 /// @namespace lang
@@ -45,6 +46,7 @@ namespace lang
     public:
         dialog_t dialog;   ///< Dialog related global translation
         profile_t profile; ///< Profile related global translations
+        std::map<std::string, std::wstring> controls; ///< Controls and labels translations
 
 
     public:

@@ -78,6 +78,8 @@ namespace config
                 /// @param[in] width       Tab button width
                 /// @returns Success
                 bool create(window_handle_t window, const uint32_t offset, const uint32_t width);
+                /// @brief Close control in dialog
+                void close();
 
                 /// @brief Trigger control drawing
                 /// @param[in] args  Event arguments
