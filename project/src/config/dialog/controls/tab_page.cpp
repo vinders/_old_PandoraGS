@@ -177,6 +177,6 @@ INT_PTR CALLBACK TabPage::pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam
             }
         }
     }
-    return DefWindowProc(hWindow, msg, wParam, lParam);
+    return (INT_PTR)FALSE;
 }
 #endif

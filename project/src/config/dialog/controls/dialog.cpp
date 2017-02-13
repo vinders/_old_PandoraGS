@@ -233,6 +233,6 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
             }
         }
     }
-    return DefWindowProc(hWindow, msg, wParam, lParam);
+    return (INT_PTR)FALSE;
 }
 #endif
