@@ -125,11 +125,35 @@ INT_PTR CALLBACK TabPage::pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam
                 pPage->setInitialized();
                 return (INT_PTR)success; break;
             }
-            case WM_PAINT:
+            case WM_PAINT: // background painting
             {
                 if (pPage->isRegisteredEvent(dialog_event_t::paint)) // call handler
+                {
                     return pPage->getEventHandler(dialog_event_t::paint).handler(pPage, hWindow, wParam, lParam);
+                }
+                else // default painting (white background)
+                {
+                    PAINTSTRUCT paint;
+                    HDC hDC = BeginPaint(hWindow, &paint);
+                    if (hDC)
+                    {
+                        RECT rect;
+                        GetClientRect(hWindow, &rect);
+                        FillRect(hDC, &rect, HBRUSH(GetStockObject(WHITE_BRUSH)));
+
+                        EndPaint(hWindow, &paint);
+                        ReleaseDC(hWindow, hDC);
+                    }
+                    return (INT_PTR)TRUE;
+                }
                 break;
+            }
+            case WM_CTLCOLORSTATIC: // label text color
+            {
+                HDC hdcStatic = (HDC)wParam;
+                SetTextColor(hdcStatic, RGB(0,0,0));
+                SetBkColor(hdcStatic, RGB(255,255,255));
+                return (LRESULT)HBRUSH(GetStockObject(WHITE_BRUSH)); break;
             }
             case WM_DRAWITEM:
             {

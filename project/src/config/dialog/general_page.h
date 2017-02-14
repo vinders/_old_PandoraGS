@@ -31,8 +31,15 @@ namespace config
             /// @brief Create tab page - general settings
             /// @param[in] instance       Current instance handle
             /// @param[in] pParentDialog  Parent dialog reference
-            GeneralPage(controls::library_instance_t instance, controls::Dialog* pParentDialog)
-                : controls::TabPage(instance, pParentDialog, IDD_GENERAL_PAGE) {}
+            GeneralPage(controls::library_instance_t instance, controls::Dialog* pParentDialog);
+
+
+            // -- event handlers -- --------------------------------------------
+
+            /// @brief Initialization event handler
+            static DIALOG_EVENT_RETURN onInit(PAGE_EVENT_HANDLER_ARGUMENTS);
+            /// @brief Sub-control command event handler
+            static DIALOG_EVENT_RETURN onCommand(PAGE_EVENT_HANDLER_ARGUMENTS);
 
 
             // -- specialized handlers -- --------------------------------------

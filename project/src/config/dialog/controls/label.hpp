@@ -55,7 +55,7 @@ namespace config
                 {
                     #if _DIALOGAPI == DIALOGAPI_WIN32
                     HWND hControl = GetDlgItem(reinterpret_cast<HWND>(hWindow), resourceId);
-                    if (hControl)
+                    if (hControl && hControl != reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))
                         ShowWindow(hControl, (isVisible) ? SW_SHOW : SW_HIDE);
                     #else
                     //...

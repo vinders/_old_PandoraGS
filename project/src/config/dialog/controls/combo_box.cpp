@@ -29,10 +29,11 @@ using namespace config::dialog::controls;
 /// @param[in] selectedIndex  Default index to select
 /// @returns Success
 bool ComboBox::initValues(window_handle_t hWindow, const int32_t resourceId, const std::vector<std::wstring>& values, int32_t selectedIndex)
+#if _DIALOGAPI == DIALOGAPI_WIN32
 {
     HWND hCombobox;
     hCombobox = GetDlgItem(hWindow, resourceId);
-    if (!hCombobox)
+    if (!hCombobox || hCombobox == reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))
         return false;
 
     if (selectedIndex > static_cast<int32_t>(values.size())) // index below max value
@@ -44,6 +45,11 @@ bool ComboBox::initValues(window_handle_t hWindow, const int32_t resourceId, con
     // set selected index
     return (ComboBox_SetCurSel(hCombobox, selectedIndex) != CB_ERR);
 }
+#else
+{
+    return true;
+}
+#endif
 
 /// @brief Change list of values in combo box
 /// @param[in] hWindow        Parent window handle
@@ -52,10 +58,11 @@ bool ComboBox::initValues(window_handle_t hWindow, const int32_t resourceId, con
 /// @param[in] selectedIndex  Default index to select (optional : if not set, keeps same index as previous)
 /// @returns Success
 bool ComboBox::setValues(window_handle_t hWindow, const int32_t resourceId, const std::vector<std::wstring>& values, int32_t selectedIndex)
+#if _DIALOGAPI == DIALOGAPI_WIN32
 {
     HWND hCombobox;
     hCombobox = GetDlgItem(hWindow, resourceId);
-    if (!hCombobox)
+    if (!hCombobox || hCombobox == reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))
         return false;
 
     // if same index kept, read it first
@@ -74,6 +81,11 @@ bool ComboBox::setValues(window_handle_t hWindow, const int32_t resourceId, cons
     // set selected index
     return (ComboBox_SetCurSel(hCombobox, selectedIndex) != CB_ERR);
 }
+#else
+{
+    return true;
+}
+#endif
 
 
 /// @brief Get selected index in combo box
@@ -86,7 +98,7 @@ bool ComboBox::getSelectedIndex(window_handle_t hWindow, const int32_t resourceI
 {
     HWND hCombobox;
     hCombobox = GetDlgItem(hWindow, resourceId);
-    if (!hCombobox)
+    if (!hCombobox || hCombobox == reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))
         return false;
 
     int32_t buffer = SendMessage(hCombobox, CB_GETCURSEL, NULL, NULL);
@@ -114,7 +126,7 @@ bool ComboBox::setSelectedIndex(window_handle_t hWindow, const int32_t resourceI
 {
     HWND hCombobox;
     hCombobox = GetDlgItem(hWindow, resourceId);
-    if (!hCombobox)
+    if (!hCombobox || hCombobox == reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))
         return false;
 
     return (ComboBox_SetCurSel(hCombobox, selectedIndex) != CB_ERR);
