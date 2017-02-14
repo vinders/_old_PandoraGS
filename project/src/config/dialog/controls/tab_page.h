@@ -10,7 +10,7 @@ Description : page for tab control - abstract class
 
 #include "../../../globals.h"
 #include <cstdint>
-#include <map>
+#include <unordered_map>
 #include "common.h"
 #include "dialog.h"
 
@@ -55,7 +55,7 @@ namespace config
             private:
                 window_handle_t m_hPage; ///< Page control handle
                 bool m_isInitialized;
-                std::map<dialog_event_t, TabPage::event_handler_t> m_registeredHandlers; ///< Registered event handlers
+                std::unordered_map<dialog_event_t, TabPage::event_handler_t> m_registeredHandlers; ///< Registered event handlers
                 static TabPage* s_pageRefBuffer; ///< Page reference buffer (pass non-static data to static handler)
 
 
@@ -151,15 +151,16 @@ namespace config
                 {
                     return m_isInitialized;
                 }
+            protected:
+                /// @brief Get page handle
+                /// @returns Page handle
+                window_handle_t getPageHandle() noexcept
+                {
+                    return m_hPage;
+                }
 
 
-            public:
                 // -- event management -- ------------------------------------------
-
-                /// @brief Trigger an event (send message to the object's own static handler)
-                /// @param[in] eventType   Type of event to trigger
-                /// @param[in] eventParam  Event-specific flag
-                void triggerEvent(dialog_event_t eventType, uint32_t eventParam);
 
             private:
                 #if _DIALOGAPI == DIALOGAPI_WIN32
@@ -176,12 +177,12 @@ namespace config
                 static INT_PTR CALLBACK pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
                 #endif
 
-            protected:
+            public:
                 // -- specialized handlers -- --------------------------------------
 
                 /// @brief Language change event
                 /// @param[in] isRecursive  Also translate controls in child pages or not
-                virtual void onLanguageChange(PAGE_EVENT_HANDLER_ARGUMENTS, bool isRecursive) = 0;
+                virtual void onLanguageChange(bool isRecursive) = 0;
             };
         }
     }

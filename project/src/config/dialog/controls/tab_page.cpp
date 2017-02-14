@@ -8,7 +8,7 @@ Description : page for tab control - abstract class
 *******************************************************************************/
 #include "../../../globals.h"
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <stdexcept>
 #include <thread>
 #if _DIALOGAPI == DIALOGAPI_WIN32
@@ -80,21 +80,6 @@ void TabPage::close()
 
 // -- event management -- ------------------------------------------
 
-/// @brief Trigger an event (send message to the object's own static handler)
-/// @param[in] eventType   Type of event to trigger
-/// @param[in] eventParam  Event-specific flag
-void TabPage::triggerEvent(dialog_event_t eventType, uint32_t eventParam)
-#if _DIALOGAPI == DIALOGAPI_WIN32
-{
-    //...sendmessage to resourceId
-}
-#else
-{
-
-}
-#endif
-
-
 #if _DIALOGAPI == DIALOGAPI_WIN32
 /// @brief Get current dialog non-static reference
 /// @param[in] hWindow  Window handle
@@ -133,9 +118,9 @@ INT_PTR CALLBACK TabPage::pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam
             case WM_INITDIALOG:
             {
                 int32_t success = TRUE;
-                pPage->setInitialized();
                 if (pPage->isRegisteredEvent(dialog_event_t::init)) // call handler
                     success = pPage->getEventHandler(dialog_event_t::init).handler(pPage, hWindow, wParam, lParam);
+                pPage->setInitialized();
                 return (INT_PTR)success; break;
             }
             case WM_PAINT:

@@ -10,7 +10,7 @@ Description : tab button for tab control
 
 #include "../../../globals.h"
 #include <cstdint>
-#include <map>
+#include <unordered_map>
 #include "common.h"
 
 /// @namespace config
@@ -44,7 +44,7 @@ namespace config
             {
             private:
                 static int32_t s_activeCount; ///< Number of tab buttons loaded
-                static std::map<uint32_t, bitmap_cache_t> s_cache; ///< Icon bitmap cache
+                static std::unordered_map<uint32_t, bitmap_cache_t> s_cache; ///< Icon bitmap cache
                 #if _DIALOGAPI == DIALOGAPI_WIN32
                 static HFONT s_tabFont; ///< Common font for tab buttons
                 #endif

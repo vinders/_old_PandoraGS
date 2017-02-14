@@ -35,7 +35,7 @@ namespace config
 
             /// @brief Language change event
             /// @param[in] isRecursive  Also translate controls in child pages or not
-            virtual void onLanguageChange(PAGE_EVENT_HANDLER_ARGUMENTS, bool isRecursive) {}
+            virtual void onLanguageChange(bool isRecursive);
         };
     }
 }

@@ -14,12 +14,26 @@ Description : tab page - profile manager
 #include "../../res/resource.h"
 #include "../../events/utils/logger.h"
 #include "controls/common.h"
+#include "controls/text_field.hpp"
+#include "controls/combo_box.h"
+#include "controls/check_box.hpp"
+#include "controls/group_box.h"
+#include "controls/label.hpp"
 #include "controls/tab_page.h"
 #include "controls/file_dialog.h"
 #include "manager_page.h"
 using namespace config::dialog;
 using namespace config::dialog::controls;
 using namespace std::literals::string_literals;
+
+
+/// @brief Language change event
+/// @param[in] isRecursive  Also translate controls in child pages or not
+void ManagerPage::onLanguageChange(bool isRecursive)
+{
+    window_handle_t pPage = getPageHandle();
+    //...
+}
 
 
 /*{

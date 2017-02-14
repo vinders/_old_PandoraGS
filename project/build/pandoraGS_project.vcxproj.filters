@@ -188,9 +188,6 @@
     <ClCompile Include="..\src\config\dialog\controls\tab_page.cpp">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\config\dialog\controls\check_box.cpp">
-      <Filter>Source Files\config\dialog\controls</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\config\dialog\controls\combo_box.cpp">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClCompile>
@@ -388,9 +385,6 @@
     <ClInclude Include="..\src\config\dialog\controls\common.h">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\config\dialog\controls\check_box.h">
-      <Filter>Source Files\config\dialog\controls</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\config\dialog\controls\combo_box.h">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
@@ -417,6 +411,12 @@
     </ClInclude>
     <ClInclude Include="..\src\config\dialog\profile_filtering_page.h">
       <Filter>Source Files\config\dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\controls\check_box.hpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\controls\text_field.hpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

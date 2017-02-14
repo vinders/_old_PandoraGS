@@ -24,4 +24,18 @@ using namespace config::dialog;
 using namespace config::dialog::controls;
 using namespace std::literals::string_literals;
 
+
+/// @brief Language change event
+/// @param[in] isRecursive  Also translate controls in child pages or not
+void ProfilePage::onLanguageChange(bool isRecursive)
+{
+    window_handle_t pPage = getPageHandle();
+    //...
+
+    if (isRecursive)
+    {
+        //...
+    }
+}
+
 //Button_SetState(GetDlgItem(hWindow,ID_DU_BOUTON), FALSE); // enlever focus de bouton quand relâché

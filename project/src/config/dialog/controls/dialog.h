@@ -10,7 +10,7 @@ Description : dialog control
 
 #include "../../../globals.h"
 #include <cstdint>
-#include <map>
+#include <unordered_map>
 #include <stack>
 #include <functional>
 #include "common.h"
@@ -74,7 +74,7 @@ namespace config
                 {
                     bool isInitialized;
                     Dialog::result_t dialogResult; ///< Dialog end result
-                    std::map<dialog_event_t, Dialog::event_handler_t> registeredHandlers; ///< Registered event handlers
+                    std::unordered_map<dialog_event_t, Dialog::event_handler_t> registeredHandlers; ///< Registered event handlers
                 };
 
 

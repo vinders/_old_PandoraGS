@@ -17,6 +17,7 @@ Description : file selection dialog control
 #include "../../../res/resource.h"
 #include "common.h"
 #include "dialog.h"
+#include "text_field.hpp"
 #include "file_dialog.h"
 using namespace config::dialog;
 using namespace config::dialog::controls;
@@ -61,10 +62,7 @@ Dialog::result_t FileDialog::showDialog(const int32_t dialogResourceId, const in
 DIALOG_EVENT_RETURN FileDialog::onInit(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
     FileDialog& parent = getEventTargetDialogReference(FileDialog);
-
-    //...pre-fill field with m_filePath
-    //...
-
+    TextField::setValue(getEventWindowHandle(), parent.m_fieldId, parent.m_filePath);
     return DIALOG_EVENT_RETURN_VALID;
 }
 
@@ -85,6 +83,7 @@ DIALOG_EVENT_RETURN FileDialog::onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS)
 DIALOG_EVENT_RETURN FileDialog::onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
     FileDialog& parent = getEventTargetDialogReference(FileDialog);
+    parent.m_filePath = TextField::getValue(getEventWindowHandle(), parent.m_fieldId);
 
     //...check path
     //...

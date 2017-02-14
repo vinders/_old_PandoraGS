@@ -9,7 +9,7 @@ Description : tab button for tab control
 #include "../../../globals.h"
 #include <cstdint>
 #include <string>
-#include <map>
+#include <unordered_map>
 #if _DIALOGAPI == DIALOGAPI_WIN32
 #include <Windows.h>
 #include <windowsx.h>
@@ -25,7 +25,7 @@ using namespace std::literals::string_literals;
 #define TAB_TEXT_OFFSET   64
 
 int32_t TabButton::s_activeCount = 0; ///< Number of tab buttons loaded
-std::map<uint32_t, bitmap_cache_t> TabButton::s_cache; ///< Icon bitmap cache
+std::unordered_map<uint32_t, bitmap_cache_t> TabButton::s_cache; ///< Icon bitmap cache
 #if _DIALOGAPI == DIALOGAPI_WIN32
 HFONT TabButton::s_tabFont = nullptr; ///< Common font for tab buttons
 #endif

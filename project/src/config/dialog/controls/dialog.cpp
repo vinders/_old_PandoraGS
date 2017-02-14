@@ -9,6 +9,7 @@ Description : dialog control
 #include "../../../globals.h"
 #include <string>
 #include <stdexcept>
+#include <unordered_map>
 #if _DIALOGAPI == DIALOGAPI_WIN32
 #include <Windows.h>
 #include <windowsx.h>

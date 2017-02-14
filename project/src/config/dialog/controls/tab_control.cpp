@@ -79,7 +79,7 @@ void TabControl::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS)
     // translate components in pages
     for (uint32_t i = 0; i < m_pages.size(); ++i)
     {
-        m_pages.at(i).page->triggerEvent(dialog_event_t::drawItem, IDC_LANG_LIST);
+        m_pages.at(i).page->onLanguageChange(true);
     }
 }
 
