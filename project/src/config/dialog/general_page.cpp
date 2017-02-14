@@ -78,11 +78,9 @@ DIALOG_EVENT_RETURN GeneralPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
                 case IDC_GEN_BTN_KEYBINDING: // control key binding
                 {
                     Dialog keyBindDialog(parent.m_instance);
-                    if (keyBindDialog.showDialog(IDD_KEYBINDING_DIALOG, getEventWindowHandle(), false) == Dialog::result_t::confirm)
-                    {
-                        //...copy keys to Config
-                        //...
-                    }
+                    //...register init + confirm
+                    //...
+                    keyBindDialog.showDialog(IDD_KEYBINDING_DIALOG, getEventWindowHandle(), false);
                     //Button_SetState(GetDlgItem(hWindow,ID_DU_BOUTON), FALSE); // remove focus after button was clicked
                     //...
                     return DIALOG_EVENT_RETURN_VALID; break;
@@ -90,11 +88,9 @@ DIALOG_EVENT_RETURN GeneralPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
                 case IDC_GEN_BTN_ADVANCED: // advanced settings
                 {
                     Dialog advancedDialog(parent.m_instance);
-                    if (advancedDialog.showDialog(IDD_ADVANCED_DIALOG, getEventWindowHandle(), false) == Dialog::result_t::confirm)
-                    {
-                        //...copy settings to Config
-                        //...
-                    }
+                    //...register init + confirm
+                    //...
+                    advancedDialog.showDialog(IDD_ADVANCED_DIALOG, getEventWindowHandle(), false);
                     //Button_SetState(GetDlgItem(hWindow,ID_DU_BOUTON), FALSE); // remove focus after button was clicked
                     //...
                     return DIALOG_EVENT_RETURN_VALID; break;
