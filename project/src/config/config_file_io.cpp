@@ -19,7 +19,7 @@ Description : configuration file or registry input/output
 #include <cctype>
 #include <algorithm>
 #include <functional>
-#include <map>
+#include <unordered_map>
 #ifdef _WINDOWS
 #include <Windows.h>
 #include <tchar.h>
@@ -136,14 +136,14 @@ void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, std::wstring& ou
 
 /// @brief Read all available values
 /// @param[out] outData  Output values
-void ConfigFileIO<registry_io_mode_t>::readAll(std::map<std::string, uint32_t>& outData)
+void ConfigFileIO<registry_io_mode_t>::readAll(std::unordered_map<std::string, uint32_t>& outData)
 {
     mapAllValues<std::string,uint32_t>(outData);
 }
 
 /// @brief Read all available values
 /// @param[out] outData  Output values
-void ConfigFileIO<registry_io_mode_t>::readAll(std::map<std::wstring, std::wstring>& outData)
+void ConfigFileIO<registry_io_mode_t>::readAll(std::unordered_map<std::wstring, std::wstring>& outData)
 {
     mapAllValues<std::wstring,std::wstring>(outData);
 }
@@ -151,7 +151,7 @@ void ConfigFileIO<registry_io_mode_t>::readAll(std::map<std::wstring, std::wstri
 /// @brief Create hash-map with all available values
 /// @param[out] outData  Output map
 template <typename KeyType, typename ValType>
-void ConfigFileIO<registry_io_mode_t>::mapAllValues(std::map<KeyType,ValType>& outData)
+void ConfigFileIO<registry_io_mode_t>::mapAllValues(std::unordered_map<KeyType,ValType>& outData)
 {
     TCHAR    classNameBuffer[MAX_PATH] = TEXT("");
     DWORD    classNameSize = sizeof(classNameBuffer);
@@ -416,7 +416,7 @@ void ConfigFileIO<file_io_mode_t>::read(const wchar_t* key, std::wstring& outWid
 
 /// @brief Read all available values
 /// @param[out] outData  Output values
-void ConfigFileIO<file_io_mode_t>::readAll(std::map<std::string, uint32_t>& outData)
+void ConfigFileIO<file_io_mode_t>::readAll(std::unordered_map<std::string, uint32_t>& outData)
 {
     for (auto it = m_fileData.begin(); it != m_fileData.end(); ++it)
     {
@@ -427,7 +427,7 @@ void ConfigFileIO<file_io_mode_t>::readAll(std::map<std::string, uint32_t>& outD
 
 /// @brief Read all available values
 /// @param[out] outData  Output values
-void ConfigFileIO<file_io_mode_t>::readAll(std::map<std::wstring, std::wstring>& outData)
+void ConfigFileIO<file_io_mode_t>::readAll(std::unordered_map<std::wstring, std::wstring>& outData)
 {
     for (auto it = m_fileData.begin(); it != m_fileData.end(); ++it)
         outData[it->first] = it->second;

@@ -12,7 +12,7 @@ Description : configuration input/output toolbox
 #include <string>
 #include <vector>
 #include <list>
-#include <map>
+#include <unordered_map>
 #include <stdexcept>
 using namespace std::literals::string_literals;
 #include "config_file_io.h"
@@ -334,7 +334,15 @@ void ConfigIO::exportConfigProfile(ConfigProfile& profile, const std::wstring& p
 template<typename T>
 void ConfigIO::writeConfigProfileValues(ConfigFileIO<T>& writer, ConfigProfile& profile)
 {
-    writer.writeString(L"ProfileName", profile.getProfileName());
+    if (profile.getProfileName().empty())
+    {
+        std::wstring profileName = L"<undefined>"s;
+        writer.writeString(L"ProfileName", profileName);
+    }
+    else
+    {
+        writer.writeString(L"ProfileName", profile.getProfileName());
+    }
     writer.writeBool(L"ExternShader", profile.isExternalShaders);
     writer.writeString(L"ExternShaderPath", profile.shadersPath);
 
@@ -452,7 +460,7 @@ void ConfigIO::getProfileAssociations(std::list<game_profile_association_t>& out
     if (reader.open(CONFIG_GAMES_PATH))
     {
         // read all associations
-        std::map<std::string, uint32_t> values;
+        std::unordered_map<std::string, uint32_t> values;
         reader.readAll(values);
         reader.close();
 

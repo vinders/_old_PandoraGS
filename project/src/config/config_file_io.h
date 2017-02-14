@@ -11,7 +11,7 @@ Description : configuration file or registry input/output
 #include <cstdint>
 #include <fstream>
 #include <string>
-#include <map>
+#include <unordered_map>
 #ifdef _WINDOWS
 #include <Windows.h>
 #include <tchar.h>
@@ -172,15 +172,15 @@ namespace config
 
         /// @brief Read all available values
         /// @param[out] outData  Output values
-        void readAll(std::map<std::string, uint32_t>& outData);
+        void readAll(std::unordered_map<std::string, uint32_t>& outData);
         /// @brief Read all available values
         /// @param[out] outData  Output values
-        void readAll(std::map<std::wstring, std::wstring>& outData);
+        void readAll(std::unordered_map<std::wstring, std::wstring>& outData);
     private:
         /// @brief Create hash-map with all available values
         /// @param[out] outData  Output map
         template <typename KeyType, typename ValType>
-        void mapAllValues(std::map<KeyType, ValType>& outData);
+        void mapAllValues(std::unordered_map<KeyType, ValType>& outData);
 
     public:
         /// @brief Write boolean value
@@ -253,7 +253,7 @@ namespace config
     private:
         file_io_mode_t m_openMode; ///< File opening mode
         std::wfstream m_file;      ///< File descriptor
-        std::map<std::wstring, std::wstring> m_fileData; ///< Hash-map with data contained in file
+        std::unordered_map<std::wstring, std::wstring> m_fileData; ///< Hash-map with data contained in file
 
     public:
         /// @brief Create CSV file IO tool
@@ -351,10 +351,10 @@ namespace config
 
         /// @brief Read all available values
         /// @param[out] outData  Output values
-        void readAll(std::map<std::string, uint32_t>& outData);
+        void readAll(std::unordered_map<std::string, uint32_t>& outData);
         /// @brief Read all available values
         /// @param[out] outData  Output values
-        void readAll(std::map<std::wstring, std::wstring>& outData);
+        void readAll(std::unordered_map<std::wstring, std::wstring>& outData);
 
         /// @brief Write boolean value
         /// @param[in] key  File entry
