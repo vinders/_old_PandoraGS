@@ -53,7 +53,8 @@ namespace config
                 library_instance_t m_instance; ///< Library instance handle
                 int32_t m_pageResourceId; ///< Page resource identifier
             private:
-                window_handle_t m_hPage; ///< Page control handle
+                Dialog* m_pParentDialog;  ///< Parent dialog reference
+                window_handle_t m_hPage;  ///< Page control handle
                 bool m_isInitialized;
                 std::unordered_map<dialog_event_t, TabPage::event_handler_t> m_registeredHandlers; ///< Registered event handlers
                 static TabPage* s_pageRefBuffer; ///< Page reference buffer (pass non-static data to static handler)
@@ -61,33 +62,24 @@ namespace config
 
             public:
                 /// @brief Create tab page
-                /// @param[in] instance    Current instance handle
-                /// @param[in] resourceId  Dialog description identifier
-                TabPage(library_instance_t instance, const int32_t resourceId) 
-                    : m_instance(instance), m_pageResourceId(resourceId), m_isInitialized(false), m_hPage(0) {}
+                /// @param[in] instance       Current instance handle
+                /// @param[in] pParentDialog  Parent dialog reference
+                /// @param[in] resourceId     Dialog description identifier
+                TabPage(library_instance_t instance, Dialog* pParentDialog, const int32_t resourceId)
+                    : m_instance(instance), m_pParentDialog(pParentDialog), m_pageResourceId(resourceId), m_isInitialized(false), m_hPage(0) {}
                 /// @brief Destroy tab page
                 virtual ~TabPage()
                 {
                     close();
                 }
 
-
                 /// @brief Create tab page control
                 /// @param[in] hWindow  Parent window handle
                 /// @param[in] offset   Page horizontal offset
                 /// @returns Dialog result
-                virtual bool create(window_handle_t hWindow, const uint32_t offset)
-                {
-                    return createPage(hWindow, offset);
-                }
+                bool create(window_handle_t hWindow, const uint32_t offset);
                 /// @brief Close tab page control
                 void close();
-            protected:
-                /// @brief Create tab page control (non-virtual)
-                /// @param[in] hWindow  Parent window handle
-                /// @param[in] offset   Page horizontal offset
-                /// @returns Dialog result
-                bool createPage(window_handle_t hWindow, const uint32_t offset);
 
 
             public:
@@ -154,7 +146,14 @@ namespace config
             protected:
                 /// @brief Get page handle
                 /// @returns Page handle
-                window_handle_t getPageHandle() noexcept
+                template<typename Subclass>
+                Subclass* getParentDialog() noexcept
+                {
+                    return (Subclass*)m_pParentDialog;
+                }
+                /// @brief Get page handle
+                /// @returns Page handle
+                inline window_handle_t getPageHandle() noexcept
                 {
                     return m_hPage;
                 }
@@ -181,8 +180,8 @@ namespace config
                 // -- specialized handlers -- --------------------------------------
 
                 /// @brief Language change event
-                /// @param[in] isRecursive  Also translate controls in child pages or not
-                virtual void onLanguageChange(bool isRecursive) = 0;
+                /// @param[in] isRecursive    Also translate controls in child pages or not
+                virtual void onLanguageChange(const bool isRecursive) = 0;
             };
         }
     }

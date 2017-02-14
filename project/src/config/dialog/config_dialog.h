@@ -27,7 +27,7 @@ namespace config
         /// @see TabbedDialog
         class ConfigDialog : private controls::Dialog
         {
-            private:
+        private:
             lang::ConfigLang m_languageResource; ///< Language resources
             controls::TabControl m_tabs;         ///< Advanced tab control
 
@@ -45,6 +45,13 @@ namespace config
             /// @returns Dialog result
             /// @throws runtime_error  Dialog creation/display error
             controls::Dialog::result_t showDialog();
+
+            /// @brief Get language resource (translations)
+            /// @returns Language object reference
+            inline lang::ConfigLang& getLanguageResource() noexcept
+            {
+                return m_languageResource;
+            }
 
 
         private:
@@ -72,7 +79,7 @@ namespace config
             bool onLanguageSelection(DIALOG_EVENT_HANDLER_ARGUMENTS, const int32_t value);
             /// @brief Language change event
             /// @param[in] isRecursive  Also translate controls in child pages or not
-            void onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, bool isRecursive);
+            void onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const bool isRecursive);
         };
     }
 }

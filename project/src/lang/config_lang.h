@@ -9,7 +9,6 @@ Description : config dialog language/translation utility
 #pragma once
 
 #include <string>
-#include <unordered_map>
 #include "i_lang.h"
 
 /// @namespace lang
@@ -41,12 +40,53 @@ namespace lang
             std::wstring screenTab;
             std::wstring compatibilityTab;
         };
+        /// @struct general_content_t
+        /// @brief General settings translations
+        struct general_content_t
+        {
+            std::wstring groupDisplay;
+            std::wstring groupTimer;
+        };
+        /// @struct manager_content_t
+        /// @brief Profile manager translations
+        struct manager_content_t
+        {
+            std::wstring groupList;
+        };
+        /// @struct profile_content_t
+        /// @brief Profile settings translations
+        struct profile_content_t
+        {
+            std::wstring groupSmoothing;
+            std::wstring groupRendering;
+            std::wstring groupHdr;
+            std::wstring groupMisc;
+            std::wstring groupColor;
+            std::wstring groupCompatibility;
+        };
+        /// @struct profile_content_t
+        /// @brief Profile settings translations
+        struct screen_content_t
+        {
+            std::wstring internalRes;
+        };
+        /// @struct profile_content_t
+        /// @brief Profile settings translations
+        struct compatibility_content_t
+        {
+            std::wstring groupColor;
+            std::wstring groupCompatibility;
+        };
 
 
     public:
         dialog_t dialog;   ///< Dialog related global translation
         profile_t profile; ///< Profile related global translations
-        std::unordered_map<std::string, std::wstring> controls; ///< Controls and labels translations
+        general_content_t generalSettings; ///< General settings translations
+        manager_content_t profileManager; ///< Profile manager translations
+        profile_content_t filteringSettings; ///< Profile settings translations
+        screen_content_t screenSettings; ///< Profile settings translations
+        compatibility_content_t compatibilitySettings; ///< Profile settings translations
 
 
     public:

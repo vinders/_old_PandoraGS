@@ -19,6 +19,7 @@ Description : tab page - profile manager
 #include "controls/check_box.hpp"
 #include "controls/group_box.h"
 #include "controls/label.hpp"
+#include "config_dialog.h"
 #include "controls/tab_page.h"
 #include "controls/file_dialog.h"
 #include "manager_page.h"
@@ -28,10 +29,12 @@ using namespace std::literals::string_literals;
 
 
 /// @brief Language change event
-/// @param[in] isRecursive  Also translate controls in child pages or not
-void ManagerPage::onLanguageChange(bool isRecursive)
+/// @param[in] isRecursive    Also translate controls in child pages or not
+void ManagerPage::onLanguageChange(const bool isRecursive)
 {
-    window_handle_t pPage = getPageHandle();
+    window_handle_t hPage = getPageHandle();
+    lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
+
     //...
 }
 

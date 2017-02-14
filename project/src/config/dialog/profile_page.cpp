@@ -15,6 +15,7 @@ Description : tab page - profile settings
 #include "../../res/resource.h"
 #include "../../events/utils/logger.h"
 #include "controls/common.h"
+#include "config_dialog.h"
 #include "controls/tab_page.h"
 #include "profile_filtering_page.h"
 #include "profile_screen_page.h"
@@ -26,15 +27,17 @@ using namespace std::literals::string_literals;
 
 
 /// @brief Language change event
-/// @param[in] isRecursive  Also translate controls in child pages or not
-void ProfilePage::onLanguageChange(bool isRecursive)
+/// @param[in] isRecursive    Also translate controls in child pages or not
+void ProfilePage::onLanguageChange(const bool isRecursive)
 {
-    window_handle_t pPage = getPageHandle();
-    //...
+    window_handle_t hPage = getPageHandle();
+    lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
+
+    //...tabs
 
     if (isRecursive)
     {
-        //...
+        //...sub-pages
     }
 }
 

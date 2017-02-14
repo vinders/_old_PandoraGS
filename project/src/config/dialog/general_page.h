@@ -28,14 +28,18 @@ namespace config
         private:
         
         public:
-            GeneralPage(controls::library_instance_t instance) : controls::TabPage(instance, IDD_GENERAL_PAGE) {}
+            /// @brief Create tab page - general settings
+            /// @param[in] instance       Current instance handle
+            /// @param[in] pParentDialog  Parent dialog reference
+            GeneralPage(controls::library_instance_t instance, controls::Dialog* pParentDialog)
+                : controls::TabPage(instance, pParentDialog, IDD_GENERAL_PAGE) {}
 
 
             // -- specialized handlers -- --------------------------------------
 
             /// @brief Language change event
-            /// @param[in] isRecursive  Also translate controls in child pages or not
-            virtual void onLanguageChange(bool isRecursive);
+            /// @param[in] isRecursive    Also translate controls in child pages or not
+            virtual void onLanguageChange(const bool isRecursive);
         };
     }
 }

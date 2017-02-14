@@ -40,7 +40,7 @@ ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance)
     config::Config::init();
     try
     {
-        m_languageResource.setLanguage(config::Config::langCode, config::Config::langFilePath);
+        getLanguageResource().setLanguage(config::Config::langCode, config::Config::langFilePath);
     }
     catch (...)
     {
@@ -49,12 +49,12 @@ ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance)
 
     // set tabs and pages
     tab_association_t tabGeneral, tabManager, tabProfile;
-    tabGeneral.button = std::make_shared<TabButton>(instance, m_languageResource.dialog.generalSettings, IDC_GENERAL_TAB, IDB_CONFIG_ICONS, 1, 48);
-    tabGeneral.page = std::make_shared<GeneralPage>(instance);
-    tabManager.button = std::make_shared<TabButton>(instance, m_languageResource.dialog.profileManagement, IDC_MANAGER_TAB, IDB_CONFIG_ICONS, 2, 48);
-    tabManager.page = std::make_shared<ManagerPage>(instance);
-    tabProfile.button = std::make_shared<TabButton>(instance, m_languageResource.dialog.profileSettings, IDC_PROFILE_TAB, IDB_CONFIG_ICONS, 3, 48);
-    tabProfile.page = std::make_shared<ProfilePage>(instance);
+    tabGeneral.button = std::make_shared<TabButton>(instance, getLanguageResource().dialog.generalSettings, IDC_GENERAL_TAB, IDB_CONFIG_ICONS, 1, 48);
+    tabGeneral.page = std::make_shared<GeneralPage>(instance, (Dialog*)this);
+    tabManager.button = std::make_shared<TabButton>(instance, getLanguageResource().dialog.profileManagement, IDC_MANAGER_TAB, IDB_CONFIG_ICONS, 2, 48);
+    tabManager.page = std::make_shared<ManagerPage>(instance, (Dialog*)this);
+    tabProfile.button = std::make_shared<TabButton>(instance, getLanguageResource().dialog.profileSettings, IDC_PROFILE_TAB, IDB_CONFIG_ICONS, 3, 48);
+    tabProfile.page = std::make_shared<ProfilePage>(instance, (Dialog*)this);
     // insert pages
     m_tabs.addTab(tabGeneral);
     m_tabs.addTab(tabManager);
@@ -240,7 +240,7 @@ bool ConfigDialog::onLanguageSelection(DIALOG_EVENT_HANDLER_ARGUMENTS, const int
     try
     {
         // update language resource
-        m_languageResource.setLanguage(Config::langCode, Config::langFilePath);
+        getLanguageResource().setLanguage(Config::langCode, Config::langFilePath);
     }
     catch (...) // corrupted file
     {
@@ -256,12 +256,12 @@ bool ConfigDialog::onLanguageSelection(DIALOG_EVENT_HANDLER_ARGUMENTS, const int
 
 /// @brief Language change event
 /// @param[in] isRecursive  Also translate controls in child pages or not
-void ConfigDialog::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, bool isRecursive)
+void ConfigDialog::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const bool isRecursive)
 {
     // translate dialog controls
-    Label::setText(hWindow, IDS_PROFILE, m_languageResource.profile.profileList);
-    Label::setText(hWindow, IDOK, m_languageResource.dialog.confirm);
-    Label::setText(hWindow, IDCANCEL, m_languageResource.dialog.cancel);
+    Label::setText(hWindow, IDS_PROFILE, getLanguageResource().profile.profileList);
+    Label::setText(hWindow, IDOK, getLanguageResource().dialog.confirm);
+    Label::setText(hWindow, IDCANCEL, getLanguageResource().dialog.cancel);
 
     // translate controls in embedded pages
     if (isRecursive)

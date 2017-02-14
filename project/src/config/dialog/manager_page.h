@@ -28,13 +28,17 @@ namespace config
         private:
         
         public:
-            ManagerPage(controls::library_instance_t instance) : controls::TabPage(instance, IDD_MANAGER_PAGE) {}
+            /// @brief Create tab page - profile manager
+            /// @param[in] instance       Current instance handle
+            /// @param[in] pParentDialog  Parent dialog reference
+            ManagerPage(controls::library_instance_t instance, controls::Dialog* pParentDialog) 
+                : controls::TabPage(instance, pParentDialog, IDD_MANAGER_PAGE) {}
 
             // -- specialized handlers -- --------------------------------------
 
             /// @brief Language change event
-            /// @param[in] isRecursive  Also translate controls in child pages or not
-            virtual void onLanguageChange(bool isRecursive);
+            /// @param[in] isRecursive    Also translate controls in child pages or not
+            virtual void onLanguageChange(const bool isRecursive);
         };
     }
 }

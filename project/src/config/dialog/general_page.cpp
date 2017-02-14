@@ -19,6 +19,7 @@ Description : tab page - general settings
 #include "controls/check_box.hpp"
 #include "controls/group_box.h"
 #include "controls/label.hpp"
+#include "config_dialog.h"
 #include "controls/tab_page.h"
 #include "general_page.h"
 using namespace config::dialog;
@@ -27,12 +28,15 @@ using namespace std::literals::string_literals;
 
 
 /// @brief Language change event
-/// @param[in] isRecursive  Also translate controls in child pages or not
-void GeneralPage::onLanguageChange(bool isRecursive)
+/// @param[in] isRecursive    Also translate controls in child pages or not
+void GeneralPage::onLanguageChange(const bool isRecursive)
 {
-    window_handle_t pPage = getPageHandle();
+    window_handle_t hPage = getPageHandle();
+    lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
 
-    //Label::setText(pPage, <ID...>, <lang...>);
+    GroupBox::setText(hPage, IDS_GEN_GROUP1, langRes.generalSettings.groupDisplay);
+    //...
+    GroupBox::setText(hPage, IDS_GEN_GROUP2, langRes.generalSettings.groupTimer);
     //...
 }
 

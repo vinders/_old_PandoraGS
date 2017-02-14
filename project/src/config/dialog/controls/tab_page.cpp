@@ -31,13 +31,15 @@ TabPage* TabPage::s_pageRefBuffer = nullptr; ///< Page reference buffer (pass no
 /// @param[in] hWindow  Parent window handle
 /// @param[in] offset   Page horizontal offset
 /// @returns Dialog result
-bool TabPage::createPage(window_handle_t hWindow, const uint32_t offset)
+bool TabPage::create(window_handle_t hWindow, const uint32_t offset)
 {
     #if _DIALOGAPI == DIALOGAPI_WIN32
     if (reinterpret_cast<HINSTANCE>(m_instance) == reinterpret_cast<HINSTANCE>(INVALID_HANDLE_VALUE)
      && (HINSTANCE)(m_instance = reinterpret_cast<library_instance_t>(GetModuleHandle(NULL))) == reinterpret_cast<HINSTANCE>(INVALID_HANDLE_VALUE))
         return false;
     if (reinterpret_cast<HWND>(hWindow) == reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))
+        return false;
+    if (m_pParentDialog == nullptr)
         return false;
     #endif
 
