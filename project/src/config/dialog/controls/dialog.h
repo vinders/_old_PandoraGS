@@ -35,6 +35,7 @@ Description : dialog control
 #define getEventTargetDialogReference(TYPE) *((TYPE*)(pDialog))
 #define getEventWindowHandle() reinterpret_cast<window_handle_t>(hWindow)
 #define eventActionEquals(VAL) getEventActionType()==static_cast<uint32_t>(VAL)
+#define eventActionDiffers(VAL) getEventActionType()!=static_cast<uint32_t>(VAL)
 #define DIALOG_USE_BASE_WINDOW INVALID_HANDLE_VALUE
 
 /// @namespace config

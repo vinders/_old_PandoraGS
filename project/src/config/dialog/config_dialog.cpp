@@ -228,7 +228,7 @@ bool ConfigDialog::onLanguageSelection(DIALOG_EVENT_HANDLER_ARGUMENTS, const int
         }
         catch (const std::exception& exc)
         {
-            events::utils::Logger::getInstance()->writeErrorEntry("ConfigDialog.onCommand"s, exc.what());
+            events::utils::Logger::getInstance()->writeErrorEntry("ConfigDialog.onLanguageSelection"s, exc.what());
             return false;
         }
     }
