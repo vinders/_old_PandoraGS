@@ -54,15 +54,21 @@ GeneralPage::GeneralPage(controls::library_instance_t instance, controls::Dialog
 /// @brief Initialization event handler
 DIALOG_EVENT_RETURN GeneralPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
 {
-    // set combo-boxes and labels
+    // set labels
     GeneralPage& parent = getEventTargetPageReference(GeneralPage);
     parent.onLanguageChange(false);
+
     // set list of screen resolutions
     std::vector<std::wstring> fullscreenResList;
     int32_t resIndex = Screen::listAvailableResolutions(fullscreenResList, Config::display.fullscreenRes.x, Config::display.fullscreenRes.y);
     ComboBox::initValues(getEventWindowHandle(), IDC_GEN_FULLRES_LIST, fullscreenResList, resIndex);
+    std::vector<std::wstring> bitDepths { L"16-bit"s, L"32-bit"s };
+    ComboBox::initValues(getEventWindowHandle(), IDC_GEN_COLOR_LIST, bitDepths, (Config::display.colorDepth == display::window_color_mode_t::rgb_32bit) ? 1 : 0);
 
-    // apply config settings
+    // apply other config settings
+    CheckBox::setChecked(getEventWindowHandle(), (Config::display.windowMode == display::utils::window_mode_t::fullscreen) ? IDC_GEN_FULLRES : IDC_GEN_WINRES, true);
+    if (Config::display.windowMode == display::utils::window_mode_t::resizable)
+        CheckBox::setChecked(getEventWindowHandle(), IDC_GEN_WINSIZE_CHECK, true);
     //...read config -> set controls
     //...
 

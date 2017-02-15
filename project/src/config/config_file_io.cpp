@@ -86,6 +86,8 @@ void ConfigFileIO<registry_io_mode_t>::read(const wchar_t* key, float& outFloatV
     if (::RegQueryValueEx(m_regKey, (LPCWSTR)key, 0, &m_keyStatus, (PBYTE)buffer, &m_keySize) == ERROR_SUCCESS)
     {
         outFloatVal = static_cast<float>(atof(buffer));
+        if (outFloatVal < 0.01f && outFloatVal > -0.01f)
+            outFloatVal = 0.0f;
     }
 }
 

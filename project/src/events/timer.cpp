@@ -41,7 +41,7 @@ void Timer::setFrequency(const float freqLimit, const regionsync_t regMode, cons
 {
     // set fixed framerate limit
     m_targetFreq = 59.94f;
-    if (freqLimit > 0.01f) // freqLimit > 0 (+ float error offset) = fixed
+    if (freqLimit == 0.0f) // fixed
     {
         m_targetFreq = freqLimit;
     }
