@@ -16,7 +16,7 @@ Description : dialog control
 #include "common.h"
 
 #if _DIALOGAPI == DIALOGAPI_WIN32
-#define DIALOG_EVENT_HANDLER_ARGUMENTS Dialog* pDialog, HWND hWindow, WPARAM wParam, LPARAM lParam
+#define DIALOG_EVENT_HANDLER_ARGUMENTS config::dialog::controls::Dialog* pDialog, HWND hWindow, WPARAM wParam, LPARAM lParam
 #define DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES pDialog,hWindow,wParam,lParam
 #define DIALOG_EVENT_RETURN INT_PTR
 #define DIALOG_EVENT_RETURN_VALID (INT_PTR)TRUE

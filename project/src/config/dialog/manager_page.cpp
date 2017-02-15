@@ -17,7 +17,6 @@ Description : tab page - profile manager
 #include "controls/text_field.hpp"
 #include "controls/combo_box.h"
 #include "controls/check_box.hpp"
-#include "controls/group_box.h"
 #include "controls/label.hpp"
 #include "config_dialog.h"
 #include "controls/tab_page.h"

@@ -20,6 +20,7 @@ Description : configuration dialog
 #include "controls/tab_control.h"
 #include "controls/combo_box.h"
 #include "controls/label.hpp"
+#include "controls/button.hpp"
 #include "controls/msg_box.h"
 #include "general_page.h"
 #include "manager_page.h"
@@ -260,8 +261,8 @@ void ConfigDialog::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const bool i
 {
     // translate dialog controls
     Label::setText(hWindow, IDS_PROFILE, getLanguageResource().profile.profileList);
-    Label::setText(hWindow, IDOK, getLanguageResource().dialog.confirm);
-    Label::setText(hWindow, IDCANCEL, getLanguageResource().dialog.cancel);
+    Button::setText(hWindow, IDOK, getLanguageResource().dialog.confirm);
+    Button::setText(hWindow, IDCANCEL, getLanguageResource().dialog.cancel);
 
     // translate controls in embedded pages
     if (isRecursive)

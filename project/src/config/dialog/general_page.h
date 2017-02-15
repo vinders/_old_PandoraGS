@@ -47,6 +47,16 @@ namespace config
             /// @brief Language change event
             /// @param[in] isRecursive    Also translate controls in child pages or not
             virtual void onLanguageChange(const bool isRecursive);
+
+        private:
+            /// @brief Initialize key binding sub-dialog
+            static DIALOG_EVENT_RETURN onKeyBindDialogInit(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            /// @brief Confirm key binding sub-dialog settings
+            static DIALOG_EVENT_RETURN onKeyBindDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            /// @brief Initialize advanced settings sub-dialog
+            static DIALOG_EVENT_RETURN onAdvancedDialogInit(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            /// @brief Confirm advanced settings sub-dialog settings
+            static DIALOG_EVENT_RETURN onAdvancedDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
         };
     }
 }

@@ -36,12 +36,14 @@
     <ClCompile Include="..\src\config\config_file_io.cpp" />
     <ClCompile Include="..\src\config\config_io.cpp" />
     <ClCompile Include="..\src\config\config_profile.cpp" />
+    <ClCompile Include="..\src\config\dialog\controls\group_box.cpp" />
+    <ClCompile Include="..\src\config\dialog\controls\keyboard.cpp" />
+    <ClCompile Include="..\src\config\dialog\controls\screen.cpp" />
     <ClCompile Include="..\src\config\dialog\profile_compatibility_page.cpp" />
     <ClCompile Include="..\src\config\dialog\config_dialog.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\combo_box.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\dialog.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\file_dialog.cpp" />
-    <ClCompile Include="..\src\config\dialog\controls\group_box.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\msg_box.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\preview_box.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\scrollable_tab_page.cpp" />
@@ -95,6 +97,10 @@
     <ClInclude Include="..\src\config\config_file_io.h" />
     <ClInclude Include="..\src\config\config_io.h" />
     <ClInclude Include="..\src\config\config_profile.h" />
+    <ClInclude Include="..\src\config\dialog\controls\button.hpp" />
+    <ClInclude Include="..\src\config\dialog\controls\group_box.h" />
+    <ClInclude Include="..\src\config\dialog\controls\keyboard.h" />
+    <ClInclude Include="..\src\config\dialog\controls\screen.h" />
     <ClInclude Include="..\src\config\dialog\controls\text_field.hpp" />
     <ClInclude Include="..\src\config\dialog\profile_compatibility_page.h" />
     <ClInclude Include="..\src\config\dialog\config_dialog.h" />
@@ -103,7 +109,6 @@
     <ClInclude Include="..\src\config\dialog\controls\common.h" />
     <ClInclude Include="..\src\config\dialog\controls\dialog.h" />
     <ClInclude Include="..\src\config\dialog\controls\file_dialog.h" />
-    <ClInclude Include="..\src\config\dialog\controls\group_box.h" />
     <ClInclude Include="..\src\config\dialog\controls\label.hpp" />
     <ClInclude Include="..\src\config\dialog\controls\msg_box.h" />
     <ClInclude Include="..\src\config\dialog\controls\preview_box.h" />
