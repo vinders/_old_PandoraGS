@@ -14,6 +14,7 @@ Description : keyboard information toolset
 #include <vector>
 #include <unordered_map>
 #include "common.h"
+#include "../../../events/listener.h"
 
 /// @namespace config
 /// Configuration management
@@ -57,9 +58,17 @@ namespace config
                 /// @brief Get mapped key code based on index
                 /// @param[in] index  Index in list of keys
                 /// @returns Key code
-                inline int32_t indexToKeyCode(const int32_t index) noexcept
+                inline int32_t indexToKeyCode(const int32_t index) const noexcept
                 {
                     return (index < static_cast<int32_t>(m_indexesToKeyCodes.size())) ? m_indexesToKeyCodes[index] : 0;
+                }
+
+                /// @brief Check if selected index is associated with "no key"
+                /// @param[in] index  Index in list of keys
+                /// @returns No key (true) or valid key (false)
+                inline int32_t getNoKeyIndex() const noexcept
+                {
+                    return m_keyCodesToIndexes.at(VK_NOKEY);
                 }
             };
         }

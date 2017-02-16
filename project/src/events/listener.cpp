@@ -140,6 +140,9 @@ LRESULT CALLBACK Listener::listen(HWND hWindow, UINT eventType, WPARAM wpCode, L
             }
             case WM_KEYUP:
             {
+                if (wpCode == (WPARAM)VK_NOKEY)
+                    break;
+
                 // pause
                 if (wpCode == (WPARAM)(s_pTriggerKeys[static_cast<uint32_t>(event_trigger_t::pause)])) // pause
                 {

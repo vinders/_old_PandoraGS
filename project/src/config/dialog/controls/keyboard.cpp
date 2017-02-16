@@ -29,7 +29,7 @@ Keyboard::Keyboard(const bool isNameListFilled)
     {
         m_keyNames = { L"<none>"s, L"F9"s, L"F10"s, L"F11"s, L"F12"s,
             L"Insert"s, L"Delete"s, L"Home"s, L"End"s, L"Page Up"s, L"Page Down"s,
-            L"Ctrl Left"s, L"Ctrl Right"s, L"Shift Left"s, L"Shift Right"s,
+            L"Ctrl Left"s, L"Ctrl Right"s, L"Shift Left"s, L"Shift Right"s, L"Space"s,
             L"Numpad 0"s, L"Numpad 1"s, L"Numpad 2"s, L"Numpad 3"s, L"Numpad 4"s, L"Numpad 5"s, L"Numpad 6"s, L"Numpad 7"s, L"Numpad 8"s, L"Numpad 9"s,
             L"Arrow Up"s, L"Arrow Left"s, L"Arrow Right"s, L"Arrow Down"s };
     }
@@ -49,6 +49,7 @@ Keyboard::Keyboard(const bool isNameListFilled)
     m_indexesToKeyCodes.push_back(VK_RCONTROL);
     m_indexesToKeyCodes.push_back(VK_LSHIFT);
     m_indexesToKeyCodes.push_back(VK_RSHIFT);
+    m_indexesToKeyCodes.push_back(VK_SPACE);
     m_indexesToKeyCodes.push_back(VK_NUMPAD0);
     m_indexesToKeyCodes.push_back(VK_NUMPAD1);
     m_indexesToKeyCodes.push_back(VK_NUMPAD2);
@@ -64,6 +65,7 @@ Keyboard::Keyboard(const bool isNameListFilled)
     m_indexesToKeyCodes.push_back(VK_RIGHT);
     m_indexesToKeyCodes.push_back(VK_DOWN);
     
-    for (int32_t i = 0; i < m_indexesToKeyCodes.size(); ++i)
+    int32_t arraySize = static_cast<int32_t>(m_indexesToKeyCodes.size());
+    for (int32_t i = 0; i < arraySize; ++i)
         m_keyCodesToIndexes[m_indexesToKeyCodes.at(i)] = i;
 }

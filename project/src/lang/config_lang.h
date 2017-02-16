@@ -44,8 +44,22 @@ namespace lang
         /// @brief General settings translations
         struct general_content_t
         {
-            std::wstring groupDisplay;
-            std::wstring groupTimer;
+            std::wstring groupDisplay; // group
+            std::wstring resolution;
+            std::wstring fullscreenRes;
+            std::wstring windowRes;
+            std::wstring desktopRes;
+            std::wstring resizable;
+            std::wstring colorDepth;
+            std::wstring subprecision;
+            std::wstring noScreenSaver;
+            std::wstring groupTimer; // group
+            std::wstring timerLimit;
+            std::wstring timerLimitAuto;
+            std::wstring timerLimitFixed;
+            std::wstring timerSkipping;
+            std::wstring btnKeyBinding; // button
+            std::wstring btnAdvanced; // button
         };
         /// @struct manager_content_t
         /// @brief Profile manager translations

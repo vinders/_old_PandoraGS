@@ -30,9 +30,21 @@ void ConfigLang::setLanguageEnglish() noexcept
     profile.compatibilityTab = L"Compatibility settings"s;
 
     generalSettings.groupDisplay = L"Display settings"s;
-    //...
+    generalSettings.resolution = L"Display resolution"s;
+    generalSettings.fullscreenRes = L"fullscreen"s;
+    generalSettings.windowRes = L"window"s;
+    generalSettings.desktopRes = L"desktop resolution"s;
+    generalSettings.resizable = L"Resizable window"s;
+    generalSettings.colorDepth = L"Color depth"s;
+    generalSettings.subprecision = L"GTE subprecision (anti-jitter)"s;
+    generalSettings.noScreenSaver = L"Disable screen-saver"s;
     generalSettings.groupTimer = L"Frame rate settings"s;
-    //...
+    generalSettings.timerLimit = L"Use frame rate limit"s;
+    generalSettings.timerLimitAuto = L"auto-detect"s;
+    generalSettings.timerLimitFixed = L"fixed (10-200)"s;
+    generalSettings.timerSkipping = L"Use frame skipping"s;
+    generalSettings.btnKeyBinding = L"Control key bindings"s;
+    generalSettings.btnAdvanced = L"Advanced settings"s;
     
     profileManager.groupList = L"Profile list management"s;
     //...
@@ -72,9 +84,21 @@ void ConfigLang::setLanguageFrench() noexcept
     profile.compatibilityTab = L"Options de compatibilité"s;
     
     generalSettings.groupDisplay = L"Options d'affichage"s;
-    //...
-    generalSettings.groupTimer = L"Gestion du frame-rate"s;
-    //...
+    generalSettings.resolution = L"Résolution d'affichage"s;
+    generalSettings.fullscreenRes = L"plein écran"s;
+    generalSettings.windowRes = L"fenêtre"s;
+    generalSettings.desktopRes = L"résolution bureau"s;
+    generalSettings.resizable = L"Redimensionnable"s;
+    generalSettings.colorDepth = L"Couleurs"s;
+    generalSettings.subprecision = L"Anti-tremblements (précision GTE)"s;
+    generalSettings.noScreenSaver = L"Désactiver économiseur d'écran"s;
+    generalSettings.groupTimer = L"Fréquence d'affichage"s;
+    generalSettings.timerLimit = L"Limiter le frame-rate"s;
+    generalSettings.timerLimitAuto = L"automatique"s;
+    generalSettings.timerLimitFixed = L"fixe (10-200)"s;
+    generalSettings.timerSkipping = L"Activer le saut d'images"s;
+    generalSettings.btnKeyBinding = L"Touches de contrôle"s;
+    generalSettings.btnAdvanced = L"Options avancées"s;
 
     profileManager.groupList = L"Gestionnaire de profils"s;
     //...

@@ -7,7 +7,9 @@ License :     GPLv2
 Description : tab page - general settings
 *******************************************************************************/
 #include "../../globals.h"
+#include <cstdint>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <stdexcept>
 #include <functional>
@@ -67,10 +69,33 @@ DIALOG_EVENT_RETURN GeneralPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
 
     // apply other config settings
     CheckBox::setChecked(getEventWindowHandle(), (Config::display.windowMode == display::utils::window_mode_t::fullscreen) ? IDC_GEN_FULLRES : IDC_GEN_WINRES, true);
+    TextField::setValue(getEventWindowHandle(), IDC_GEN_WINRESX_EDIT, std::to_wstring(Config::display.windowRes.x));
+    TextField::setValue(getEventWindowHandle(), IDC_GEN_WINRESY_EDIT, std::to_wstring(Config::display.windowRes.y));
     if (Config::display.windowMode == display::utils::window_mode_t::resizable)
         CheckBox::setChecked(getEventWindowHandle(), IDC_GEN_WINSIZE_CHECK, true);
-    //...read config -> set controls
-    //...
+    if (Config::display.subprecisionMode != config::subprecision_settings_t::disabled)
+        CheckBox::setChecked(getEventWindowHandle(), IDC_GEN_GTEACC_CHECK, true);
+    if (Config::events.isNoScreenSaver)
+        CheckBox::setChecked(getEventWindowHandle(), IDC_GEN_SCNSAVER_CHECK, true);
+    if (Config::timer.frameLimitMode != config::framelimit_settings_t::disabled)
+    {
+        CheckBox::setChecked(getEventWindowHandle(), IDC_GEN_FRAMELIMIT_CHECK, true);
+        if (Config::timer.frameLimitMode == config::framelimit_settings_t::limitSkip)
+            CheckBox::setChecked(getEventWindowHandle(), IDC_GEN_FRAMESKIP_CHECK, true);
+    }
+    if (Config::timer.frameRateLimit == 0.0f)
+    {
+        CheckBox::setChecked(getEventWindowHandle(), IDC_GEN_FPSAUTO_RADIO, true);
+        TextField::setValue(getEventWindowHandle(), IDC_GEN_FRAMELIMIT_EDIT, L"59.94"s);
+    }
+    else
+    {
+        CheckBox::setChecked(getEventWindowHandle(), IDC_GEN_FPSFIXED_RADIO, true);
+        std::wstringstream frameRateLimitStr;
+        frameRateLimitStr << Config::timer.frameRateLimit;
+        TextField::setValue(getEventWindowHandle(), IDC_GEN_FRAMELIMIT_EDIT, frameRateLimitStr.str());
+    }
+    
 
     return DIALOG_EVENT_RETURN_VALID;
 }
@@ -137,9 +162,21 @@ void GeneralPage::onLanguageChange(const bool isRecursive)
     lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
 
     GroupBox::setText(hPage, IDS_GEN_GROUP1, langRes.generalSettings.groupDisplay);
-    //...
+    Label::setText(hPage, IDS_GEN_RESOLUTION, langRes.generalSettings.resolution);
+    CheckBox::setText(hPage, IDC_GEN_FULLRES, langRes.generalSettings.fullscreenRes);
+    //...desktop res
+    CheckBox::setText(hPage, IDC_GEN_WINRES, langRes.generalSettings.windowRes);
+    CheckBox::setText(hPage, IDC_GEN_WINSIZE_CHECK, langRes.generalSettings.resizable);
+    Label::setText(hPage, IDS_GEN_COLOR, langRes.generalSettings.colorDepth);
+    CheckBox::setText(hPage, IDC_GEN_GTEACC_CHECK, langRes.generalSettings.subprecision);
+    CheckBox::setText(hPage, IDC_GEN_SCNSAVER_CHECK, langRes.generalSettings.noScreenSaver);
     GroupBox::setText(hPage, IDS_GEN_GROUP2, langRes.generalSettings.groupTimer);
-    //...
+    CheckBox::setText(hPage, IDC_GEN_FRAMELIMIT_CHECK, langRes.generalSettings.timerLimit);
+    CheckBox::setText(hPage, IDC_GEN_FPSAUTO_RADIO, langRes.generalSettings.timerLimitAuto);
+    CheckBox::setText(hPage, IDC_GEN_FPSFIXED_RADIO, langRes.generalSettings.timerLimitFixed);
+    CheckBox::setText(hPage, IDC_GEN_FRAMESKIP_CHECK, langRes.generalSettings.timerSkipping);
+    Button::setText(hPage, IDC_GEN_BTN_KEYBINDING, langRes.generalSettings.btnKeyBinding);
+    Button::setText(hPage, IDC_GEN_BTN_ADVANCED, langRes.generalSettings.btnAdvanced);
 }
 
 
@@ -167,18 +204,21 @@ DIALOG_EVENT_RETURN GeneralPage::onKeyBindDialogInit(DIALOG_EVENT_HANDLER_ARGUME
 /// @brief Confirm key binding sub-dialog settings
 DIALOG_EVENT_RETURN GeneralPage::onKeyBindDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
+    Keyboard keys(false);
+    int32_t noKeyIndex = keys.getNoKeyIndex();
+
     // read key selections
     int32_t bufferArray[EVENT_KEYS_STRING_LENGTH - 1];
-    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_0_LIST, bufferArray[0]) == false) bufferArray[0] = 0;
-    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_1_LIST, bufferArray[1]) == false) bufferArray[1] = 0;
-    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_2_LIST, bufferArray[2]) == false) bufferArray[2] = 0;
-    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_3_LIST, bufferArray[3]) == false) bufferArray[3] = 0;
-    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_4_LIST, bufferArray[4]) == false) bufferArray[4] = 0;
-    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_5_LIST, bufferArray[5]) == false) bufferArray[5] = 0;
-    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_6_LIST, bufferArray[6]) == false) bufferArray[6] = 0;
-    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_7_LIST, bufferArray[7]) == false) bufferArray[7] = 0;
-    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_8_LIST, bufferArray[8]) == false) bufferArray[8] = 0;
-    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_9_LIST, bufferArray[9]) == false) bufferArray[9] = 0;
+    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_0_LIST, bufferArray[0]) == false) bufferArray[0] = noKeyIndex;
+    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_1_LIST, bufferArray[1]) == false) bufferArray[1] = noKeyIndex;
+    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_2_LIST, bufferArray[2]) == false) bufferArray[2] = noKeyIndex;
+    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_3_LIST, bufferArray[3]) == false) bufferArray[3] = noKeyIndex;
+    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_4_LIST, bufferArray[4]) == false) bufferArray[4] = noKeyIndex;
+    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_5_LIST, bufferArray[5]) == false) bufferArray[5] = noKeyIndex;
+    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_6_LIST, bufferArray[6]) == false) bufferArray[6] = noKeyIndex;
+    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_7_LIST, bufferArray[7]) == false) bufferArray[7] = noKeyIndex;
+    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_8_LIST, bufferArray[8]) == false) bufferArray[8] = noKeyIndex;
+    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_9_LIST, bufferArray[9]) == false) bufferArray[9] = noKeyIndex;
 
     // check if same key is not used more than once
     std::unordered_set<int32_t> checkerSet;
@@ -186,7 +226,7 @@ DIALOG_EVENT_RETURN GeneralPage::onKeyBindDialogConfirm(DIALOG_EVENT_HANDLER_ARG
     {
         if (checkerSet.count(bufferArray[i]))
         {
-            if (bufferArray[i] != 0) // only VK_NOKEY (<none>) can be repeated
+            if (bufferArray[i] != noKeyIndex) // only VK_NOKEY (<none>) can be repeated
             {
                 MsgBox::showMessage(L"Invalid settings"s, L"Each key can only be used once (except \"<none>\")."s, 
                     getEventWindowHandle(), MsgBox::button_set_t::ok, MsgBox::message_icon_t::warning);
@@ -198,7 +238,6 @@ DIALOG_EVENT_RETURN GeneralPage::onKeyBindDialogConfirm(DIALOG_EVENT_HANDLER_ARG
     }
 
     // update config
-    Keyboard keys(false);
     for (int32_t i = 0; i < EVENT_KEYS_STRING_LENGTH - 1; ++i)
         Config::events.pTriggerKeys[i] = static_cast<char>(keys.indexToKeyCode(bufferArray[i]));
     return DIALOG_EVENT_RETURN_VALID;
