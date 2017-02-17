@@ -56,7 +56,7 @@ GeneralPage::GeneralPage(controls::library_instance_t instance, controls::Dialog
 /// @brief Initialization event handler
 DIALOG_EVENT_RETURN GeneralPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
 {
-    // set labels
+    // translate controls/labels
     GeneralPage& parent = getEventTargetPageReference(GeneralPage);
     parent.onLanguageChange(false);
 
@@ -159,9 +159,85 @@ DIALOG_EVENT_RETURN GeneralPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
 /// @returns Validity
 bool GeneralPage::onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
-    //...copy config settings
-    //...
+    // update config
+    int32_t indexBuffer = 0;
+
+    // display settings
+    if (CheckBox::isChecked(getEventWindowHandle(), IDC_GEN_WINRES))
+    {
+        if (CheckBox::isChecked(getEventWindowHandle(), IDC_GEN_WINSIZE_CHECK))
+            Config::display.windowMode = display::utils::window_mode_t::resizable;
+        else
+            Config::display.windowMode = display::utils::window_mode_t::fixed;
+    }
+    else
+    {
+        Config::display.windowMode = display::utils::window_mode_t::fullscreen;
+    }
+    // fullscreen
+    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDC_GEN_FULLRES_LIST, indexBuffer))
+    {
+        if (indexBuffer == 0)
+        {
+            Config::display.fullscreenRes.x = RESOLUTION_AUTODETECT;
+            Config::display.fullscreenRes.y = RESOLUTION_AUTODETECT;
+        }
+        else
+        {
+            Screen::parseResolution(ComboBox::getItemText(getEventWindowHandle(), IDC_GEN_FULLRES_LIST, indexBuffer), 
+                                    Config::display.fullscreenRes.x, Config::display.fullscreenRes.y);
+        }
+    }
+    // window
+    Config::display.windowRes.x = Screen::parseDimension(TextField::getValue(getEventWindowHandle(), IDC_GEN_WINRESX_EDIT), 800u);
+    Config::display.windowRes.y = Screen::parseDimension(TextField::getValue(getEventWindowHandle(), IDC_GEN_WINRESX_EDIT), 600u);
+    // other display settings
+    if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDC_GEN_COLOR_LIST, indexBuffer))
+    {
+        Config::display.colorDepth = (indexBuffer != 0) ? (display::window_color_mode_t::rgb_32bit) : (display::window_color_mode_t::rgb_16bit);
+    }
+    Config::display.subprecisionMode = (CheckBox::isChecked(getEventWindowHandle(), IDC_GEN_GTEACC_CHECK)) ? (config::subprecision_settings_t::standard) : (config::subprecision_settings_t::disabled);
+    Config::events.isNoScreenSaver = CheckBox::isChecked(getEventWindowHandle(), IDC_GEN_SCNSAVER_CHECK);
+    
+    // timer settings
+    if (CheckBox::isChecked(getEventWindowHandle(), IDC_GEN_FRAMELIMIT_CHECK))
+    {
+        if (CheckBox::isChecked(getEventWindowHandle(), IDC_GEN_FRAMESKIP_CHECK))
+            Config::timer.frameLimitMode = config::framelimit_settings_t::limitSkip;
+        else
+            Config::timer.frameLimitMode = config::framelimit_settings_t::limit;
+    }
+    else
+        Config::timer.frameLimitMode = config::framelimit_settings_t::disabled;
+    // frame rate limit
+    if (CheckBox::isChecked(getEventWindowHandle(), IDC_GEN_FPSFIXED_RADIO))
+    {
+        std::wstring buffer = TextField::getValue(getEventWindowHandle(), IDC_GEN_FRAMELIMIT_EDIT);
+        if (buffer.empty() == false)
+        {
+            try
+            {
+                size_t pos = buffer.find_first_not_of(L' '); // remove leading spaces
+                if (pos > 0 && pos != std::wstring::npos)
+                    buffer = buffer.substr(pos);
+                pos = buffer.find_first_of(L','); // convert comma to floating point
+                if (pos > 0 && pos != std::wstring::npos)
+                    buffer.at(pos) = L'.';
+                Config::timer.frameRateLimit = std::stof(buffer); // string to float
+                if (Config::timer.frameRateLimit < 10.0f) // min
+                    Config::timer.frameRateLimit = 10.0f;
+                else if (Config::timer.frameRateLimit > 200.0f) // max
+                    Config::timer.frameRateLimit = 200.0f;
+            }
+            catch (...) {}
+        }
+    }
+    else
+        Config::timer.frameRateLimit = 0.0f;
+
+    return true;
 }
+
 
 /// @brief Language change event
 /// @param[in] isRecursive    Also translate controls in child pages or not

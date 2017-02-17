@@ -69,6 +69,13 @@ namespace config
                 /// @param[in] selectedIndex  Selected index
                 /// @returns Success
                 static bool setSelectedIndex(window_handle_t hWindow, const int32_t resourceId, const int32_t selectedIndex);
+            
+                /// @brief Get text content of an item
+                /// @param[in] hWindow     Parent window handle
+                /// @param[in] resourceId  Combo box resource identifier
+                /// @param[in] index       Index of item
+                /// @returns Text value
+                static std::wstring getItemText(window_handle_t hWindow, const int32_t resourceId, const int32_t index);
             };
         }
     }

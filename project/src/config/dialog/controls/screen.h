@@ -38,10 +38,20 @@ namespace config
                 /// @param[in]  preferedResY  Prefered vertical resolution (if available), for index selection
                 static int32_t listAvailableResolutions(std::vector<std::wstring>& listToFill, const uint32_t preferedResX, const uint32_t preferedResY);
 
+                /// @brief Add formatted resolution string to list and map, if not already there
+                /// @param[in]  resString  Resolution string
+                /// @param[out] outX       Horizontal resolution
+                /// @param[out] outY       Vertical resolution
+                static void parseResolution(const std::wstring& resString, uint32_t outX, uint32_t outY) noexcept;
+                /// @brief Add formatted resolution string to list and map, if not already there
+                /// @param[in]  resString   Resolution string
+                /// @param[in]  defaultVal  Default value (if invalid number)
+                static uint32_t Screen::parseDimension(std::wstring resString, const uint32_t defaultVal) noexcept;
+
 
             private:
                 /// @brief Add formatted resolution string to list and map, if not already there
-                /// @param[in]  resString   Horizontal resolution
+                /// @param[in]  resString   Resolution string
                 /// @param[out] listToFill  List to fill
                 /// @param[out] mapToFill   Map to fill
                 /// @param[in]  mapValue    Value added in map in new entry

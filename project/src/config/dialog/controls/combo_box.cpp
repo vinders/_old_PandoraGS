@@ -136,3 +136,35 @@ bool ComboBox::setSelectedIndex(window_handle_t hWindow, const int32_t resourceI
     return true;
 }
 #endif
+
+
+/// @brief Get text content of an item
+/// @param[in] hWindow     Parent window handle
+/// @param[in] resourceId  Combo box resource identifier
+/// @param[in] index       Index of item
+/// @returns Text value
+std::wstring ComboBox::getItemText(window_handle_t hWindow, const int32_t resourceId, const int32_t index)
+#if _DIALOGAPI == DIALOGAPI_WIN32
+{
+    std::wstring itemText;
+
+    HWND hCombobox;
+    hCombobox = GetDlgItem(hWindow, resourceId);
+    if (hCombobox && hCombobox == reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))
+    {
+        int32_t len = SendMessage(hCombobox, LB_GETTEXTLEN, (WPARAM)index, 0);
+        TCHAR* pBuffer = new TCHAR[len + 1];
+        memset(pBuffer, 0x0, len + 1);
+
+        // read item text
+        SendMessage(hCombobox, LB_GETTEXT, (WPARAM)index, (LPARAM)pBuffer);
+        itemText = pBuffer;
+        delete [] pBuffer;
+    }
+    return itemText;
+}
+#else
+{
+    return L"";
+}
+#endif

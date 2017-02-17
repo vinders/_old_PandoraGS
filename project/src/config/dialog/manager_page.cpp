@@ -35,6 +35,7 @@ bool ManagerPage::onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
     //...copy config settings
     //...
+    return true;
 }
 
 /// @brief Language change event
