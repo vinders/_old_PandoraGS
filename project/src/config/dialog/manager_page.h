@@ -37,6 +37,9 @@ namespace config
             // -- specialized handlers -- --------------------------------------
 
             /// @brief Language change event
+            /// @returns Validity
+            virtual bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            /// @brief Language change event
             /// @param[in] isRecursive    Also translate controls in child pages or not
             virtual void onLanguageChange(const bool isRecursive);
         };

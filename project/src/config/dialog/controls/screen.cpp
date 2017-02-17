@@ -30,7 +30,7 @@ int32_t Screen::listAvailableResolutions(std::vector<std::wstring>& listToFill, 
     if (listToFill.empty() == false)
         listToFill.clear();
     listToFill.reserve(40);
-    listToFill.push_back(L"desktop resolution"s);
+    listToFill.push_back(L"default"s);
 
     std::wstring buffer;
     int32_t curIndex = 1;

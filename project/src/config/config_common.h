@@ -176,6 +176,7 @@ namespace config
     struct config_events_t
     {
         char pTriggerKeys[EVENT_KEYS_STRING_LENGTH]; ///< Event-triggering key bindings
+        bool isWindowModeChangeable;                 ///< Allow window mode change (on/off)
         bool isNoScreenSaver;                        ///< Disable screen-saver (on/off)
         bool isDebugMode;                            ///< Debug mode (on/off)
     };

@@ -180,8 +180,11 @@ DIALOG_EVENT_RETURN ConfigDialog::onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
     ConfigDialog& parent = getEventTargetDialogReference(ConfigDialog);
 
-    //...check values
-    //...
+    // read and check values
+    if (parent.m_tabs.onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES) == false)
+        return DIALOG_EVENT_RETURN_ERROR;
+
+    // save config and profiles
     //...save values
     //...
 

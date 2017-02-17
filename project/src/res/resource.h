@@ -215,6 +215,7 @@
 #define IDS_KEY_7_DESC                  627
 #define IDS_KEY_8_DESC                  628
 #define IDS_KEY_9_DESC                  629
+#define IDC_KEY_WINDOWMODE_CHECK        630
 
 
 // Next default values for new objects

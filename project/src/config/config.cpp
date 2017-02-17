@@ -114,6 +114,7 @@ void Config::resetKeyBindings() noexcept
     events.pTriggerKeys[static_cast<int32_t>(events::event_trigger_t::menuDefault)] = VK_HOME;
     events.pTriggerKeys[static_cast<int32_t>(events::event_trigger_t::menuAccept)] = VK_END;
 
+    events.isWindowModeChangeable = false;
     events.pTriggerKeys[static_cast<int32_t>(events::event_trigger_t::ratioMode)] = VK_F11;
     events.pTriggerKeys[static_cast<int32_t>(events::event_trigger_t::fastForward)] = VK_NOKEY;
     events.pTriggerKeys[static_cast<int32_t>(events::event_trigger_t::slowMotion)] = VK_NOKEY;

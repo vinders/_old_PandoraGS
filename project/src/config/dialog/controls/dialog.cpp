@@ -28,7 +28,7 @@ Dialog* Dialog::s_dialogRefBuffer = nullptr; ///< Dialog reference buffer (pass 
 /// @brief Create dialog box
 /// @param[in] instance  Current instance handle
 /// @throws invalid_argument  Invalid instance
-Dialog::Dialog(library_instance_t instance)
+Dialog::Dialog(library_instance_t instance) : m_pParent(nullptr)
 {
     m_dialogData.isInitialized = false;
     m_dialogData.dialogResult = Dialog::result_t::cancel;

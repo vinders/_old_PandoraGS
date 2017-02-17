@@ -83,6 +83,9 @@ namespace config
                 // -- event handlers -- --------------------------------------------
 
                 /// @brief Language change event
+                /// @returns Validity
+                bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
+                /// @brief Language change event
                 /// @param[in] instance  Library instance handle
                 void onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS);
 

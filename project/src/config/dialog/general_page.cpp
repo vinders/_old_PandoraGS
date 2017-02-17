@@ -63,6 +63,7 @@ DIALOG_EVENT_RETURN GeneralPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
     // set list of screen resolutions
     std::vector<std::wstring> fullscreenResList;
     int32_t resIndex = Screen::listAvailableResolutions(fullscreenResList, Config::display.fullscreenRes.x, Config::display.fullscreenRes.y);
+    fullscreenResList[0] = parent.getParentDialog<ConfigDialog>()->getLanguageResource().generalSettings.desktopRes;
     ComboBox::initValues(getEventWindowHandle(), IDC_GEN_FULLRES_LIST, fullscreenResList, resIndex);
     std::vector<std::wstring> bitDepths { L"16-bit"s, L"32-bit"s };
     ComboBox::initValues(getEventWindowHandle(), IDC_GEN_COLOR_LIST, bitDepths, (Config::display.colorDepth == display::window_color_mode_t::rgb_32bit) ? 1 : 0);
@@ -95,8 +96,6 @@ DIALOG_EVENT_RETURN GeneralPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
         frameRateLimitStr << Config::timer.frameRateLimit;
         TextField::setValue(getEventWindowHandle(), IDC_GEN_FRAMELIMIT_EDIT, frameRateLimitStr.str());
     }
-    
-
     return DIALOG_EVENT_RETURN_VALID;
 }
 
@@ -120,6 +119,7 @@ DIALOG_EVENT_RETURN GeneralPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
                     keyBindDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
                     handlerRef.handler = onKeyBindDialogConfirm;
                     keyBindDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);
+                    keyBindDialog.setParent(parent.getParentDialog<Dialog>());
                     // show modal dialog
                     keyBindDialog.showDialog(IDD_KEYBINDING_DIALOG, getEventWindowHandle(), false);
 
@@ -133,6 +133,7 @@ DIALOG_EVENT_RETURN GeneralPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
                     advancedDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
                     handlerRef.handler = onAdvancedDialogConfirm;
                     advancedDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);
+                    advancedDialog.setParent(parent.getParentDialog<Dialog>());
                     // show modal dialog
                     advancedDialog.showDialog(IDD_ADVANCED_DIALOG, getEventWindowHandle(), false);
 
@@ -153,6 +154,14 @@ DIALOG_EVENT_RETURN GeneralPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
 
 
 // -- specialized handlers -- --------------------------------------
+
+/// @brief Language change event
+/// @returns Validity
+bool GeneralPage::onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
+{
+    //...copy config settings
+    //...
+}
 
 /// @brief Language change event
 /// @param[in] isRecursive    Also translate controls in child pages or not
@@ -195,9 +204,16 @@ DIALOG_EVENT_RETURN GeneralPage::onKeyBindDialogInit(DIALOG_EVENT_HANDLER_ARGUME
     ComboBox::initValues(getEventWindowHandle(), IDS_KEY_7_LIST, keys.getKeyNames(), keys.keyCodeToIndex(Config::events.pTriggerKeys[7]));
     ComboBox::initValues(getEventWindowHandle(), IDS_KEY_8_LIST, keys.getKeyNames(), keys.keyCodeToIndex(Config::events.pTriggerKeys[8]));
     ComboBox::initValues(getEventWindowHandle(), IDS_KEY_9_LIST, keys.getKeyNames(), keys.keyCodeToIndex(Config::events.pTriggerKeys[9]));
+    CheckBox::setChecked(getEventWindowHandle(), IDC_KEY_WINDOWMODE_CHECK, Config::events.isWindowModeChangeable);
 
-    //...translate controls
-    //...
+    // translate controls/labels
+    controls::Dialog& parent = getEventTargetDialogReference(controls::Dialog);
+    if (parent.getParent<ConfigDialog>() != nullptr)
+    {
+        lang::ConfigLang& langRes = parent.getParent<ConfigDialog>()->getLanguageResource();
+
+        //...
+    }
     return DIALOG_EVENT_RETURN_VALID;
 }
 
@@ -219,6 +235,7 @@ DIALOG_EVENT_RETURN GeneralPage::onKeyBindDialogConfirm(DIALOG_EVENT_HANDLER_ARG
     if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_7_LIST, bufferArray[7]) == false) bufferArray[7] = noKeyIndex;
     if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_8_LIST, bufferArray[8]) == false) bufferArray[8] = noKeyIndex;
     if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDS_KEY_9_LIST, bufferArray[9]) == false) bufferArray[9] = noKeyIndex;
+    Config::events.isWindowModeChangeable = CheckBox::isChecked(getEventWindowHandle(), IDC_KEY_WINDOWMODE_CHECK);
 
     // check if same key is not used more than once
     std::unordered_set<int32_t> checkerSet;
@@ -250,8 +267,14 @@ DIALOG_EVENT_RETURN GeneralPage::onAdvancedDialogInit(DIALOG_EVENT_HANDLER_ARGUM
     //...use settings from Config
     //...
 
-    //...translate controls
-    //...
+    // translate controls/labels
+    controls::Dialog& parent = getEventTargetDialogReference(controls::Dialog);
+    if (parent.getParent<ConfigDialog>() != nullptr)
+    {
+        lang::ConfigLang& langRes = parent.getParent<ConfigDialog>()->getLanguageResource();
+
+        //...
+    }
     return DIALOG_EVENT_RETURN_VALID;
 }
 

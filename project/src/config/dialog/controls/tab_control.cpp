@@ -69,6 +69,19 @@ void TabControl::close()
 // -- event handlers -- --------------------------------------------
 
 /// @brief Language change event
+/// @returns Validity
+bool TabControl::onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
+{
+    // check settings validity in pages
+    for (uint32_t i = 0; i < m_pages.size(); ++i)
+    {
+        if (m_pages.at(i).page->onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES) == false)
+            return false;
+    }
+    return true;
+}
+
+/// @brief Language change event
 /// @param[in] instance  Library instance handle
 void TabControl::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {

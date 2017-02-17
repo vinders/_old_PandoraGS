@@ -81,6 +81,7 @@ namespace config
 
             protected:
                 library_instance_t m_instance; ///< Library instance handle
+                Dialog* m_pParent;              ///< Parent dialog handle
             private:
                 Dialog::runtime_data_t m_dialogData; ///< Modal dialog data
                 static Dialog* s_dialogRefBuffer; ///< Dialog reference buffer (pass non-static data to static handler)
@@ -124,6 +125,20 @@ namespace config
                 inline bool isRegisteredEvent(const dialog_event_t eventType) noexcept
                 {
                     return (m_dialogData.registeredHandlers.count(eventType) && m_dialogData.registeredHandlers[eventType].handler != nullptr);
+                }
+
+                /// @brief Set parent dialog reference
+                /// @param[in] pParent  Parent dialog reference
+                inline void setParent(Dialog* pParent) noexcept
+                {
+                    m_pParent = pParent;
+                }
+                /// @brief Get parent dialog reference
+                /// @returns Parent dialog reference (or null)
+                template<typename Subclass>
+                Subclass* getParent() noexcept
+                {
+                    return (Subclass*)m_pParent;
                 }
 
 

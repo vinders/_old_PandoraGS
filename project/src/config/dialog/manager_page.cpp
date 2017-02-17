@@ -27,6 +27,16 @@ using namespace config::dialog::controls;
 using namespace std::literals::string_literals;
 
 
+// -- specialized handlers -- --------------------------------------
+
+/// @brief Language change event
+/// @returns Validity
+bool ManagerPage::onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
+{
+    //...copy config settings
+    //...
+}
+
 /// @brief Language change event
 /// @param[in] isRecursive    Also translate controls in child pages or not
 void ManagerPage::onLanguageChange(const bool isRecursive)
