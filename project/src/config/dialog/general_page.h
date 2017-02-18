@@ -8,9 +8,11 @@ Description : tab page - general settings
 *******************************************************************************/
 #pragma once
 
+#include <vector>
 #include "controls/common.h"
 #include "controls/tab_page.h"
 #include "controls/tab_control.h"
+#include "controls/screen.h"
 
 /// @namespace config
 /// Configuration management
@@ -26,12 +28,21 @@ namespace config
         class GeneralPage : public controls::TabPage
         {
         private:
+            static std::vector<controls::resolution_t> m_resolutions; ///< Available resolutions
+
         
         public:
             /// @brief Create tab page - general settings
             /// @param[in] instance       Current instance handle
             /// @param[in] pParentDialog  Parent dialog reference
-            GeneralPage(controls::library_instance_t instance, controls::Dialog* pParentDialog);
+            GeneralPage(config::dialog::controls::library_instance_t instance, controls::Dialog* pParentDialog);
+
+            /// @brief Get list of available resolutions
+            /// @returns List of resolution
+            static inline std::vector<config::dialog::controls::resolution_t>& getResolutions()
+            {
+                return m_resolutions;
+            }
 
 
             // -- event handlers -- --------------------------------------------

@@ -34,6 +34,8 @@ using namespace config::dialog;
 using namespace config::dialog::controls;
 using namespace std::literals::string_literals;
 
+std::vector<controls::resolution_t> GeneralPage::m_resolutions; ///< Available resolutions
+
 
 /// @brief Create tab page - general settings
 /// @param[in] instance       Current instance handle
@@ -56,19 +58,23 @@ GeneralPage::GeneralPage(controls::library_instance_t instance, controls::Dialog
 /// @brief Initialization event handler
 DIALOG_EVENT_RETURN GeneralPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
 {
-    // translate controls/labels
     GeneralPage& parent = getEventTargetPageReference(GeneralPage);
+
+    // translate controls/labels
     parent.onLanguageChange(false);
 
     // set list of screen resolutions
-    std::vector<std::wstring> fullscreenResList;
-    int32_t resIndex = Screen::listAvailableResolutions(fullscreenResList, Config::display.fullscreenRes.x, Config::display.fullscreenRes.y);
-    fullscreenResList[0] = parent.getParentDialog<ConfigDialog>()->getLanguageResource().generalSettings.desktopRes;
-    ComboBox::initValues(getEventWindowHandle(), IDC_GEN_FULLRES_LIST, fullscreenResList, resIndex);
-    std::vector<std::wstring> bitDepths { L"16-bit"s, L"32-bit"s };
-    ComboBox::initValues(getEventWindowHandle(), IDC_GEN_COLOR_LIST, bitDepths, (Config::display.colorDepth == display::window_color_mode_t::rgb_32bit) ? 1 : 0);
+    int32_t resIndex = Screen::listAvailableResolutions(GeneralPage::getResolutions(), Config::display.fullscreenRes.x, Config::display.fullscreenRes.y);
+    std::vector<std::wstring> formattedResolutions;
+    formattedResolutions.reserve(GeneralPage::getResolutions().size());
+    formattedResolutions.push_back(parent.getParentDialog<ConfigDialog>()->getLanguageResource().generalSettings.desktopRes);
+    for (uint32_t i = 1; i < GeneralPage::getResolutions().size(); ++i)
+        formattedResolutions.push_back(Screen::formatResolutionString(GeneralPage::getResolutions().at(i).x, GeneralPage::getResolutions().at(i).y));
+    ComboBox::initValues(getEventWindowHandle(), IDC_GEN_FULLRES_LIST, formattedResolutions, resIndex);
 
     // apply other config settings
+    std::vector<std::wstring> bitDepths { L"16-bit"s, L"32-bit"s };
+    ComboBox::initValues(getEventWindowHandle(), IDC_GEN_COLOR_LIST, bitDepths, (Config::display.colorDepth == display::window_color_mode_t::rgb_32bit) ? 1 : 0);
     CheckBox::setChecked(getEventWindowHandle(), (Config::display.windowMode == display::utils::window_mode_t::fullscreen) ? IDC_GEN_FULLRES : IDC_GEN_WINRES, true);
     TextField::setValue(getEventWindowHandle(), IDC_GEN_WINRESX_EDIT, std::to_wstring(Config::display.windowRes.x));
     TextField::setValue(getEventWindowHandle(), IDC_GEN_WINRESY_EDIT, std::to_wstring(Config::display.windowRes.y));
@@ -177,15 +183,15 @@ bool GeneralPage::onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
     // fullscreen
     if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDC_GEN_FULLRES_LIST, indexBuffer))
     {
-        if (indexBuffer == 0)
+        if (indexBuffer <= 0 || indexBuffer >= static_cast<int32_t>(GeneralPage::getResolutions().size()))
         {
             Config::display.fullscreenRes.x = RESOLUTION_AUTODETECT;
             Config::display.fullscreenRes.y = RESOLUTION_AUTODETECT;
         }
         else
         {
-            Screen::parseResolution(ComboBox::getItemText(getEventWindowHandle(), IDC_GEN_FULLRES_LIST, indexBuffer), 
-                                    Config::display.fullscreenRes.x, Config::display.fullscreenRes.y);
+            Config::display.fullscreenRes.x = GeneralPage::getResolutions().at(indexBuffer).x;
+            Config::display.fullscreenRes.y = GeneralPage::getResolutions().at(indexBuffer).y;
         }
     }
     // window
@@ -246,10 +252,18 @@ void GeneralPage::onLanguageChange(const bool isRecursive)
     window_handle_t hPage = getPageHandle();
     lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
 
+    if (GeneralPage::getResolutions().empty() == false)
+    {
+        std::vector<std::wstring> formattedResolutions;
+        formattedResolutions.reserve(GeneralPage::getResolutions().size());
+        formattedResolutions.push_back(langRes.generalSettings.desktopRes);
+        for (uint32_t i = 1; i < GeneralPage::getResolutions().size(); ++i)
+            formattedResolutions.push_back(Screen::formatResolutionString(GeneralPage::getResolutions().at(i).x, GeneralPage::getResolutions().at(i).y));
+        ComboBox::setValues(hPage, IDC_GEN_FULLRES_LIST, formattedResolutions);
+    }
     GroupBox::setText(hPage, IDS_GEN_GROUP1, langRes.generalSettings.groupDisplay);
     Label::setText(hPage, IDS_GEN_RESOLUTION, langRes.generalSettings.resolution);
     CheckBox::setText(hPage, IDC_GEN_FULLRES, langRes.generalSettings.fullscreenRes);
-    //...desktop res
     CheckBox::setText(hPage, IDC_GEN_WINRES, langRes.generalSettings.windowRes);
     CheckBox::setText(hPage, IDC_GEN_WINSIZE_CHECK, langRes.generalSettings.resizable);
     Label::setText(hPage, IDS_GEN_COLOR, langRes.generalSettings.colorDepth);
@@ -288,7 +302,30 @@ DIALOG_EVENT_RETURN GeneralPage::onKeyBindDialogInit(DIALOG_EVENT_HANDLER_ARGUME
     {
         lang::ConfigLang& langRes = parent.getParent<ConfigDialog>()->getLanguageResource();
 
-        //...
+        Button::setText(getEventWindowHandle(), IDS_KEY_0, langRes.keyBindingSettings.keyTitle0);
+        Button::setText(getEventWindowHandle(), IDS_KEY_0_DESC, langRes.keyBindingSettings.keyDescription0);
+        Button::setText(getEventWindowHandle(), IDS_KEY_1, langRes.keyBindingSettings.keyTitle1);
+        Button::setText(getEventWindowHandle(), IDS_KEY_1_DESC, langRes.keyBindingSettings.keyDescription1);
+        Button::setText(getEventWindowHandle(), IDS_KEY_2, langRes.keyBindingSettings.keyTitle2);
+        Button::setText(getEventWindowHandle(), IDS_KEY_2_DESC, langRes.keyBindingSettings.keyDescription2);
+        Button::setText(getEventWindowHandle(), IDS_KEY_3, langRes.keyBindingSettings.keyTitle3);
+        Button::setText(getEventWindowHandle(), IDS_KEY_3_DESC, langRes.keyBindingSettings.keyDescription3);
+        Button::setText(getEventWindowHandle(), IDS_KEY_4, langRes.keyBindingSettings.keyTitle4);
+        Button::setText(getEventWindowHandle(), IDS_KEY_4_DESC, langRes.keyBindingSettings.keyDescription4);
+        Button::setText(getEventWindowHandle(), IDS_KEY_5, langRes.keyBindingSettings.keyTitle5);
+        Button::setText(getEventWindowHandle(), IDS_KEY_5_DESC, langRes.keyBindingSettings.keyDescription5);
+        Button::setText(getEventWindowHandle(), IDS_KEY_6, langRes.keyBindingSettings.keyTitle6);
+        Button::setText(getEventWindowHandle(), IDS_KEY_6_DESC, langRes.keyBindingSettings.keyDescription6);
+        Button::setText(getEventWindowHandle(), IDS_KEY_7, langRes.keyBindingSettings.keyTitle7);
+        Button::setText(getEventWindowHandle(), IDS_KEY_7_DESC, langRes.keyBindingSettings.keyDescription7);
+        Button::setText(getEventWindowHandle(), IDS_KEY_8, langRes.keyBindingSettings.keyTitle8);
+        Button::setText(getEventWindowHandle(), IDS_KEY_8_DESC, langRes.keyBindingSettings.keyDescription8);
+        Button::setText(getEventWindowHandle(), IDS_KEY_9, langRes.keyBindingSettings.keyTitle9);
+        Button::setText(getEventWindowHandle(), IDS_KEY_9_DESC, langRes.keyBindingSettings.keyDescription9);
+        Button::setText(getEventWindowHandle(), IDC_KEY_WINDOWMODE_CHECK, langRes.keyBindingSettings.backspace);
+
+        Button::setText(getEventWindowHandle(), IDOK, langRes.dialog.confirm);
+        Button::setText(getEventWindowHandle(), IDCANCEL, langRes.dialog.cancel);
     }
     return DIALOG_EVENT_RETURN_VALID;
 }
@@ -350,6 +387,9 @@ DIALOG_EVENT_RETURN GeneralPage::onAdvancedDialogInit(DIALOG_EVENT_HANDLER_ARGUM
         lang::ConfigLang& langRes = parent.getParent<ConfigDialog>()->getLanguageResource();
 
         //...
+
+        Button::setText(getEventWindowHandle(), IDOK, langRes.dialog.confirm);
+        Button::setText(getEventWindowHandle(), IDCANCEL, langRes.dialog.cancel);
     }
     return DIALOG_EVENT_RETURN_VALID;
 }

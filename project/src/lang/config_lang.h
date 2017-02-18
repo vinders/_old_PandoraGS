@@ -61,6 +61,32 @@ namespace lang
             std::wstring btnKeyBinding; // button
             std::wstring btnAdvanced; // button
         };
+        /// @struct keybinding_content_t
+        /// @brief Key bindings translations
+        struct keybinding_content_t
+        {
+            std::wstring keyTitle0;
+            std::wstring keyDescription0;
+            std::wstring keyTitle1;
+            std::wstring keyDescription1;
+            std::wstring keyTitle2;
+            std::wstring keyDescription2;
+            std::wstring keyTitle3;
+            std::wstring keyDescription3;
+            std::wstring keyTitle4;
+            std::wstring keyDescription4;
+            std::wstring keyTitle5;
+            std::wstring keyDescription5;
+            std::wstring keyTitle6;
+            std::wstring keyDescription6;
+            std::wstring keyTitle7;
+            std::wstring keyDescription7;
+            std::wstring keyTitle8;
+            std::wstring keyDescription8;
+            std::wstring keyTitle9;
+            std::wstring keyDescription9;
+            std::wstring backspace;
+        };
         /// @struct manager_content_t
         /// @brief Profile manager translations
         struct manager_content_t
@@ -97,6 +123,7 @@ namespace lang
         dialog_t dialog;   ///< Dialog related global translation
         profile_t profile; ///< Profile related global translations
         general_content_t generalSettings; ///< General settings translations
+        keybinding_content_t keyBindingSettings; ///< Key bindings translations
         manager_content_t profileManager; ///< Profile manager translations
         profile_content_t filteringSettings; ///< Profile settings translations
         screen_content_t screenSettings; ///< Profile settings translations

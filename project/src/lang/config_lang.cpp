@@ -45,6 +45,28 @@ void ConfigLang::setLanguageEnglish() noexcept
     generalSettings.timerSkipping = L"Use frame skipping"s;
     generalSettings.btnKeyBinding = L"Control key bindings"s;
     generalSettings.btnAdvanced = L"Advanced settings"s;
+
+    keyBindingSettings.keyTitle0 = L"Profile menu"s;
+    keyBindingSettings.keyDescription0 = L"Show/hide profile selection menu."s;
+    keyBindingSettings.keyTitle1 = L"Previous profile"s;
+    keyBindingSettings.keyDescription1 = L"Choose previous profile in menu."s;
+    keyBindingSettings.keyTitle2 = L"Next profile"s;
+    keyBindingSettings.keyDescription2 = L"Choose next profile in menu."s;
+    keyBindingSettings.keyTitle3 = L"Default profile"s;
+    keyBindingSettings.keyDescription3 = L"Choose default profile (0) in menu.";
+    keyBindingSettings.keyTitle4 = L"Apply profile"s;
+    keyBindingSettings.keyDescription4 = L"Apply selected profile (selected in menu)."s;
+    keyBindingSettings.keyTitle5 = L"Toggle ratio"s;
+    keyBindingSettings.keyDescription5 = L"Enable/disable PC pixel ratio conversion."s;
+    keyBindingSettings.keyTitle6 = L"Fast forward"s;
+    keyBindingSettings.keyDescription6 = L"Super-speed while the key is pressed."s;
+    keyBindingSettings.keyTitle7 = L"Slow motion"s;
+    keyBindingSettings.keyDescription7 = L"Enable/disable slow motion mode."s;
+    keyBindingSettings.keyTitle8 = L"Pause"s;
+    keyBindingSettings.keyDescription8 = L"Pause/resume game."s;
+    keyBindingSettings.keyTitle9 = L"FPS display"s;
+    keyBindingSettings.keyDescription9 = L"Show/hide frames per second."s;
+    keyBindingSettings.backspace = L"<Backspace> : Toggle window mode"s;
     
     profileManager.groupList = L"Profile list management"s;
     //...
@@ -99,6 +121,28 @@ void ConfigLang::setLanguageFrench() noexcept
     generalSettings.timerSkipping = L"Activer le saut d'images"s;
     generalSettings.btnKeyBinding = L"Touches de contrôle"s;
     generalSettings.btnAdvanced = L"Options avancées"s;
+
+    keyBindingSettings.keyTitle0 = L"Menu de profils"s;
+    keyBindingSettings.keyDescription0 = L"Afficher/masquer menu de sélection de profils."s;
+    keyBindingSettings.keyTitle1 = L"Profil précédent"s;
+    keyBindingSettings.keyDescription1 = L"Profil précédent dans le menu."s;
+    keyBindingSettings.keyTitle2 = L"Profil suivant"s;
+    keyBindingSettings.keyDescription2 = L"Profil suivant dans le menu."s;
+    keyBindingSettings.keyTitle3 = L"Profil par défaut"s;
+    keyBindingSettings.keyDescription3 = L"Profil par défaut (0) dans le menu.";
+    keyBindingSettings.keyTitle4 = L"Appliquer profil"s;
+    keyBindingSettings.keyDescription4 = L"Appliquer profil actuel (sélection du menu)."s;
+    keyBindingSettings.keyTitle5 = L"Changer de ratio"s;
+    keyBindingSettings.keyDescription5 = L"Activer/désactiver conversion en pixel ratio de PC."s;
+    keyBindingSettings.keyTitle6 = L"Accélérer"s;
+    keyBindingSettings.keyDescription6 = L"Super-vitesse tant que la touche est pressée."s;
+    keyBindingSettings.keyTitle7 = L"Ralentir"s;
+    keyBindingSettings.keyDescription7 = L"Activer/désactiver mode ralenti."s;
+    keyBindingSettings.keyTitle8 = L"Pause"s;
+    keyBindingSettings.keyDescription8 = L"Pause/reprise du jeu."s;
+    keyBindingSettings.keyTitle9 = L"Affichage fréquence"s;
+    keyBindingSettings.keyDescription9 = L"Afficher/masquer nombre d'images par seconde."s;
+    keyBindingSettings.backspace = L"<Backspace> : fenêtre/plein écran"s;
 
     profileManager.groupList = L"Gestionnaire de profils"s;
     //...
