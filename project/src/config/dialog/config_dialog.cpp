@@ -116,7 +116,7 @@ DIALOG_EVENT_RETURN ConfigDialog::onInit(DIALOG_EVENT_HANDLER_ARGUMENTS)
     ComboBox::initValues(getEventWindowHandle(), IDC_LANG_LIST, langNames, static_cast<int32_t>(Config::langCode));
 
     // add tab control and pages to dialog
-    if (parent.m_tabs.create(getEventWindowHandle(), LOGO_HEIGHT + 2, LOGO_WIDTH) == false)
+    if (parent.m_tabs.create(getEventWindowHandle(), LOGO_HEIGHT, LOGO_WIDTH) == false)
     {
         MsgBox::showMessage(L"Initialization error"s, L"Failed to load page content..."s, getEventWindowHandle(), 
                             MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
@@ -130,10 +130,7 @@ DIALOG_EVENT_RETURN ConfigDialog::onInit(DIALOG_EVENT_HANDLER_ARGUMENTS)
 DIALOG_EVENT_RETURN ConfigDialog::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
     ConfigDialog& parent = getEventTargetDialogReference(ConfigDialog);
-
-    //...
-
-    return DIALOG_EVENT_RETURN_ERROR;
+    return parent.m_tabs.onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES);
 }
 
 

@@ -44,37 +44,10 @@ namespace config
             #if _DIALOGAPI == DIALOGAPI_WIN32
             typedef HINSTANCE library_instance_t; ///< Library instance
             typedef HWND window_handle_t; ///< Window handle
-
-            /// @struct paint_event_args_t
-            /// @brief Drawing event arguments
-            struct paint_event_args_t
-            {
-                HWND window;
-                HDC context;
-                uint32_t paintedResourceId;
-            };
-
             #else
             typedef int32_t library_instance_t; ///< Library instance
             typedef int32_t window_handle_t; ///< Window handle
-
-            // @struct paint_event_args_t
-            /// @brief Drawing event arguments
-            struct paint_event_args_t
-            {
-                int32_t window;
-                int32_t context;
-                uint32_t paintedResourceId;
-            };
             #endif
-
-            /// @struct paint_control_event_args_t
-            /// @brief Control drawing event arguments
-            struct paint_control_event_args_t : public paint_event_args_t
-            {
-                bool isSelected;
-                bool isHover;
-            };
         }
     }
 }

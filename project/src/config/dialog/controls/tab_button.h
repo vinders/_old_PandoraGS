@@ -12,6 +12,7 @@ Description : tab button for tab control
 #include <cstdint>
 #include <unordered_map>
 #include "common.h"
+#include "dialog.h"
 
 /// @namespace config
 /// Configuration management
@@ -42,6 +43,12 @@ namespace config
             /// @brief Tab button for tab control
             class TabButton
             {
+            public:
+                static const uint32_t tabInterval;
+                static const uint32_t tabHeight;
+                static const uint32_t tabOffsetX;
+                static const uint32_t firstTabOffsetY;
+
             private:
                 static int32_t s_activeCount; ///< Number of tab buttons loaded
                 static std::unordered_map<uint32_t, bitmap_cache_t> s_cache; ///< Icon bitmap cache
@@ -82,8 +89,7 @@ namespace config
                 void close();
 
                 /// @brief Trigger control drawing
-                /// @param[in] args  Event arguments
-                void paint(paint_control_event_args_t& args);
+                DIALOG_EVENT_RETURN onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS);
 
 
             private:

@@ -20,9 +20,12 @@ Description : tab button for tab control
 using namespace config::dialog::controls;
 using namespace std::literals::string_literals;
 
-#define TAB_INTERVAL      6
-#define TAB_HEIGHT        90
 #define TAB_TEXT_OFFSET   64
+const uint32_t TabButton::tabInterval = 6u;
+const uint32_t TabButton::tabHeight = 90u;
+const uint32_t TabButton::tabOffsetX = 4u;
+const uint32_t TabButton::firstTabOffsetY = 2u;
+
 
 int32_t TabButton::s_activeCount = 0; ///< Number of tab buttons loaded
 std::unordered_map<uint32_t, bitmap_cache_t> TabButton::s_cache; ///< Icon bitmap cache
@@ -110,7 +113,7 @@ bool TabButton::create(window_handle_t window, const uint32_t offset, const uint
     // create tab button
     std::wstring controlName = L"Tab "s + std::to_wstring(m_tabNumber);
     m_tabButtonControl = CreateWindow(L"button", controlName.c_str(), WS_CHILD | WS_VISIBLE | BS_TEXT | BS_BITMAP | BS_BOTTOM | BS_OWNERDRAW,
-                                      4, offset + (m_tabNumber * (TAB_HEIGHT + TAB_INTERVAL)), width - 4, TAB_HEIGHT,
+                                      tabOffsetX, offset + firstTabOffsetY + (m_tabNumber * (tabHeight + tabInterval)), width - 4, tabHeight,
                                       reinterpret_cast<HWND>(window), reinterpret_cast<HMENU>(m_resourceId), reinterpret_cast<HINSTANCE>(m_instance), NULL);
     if (!m_tabButtonControl || (HWND)m_tabButtonControl == (HWND)INVALID_HANDLE_VALUE)
         return false;
@@ -161,8 +164,7 @@ void TabButton::close()
 
 
 /// @brief Trigger control drawing
-/// @param[in] args  Event arguments
-void TabButton::paint(paint_control_event_args_t& args)
+DIALOG_EVENT_RETURN TabButton::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     // draw tab background with icon
@@ -173,10 +175,12 @@ void TabButton::paint(paint_control_event_args_t& args)
 
     // draw tab text
     //...
+    return DIALOG_EVENT_RETURN_VALID;
 }
 #else
 {
     //...
+    return DIALOG_EVENT_RETURN_VALID;
 }
 #endif
 

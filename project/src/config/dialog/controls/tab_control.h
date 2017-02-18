@@ -13,6 +13,7 @@ Description : advanced tab control
 #include <vector>
 #include <memory>
 #include "common.h"
+#include "dialog.h"
 #include "tab_button.h"
 #include "tab_page.h"
 
@@ -48,13 +49,23 @@ namespace config
             /// @brief Advanced tab control
             class TabControl
             {
+            public:
+                static const float colorTop[3];
+                static const float colorOffset[3];
+                static const float colorTopBorder[3];
+                static const float colorOffsetBorder[3];
+
             protected:
                 std::vector<tab_association_t> m_pages; ///< Collection of tab pages (buttons/pages)
                 int32_t m_activePageIndex; ///< Index of active page
+            private:
+                int32_t m_offsetTabY; ///< Vertical offset for first tab
+                int32_t m_width;  ///< Tab control width
+                int32_t m_height; ///< Tab control height
                 
             public:
                 /// @brief Create tab control
-                TabControl() : m_activePageIndex(-1) {}
+                TabControl() : m_activePageIndex(-1), m_offsetTabY(2), m_width(0), m_height(0) {}
 
                 /// @brief Remove all tabs
                 void clear() noexcept
@@ -72,7 +83,7 @@ namespace config
 
                 /// @brief Create tab control in dialog
                 /// @param[in] window  Window handle
-                /// @param[in] offset  Vertical offset for first tab button
+                /// @param[in] offset  Vertical offset for tab control
                 /// @param[in] width   Tab button width
                 /// @returns Success
                 bool create(window_handle_t window, const uint32_t offset, const uint32_t width);
@@ -90,10 +101,7 @@ namespace config
                 void onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS);
 
                 /// @brief Trigger control drawing
-                /// @param[in] args  Event arguments
-                void onPaint(paint_event_args_t args);
-                //void onHover(window_handle_t window, const uint32_t tabIndex) {}
-                //void onClick(window_handle_t window, const uint32_t tabIndex) {}
+                DIALOG_EVENT_RETURN onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS);
             };
         }
     }
