@@ -209,9 +209,6 @@
     <ClCompile Include="..\src\config\dialog\profile_filtering_page.cpp">
       <Filter>Source Files\config\dialog</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\config\dialog\controls\group_box.cpp">
-      <Filter>Source Files\config\dialog\controls</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\config\dialog\controls\screen.cpp">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClCompile>
@@ -419,9 +416,6 @@
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
     <ClInclude Include="..\src\config\dialog\controls\text_field.hpp">
-      <Filter>Source Files\config\dialog\controls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\config\dialog\controls\group_box.h">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
     <ClInclude Include="..\src\config\dialog\controls\button.hpp">

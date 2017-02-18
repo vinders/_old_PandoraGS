@@ -19,7 +19,6 @@ Description : tab page - general settings
 #include "../../events/utils/logger.h"
 #include "controls/common.h"
 #include "controls/text_field.hpp"
-#include "controls/group_box.h"
 #include "controls/combo_box.h"
 #include "controls/check_box.hpp"
 #include "controls/label.hpp"
@@ -261,7 +260,7 @@ void GeneralPage::onLanguageChange(const bool isRecursive)
             formattedResolutions.push_back(Screen::formatResolutionString(GeneralPage::getResolutions().at(i).x, GeneralPage::getResolutions().at(i).y));
         ComboBox::setValues(hPage, IDC_GEN_FULLRES_LIST, formattedResolutions);
     }
-    GroupBox::setText(hPage, IDS_GEN_GROUP1, langRes.generalSettings.groupDisplay);
+    Label::setText(hPage, IDS_GEN_GROUP1, langRes.generalSettings.groupDisplay);
     Label::setText(hPage, IDS_GEN_RESOLUTION, langRes.generalSettings.resolution);
     CheckBox::setText(hPage, IDC_GEN_FULLRES, langRes.generalSettings.fullscreenRes);
     CheckBox::setText(hPage, IDC_GEN_WINRES, langRes.generalSettings.windowRes);
@@ -269,7 +268,7 @@ void GeneralPage::onLanguageChange(const bool isRecursive)
     Label::setText(hPage, IDS_GEN_COLOR, langRes.generalSettings.colorDepth);
     CheckBox::setText(hPage, IDC_GEN_GTEACC_CHECK, langRes.generalSettings.subprecision);
     CheckBox::setText(hPage, IDC_GEN_SCNSAVER_CHECK, langRes.generalSettings.noScreenSaver);
-    GroupBox::setText(hPage, IDS_GEN_GROUP2, langRes.generalSettings.groupTimer);
+    Label::setText(hPage, IDS_GEN_GROUP2, langRes.generalSettings.groupTimer);
     CheckBox::setText(hPage, IDC_GEN_FRAMELIMIT_CHECK, langRes.generalSettings.timerLimit);
     CheckBox::setText(hPage, IDC_GEN_FPSAUTO_RADIO, langRes.generalSettings.timerLimitAuto);
     CheckBox::setText(hPage, IDC_GEN_FPSFIXED_RADIO, langRes.generalSettings.timerLimitFixed);

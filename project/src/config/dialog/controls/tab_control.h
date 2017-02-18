@@ -90,6 +90,14 @@ namespace config
                 /// @brief Close control in dialog
                 void close();
 
+                /// @brief Define colors for a tab button
+                /// @param[in]  tabNumber           Tab position
+                /// @param[out] pColorTop           Vector (size = 3) to fill with top color
+                /// @param[out] pColorOffset        Vector (size = 3) to fill with color offset
+                /// @param[out] pColorTopBorder     Vector (size = 3) to fill with top border color
+                /// @param[out] pColorOffsetBorder  Vector (size = 3) to fill with border color offset
+                bool getTabButtonColors(uint32_t tabNumber, float* pColorTop, float* pColorOffset, float* pColorTopBorder, float* pColorOffsetBorder);
+
 
                 // -- event handlers -- --------------------------------------------
 

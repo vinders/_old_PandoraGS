@@ -37,7 +37,7 @@ void ConfigLang::setLanguageEnglish() noexcept
     generalSettings.resizable = L"Resizable window"s;
     generalSettings.colorDepth = L"Color depth"s;
     generalSettings.subprecision = L"GTE subprecision (anti-jitter)"s;
-    generalSettings.noScreenSaver = L"Disable screen-saver"s;
+    generalSettings.noScreenSaver = L"Disable screensaver"s;
     generalSettings.groupTimer = L"Frame rate settings"s;
     generalSettings.timerLimit = L"Use frame rate limit"s;
     generalSettings.timerLimitAuto = L"auto-detect"s;
@@ -109,7 +109,7 @@ void ConfigLang::setLanguageFrench() noexcept
     generalSettings.resolution = L"Résolution d'affichage"s;
     generalSettings.fullscreenRes = L"plein écran"s;
     generalSettings.windowRes = L"fenêtre"s;
-    generalSettings.desktopRes = L"résolution bureau"s;
+    generalSettings.desktopRes = L"résolution du bureau"s;
     generalSettings.resizable = L"Redimensionnable"s;
     generalSettings.colorDepth = L"Couleurs"s;
     generalSettings.subprecision = L"Anti-tremblements (précision GTE)"s;

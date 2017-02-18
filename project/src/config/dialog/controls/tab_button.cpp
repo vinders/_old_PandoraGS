@@ -9,6 +9,7 @@ Description : tab button for tab control
 #include "../../../globals.h"
 #include <cstdint>
 #include <string>
+#include <vector>
 #include <unordered_map>
 #if _DIALOGAPI == DIALOGAPI_WIN32
 #include <Windows.h>
@@ -16,21 +17,27 @@ Description : tab button for tab control
 #include <commctrl.h>
 #endif
 #include "../../../res/resource.h"
+#include "tab_control.h"
 #include "tab_button.h"
 using namespace config::dialog::controls;
 using namespace std::literals::string_literals;
 
 #define TAB_TEXT_OFFSET   64
+#if _DIALOGAPI == DIALOGAPI_WIN32
+#define COLOR_MENU_TEXT        RGB(67,82,97)
+#define COLOR_MENU_TEXT_ACTIVE RGB(88,100,116)
+const std::vector<COLORREF> colorTabBorder{ RGB(217,222,226), RGB(204,212,220), RGB(191,202,215) };
+#endif
 const uint32_t TabButton::tabInterval = 6u;
 const uint32_t TabButton::tabHeight = 90u;
-const uint32_t TabButton::tabOffsetX = 4u;
 const uint32_t TabButton::firstTabOffsetY = 2u;
 
 
 int32_t TabButton::s_activeCount = 0; ///< Number of tab buttons loaded
 std::unordered_map<uint32_t, bitmap_cache_t> TabButton::s_cache; ///< Icon bitmap cache
 #if _DIALOGAPI == DIALOGAPI_WIN32
-HFONT TabButton::s_tabFont = nullptr; ///< Common font for tab buttons
+HFONT TabButton::s_tabFont = NULL; ///< Common font for tab buttons
+std::unordered_map<HWND, TabButton*> TabButton::s_tabReferences; ///< Static references to tab button objects
 #endif
 
 
@@ -41,9 +48,9 @@ HFONT TabButton::s_tabFont = nullptr; ///< Common font for tab buttons
 /// @param[in] bmpResourceId  Bitmap with icons (resource ID)
 /// @param[in] icon           Icon index (0 = none)
 /// @param[in] iconSize       Icon size (pixels)
-TabButton::TabButton(library_instance_t instance, std::wstring& title, const uint32_t resourceId, 
+TabButton::TabButton(library_instance_t instance, std::wstring& title, const uint32_t resourceId,
                      const uint32_t bmpResourceId, const uint32_t icon, const uint32_t iconSize = 48u)
-    : m_instance(instance), m_title(title), m_resourceId(resourceId), m_bitmapId(bmpResourceId), m_tabButtonControl(0)
+    : m_instance(instance), m_title(title), m_resourceId(resourceId), m_bitmapId(bmpResourceId), m_tabButtonControl(0), m_pParentTabControl(nullptr), m_width(0)
 {
     m_tabNumber = s_activeCount;
     ++s_activeCount;
@@ -92,10 +99,10 @@ TabButton::~TabButton()
 
         // remove font
         #if _DIALOGAPI == DIALOGAPI_WIN32
-        if (s_tabFont != nullptr)
+        if (TabButton::s_tabFont)
         {
-            DeleteObject(s_tabFont);
-            s_tabFont = nullptr;
+            DeleteObject(TabButton::s_tabFont);
+            TabButton::s_tabFont = NULL;
         }
         #endif
     }
@@ -103,21 +110,27 @@ TabButton::~TabButton()
 
 
 /// @brief Create control in dialog
+/// @param[in] parent  Parent tab control
 /// @param[in] window  Window handle
-/// @param[in] offset      Vertical offset for first tab button
-/// @param[in] width       Tab button width
+/// @param[in] offset  Vertical offset for first tab button
+/// @param[in] width   Tab button width
 /// @returns Success
-bool TabButton::create(window_handle_t window, const uint32_t offset, const uint32_t width)
+bool TabButton::create(TabControl& parent, window_handle_t window, const uint32_t offset, const uint32_t width)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     // create tab button
+    m_pParentTabControl = &parent;
+    m_isActive = false;
+    m_topOffset = offset;
+    m_width = width;
     std::wstring controlName = L"Tab "s + std::to_wstring(m_tabNumber);
     m_tabButtonControl = CreateWindow(L"button", controlName.c_str(), WS_CHILD | WS_VISIBLE | BS_TEXT | BS_BITMAP | BS_BOTTOM | BS_OWNERDRAW,
-                                      tabOffsetX, offset + firstTabOffsetY + (m_tabNumber * (tabHeight + tabInterval)), width - 4, tabHeight,
+                                      0, offset + firstTabOffsetY + (m_tabNumber * (tabHeight + tabInterval)), width, tabHeight,
                                       reinterpret_cast<HWND>(window), reinterpret_cast<HMENU>(m_resourceId), reinterpret_cast<HINSTANCE>(m_instance), NULL);
     if (!m_tabButtonControl || (HWND)m_tabButtonControl == (HWND)INVALID_HANDLE_VALUE)
         return false;
 
+    s_tabReferences[m_tabButtonControl] = this;
     HDC hDC = GetDC(reinterpret_cast<HWND>(window));
     if (hDC)
     {
@@ -125,23 +138,26 @@ bool TabButton::create(window_handle_t window, const uint32_t offset, const uint
         if (m_iconIndex > 0u && s_cache[m_bitmapId].isAlphaChannelSet == false)
         {
             s_cache[m_bitmapId].isAlphaChannelSet = true;
-            setBitmapAlphaChannel(hDC, s_cache[m_bitmapId].bitmapData, s_cache[m_bitmapId].maxIndex *s_cache[m_bitmapId].iconSize, s_cache[m_bitmapId].iconSize);
+            setBitmapAlphaChannel(hDC, s_cache[m_bitmapId].bitmapData, s_cache[m_bitmapId].maxIndex * s_cache[m_bitmapId].iconSize, s_cache[m_bitmapId].iconSize);
         }
 
         // load font
-        if (s_tabFont == nullptr)
+        if (!TabButton::s_tabFont)
         {
             LOGFONT logFont = { 0 };
             logFont.lfHeight = -MulDiv(10, GetDeviceCaps(hDC, LOGPIXELSY), 72);
             logFont.lfWeight = FW_NORMAL;
             //logFont.lfQuality = CLEARTYPE_QUALITY;
             wcscpy_s(logFont.lfFaceName, L"Tahoma");
-            s_tabFont = CreateFontIndirect(&logFont);
+            TabButton::s_tabFont = CreateFontIndirect(&logFont);
         }
-        // set font
         ReleaseDC(reinterpret_cast<HWND>(window), hDC);
-        SendMessage(m_tabButtonControl, WM_SETFONT, (WPARAM)s_tabFont, (LPARAM)MAKELONG(TRUE, 0));
+        // set font
+        SendMessage(m_tabButtonControl, WM_SETFONT, (WPARAM)TabButton::s_tabFont, (LPARAM)MAKELONG(TRUE, 0));
     }
+
+    // set custom drawing
+    m_defaultHandler = (WNDPROC)SetWindowLong(m_tabButtonControl, GWL_WNDPROC, (LONG)tabButtonEventHandler);
     return true;
 }
 #else
@@ -156,6 +172,10 @@ bool TabButton::create(window_handle_t window, const uint32_t offset, const uint
 void TabButton::close()
 {
 #if _DIALOGAPI == DIALOGAPI_WIN32
+    if (m_defaultHandler)
+        (WNDPROC)SetWindowLong(m_tabButtonControl, GWL_WNDPROC, (LONG)m_defaultHandler);
+    if (s_tabReferences.count(m_tabButtonControl))
+        s_tabReferences.erase(m_tabButtonControl);
     if (m_tabButtonControl && reinterpret_cast<HWND>(m_tabButtonControl) != reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))
         DestroyWindow(reinterpret_cast<HWND>(m_tabButtonControl));
 #endif
@@ -163,30 +183,190 @@ void TabButton::close()
 }
 
 
-/// @brief Trigger control drawing
-DIALOG_EVENT_RETURN TabButton::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
+/// @brief Redraw control
+void TabButton::invalidate()
+{
 #if _DIALOGAPI == DIALOGAPI_WIN32
-{
-    // draw tab background with icon
-    if (m_iconIndex > 0u)
-    {
-        //...
-    }
-
-    // draw tab text
-    //...
-    return DIALOG_EVENT_RETURN_VALID;
-}
-#else
-{
-    //...
-    return DIALOG_EVENT_RETURN_VALID;
-}
+    SendMessage(m_tabButtonControl, WM_SETFONT, (WPARAM)TabButton::s_tabFont, (LPARAM)MAKELONG(TRUE, 0));
 #endif
+}
 
 
 
 #if _DIALOGAPI == DIALOGAPI_WIN32
+/// @brief Get current tab button non-static reference
+/// @param[in] hWindow  Window handle
+TabButton* TabButton::getCurrentTabButton(HWND hWindow)
+{
+    TabButton* ptab = nullptr;
+    if (s_tabReferences.count(hWindow))
+    {
+        ptab = s_tabReferences[hWindow];
+    }
+    return ptab;
+}
+
+
+/// @brief Tab button event handler
+/// @param[in] hWindow  Window handle
+/// @param[in] msg      Event message
+/// @param[in] wParam   Command
+/// @param[in] lParam   Informations
+/// @returns Event result
+INT_PTR CALLBACK TabButton::tabButtonEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    TabButton* pTabButton = getCurrentTabButton(hWindow);
+    if (pTabButton != nullptr)
+    {
+        switch (msg)
+        {
+            // paint tab button
+            case WM_PAINT:
+            {
+                PAINTSTRUCT paint;
+                HDC hDC = nullptr;
+                hDC = BeginPaint(hWindow, &paint);
+                if (hDC == nullptr)
+                    break;
+
+                RECT buttonRect;
+                GetClientRect(hWindow, &buttonRect);
+                SetBkMode(hDC, TRANSPARENT);
+
+                // active -> white background
+                if (pTabButton->m_isActive)
+                {
+                    RECT borderRect;
+                    HBRUSH borderBrush;
+                    // white background
+                    FillRect(hDC, &buttonRect, HBRUSH(GetStockBrush(WHITE_BRUSH)));
+                    // top/bottom borders
+                    borderBrush = CreateSolidBrush(colorTabBorder[pTabButton->m_tabNumber]);
+                    borderRect.top = buttonRect.top;
+                    borderRect.bottom = buttonRect.top + 1;
+                    borderRect.left = buttonRect.left;
+                    borderRect.right = buttonRect.right;
+                    FillRect(hDC, &borderRect, borderBrush);
+                    borderRect.top = buttonRect.bottom - 1;
+                    borderRect.bottom = buttonRect.bottom;
+                    FillRect(hDC, &borderRect, borderBrush);
+                }
+                // inactive -> background gradient
+                else if (pTabButton->m_pParentTabControl != nullptr)
+                {
+                    // set background gradient zone
+                    float curPercent;
+                    RECT gradientLine, gardientBorder;
+                    HBRUSH gradientBrush, borderBrush;
+
+                    // set background gradient colors
+                    float colorTop[3];
+                    float colorOffset[3];
+                    float colorTopBorder[3];
+                    float colorOffsetBorder[3];
+                    if (pTabButton->m_pParentTabControl->getTabButtonColors(pTabButton->m_tabNumber, colorTop, colorOffset, colorTopBorder, colorOffsetBorder))
+                    {
+                        // draw background gradient
+                        gradientLine.left = buttonRect.left;
+                        gradientLine.right = gardientBorder.left = buttonRect.right - 1;
+                        gardientBorder.right = buttonRect.right;
+                        for (int px = 0; px < tabHeight; ++px)
+                        {
+                            curPercent = static_cast<float>(px) / static_cast<float>(tabHeight);
+
+                            gradientLine.top = buttonRect.top + px;
+                            gradientLine.bottom = gradientLine.top + 1;
+                            gradientBrush = CreateSolidBrush(RGB(colorTop[0] + (curPercent*colorOffset[0]),
+                                colorTop[1] + (curPercent*colorOffset[1]),
+                                colorTop[2] + (curPercent*colorOffset[2])));
+                            FillRect(hDC, &gradientLine, gradientBrush); // background
+                            DeleteObject(gradientBrush);
+
+                            if (px % 2 == 1) // 2 border pixels at once
+                            {
+                                gardientBorder.top = gradientLine.top - 1;
+                                gardientBorder.bottom = gradientLine.bottom;
+                                borderBrush = CreateSolidBrush(RGB(colorTopBorder[0] + (curPercent*colorOffsetBorder[0]),
+                                    colorTopBorder[1] + (curPercent*colorOffsetBorder[1]),
+                                    colorTopBorder[2] + (curPercent*colorOffsetBorder[2])));
+                                FillRect(hDC, &gardientBorder, borderBrush); // border
+                                DeleteObject(borderBrush);
+                            }
+                        }
+                    }
+                }
+
+                // draw tab text
+                RECT titleRect;
+                titleRect.left = buttonRect.left;
+                titleRect.right = buttonRect.right;
+                titleRect.top = buttonRect.top + TAB_TEXT_OFFSET;
+                titleRect.bottom = buttonRect.bottom;
+                SelectObject(hDC, s_tabFont);
+                SetTextColor(hDC, (pTabButton->m_isActive) ? COLOR_MENU_TEXT_ACTIVE : COLOR_MENU_TEXT);
+                DrawText(hDC, pTabButton->m_title.c_str(), -1, &titleRect, DT_CENTER); break;
+
+                // draw tab icon
+                pTabButton->paintBitmap(hDC, &titleRect);
+
+                EndPaint(hWindow, &paint);
+                ReleaseDC(hWindow, hDC);
+                break;
+            }
+        }
+        if (pTabButton->m_defaultHandler)
+            return CallWindowProc(pTabButton->m_defaultHandler, hWindow, msg, wParam, lParam);
+    }
+    return (INT_PTR)FALSE;
+}
+
+
+/// @brief Draw bitmap icon on tab button
+/// @param[in] hDC  Paint context
+/// @param[in] pTitleRect  Tab title text rectangle
+void TabButton::paintBitmap(HDC hDC, RECT* pTitleRect)
+{
+    // get cached bitmap
+    if (!s_cache.count(m_bitmapId) || m_iconIndex == 0u)
+        return;
+    bitmap_cache_t& bitmapData = s_cache[m_bitmapId];
+    if (m_iconIndex > static_cast<uint32_t>(bitmapData.maxIndex))
+        m_iconIndex = 1u;
+
+    // prepare bitmap information
+    BITMAPINFO bmi;
+    ZeroMemory(&bmi, sizeof(BITMAPINFO));
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = bitmapData.maxIndex * bitmapData.iconSize;
+    bmi.bmiHeader.biHeight = bitmapData.iconSize;
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+    bmi.bmiHeader.biSizeImage = bmi.bmiHeader.biWidth * bmi.bmiHeader.biHeight * 4;
+    // copy bitmap to DIB
+    VOID* pvBits = NULL;
+    HDC hMemDC = CreateCompatibleDC(hDC);
+    HBITMAP hBmp = CreateDIBSection(hMemDC, &bmi, DIB_RGB_COLORS, &pvBits, NULL, 0);
+    SelectObject(hMemDC, hBmp);
+    GetDIBits(hDC, bitmapData.bitmapData, 0, bitmapData.iconSize, pvBits, &bmi, DIB_RGB_COLORS);
+
+    // blend alpha
+    BLENDFUNCTION bf;
+    bf.BlendOp = AC_SRC_OVER;
+    bf.BlendFlags = 0;
+    bf.SourceConstantAlpha = 0xFF; // opaque
+    bf.AlphaFormat = AC_SRC_ALPHA; // bitmap alpha
+    AlphaBlend(hDC, pTitleRect->left + ((m_width / 2) - (bitmapData.iconSize / 2)), pTitleRect->top - (4 + bitmapData.iconSize),
+               bitmapData.iconSize, bitmapData.iconSize, hMemDC, 
+               (m_iconIndex - 1u) * bitmapData.iconSize, 0, 
+               bitmapData.iconSize, bitmapData.iconSize, bf);
+
+    DeleteObject(hBmp);
+    DeleteDC(hMemDC);
+}
+
+
+
 /// @brief Prepare bitmap with alpha channel (set transparency)
 /// @param hDC     Device context handle
 /// @param img     Bitmap handle

@@ -52,9 +52,10 @@ bool TabControl::create(window_handle_t window, const uint32_t offset, const uin
     // create tab buttons
     for (uint32_t i = 0; i < m_pages.size(); ++i)
     {
-        if (m_pages.at(i).button->create(window, offset, width) == false)
+        if (m_pages.at(i).button->create(*this, window, offset, width) == false)
             return false;
     }
+    m_pages.at(0).button->setActive(true);
     return true;
 }
 
@@ -94,16 +95,55 @@ bool TabControl::onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
 /// @param[in] instance  Library instance handle
 void TabControl::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
-    // refresh tab buttons
-    //...repaint tab buttons
-    //...
-
-    // translate components in pages
     for (uint32_t i = 0; i < m_pages.size(); ++i)
     {
+        // refresh tab buttons
+        m_pages.at(i).button->invalidate();
+        // translate components in pages
         m_pages.at(i).page->onLanguageChange(true);
     }
 }
+
+
+/// @brief Define colors for a tab button
+/// @param[in]  tabNumber           Tab position
+/// @param[out] pColorTop           Vector (size = 3) to fill with top color
+/// @param[out] pColorOffset        Vector (size = 3) to fill with color offset
+/// @param[out] pColorTopBorder     Vector (size = 3) to fill with top border color
+/// @param[out] pColorOffsetBorder  Vector (size = 3) to fill with border color offset
+bool TabControl::getTabButtonColors(uint32_t tabNumber, float* pColorTop, float* pColorOffset, float* pColorTopBorder, float* pColorOffsetBorder)
+#if _DIALOGAPI == DIALOGAPI_WIN32
+{
+    if (m_height != 0)
+    {
+        float percentHeight = static_cast<float>(TabButton::tabHeight) / static_cast<float>(m_height);
+        uint32_t topCoord = TabButton::firstTabOffsetY + tabNumber * (TabButton::tabHeight + TabButton::tabInterval);
+        float tabPercent = static_cast<float>(topCoord) / static_cast<float>(m_height);
+
+        // colors
+        pColorTop[0] = colorTop[0] + (tabPercent*colorOffset[0]);
+        pColorTop[1] = colorTop[1] + (tabPercent*colorOffset[1]);
+        pColorTop[2] = colorTop[2] + (tabPercent*colorOffset[2]);
+        pColorTopBorder[0] = colorTop[0] + (tabPercent*colorOffsetBorder[0]);
+        pColorTopBorder[1] = colorTop[1] + (tabPercent*colorOffsetBorder[1]);
+        pColorTopBorder[2] = colorTop[2] + (tabPercent*colorOffsetBorder[2]);
+
+        // offsets
+        pColorOffset[0] = percentHeight * colorOffset[0];
+        pColorOffset[1] = percentHeight * colorOffset[1];
+        pColorOffset[2] = percentHeight * colorOffset[2];
+        pColorOffsetBorder[0] = percentHeight * colorOffsetBorder[0];
+        pColorOffsetBorder[1] = percentHeight * colorOffsetBorder[1];
+        pColorOffsetBorder[2] = percentHeight * colorOffsetBorder[2];
+        return true;
+    }
+    return false;
+}
+#else
+{
+    //...
+}
+#endif
 
 
 /// @brief Trigger control drawing

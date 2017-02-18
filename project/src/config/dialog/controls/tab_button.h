@@ -26,6 +26,8 @@ namespace config
         /// Dialog controls
         namespace controls
         {
+            class TabControl;
+
             /// @struct bitmap_cache_t
             /// @brief Bitmap with icons - data cache
             struct bitmap_cache_t
@@ -46,7 +48,6 @@ namespace config
             public:
                 static const uint32_t tabInterval;
                 static const uint32_t tabHeight;
-                static const uint32_t tabOffsetX;
                 static const uint32_t firstTabOffsetY;
 
             private:
@@ -57,14 +58,21 @@ namespace config
                 #endif
 
                 library_instance_t m_instance;  ///< Current instance handle
+                TabControl* m_pParentTabControl; ///< Parent tab control
                 #if _DIALOGAPI == DIALOGAPI_WIN32
+                static std::unordered_map<HWND, TabButton*> s_tabReferences; ///< Static references to tab button objects
                 HWND m_tabButtonControl; ///< Tab button object in dialog
+                WNDPROC m_defaultHandler;///< Default button event handler
                 #endif
                 uint32_t m_resourceId;  ///< Tab button resource ID
                 uint32_t m_tabNumber;   ///< Tab number in tab control
+                uint32_t m_topOffset;   ///< General top offset
+
                 std::wstring& m_title;  ///< Button title text (reference)
                 uint32_t m_bitmapId;    ///< Button icon bitmap
                 uint32_t m_iconIndex;   ///< Button icon index in bitmap (0 = no icon)
+                uint32_t m_width;       ///< Button width
+                bool m_isActive; ///< Status - active or not
 
             public:
                 /// @brief Create tab button
@@ -80,20 +88,45 @@ namespace config
                 ~TabButton();
 
                 /// @brief Create control in dialog
+                /// @param[in] parent         Parent tab control
                 /// @param[in] window      Window handle
                 /// @param[in] offset      Vertical offset for first tab button
                 /// @param[in] width       Tab button width
                 /// @returns Success
-                bool create(window_handle_t window, const uint32_t offset, const uint32_t width);
+                bool create(TabControl& parent, window_handle_t window, const uint32_t offset, const uint32_t width);
                 /// @brief Close control in dialog
                 void close();
 
-                /// @brief Trigger control drawing
-                DIALOG_EVENT_RETURN onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS);
+                /// @brief Set tab status (active tab or not)
+                /// @param[in] isActive  Use as active tab or not
+                void setActive(const bool isActive)
+                {
+                    m_isActive = isActive;
+                }
+
+                /// @brief Redraw control
+                void invalidate();
 
 
-            private:
+            protected:
                 #if _DIALOGAPI == DIALOGAPI_WIN32
+                /// @brief Get current tab button non-static reference
+                /// @param[in] hWindow  Window handle
+                static TabButton* getCurrentTabButton(HWND hWindow);
+
+                /// @brief Tab button event handler
+                /// @param[in] hWindow  Window handle
+                /// @param[in] msg      Event message
+                /// @param[in] wParam   Command
+                /// @param[in] lParam   Informations
+                /// @returns Event result
+                static INT_PTR CALLBACK tabButtonEventHandler(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
+
+                /// @brief Draw bitmap icon on tab button
+                /// @param[in] hDC         Paint context
+                /// @param[in] pTitleRect  Tab title text rectangle
+                void TabButton::paintBitmap(HDC hDC, RECT* pTitleRect);
+
                 /// @brief Prepare bitmap with alpha channel (set transparency)
                 /// @param hDC     Device context handle
                 /// @param img     Bitmap handle

@@ -36,7 +36,6 @@
     <ClCompile Include="..\src\config\config_file_io.cpp" />
     <ClCompile Include="..\src\config\config_io.cpp" />
     <ClCompile Include="..\src\config\config_profile.cpp" />
-    <ClCompile Include="..\src\config\dialog\controls\group_box.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\keyboard.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\screen.cpp" />
     <ClCompile Include="..\src\config\dialog\profile_compatibility_page.cpp" />
@@ -98,7 +97,6 @@
     <ClInclude Include="..\src\config\config_io.h" />
     <ClInclude Include="..\src\config\config_profile.h" />
     <ClInclude Include="..\src\config\dialog\controls\button.hpp" />
-    <ClInclude Include="..\src\config\dialog\controls\group_box.h" />
     <ClInclude Include="..\src\config\dialog\controls\keyboard.h" />
     <ClInclude Include="..\src\config\dialog\controls\screen.h" />
     <ClInclude Include="..\src\config\dialog\controls\text_field.hpp" />
