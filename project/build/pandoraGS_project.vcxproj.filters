@@ -215,6 +215,9 @@
     <ClCompile Include="..\src\config\dialog\controls\keyboard.cpp">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\config\dialog\controls\button_icon.cpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\res\resource.h">
@@ -425,6 +428,9 @@
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
     <ClInclude Include="..\src\config\dialog\controls\keyboard.h">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\controls\button_icon.h">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
   </ItemGroup>

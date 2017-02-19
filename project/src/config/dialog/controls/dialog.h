@@ -10,10 +10,12 @@ Description : dialog control
 
 #include "../../../globals.h"
 #include <cstdint>
+#include <string>
 #include <unordered_map>
 #include <stack>
 #include <functional>
 #include "common.h"
+using namespace std::literals::string_literals;
 
 #if _DIALOGAPI == DIALOGAPI_WIN32
 #define DIALOG_EVENT_HANDLER_ARGUMENTS config::dialog::controls::Dialog* pDialog, HWND hWindow, WPARAM wParam, LPARAM lParam
@@ -74,6 +76,7 @@ namespace config
                 struct runtime_data_t
                 {
                     bool isInitialized;
+                    std::wstring title; ///< Dialog title (leave empty to keep default title)
                     Dialog::result_t dialogResult; ///< Dialog end result
                     std::unordered_map<dialog_event_t, Dialog::event_handler_t> registeredHandlers; ///< Registered event handlers
                 };
@@ -98,11 +101,12 @@ namespace config
                 /// @brief Display modal dialog box
                 /// @param[in] resourceId      Dialog description identifier
                 /// @param[in] hParentWindow   Parent window handle
+                /// @param[in] title           Dialog title
                 /// @param[in] isStyleEnabled  Enable enhanced visual style
                 /// @returns Dialog result
                 /// @throws runtime_error  Dialog creation error or runtime error
                 Dialog::result_t showDialog(const int32_t resourceId, window_handle_t hParentWindow = reinterpret_cast<window_handle_t>(DIALOG_USE_BASE_WINDOW),
-                                            const bool isStyleEnabled = false);
+                                            const std::wstring title = L""s, const bool isStyleEnabled = false);
 
 
                 /// @brief Register a handler for an event

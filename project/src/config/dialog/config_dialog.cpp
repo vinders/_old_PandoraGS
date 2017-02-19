@@ -87,7 +87,7 @@ ConfigDialog::~ConfigDialog()
 /// @throws runtime_error  Dialog creation/display error
 Dialog::result_t ConfigDialog::showDialog()
 {
-    return Dialog::showDialog(IDD_CONFIG_DIALOG, reinterpret_cast<window_handle_t>(DIALOG_USE_BASE_WINDOW), true);
+    return Dialog::showDialog(IDD_CONFIG_DIALOG, reinterpret_cast<window_handle_t>(DIALOG_USE_BASE_WINDOW), L""s, true);
 }
 
 
@@ -206,8 +206,8 @@ bool ConfigDialog::onLanguageSelection(DIALOG_EVENT_HANDLER_ARGUMENTS, const int
         {
             // open file path choice dialog
             FileDialog fileDialog(reinterpret_cast<config::dialog::controls::library_instance_t>(m_instance), FileDialog::file_mode_t::load);
-            if (fileDialog.showDialog(IDD_FILE_SELECT, IDC_FILE_PATH_EDIT, getEventWindowHandle(), 
-                                      IDC_FILE_BTN_PATH, Config::langFilePath) == Dialog::result_t::confirm) // file choice success
+            if (fileDialog.showDialog(IDD_FILE_SELECT, IDC_FILE_PATH_EDIT, getEventWindowHandle(), IDC_FILE_BTN_PATH, 
+                                      Config::langFilePath, L"Select a language file..."s) == Dialog::result_t::confirm) // file choice success
             {
                 Config::langCode = lang::langcode_t::customFile;
                 Config::langFilePath = fileDialog.getFilePath();

@@ -44,10 +44,11 @@ Dialog::Dialog(library_instance_t instance) : m_pParent(nullptr)
 /// @brief Display modal dialog box
 /// @param[in] resourceId      Dialog description identifier
 /// @param[in] hParentWindow   Parent window handle
+/// @param[in] title           Dialog title
 /// @param[in] isStyleEnabled  Enable enhanced visual style
 /// @returns Dialog result
 /// @throws runtime_error  Dialog creation error or runtime error
-Dialog::result_t Dialog::showDialog(const int32_t resourceId, window_handle_t hParentWindow, const bool isStyleEnabled)
+Dialog::result_t Dialog::showDialog(const int32_t resourceId, window_handle_t hParentWindow, const std::wstring title, const bool isStyleEnabled)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     HANDLE hActCtx = INVALID_HANDLE_VALUE;
@@ -87,6 +88,7 @@ Dialog::result_t Dialog::showDialog(const int32_t resourceId, window_handle_t hP
     // open modal dialog box
     s_dialogRefBuffer = this;
     m_dialogData.isInitialized = false;
+    m_dialogData.title = title;
     m_dialogData.dialogResult = Dialog::result_t::error;
     bool isSuccess = (DialogBox(reinterpret_cast<HINSTANCE>(m_instance), MAKEINTRESOURCE(resourceId), reinterpret_cast<HWND>(hWindow), (DLGPROC)dialogEventHandler) > 0);
     s_dialogRefBuffer = nullptr;
@@ -128,6 +130,11 @@ Dialog* Dialog::getCurrentDialog(HWND hWindow)
         {
             pDialog = s_dialogRefBuffer;
             SetWindowLongPtr(hWindow, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pDialog));
+            // set dialog title (if empty, keep default title)
+            if (pDialog->m_dialogData.title.empty() == false)
+            {
+                SetWindowText(hWindow, (LPCWSTR)pDialog->m_dialogData.title.c_str());
+            }
         }
     }
     return pDialog;
@@ -160,13 +167,6 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
             {
                 if (pDialog->isRegisteredEvent(dialog_event_t::paint) // call handler
                  && pDialog->getEventHandler(dialog_event_t::paint).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
-                    return (INT_PTR)TRUE;
-                break;
-            }
-            case WM_DRAWITEM:
-            {
-                if (pDialog->isRegisteredEvent(dialog_event_t::drawItem) // call handler
-                 && pDialog->getEventHandler(dialog_event_t::drawItem).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
                     return (INT_PTR)TRUE;
                 break;
             }

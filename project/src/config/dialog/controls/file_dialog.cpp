@@ -46,15 +46,16 @@ FileDialog::FileDialog(library_instance_t instance, file_mode_t mode)
 /// @param[in] hParentWindow      Parent window handle
 /// @param[in] browserResourceId  Browse button identifier
 /// @param[in] defaultFile        Default file path
+/// @param[in] title              Dialog title
 /// @returns Dialog result
 /// @throws runtime_error  Dialog creation error or runtime error
 Dialog::result_t FileDialog::showDialog(const int32_t dialogResourceId, const int32_t fieldResourceId, window_handle_t hParentWindow, 
-                                        const int32_t browserResourceId, const std::wstring& defaultFile)
+                                        const int32_t browserResourceId, const std::wstring& defaultFile, const std::wstring title)
 {
     m_filePath = defaultFile;
     m_fieldId = fieldResourceId;
     m_browserId = browserResourceId;
-    return Dialog::showDialog(dialogResourceId, hParentWindow, false);
+    return Dialog::showDialog(dialogResourceId, hParentWindow, title, false);
 }
 
 

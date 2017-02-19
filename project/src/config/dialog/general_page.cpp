@@ -126,7 +126,8 @@ DIALOG_EVENT_RETURN GeneralPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
                     keyBindDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);
                     keyBindDialog.setParent(parent.getParentDialog<Dialog>());
                     // show modal dialog
-                    keyBindDialog.showDialog(IDD_KEYBINDING_DIALOG, getEventWindowHandle(), false);
+                    keyBindDialog.showDialog(IDD_KEYBINDING_DIALOG, getEventWindowHandle(), 
+                                             parent.getParentDialog<ConfigDialog>()->getLanguageResource().generalSettings.btnKeyBinding, false);
 
                     Button::unHighlight(hWindow, IDC_GEN_BTN_KEYBINDING);
                     return DIALOG_EVENT_RETURN_VALID; break;
@@ -140,7 +141,8 @@ DIALOG_EVENT_RETURN GeneralPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
                     advancedDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);
                     advancedDialog.setParent(parent.getParentDialog<Dialog>());
                     // show modal dialog
-                    advancedDialog.showDialog(IDD_ADVANCED_DIALOG, getEventWindowHandle(), false);
+                    advancedDialog.showDialog(IDD_ADVANCED_DIALOG, getEventWindowHandle(), 
+                                              parent.getParentDialog<ConfigDialog>()->getLanguageResource().generalSettings.btnAdvanced, false);
 
                     Button::unHighlight(hWindow, IDC_GEN_BTN_ADVANCED);
                     return DIALOG_EVENT_RETURN_VALID; break;

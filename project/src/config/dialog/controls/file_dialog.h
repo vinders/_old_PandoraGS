@@ -71,10 +71,11 @@ namespace config
                 /// @param[in] hParentWindow      Parent window handle
                 /// @param[in] browserResourceId  Browse button identifier
                 /// @param[in] defaultFile        Default file path
+                /// @param[in] title              Dialog title
                 /// @returns Dialog result
                 /// @throws runtime_error  Dialog creation error or runtime error
                 Dialog::result_t showDialog(const int32_t dialogResourceId, const int32_t fieldResourceId, window_handle_t hParentWindow, 
-                                            const int32_t browserResourceId, const std::wstring& defaultFile = L""s);
+                                            const int32_t browserResourceId, const std::wstring& defaultFile = L""s, const std::wstring title = L""s);
 
             public:
                 /// @brief Dialog initialization event handler

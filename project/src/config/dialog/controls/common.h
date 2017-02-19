@@ -38,7 +38,8 @@ namespace config
                 drawItem = 4u,
                 command = 5u,
                 scrollX = 6u,
-                scrollY = 7u
+                scrollY = 7u,
+                notify = 8u
             };
 
             #if _DIALOGAPI == DIALOGAPI_WIN32

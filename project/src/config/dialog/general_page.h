@@ -36,6 +36,8 @@ namespace config
             /// @param[in] instance       Current instance handle
             /// @param[in] pParentDialog  Parent dialog reference
             GeneralPage(config::dialog::controls::library_instance_t instance, controls::Dialog* pParentDialog);
+            /// @brief Destroy tab page - general settings
+            ~GeneralPage() {}
 
             /// @brief Get list of available resolutions
             /// @returns List of resolution
@@ -57,10 +59,10 @@ namespace config
 
             /// @brief Language change event
             /// @returns Validity
-            virtual bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            virtual bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS) override;
             /// @brief Language change event
             /// @param[in] isRecursive    Also translate controls in child pages or not
-            virtual void onLanguageChange(const bool isRecursive);
+            virtual void onLanguageChange(const bool isRecursive) override;
 
         private:
             /// @brief Initialize key binding sub-dialog

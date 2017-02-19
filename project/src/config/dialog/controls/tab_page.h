@@ -80,6 +80,8 @@ namespace config
                 bool create(window_handle_t hWindow, const uint32_t offset);
                 /// @brief Close tab page control
                 void close();
+                /// @brief Close tab page control - overridable method
+                virtual void overridableClose() {}
 
 
             public:

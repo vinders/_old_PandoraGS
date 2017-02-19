@@ -72,6 +72,8 @@ bool TabPage::create(window_handle_t hWindow, const uint32_t offset)
 /// @brief Close tab page control
 void TabPage::close()
 {
+    overridableClose();
+
     #if _DIALOGAPI == DIALOGAPI_WIN32
     if (m_hPage && reinterpret_cast<HWND>(m_hPage) != reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))
         DestroyWindow(reinterpret_cast<HWND>(m_hPage));
@@ -159,6 +161,12 @@ INT_PTR CALLBACK TabPage::pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam
             {
                 if (pPage->isRegisteredEvent(dialog_event_t::drawItem)) // call handler
                     return pPage->getEventHandler(dialog_event_t::drawItem).handler(pPage, hWindow, wParam, lParam);
+                break;
+            }
+            case WM_NOTIFY:
+            {
+                if (pPage->isRegisteredEvent(dialog_event_t::notify)) // call handler
+                    return pPage->getEventHandler(dialog_event_t::notify).handler(pPage, hWindow, wParam, lParam);
                 break;
             }
 
