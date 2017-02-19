@@ -24,7 +24,7 @@ void ConfigLang::setLanguageEnglish() noexcept
     dialog.generalSettings   = L"General settings"s;
     dialog.profileManagement = L"Profile manager"s;
     dialog.profileSettings   = L"Profile settings"s;
-    profile.profileList = L"Current profile:"s;
+    profile.profileList = L"Current profile"s;
     profile.filteringTab = L"Filters"s;
     profile.screenTab = L"Screen stretching"s;
     profile.compatibilityTab = L"Compatibility settings"s;
@@ -100,7 +100,7 @@ void ConfigLang::setLanguageFrench() noexcept
     dialog.generalSettings   = L"Options générales"s;
     dialog.profileManagement = L"Gestion de profils"s;
     dialog.profileSettings   = L"Paramétrer profil"s;
-    profile.profileList = L"Profil courant :"s;
+    profile.profileList = L"Profil courant"s;
     profile.filteringTab = L"Filtres"s;
     profile.screenTab = L"Étirement et ratio"s;
     profile.compatibilityTab = L"Options de compatibilité"s;

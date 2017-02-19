@@ -12,6 +12,7 @@ Description : advanced tab control
 #include <cstdint>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 #include "common.h"
 #include "dialog.h"
 #include "tab_button.h"
@@ -56,6 +57,7 @@ namespace config
                 static const float colorOffsetBorder[3];
 
             protected:
+                std::unordered_map<int32_t, int32_t> m_resourceIdMap; ///< Map of resource ID for each tab ([ID] = page index)
                 std::vector<tab_association_t> m_pages; ///< Collection of tab pages (buttons/pages)
                 int32_t m_activePageIndex; ///< Index of active page
             private:
@@ -71,13 +73,22 @@ namespace config
                 void clear() noexcept
                 {
                     m_activePageIndex = -1;
+                    m_resourceIdMap.clear();
                     m_pages.clear();
                 }
                 /// @brief Insert new tab in tab control
-                /// @param[in] data  Tab data (button / page)
-                void addTab(const tab_association_t& data) noexcept
+                /// @param[in] data        Tab data (button / page)
+                /// @param[in] tabButtonId  Tab button identifier
+                void addTab(const tab_association_t& data, const int32_t tabButtonId) noexcept
                 {
+                    m_resourceIdMap[tabButtonId] = m_pages.size();
                     m_pages.push_back(tab_association_t(data));
+                }
+                /// @brief Check if active tab button has specified identifier
+                /// @param[in] tabButtonId  Tab button identifier
+                inline bool isActiveTab(const int32_t tabButtonId) noexcept
+                {
+                    return (m_resourceIdMap.count(tabButtonId) && m_resourceIdMap[tabButtonId] == m_activePageIndex);
                 }
 
 
@@ -92,11 +103,12 @@ namespace config
 
                 /// @brief Define colors for a tab button
                 /// @param[in]  tabNumber           Tab position
+                /// @param[in]  isHover             Mouse hover
                 /// @param[out] pColorTop           Vector (size = 3) to fill with top color
                 /// @param[out] pColorOffset        Vector (size = 3) to fill with color offset
                 /// @param[out] pColorTopBorder     Vector (size = 3) to fill with top border color
                 /// @param[out] pColorOffsetBorder  Vector (size = 3) to fill with border color offset
-                bool getTabButtonColors(uint32_t tabNumber, float* pColorTop, float* pColorOffset, float* pColorTopBorder, float* pColorOffsetBorder);
+                bool getTabButtonColors(uint32_t tabNumber, bool isHover, float* pColorTop, float* pColorOffset, float* pColorTopBorder, float* pColorOffsetBorder);
 
 
                 // -- event handlers -- --------------------------------------------
@@ -110,6 +122,8 @@ namespace config
 
                 /// @brief Trigger control drawing
                 DIALOG_EVENT_RETURN onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS);
+                /// @brief Tab button command event handler
+                DIALOG_EVENT_RETURN onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS);
             };
         }
     }

@@ -120,7 +120,7 @@ bool TabButton::create(TabControl& parent, window_handle_t window, const uint32_
 {
     // create tab button
     m_pParentTabControl = &parent;
-    m_isActive = false;
+    m_isActive = m_isHover = m_isTrackingMouse = false;
     m_width = width;
     m_borderColor = borderColor;
     std::wstring controlName = L"Tab "s + std::to_wstring(m_tabNumber);
@@ -264,7 +264,7 @@ INT_PTR CALLBACK TabButton::tabButtonEventHandler(HWND hWindow, UINT msg, WPARAM
                     float colorOffset[3];
                     float colorTopBorder[3];
                     float colorOffsetBorder[3];
-                    if (pTabButton->m_pParentTabControl->getTabButtonColors(pTabButton->m_tabNumber, colorTop, colorOffset, colorTopBorder, colorOffsetBorder))
+                    if (pTabButton->m_pParentTabControl->getTabButtonColors(pTabButton->m_tabNumber, pTabButton->m_isHover, colorTop, colorOffset, colorTopBorder, colorOffsetBorder))
                     {
                         // draw background gradient
                         gradientLine.left = buttonRect.left;
@@ -311,6 +311,43 @@ INT_PTR CALLBACK TabButton::tabButtonEventHandler(HWND hWindow, UINT msg, WPARAM
 
                 EndPaint(hWindow, &paint);
                 ReleaseDC(hWindow, hDC);
+                break;
+            }
+
+            // track mouse movements
+            case WM_MOUSEMOVE:
+            {
+                if (pTabButton->m_isTrackingMouse == false)
+                {
+                    TRACKMOUSEEVENT tme = { sizeof(tme) };
+                    tme.dwFlags = TME_HOVER;
+                    tme.hwndTrack = hWindow;
+                    tme.dwHoverTime = 12;
+                    ::TrackMouseEvent(&tme);
+                    tme.dwFlags = TME_LEAVE;
+                    tme.dwHoverTime = 1;
+                    ::TrackMouseEvent(&tme);
+                    pTabButton->m_isTrackingMouse = true;
+                }
+                break;
+            }
+            case WM_MOUSEHOVER:
+            {
+                if (pTabButton->m_isHover == false)
+                {
+                    pTabButton->m_isHover = true;
+                    pTabButton->invalidate();
+                }
+                break;
+            }
+            case WM_MOUSELEAVE:
+            {
+                if (pTabButton->m_isHover)
+                {
+                    pTabButton->m_isHover = false;
+                    pTabButton->invalidate();
+                }
+                pTabButton->m_isTrackingMouse = false;
                 break;
             }
         }

@@ -75,7 +75,9 @@ namespace config
                 uint32_t m_iconIndex;   ///< Button icon index in bitmap (0 = no icon)
                 uint32_t m_width;       ///< Button width
                 color_ref_t m_borderColor; ///< Tab border color
+                bool m_isTrackingMouse; ///< Status - tracking mouse or not
                 bool m_isActive; ///< Status - active or not
+                bool m_isHover;  ///< Status - mouse hover or not
 
             public:
                 /// @brief Create tab button

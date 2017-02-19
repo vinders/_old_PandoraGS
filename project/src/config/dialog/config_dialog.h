@@ -52,6 +52,12 @@ namespace config
             {
                 return m_languageResource;
             }
+            /// @brief Get tab control
+            /// @returns Tab control reference
+            inline controls::TabControl& getTabControl() noexcept
+            {
+                return m_tabs;
+            }
 
 
         private:

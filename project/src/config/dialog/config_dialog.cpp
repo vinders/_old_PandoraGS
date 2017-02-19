@@ -57,9 +57,9 @@ ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance)
     tabProfile.button = std::make_shared<TabButton>(instance, getLanguageResource().dialog.profileSettings, IDC_PROFILE_TAB, IDB_CONFIG_ICONS, 3, 48);
     tabProfile.page = std::make_shared<ProfilePage>(instance, (Dialog*)this);
     // insert pages
-    m_tabs.addTab(tabGeneral);
-    m_tabs.addTab(tabManager);
-    m_tabs.addTab(tabProfile);
+    getTabControl().addTab(tabGeneral, IDC_GENERAL_TAB);
+    getTabControl().addTab(tabManager, IDC_MANAGER_TAB);
+    getTabControl().addTab(tabProfile, IDC_PROFILE_TAB);
 
     // set event handlers
     Dialog::event_handler_t eventHandler;
@@ -78,7 +78,7 @@ ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance)
 /// @brief Destroy dialog box
 ConfigDialog::~ConfigDialog()
 {
-    m_tabs.clear();
+    getTabControl().clear();
     config::Config::close();
 }
 
@@ -101,8 +101,8 @@ DIALOG_EVENT_RETURN ConfigDialog::onInit(DIALOG_EVENT_HANDLER_ARGUMENTS)
 
     // set list of profiles
     ComboBox::initValues(getEventWindowHandle(), IDC_PROFILE_LIST, Config::getAllProfileNames(), 0u);
-    Label::setVisible(hWindow, IDC_PROFILE_LIST, false); // hide (only visible when profile tab is active)
-    Label::setVisible(hWindow, IDS_PROFILE, false);
+    Label::setVisible(getEventWindowHandle(), IDC_PROFILE_LIST, false); // hide (only visible when profile tab is active)
+    Label::setVisible(getEventWindowHandle(), IDS_PROFILE, false);
     // translate window components
     parent.onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES, false);
 
@@ -114,7 +114,7 @@ DIALOG_EVENT_RETURN ConfigDialog::onInit(DIALOG_EVENT_HANDLER_ARGUMENTS)
     ComboBox::initValues(getEventWindowHandle(), IDC_LANG_LIST, langNames, static_cast<int32_t>(Config::langCode));
 
     // add tab control and pages to dialog
-    if (parent.m_tabs.create(getEventWindowHandle(), LOGO_HEIGHT, LOGO_WIDTH) == false)
+    if (parent.getTabControl().create(getEventWindowHandle(), LOGO_HEIGHT, LOGO_WIDTH) == false)
     {
         MsgBox::showMessage(L"Initialization error"s, L"Failed to load page content..."s, getEventWindowHandle(), 
                             MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
@@ -128,32 +128,38 @@ DIALOG_EVENT_RETURN ConfigDialog::onInit(DIALOG_EVENT_HANDLER_ARGUMENTS)
 DIALOG_EVENT_RETURN ConfigDialog::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
     ConfigDialog& parent = getEventTargetDialogReference(ConfigDialog);
-    return parent.m_tabs.onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES);
+    return parent.getTabControl().onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES);
 }
 
 
 /// @brief Sub-control command event handler
 DIALOG_EVENT_RETURN ConfigDialog::onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
+    ConfigDialog& parent = getEventTargetDialogReference(ConfigDialog);
+
     // language selection event
     if (getEventTargetControlId() == IDC_LANG_LIST && eventActionEquals(ComboBox::event_t::selectionChanged))
     {
         int32_t buffer;
         if (ComboBox::getSelectedIndex(getEventWindowHandle(), IDC_LANG_LIST, buffer))
         {
-            ConfigDialog& parent = getEventTargetDialogReference(ConfigDialog);
             if (parent.onLanguageSelection(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES, buffer))
             {
                 parent.onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES, true); // translate window components
             }
-            return DIALOG_EVENT_RETURN_ERROR;
         }
         else
         {
             MsgBox::showMessage(L"An error occurred during selection. Please try again."s, L"Language selection error"s, 
                                 getEventWindowHandle(), MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
-            return DIALOG_EVENT_RETURN_ERROR;
         }
+    }
+    // tab change
+    else if (parent.getTabControl().onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES) == DIALOG_EVENT_RETURN_VALID)
+    {
+        bool isProfilePage = parent.getTabControl().isActiveTab(IDC_PROFILE_TAB);
+        Label::setVisible(getEventWindowHandle(), IDC_PROFILE_LIST, isProfilePage);
+        Label::setVisible(getEventWindowHandle(), IDS_PROFILE, isProfilePage);
     }
     return DIALOG_EVENT_RETURN_ERROR;
 }
@@ -165,7 +171,7 @@ DIALOG_EVENT_RETURN ConfigDialog::onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
     ConfigDialog& parent = getEventTargetDialogReference(ConfigDialog);
 
     // read and check values
-    if (parent.m_tabs.onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES) == false)
+    if (parent.getTabControl().onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES) == false)
         return DIALOG_EVENT_RETURN_ERROR;
 
     // save config and profiles
@@ -180,7 +186,7 @@ DIALOG_EVENT_RETURN ConfigDialog::onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
 DIALOG_EVENT_RETURN ConfigDialog::onClose(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
     ConfigDialog& parent = getEventTargetDialogReference(ConfigDialog);
-    parent.m_tabs.close();
+    parent.getTabControl().close();
     return DIALOG_EVENT_RETURN_VALID;
 }
 
@@ -254,6 +260,6 @@ void ConfigDialog::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const bool i
     // translate controls in embedded pages
     if (isRecursive)
     {
-        m_tabs.onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES);
+        getTabControl().onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES);
     }
 }

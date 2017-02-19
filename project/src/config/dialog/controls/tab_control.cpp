@@ -17,6 +17,7 @@ Description : advanced tab control
 #include "dialog.h"
 #include "tab_button.h"
 #include "tab_page.h"
+#include "button.hpp"
 #include "tab_control.h"
 using namespace config::dialog::controls;
 
@@ -124,11 +125,12 @@ void TabControl::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS)
 
 /// @brief Define colors for a tab button
 /// @param[in]  tabNumber           Tab position
+/// @param[in]  isHover             Mouse hover
 /// @param[out] pColorTop           Vector (size = 3) to fill with top color
 /// @param[out] pColorOffset        Vector (size = 3) to fill with color offset
 /// @param[out] pColorTopBorder     Vector (size = 3) to fill with top border color
 /// @param[out] pColorOffsetBorder  Vector (size = 3) to fill with border color offset
-bool TabControl::getTabButtonColors(uint32_t tabNumber, float* pColorTop, float* pColorOffset, float* pColorTopBorder, float* pColorOffsetBorder)
+bool TabControl::getTabButtonColors(uint32_t tabNumber, bool isHover, float* pColorTop, float* pColorOffset, float* pColorTopBorder, float* pColorOffsetBorder)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     if (m_height != 0)
@@ -152,6 +154,23 @@ bool TabControl::getTabButtonColors(uint32_t tabNumber, float* pColorTop, float*
         pColorOffsetBorder[0] = percentHeight * colorOffsetBorder[0];
         pColorOffsetBorder[1] = percentHeight * colorOffsetBorder[1];
         pColorOffsetBorder[2] = percentHeight * colorOffsetBorder[2];
+
+        // hover effect
+        if (isHover)
+        {
+            pColorTop[0] *= 1.05f;
+            if (pColorTop[0] > 255.0f)
+                pColorTop[0] = 255.0f;
+            pColorTop[1] *= 1.05f;
+            if (pColorTop[1] > 255.0f)
+                pColorTop[1] = 255.0f;
+            pColorTop[2] *= 1.05f;
+            if (pColorTop[2] > 255.0f)
+                pColorTop[2] = 255.0f;
+            pColorOffset[0] *= 0.8f;
+            pColorOffset[1] *= 0.8f;
+            pColorOffset[2] *= 0.8f;
+        }
         return true;
     }
     return false;
@@ -240,5 +259,37 @@ DIALOG_EVENT_RETURN TabControl::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
     //...
     return DIALOG_EVENT_RETURN_VALID;
+}
+#endif
+
+
+/// @brief Tab button command event handler
+DIALOG_EVENT_RETURN TabControl::onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS)
+#if _DIALOGAPI == DIALOGAPI_WIN32
+{
+    // check if a tab button was clicked (and not already active)
+    int32_t resourceId = getEventTargetControlId();
+    if (m_resourceIdMap.count(resourceId) && eventActionEquals(Button::event_t::clicked) && m_resourceIdMap[resourceId] != m_activePageIndex)
+    {
+        // deselect previous tab button
+        int32_t previousIndex = m_activePageIndex;
+        m_pages.at(m_activePageIndex).button->setActive(false);
+        m_pages.at(m_activePageIndex).button->invalidate();
+        // select new tab button
+        m_activePageIndex = m_resourceIdMap[resourceId];
+        m_pages.at(m_activePageIndex).button->setActive(true);
+        m_pages.at(m_activePageIndex).button->invalidate();
+
+        // change tab page
+        m_pages.at(m_activePageIndex).page->setVisible(true);
+        m_pages.at(previousIndex).page->setVisible(false);
+        return DIALOG_EVENT_RETURN_VALID;
+    }
+    return DIALOG_EVENT_RETURN_ERROR;
+}
+#else
+{
+//...
+return return DIALOG_EVENT_RETURN_ERROR;
 }
 #endif
