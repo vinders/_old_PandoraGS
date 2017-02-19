@@ -442,6 +442,9 @@
     <ClInclude Include="..\src\config\dialog\controls\data_table.h">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\config\dialog\controls\simple_tabs.hpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\pandoraGS.rc">

@@ -8,6 +8,7 @@ Description : tab page - profile settings
 *******************************************************************************/
 #pragma once
 
+#include <cstdint>
 #include <vector>
 #include <memory>
 #include "../config.h"
@@ -29,16 +30,33 @@ namespace config
         class ProfilePage : public controls::TabPage
         {
         private:
+            int32_t m_activeSubPage;
             std::vector<std::shared_ptr<controls::TabPage>> m_subPages;
         
         public:
             /// @brief Create tab page - profile settings
             /// @param[in] instance       Current instance handle
             /// @param[in] pParentDialog  Parent dialog reference
-            ProfilePage(controls::library_instance_t instance, controls::Dialog* pParentDialog) 
-                : controls::TabPage(instance, pParentDialog, IDD_PROFILE_PAGE) {}
+            ProfilePage(controls::library_instance_t instance, controls::Dialog* pParentDialog);
             /// @brief Destroy tab page - profile settings
             ~ProfilePage() {}
+
+            /// @brief Close tab page control - overridable method
+            virtual void overridableClose() override
+            {
+                for (uint32_t i = 0; i < m_subPages.size(); ++i)
+                    m_subPages.at(i)->close();
+                m_subPages.clear();
+                m_activeSubPage = 0;
+            }
+
+
+            // -- event handlers -- --------------------------------------------
+
+            /// @brief Initialization event handler
+            static DIALOG_EVENT_RETURN onInit(PAGE_EVENT_HANDLER_ARGUMENTS);
+            /// @brief Notification event handler
+            static DIALOG_EVENT_RETURN onNotify(PAGE_EVENT_HANDLER_ARGUMENTS);
 
 
             // -- specialized handlers -- --------------------------------------

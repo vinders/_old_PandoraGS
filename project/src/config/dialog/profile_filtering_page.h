@@ -8,6 +8,7 @@ Description : tab sub-page - filtering settings
 *******************************************************************************/
 #pragma once
 
+#include "controls/common.h"
 #include "controls/scrollable_tab_page.h"
 
 /// @namespace config
@@ -26,6 +27,25 @@ namespace config
         private:
         
         public:
+            /// @brief Create tab page - profile compatibility settings
+            /// @param[in] instance       Current instance handle
+            /// @param[in] pParentDialog  Parent dialog reference
+            ProfileFilteringPage(controls::library_instance_t instance, controls::Dialog* pParentDialog)
+                : controls::ScrollableTabPage(instance, pParentDialog, IDD_PROFILE_FILTERS_TAB) {}
+
+
+            /// @brief Close tab page control - overridable method
+            virtual void overridableClose() {}
+
+
+            // -- specialized handlers -- --------------------------------------
+
+            /// @brief Language change event
+            /// @returns Validity
+            virtual bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS) { return true; };
+            /// @brief Language change event
+            /// @param[in] isRecursive    Also translate controls in child pages or not
+            virtual void onLanguageChange(const bool isRecursive) {};
         };
     }
 }

@@ -64,7 +64,7 @@ namespace config
                 /// @brief Create tab page
                 /// @param[in] instance       Current instance handle
                 /// @param[in] pParentDialog  Parent dialog reference
-                /// @param[in] resourceId     Dialog description identifier
+                /// @param[in] resourceId     Tab page description identifier
                 TabPage(library_instance_t instance, Dialog* pParentDialog, const int32_t resourceId)
                     : m_instance(instance), m_pParentDialog(pParentDialog), m_pageResourceId(resourceId), m_isInitialized(false), m_hPage(0) {}
                 /// @brief Destroy tab page
@@ -74,10 +74,11 @@ namespace config
                 }
 
                 /// @brief Create tab page control
-                /// @param[in] hWindow  Parent window handle
-                /// @param[in] offset   Page horizontal offset
+                /// @param[in] hWindow    Parent window handle
+                /// @param[in] offset     Page horizontal offset
+                /// @param[in] isSubPage  Page is a sub-page of another page
                 /// @returns Dialog result
-                bool create(window_handle_t hWindow, const uint32_t offset);
+                bool create(window_handle_t hWindow, const uint32_t offset, const bool isSubPage = false);
                 /// @brief Close tab page control
                 void close();
                 /// @brief Close tab page control - overridable method

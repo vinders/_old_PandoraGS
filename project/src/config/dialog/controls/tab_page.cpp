@@ -28,10 +28,11 @@ TabPage* TabPage::s_pageRefBuffer = nullptr; ///< Page reference buffer (pass no
 
 
 /// @brief Create tab page control (non-virtual)
-/// @param[in] hWindow  Parent window handle
-/// @param[in] offset   Page horizontal offset
+/// @param[in] hWindow    Parent window handle
+/// @param[in] offset     Page horizontal offset
+/// @param[in] isSubPage  Page is a sub-page of another page
 /// @returns Dialog result
-bool TabPage::create(window_handle_t hWindow, const uint32_t offset)
+bool TabPage::create(window_handle_t hWindow, const uint32_t offset, const bool isSubPage)
 {
     #if _DIALOGAPI == DIALOGAPI_WIN32
     if (reinterpret_cast<HINSTANCE>(m_instance) == reinterpret_cast<HINSTANCE>(INVALID_HANDLE_VALUE)
@@ -55,13 +56,16 @@ bool TabPage::create(window_handle_t hWindow, const uint32_t offset)
         return false;
     
     // define page size
-    RECT pageSize;
-    GetClientRect(hWindow, &pageSize);
-    pageSize.left += offset;
-    pageSize.bottom -= DIALOG_BUTTON_BAR_HEIGHT;
-    // set page position
-    SetWindowPos(m_hPage, nullptr, pageSize.left, pageSize.top,
-                 pageSize.right - pageSize.left, pageSize.bottom - pageSize.top, 0);
+    if (isSubPage == false)
+    {
+        RECT pageSize;
+        GetClientRect(hWindow, &pageSize);
+        pageSize.left += offset;
+        pageSize.bottom -= DIALOG_BUTTON_BAR_HEIGHT;
+        // set page position
+        SetWindowPos(m_hPage, nullptr, pageSize.left, pageSize.top,
+            pageSize.right - pageSize.left, pageSize.bottom - pageSize.top, 0);
+    }
     #else
     //...
     #endif

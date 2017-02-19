@@ -11,6 +11,7 @@ Description : scrollable page for tab control
 #include "../../../globals.h"
 #include <cstdint>
 #include "common.h"
+#include "tab_page.h"
 
 /// @namespace config
 /// Configuration management
@@ -28,7 +29,13 @@ namespace config
             /// @brief Scrollable page for tab control
             class ScrollableTabPage : public TabPage
             {
-                
+            public:
+                /// @brief Create tab page - profile compatibility settings
+                /// @param[in] instance       Current instance handle
+                /// @param[in] pParentDialog  Parent dialog reference
+                /// @param[in] resourceId     Tab page description identifier
+                ScrollableTabPage(controls::library_instance_t instance, controls::Dialog* pParentDialog, const int32_t resourceId)
+                    : controls::TabPage(instance, pParentDialog, resourceId) {}
             };
         }
     }

@@ -103,6 +103,7 @@
     <ClInclude Include="..\src\config\dialog\controls\data_table.h" />
     <ClInclude Include="..\src\config\dialog\controls\keyboard.h" />
     <ClInclude Include="..\src\config\dialog\controls\screen.h" />
+    <ClInclude Include="..\src\config\dialog\controls\simple_tabs.hpp" />
     <ClInclude Include="..\src\config\dialog\controls\text_field.hpp" />
     <ClInclude Include="..\src\config\dialog\controls\tooltip.hpp" />
     <ClInclude Include="..\src\config\dialog\profile_compatibility_page.h" />
