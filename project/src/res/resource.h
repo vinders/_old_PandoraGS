@@ -95,7 +95,7 @@
 #define IDC_PRO_FXAA_CHECK              381
 #define IDC_PRO_FXAA_LIST               382
 #define IDC_PRO_FXMOTION_CHECK          383
-#define IDC_PRO_FXMOTION_SLIDER         384
+#define IDC_PRO_FXMOTION_LIST           384
 #define IDC_PRO_FXBUMP_CHECK            385
 #define IDC_PRO_FXBUMP_LIST             386
 #define IDC_PRO_FXBUMP_SLIDER           387
