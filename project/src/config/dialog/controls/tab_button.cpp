@@ -26,7 +26,6 @@ using namespace std::literals::string_literals;
 #if _DIALOGAPI == DIALOGAPI_WIN32
 #define COLOR_MENU_TEXT        RGB(67,82,97)
 #define COLOR_MENU_TEXT_ACTIVE RGB(88,100,116)
-const std::vector<COLORREF> colorTabBorder{ RGB(217,222,226), RGB(204,212,220), RGB(191,202,215) };
 #endif
 const uint32_t TabButton::tabInterval = 6u;
 const uint32_t TabButton::tabHeight = 90u;
@@ -110,19 +109,20 @@ TabButton::~TabButton()
 
 
 /// @brief Create control in dialog
-/// @param[in] parent  Parent tab control
-/// @param[in] window  Window handle
-/// @param[in] offset  Vertical offset for first tab button
-/// @param[in] width   Tab button width
+/// @param[in] parent       Parent tab control
+/// @param[in] window       Window handle
+/// @param[in] offset       Vertical offset for first tab button
+/// @param[in] width        Tab button width
+/// @param[in] borderColor  Tab border color
 /// @returns Success
-bool TabButton::create(TabControl& parent, window_handle_t window, const uint32_t offset, const uint32_t width)
+bool TabButton::create(TabControl& parent, window_handle_t window, const uint32_t offset, const uint32_t width, const color_ref_t borderColor)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     // create tab button
     m_pParentTabControl = &parent;
     m_isActive = false;
-    m_topOffset = offset;
     m_width = width;
+    m_borderColor = borderColor;
     std::wstring controlName = L"Tab "s + std::to_wstring(m_tabNumber);
     m_tabButtonControl = CreateWindow(L"button", controlName.c_str(), WS_CHILD | WS_VISIBLE | BS_TEXT | BS_BITMAP | BS_BOTTOM | BS_OWNERDRAW,
                                       0, offset + firstTabOffsetY + (m_tabNumber * (tabHeight + tabInterval)), width, tabHeight,
@@ -241,7 +241,7 @@ INT_PTR CALLBACK TabButton::tabButtonEventHandler(HWND hWindow, UINT msg, WPARAM
                     // white background
                     FillRect(hDC, &buttonRect, HBRUSH(GetStockBrush(WHITE_BRUSH)));
                     // top/bottom borders
-                    borderBrush = CreateSolidBrush(colorTabBorder[pTabButton->m_tabNumber]);
+                    borderBrush = CreateSolidBrush((COLORREF)pTabButton->m_borderColor);
                     borderRect.top = buttonRect.top;
                     borderRect.bottom = buttonRect.top + 1;
                     borderRect.left = buttonRect.left;
@@ -304,7 +304,7 @@ INT_PTR CALLBACK TabButton::tabButtonEventHandler(HWND hWindow, UINT msg, WPARAM
                 titleRect.bottom = buttonRect.bottom;
                 SelectObject(hDC, s_tabFont);
                 SetTextColor(hDC, (pTabButton->m_isActive) ? COLOR_MENU_TEXT_ACTIVE : COLOR_MENU_TEXT);
-                DrawText(hDC, pTabButton->m_title.c_str(), -1, &titleRect, DT_CENTER); break;
+                DrawText(hDC, pTabButton->m_title.c_str(), -1, &titleRect, DT_CENTER);
 
                 // draw tab icon
                 pTabButton->paintBitmap(hDC, &titleRect);

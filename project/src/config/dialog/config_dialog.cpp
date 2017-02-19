@@ -67,8 +67,6 @@ ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance)
     Dialog::registerEvent(dialog_event_t::init, eventHandler);
     eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onPaint);
     Dialog::registerEvent(dialog_event_t::paint, eventHandler);
-    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onDrawItem);
-    Dialog::registerEvent(dialog_event_t::drawItem, eventHandler);
     eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onCommand);
     Dialog::registerEvent(dialog_event_t::command, eventHandler);
     eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onConfirm);
@@ -131,17 +129,6 @@ DIALOG_EVENT_RETURN ConfigDialog::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
 {
     ConfigDialog& parent = getEventTargetDialogReference(ConfigDialog);
     return parent.m_tabs.onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES);
-}
-
-
-/// @brief Sub-control drawing event handler - draw component
-DIALOG_EVENT_RETURN ConfigDialog::onDrawItem(DIALOG_EVENT_HANDLER_ARGUMENTS)
-{
-    ConfigDialog& parent = getEventTargetDialogReference(ConfigDialog);
-
-    //...
-
-    return DIALOG_EVENT_RETURN_ERROR;
 }
 
 

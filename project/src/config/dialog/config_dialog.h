@@ -61,8 +61,6 @@ namespace config
             static DIALOG_EVENT_RETURN onInit(DIALOG_EVENT_HANDLER_ARGUMENTS);
             /// @brief Paint event handler - draw dialog
             static DIALOG_EVENT_RETURN onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS);
-            /// @brief Sub-control drawing event handler - draw component
-            static DIALOG_EVENT_RETURN onDrawItem(DIALOG_EVENT_HANDLER_ARGUMENTS);
             /// @brief Sub-control command event handler
             static DIALOG_EVENT_RETURN onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS);
             /// @brief Dialog confirm event handler - check validity

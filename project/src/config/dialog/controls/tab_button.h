@@ -51,12 +51,14 @@ namespace config
                 static const uint32_t firstTabOffsetY;
 
             private:
+                // resources
                 static int32_t s_activeCount; ///< Number of tab buttons loaded
                 static std::unordered_map<uint32_t, bitmap_cache_t> s_cache; ///< Icon bitmap cache
                 #if _DIALOGAPI == DIALOGAPI_WIN32
                 static HFONT s_tabFont; ///< Common font for tab buttons
                 #endif
 
+                // general
                 library_instance_t m_instance;  ///< Current instance handle
                 TabControl* m_pParentTabControl; ///< Parent tab control
                 #if _DIALOGAPI == DIALOGAPI_WIN32
@@ -66,12 +68,13 @@ namespace config
                 #endif
                 uint32_t m_resourceId;  ///< Tab button resource ID
                 uint32_t m_tabNumber;   ///< Tab number in tab control
-                uint32_t m_topOffset;   ///< General top offset
 
+                // tab style
                 std::wstring& m_title;  ///< Button title text (reference)
                 uint32_t m_bitmapId;    ///< Button icon bitmap
                 uint32_t m_iconIndex;   ///< Button icon index in bitmap (0 = no icon)
                 uint32_t m_width;       ///< Button width
+                color_ref_t m_borderColor; ///< Tab border color
                 bool m_isActive; ///< Status - active or not
 
             public:
@@ -88,12 +91,13 @@ namespace config
                 ~TabButton();
 
                 /// @brief Create control in dialog
-                /// @param[in] parent         Parent tab control
-                /// @param[in] window      Window handle
-                /// @param[in] offset      Vertical offset for first tab button
-                /// @param[in] width       Tab button width
+                /// @param[in] parent       Parent tab control
+                /// @param[in] window       Window handle
+                /// @param[in] offset       Vertical offset for first tab button
+                /// @param[in] width        Tab button width
+                /// @param[in] borderColor  Tab border color
                 /// @returns Success
-                bool create(TabControl& parent, window_handle_t window, const uint32_t offset, const uint32_t width);
+                bool create(TabControl& parent, window_handle_t window, const uint32_t offset, const uint32_t width, const color_ref_t borderColor);
                 /// @brief Close control in dialog
                 void close();
 

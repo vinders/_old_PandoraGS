@@ -21,7 +21,13 @@ Description : advanced tab control
 using namespace config::dialog::controls;
 
 #define DIALOG_BOTTOM_BAR_HEIGHT  42
-#define COLOR_BORDER  RGB(210,216,220)
+#define COLOR_BORDER              RGB(210,216,220)
+#define COLOR_TAB_BORDER_MIN_R    217
+#define COLOR_TAB_BORDER_MIN_G    222
+#define COLOR_TAB_BORDER_MIN_B    226
+#define COLOR_TAB_BORDER_MAX_R    191
+#define COLOR_TAB_BORDER_MAX_G    202
+#define COLOR_TAB_BORDER_MAX_B    215
 const float TabControl::colorTop[3] { 235.0f, 240.0f, 245.0f };
 const float TabControl::colorOffset[3] { -79.0f, -51.0f, -25.0f };
 const float TabControl::colorTopBorder[3] { 227.0f, 232.0f, 236.0f };
@@ -50,9 +56,20 @@ bool TabControl::create(window_handle_t window, const uint32_t offset, const uin
     }
 
     // create tab buttons
+    float posFactor;
+    float lastIndex = static_cast<float>(m_pages.size() - 1u);
     for (uint32_t i = 0; i < m_pages.size(); ++i)
     {
-        if (m_pages.at(i).button->create(*this, window, offset, width) == false)
+        posFactor = static_cast<float>(i) / lastIndex;
+        float red = COLOR_TAB_BORDER_MIN_R * (1.0f - posFactor) + COLOR_TAB_BORDER_MAX_R * (posFactor);
+        float green = COLOR_TAB_BORDER_MIN_G * (1.0f - posFactor) + COLOR_TAB_BORDER_MAX_G * (posFactor);
+        float blue = COLOR_TAB_BORDER_MIN_B * (1.0f - posFactor) + COLOR_TAB_BORDER_MAX_B * (posFactor);
+        #if _DIALOGAPI == DIALOGAPI_WIN32
+        COLORREF borders = RGB(static_cast<char>(red), static_cast<char>(green), static_cast<char>(blue));
+        #else
+        uint32_t borders = static_cast<uint32_t>(red) + (static_cast<uint32_t>(green) >> 8) + (static_cast<uint32_t>(blue) >> 16);
+        #endif
+        if (m_pages.at(i).button->create(*this, window, offset, width, (color_ref_t)borders) == false)
             return false;
     }
     m_pages.at(0).button->setActive(true);
