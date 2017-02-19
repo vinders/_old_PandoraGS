@@ -69,7 +69,14 @@ void ConfigLang::setLanguageEnglish() noexcept
     keyBindingSettings.backspace = L"<Backspace> : Toggle window mode"s;
     
     profileManager.groupList = L"Profile list management"s;
-    //...
+    profileManager.btnAdd = L"Add a new profile";
+    profileManager.btnEdit = L"Edit the selected profile (name and associations)";
+    profileManager.btnRemove = L"Remove selected profiles";
+    profileManager.btnImport = L"Import profile (from file)";
+    profileManager.btnExport = L"Export profile (save file)";
+    profileManager.profilePresets = L"Profile presets"s;
+    profileManager.btnPresets = L"Apply to selection"s;
+    profileManager.presets = { L"Fastest"s, L"Standard"s, L"Enhanced 2D"s, L"Enhanced 3D"s };
 
     filteringSettings.groupSmoothing = L"Smoothing / upscaling"s;
     //...
@@ -145,7 +152,14 @@ void ConfigLang::setLanguageFrench() noexcept
     keyBindingSettings.backspace = L"<Backspace> : fenêtre/plein écran"s;
 
     profileManager.groupList = L"Gestionnaire de profils"s;
-    //...
+    profileManager.btnAdd = L"Ajouter un profil";
+    profileManager.btnEdit = L"Editer le profil sélectionné (nom et associations)";
+    profileManager.btnRemove = L"Supprimer la sélection";
+    profileManager.btnImport = L"Importer profil (depuis fichier)";
+    profileManager.btnExport = L"Exporter profil (sauvegarder)";
+    profileManager.profilePresets = L"Préconfigurer profil"s;
+    profileManager.btnPresets = L"Appliquer à la sélection"s;
+    profileManager.presets = { L"Le plus rapide"s, L"Standard"s, L"2D optimisée"s, L"3D optimisée"s };
 
     filteringSettings.groupSmoothing = L"Lissage / agrandissement"s;
     //...

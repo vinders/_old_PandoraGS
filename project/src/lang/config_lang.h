@@ -9,6 +9,7 @@ Description : config dialog language/translation utility
 #pragma once
 
 #include <string>
+#include <vector>
 #include "i_lang.h"
 
 /// @namespace lang
@@ -92,6 +93,14 @@ namespace lang
         struct manager_content_t
         {
             std::wstring groupList;
+            std::wstring btnAdd;
+            std::wstring btnEdit;
+            std::wstring btnRemove;
+            std::wstring btnImport;
+            std::wstring btnExport;
+            std::wstring profilePresets;
+            std::wstring btnPresets;
+            std::vector<std::wstring> presets;
         };
         /// @struct profile_content_t
         /// @brief Profile settings translations

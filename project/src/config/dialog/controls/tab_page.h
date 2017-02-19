@@ -52,9 +52,9 @@ namespace config
             protected:
                 library_instance_t m_instance; ///< Library instance handle
                 int32_t m_pageResourceId; ///< Page resource identifier
+                window_handle_t m_hPage;  ///< Page control handle
             private:
                 Dialog* m_pParentDialog;  ///< Parent dialog reference
-                window_handle_t m_hPage;  ///< Page control handle
                 bool m_isInitialized;
                 std::unordered_map<dialog_event_t, TabPage::event_handler_t> m_registeredHandlers; ///< Registered event handlers
                 static TabPage* s_pageRefBuffer; ///< Page reference buffer (pass non-static data to static handler)

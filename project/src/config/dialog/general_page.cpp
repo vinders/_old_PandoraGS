@@ -60,6 +60,7 @@ DIALOG_EVENT_RETURN GeneralPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
     GeneralPage& parent = getEventTargetPageReference(GeneralPage);
 
     // translate controls/labels
+    parent.m_hPage = getEventWindowHandle();
     parent.onLanguageChange(false);
 
     // set list of screen resolutions
@@ -247,8 +248,8 @@ bool GeneralPage::onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
 
 
 /// @brief Language change event
-/// @param[in] isRecursive    Also translate controls in child pages or not
-void GeneralPage::onLanguageChange(const bool isRecursive)
+/// @param[in] isUpdate  Set to false to initialize controls
+void GeneralPage::onLanguageChange(const bool isUpdate)
 {
     window_handle_t hPage = getPageHandle();
     lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();

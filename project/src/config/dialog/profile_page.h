@@ -47,8 +47,8 @@ namespace config
             /// @returns Validity
             virtual bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS) override;
             /// @brief Language change event
-            /// @param[in] isRecursive    Also translate controls in child pages or not
-            virtual void onLanguageChange(const bool isRecursive) override;
+            /// @param[in] isRecursive  Also translate controls in child pages or not
+            virtual void onLanguageChange(const bool IsRecursive) override;
         };
     }
 }
