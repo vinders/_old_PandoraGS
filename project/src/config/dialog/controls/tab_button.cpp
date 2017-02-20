@@ -272,23 +272,23 @@ INT_PTR CALLBACK TabButton::tabButtonEventHandler(HWND hWindow, UINT msg, WPARAM
                         gardientBorder.right = buttonRect.right;
                         for (int px = 0; px < tabHeight; ++px)
                         {
-                            curPercent = static_cast<float>(px) / static_cast<float>(tabHeight);
-
-                            gradientLine.top = buttonRect.top + px;
-                            gradientLine.bottom = gradientLine.top + 1;
-                            gradientBrush = CreateSolidBrush(RGB(colorTop[0] + (curPercent*colorOffset[0]),
-                                colorTop[1] + (curPercent*colorOffset[1]),
-                                colorTop[2] + (curPercent*colorOffset[2])));
-                            FillRect(hDC, &gradientLine, gradientBrush); // background
-                            DeleteObject(gradientBrush);
-
-                            if (px % 2 == 1) // 2 border pixels at once
+                            if (px % 2 == 1) // 2 lines at once
                             {
-                                gardientBorder.top = gradientLine.top - 1;
+                                curPercent = static_cast<float>(px) / static_cast<float>(tabHeight);
+
+                                gradientLine.top = buttonRect.top + px - 1;
+                                gradientLine.bottom = gradientLine.top + 2;
+                                gradientBrush = CreateSolidBrush(RGB(colorTop[0] + (curPercent*colorOffset[0]),
+                                                                     colorTop[1] + (curPercent*colorOffset[1]),
+                                                                     colorTop[2] + (curPercent*colorOffset[2])));
+                                FillRect(hDC, &gradientLine, gradientBrush); // background
+                                DeleteObject(gradientBrush);
+
+                                gardientBorder.top = gradientLine.top;
                                 gardientBorder.bottom = gradientLine.bottom;
                                 borderBrush = CreateSolidBrush(RGB(colorTopBorder[0] + (curPercent*colorOffsetBorder[0]),
-                                    colorTopBorder[1] + (curPercent*colorOffsetBorder[1]),
-                                    colorTopBorder[2] + (curPercent*colorOffsetBorder[2])));
+                                                                   colorTopBorder[1] + (curPercent*colorOffsetBorder[1]),
+                                                                   colorTopBorder[2] + (curPercent*colorOffsetBorder[2])));
                                 FillRect(hDC, &gardientBorder, borderBrush); // border
                                 DeleteObject(borderBrush);
                             }

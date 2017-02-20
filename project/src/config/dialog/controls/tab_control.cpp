@@ -143,9 +143,9 @@ bool TabControl::getTabButtonColors(uint32_t tabNumber, bool isHover, float* pCo
         pColorTop[0] = colorTop[0] + (tabPercent*colorOffset[0]);
         pColorTop[1] = colorTop[1] + (tabPercent*colorOffset[1]);
         pColorTop[2] = colorTop[2] + (tabPercent*colorOffset[2]);
-        pColorTopBorder[0] = colorTop[0] + (tabPercent*colorOffsetBorder[0]);
-        pColorTopBorder[1] = colorTop[1] + (tabPercent*colorOffsetBorder[1]);
-        pColorTopBorder[2] = colorTop[2] + (tabPercent*colorOffsetBorder[2]);
+        pColorTopBorder[0] = colorTopBorder[0] + (tabPercent*colorOffsetBorder[0]);
+        pColorTopBorder[1] = colorTopBorder[1] + (tabPercent*colorOffsetBorder[1]);
+        pColorTopBorder[2] = colorTopBorder[2] + (tabPercent*colorOffsetBorder[2]);
 
         // offsets
         pColorOffset[0] = percentHeight * colorOffset[0];
@@ -229,19 +229,19 @@ DIALOG_EVENT_RETURN TabControl::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
 
     for (int px = 0; px < m_height; ++px)
     {
-        curPercent = static_cast<float>(px) / static_cast<float>(m_height);
-
-        gradientLine.top = windowRect.top + px;
-        gradientLine.bottom = gradientLine.top + 1;
-        gradientBrush = CreateSolidBrush(RGB(colorTop[0] + (curPercent*colorOffset[0]),
-                                             colorTop[1] + (curPercent*colorOffset[1]),
-                                             colorTop[2] + (curPercent*colorOffset[2])));
-        FillRect(hDC, &gradientLine, gradientBrush); // background
-        DeleteObject(gradientBrush);
-
-        if (px % 2 == 1) // 2 border pixels at once
+        if (px % 2 == 1) // 2 lines at once
         {
-            gardientBorder.top = gradientLine.top - 1;
+            curPercent = static_cast<float>(px) / static_cast<float>(m_height);
+
+            gradientLine.top = windowRect.top + px - 1;
+            gradientLine.bottom = gradientLine.top + 2;
+            gradientBrush = CreateSolidBrush(RGB(colorTop[0] + (curPercent*colorOffset[0]),
+                                                 colorTop[1] + (curPercent*colorOffset[1]),
+                                                 colorTop[2] + (curPercent*colorOffset[2])));
+            FillRect(hDC, &gradientLine, gradientBrush); // background
+            DeleteObject(gradientBrush);
+
+            gardientBorder.top = gradientLine.top;
             gardientBorder.bottom = gradientLine.bottom ;
             borderBrush = CreateSolidBrush(RGB(colorTopBorder[0] + (curPercent*colorOffsetBorder[0]),
                                                colorTopBorder[1] + (curPercent*colorOffsetBorder[1]),
