@@ -227,28 +227,25 @@ DIALOG_EVENT_RETURN TabControl::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
     gradientLine.right = gardientBorder.left = windowRect.left + m_width - 1;
     gardientBorder.right = gardientBorder.left + 1;
 
-    for (int px = 0; px < m_height; ++px)
+    for (int px = 1; px < m_height; px += 2) // 2 lines at once (px and px-1)
     {
-        if (px % 2 == 1) // 2 lines at once
-        {
-            curPercent = static_cast<float>(px) / static_cast<float>(m_height);
+        curPercent = static_cast<float>(px) / static_cast<float>(m_height);
 
-            gradientLine.top = windowRect.top + px - 1;
-            gradientLine.bottom = gradientLine.top + 2;
-            gradientBrush = CreateSolidBrush(RGB(colorTop[0] + (curPercent*colorOffset[0]),
-                                                 colorTop[1] + (curPercent*colorOffset[1]),
-                                                 colorTop[2] + (curPercent*colorOffset[2])));
-            FillRect(hDC, &gradientLine, gradientBrush); // background
-            DeleteObject(gradientBrush);
+        gradientLine.top = windowRect.top + px - 1;
+        gradientLine.bottom = gradientLine.top + 2;
+        gradientBrush = CreateSolidBrush(RGB(colorTop[0] + (curPercent*colorOffset[0]),
+                                                colorTop[1] + (curPercent*colorOffset[1]),
+                                                colorTop[2] + (curPercent*colorOffset[2])));
+        FillRect(hDC, &gradientLine, gradientBrush); // background
+        DeleteObject(gradientBrush);
 
-            gardientBorder.top = gradientLine.top;
-            gardientBorder.bottom = gradientLine.bottom ;
-            borderBrush = CreateSolidBrush(RGB(colorTopBorder[0] + (curPercent*colorOffsetBorder[0]),
-                                               colorTopBorder[1] + (curPercent*colorOffsetBorder[1]),
-                                               colorTopBorder[2] + (curPercent*colorOffsetBorder[2])));
-            FillRect(hDC, &gardientBorder, borderBrush); // border
-            DeleteObject(borderBrush);
-        }
+        gardientBorder.top = gradientLine.top;
+        gardientBorder.bottom = gradientLine.bottom ;
+        borderBrush = CreateSolidBrush(RGB(colorTopBorder[0] + (curPercent*colorOffsetBorder[0]),
+                                            colorTopBorder[1] + (curPercent*colorOffsetBorder[1]),
+                                            colorTopBorder[2] + (curPercent*colorOffsetBorder[2])));
+        FillRect(hDC, &gardientBorder, borderBrush); // border
+        DeleteObject(borderBrush);
     }
 
     EndPaint(hWindow, &paint);
