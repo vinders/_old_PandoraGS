@@ -25,6 +25,7 @@ using namespace std::literals::string_literals;
 #define DIALOG_EVENT_RETURN_ERROR (INT_PTR)FALSE
 #define getEventTargetControlId() LOWORD(wParam)
 #define getEventActionType() static_cast<uint32_t>(HIWORD(wParam))
+#define getEventArgs() static_cast<uint32_t>(lParam)
 #else
 #define DIALOG_EVENT_HANDLER_ARGUMENTS void* pDialog, int hWindow, int type
 #define DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES pDialog,hWindow,type
@@ -33,6 +34,7 @@ using namespace std::literals::string_literals;
 #define DIALOG_EVENT_RETURN_ERROR -1
 #define getEventTargetControlId() (type&0x0FF)
 #define getEventActionType() ((type>>8)&0x0FF)
+#define getEventArgs() ((type>>16)&0x0FF)
 #endif
 #define getEventTargetDialogReference(TYPE) *((TYPE*)(pDialog))
 #define getEventWindowHandle() reinterpret_cast<window_handle_t>(hWindow)

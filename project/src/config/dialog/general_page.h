@@ -46,6 +46,9 @@ namespace config
                 return m_resolutions;
             }
 
+            /// @brief Close tab page control - overridable method
+            virtual void overridableClose() override;
+
 
             // -- event handlers -- --------------------------------------------
 

@@ -76,6 +76,8 @@ void ConfigLang::setLanguageEnglish() noexcept
     profileManager.btnExport = L"Export profile (save file)";
     profileManager.profilePresets = L"Profile presets"s;
     profileManager.btnPresets = L"Apply to selection"s;
+    profileManager.tableNumber = L"#"s;
+    profileManager.tableProfile = L"profile"s;
     profileManager.presets = { L"Fastest"s, L"Standard"s, L"Enhanced 2D"s, L"Enhanced 3D"s };
 
     filteringSettings.groupSmoothing = L"Smoothing / upscaling"s;
@@ -159,6 +161,8 @@ void ConfigLang::setLanguageFrench() noexcept
     profileManager.btnExport = L"Exporter profil (sauvegarder)";
     profileManager.profilePresets = L"Préconfigurer profil"s;
     profileManager.btnPresets = L"Appliquer à la sélection"s;
+    profileManager.tableNumber = L"#"s;
+    profileManager.tableProfile = L"profil"s;
     profileManager.presets = { L"Le plus rapide"s, L"Standard"s, L"2D optimisée"s, L"3D optimisée"s };
 
     filteringSettings.groupSmoothing = L"Lissage / agrandissement"s;

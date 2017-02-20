@@ -47,6 +47,18 @@ ProfilePage::ProfilePage(controls::library_instance_t instance, controls::Dialog
     TabPage::registerEvent(dialog_event_t::notify, eventHandler);
 }
 
+/// @brief Close tab page control - overridable method
+void ProfilePage::overridableClose()
+{
+    TabPage::unregisterEvent(dialog_event_t::notify);
+    TabPage::unregisterEvent(dialog_event_t::init);
+
+    for (uint32_t i = 0; i < m_subPages.size(); ++i)
+        m_subPages.at(i)->close();
+    m_subPages.clear();
+    m_activeSubPage = 0;
+}
+
 
 
 // -- event handlers -- --------------------------------------------

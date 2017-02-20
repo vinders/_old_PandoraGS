@@ -100,6 +100,8 @@ namespace lang
             std::wstring btnExport;
             std::wstring profilePresets;
             std::wstring btnPresets;
+            std::wstring tableNumber;
+            std::wstring tableProfile;
             std::vector<std::wstring> presets;
         };
         /// @struct profile_content_t

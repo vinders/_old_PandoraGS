@@ -10,6 +10,7 @@ Description : tab page - profile manager
 
 #include <vector>
 #include <memory>
+#include <stdexcept>
 #include "controls/common.h"
 #include "controls/button_icon.h"
 #include "controls/tab_page.h"
@@ -44,15 +45,18 @@ namespace config
             /// @brief Destroy tab page - profile manager
             ~ManagerPage() {}
 
-            /// @brief Close tab page control - overridable method
-            virtual void overridableClose() override
+            /// @brief Get reference to data table
+            /// @returns Data table reference
+            /// @throws invalid_argument  Uninitialized data table
+            inline controls::DataTable& getDataTable()
             {
-                m_buttonIcons.clear();
-                m_tooltips.clear();
-                if (m_pDataTable != nullptr)
-                    delete m_pDataTable;
-                m_pDataTable = nullptr;
+                if (m_pDataTable == nullptr)
+                    throw std::invalid_argument("The data table is not initialized");
+                return *m_pDataTable;
             }
+
+            /// @brief Close tab page control - overridable method
+            virtual void overridableClose() override;
 
 
             // -- event handlers -- --------------------------------------------

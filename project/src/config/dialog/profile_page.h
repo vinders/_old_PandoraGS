@@ -42,13 +42,7 @@ namespace config
             ~ProfilePage() {}
 
             /// @brief Close tab page control - overridable method
-            virtual void overridableClose() override
-            {
-                for (uint32_t i = 0; i < m_subPages.size(); ++i)
-                    m_subPages.at(i)->close();
-                m_subPages.clear();
-                m_activeSubPage = 0;
-            }
+            virtual void overridableClose() override;
 
 
             // -- event handlers -- --------------------------------------------

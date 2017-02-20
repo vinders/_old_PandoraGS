@@ -7,6 +7,7 @@ License :     GPLv2
 Description : tab page - profile manager
 *******************************************************************************/
 #include "../../globals.h"
+#include <cstdint>
 #include <string>
 #include <memory>
 #include <vector>
@@ -26,6 +27,7 @@ Description : tab page - profile manager
 #include "controls/file_dialog.h"
 #include "controls/tooltip.hpp"
 #include "controls/data_table.h"
+#include "controls/msg_box.h"
 #include "manager_page.h"
 using namespace config::dialog;
 using namespace config::dialog::controls;
@@ -46,6 +48,19 @@ ManagerPage::ManagerPage(controls::library_instance_t instance, controls::Dialog
     TabPage::registerEvent(dialog_event_t::command, eventHandler);
     eventHandler.handler = std::function<DIALOG_EVENT_RETURN(PAGE_EVENT_HANDLER_ARGUMENTS)>(onNotify);
     TabPage::registerEvent(dialog_event_t::notify, eventHandler);
+}
+
+/// @brief Close tab page control - overridable method
+void ManagerPage::overridableClose()
+{
+    TabPage::unregisterEvent(dialog_event_t::notify);
+    TabPage::unregisterEvent(dialog_event_t::command);
+    TabPage::unregisterEvent(dialog_event_t::init);
+    m_buttonIcons.clear();
+    m_tooltips.clear();
+    if (m_pDataTable != nullptr)
+        delete m_pDataTable;
+    m_pDataTable = nullptr;
 }
 
 
@@ -71,10 +86,27 @@ DIALOG_EVENT_RETURN ManagerPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
     parent.m_buttonIcons.at(4)->addIconToButton(getEventWindowHandle(), IDC_MNG_BTN_EXPORT, L"Exp."s);
 
     // create data table
-    //...create
-    //...
-    //...fill with profiles
-    //...
+    try
+    {
+        lang::ConfigLang& langRes = parent.getParentDialog<ConfigDialog>()->getLanguageResource();
+        parent.m_pDataTable = new DataTable(parent.m_instance, getEventWindowHandle(), IDC_MNG_LISTVIEW, true, 30, 40, 389, 309);
+        parent.m_pDataTable->addColumn(langRes.profileManager.tableNumber, 40);
+        parent.m_pDataTable->addColumn(langRes.profileManager.tableProfile, 0);
+    }
+    catch (...)
+    {
+        MsgBox::showMessage(L"Profile manager initialization failure"s, L"Failed to create data table..."s, 
+                            getEventWindowHandle(), MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+        return DIALOG_EVENT_RETURN_ERROR;
+    }
+    // fill data table
+    std::vector<std::wstring>& profileNames = Config::getAllProfileNames();
+    std::vector<std::vector<std::wstring>> rowData;
+    for (uint32_t pr = 0; pr < profileNames.size(); ++pr)
+    {
+        rowData.push_back({ std::to_wstring(pr), profileNames.at(pr) });
+    }
+    parent.m_pDataTable->insertRows(rowData);
 
     // translate controls/labels
     parent.onLanguageChange(false);
@@ -86,9 +118,36 @@ DIALOG_EVENT_RETURN ManagerPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
 DIALOG_EVENT_RETURN ManagerPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
 {
     ManagerPage& parent = getEventTargetPageReference(ManagerPage);
-
-    //...
-
+    if (getEventActionType() != CBN_SELCHANGE) // ignore preset combo box events
+    {
+        switch (getEventTargetControlId())
+        {
+            case IDC_MNG_BTN_PRESETS:
+            {
+                break;
+            }
+            case IDC_MNG_BTN_ADD:
+            {
+                break;
+            }
+            case IDC_MNG_BTN_EDIT:
+            {
+                break;
+            }
+            case IDC_MNG_BTN_REMOVE:
+            {
+                break;
+            }
+            case IDC_MNG_BTN_IMPORT:
+            {
+                break;
+            }
+            case IDC_MNG_BTN_EXPORT:
+            {
+                break;
+            }
+        }
+    }
     return DIALOG_EVENT_RETURN_ERROR;
 }
 
@@ -96,10 +155,15 @@ DIALOG_EVENT_RETURN ManagerPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
 /// @brief Notification event handler
 DIALOG_EVENT_RETURN ManagerPage::onNotify(PAGE_EVENT_HANDLER_ARGUMENTS)
 {
-    ManagerPage& parent = getEventTargetPageReference(ManagerPage);
-
-    //...
-
+    if (getEventArgs())
+    {
+        ManagerPage& parent = getEventTargetPageReference(ManagerPage);
+        try
+        {
+            parent.getDataTable().notifyEvent(getEventArgs());
+        }
+        catch (...) { /* already reported in onInit */ }
+    }
     return DIALOG_EVENT_RETURN_ERROR;
 }
 
@@ -132,14 +196,7 @@ void ManagerPage::onLanguageChange(const bool IsUpdate)
     {
         // table headers
         if (m_pDataTable != nullptr)
-        {
-            /*LVCOLUMN lvcProfile; // profile names
-            ZeroMemory(&lvcProfile, sizeof(LVCOLUMN));
-            lvcProfile.mask = LVCF_WIDTH | LVCF_TEXT;
-            lvcProfile.cx = (Config::countProfiles() <= MAX_ROWS_WITHOUT_SCROLL) ? LISTVIEW_NAME_WIDTH_NOSCROLL : LISTVIEW_NAME_WIDTH_SCROLL;
-            lvcProfile.pszText = (LPWSTR)pLang->manager_tableColumnProfile.c_str();
-            SendDlgItemMessage(m_hPage, IDC_MNG_LISTVIEW, LVM_SETCOLUMN, 2, (LPARAM)&lvcProfile);*/
-        }
+            m_pDataTable->updateColumn(2u);
         // presets
         ComboBox::setValues(hPage, IDC_MNG_PRESETS_LIST, langRes.profileManager.presets);
     }

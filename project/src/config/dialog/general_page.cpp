@@ -50,6 +50,14 @@ GeneralPage::GeneralPage(controls::library_instance_t instance, controls::Dialog
     TabPage::registerEvent(dialog_event_t::command, eventHandler);
 }
 
+/// @brief Close tab page control - overridable method
+void GeneralPage::overridableClose()
+{
+    TabPage::unregisterEvent(dialog_event_t::command);
+    TabPage::unregisterEvent(dialog_event_t::init);
+    getResolutions().clear();
+}
+
 
 
 // -- event handlers -- --------------------------------------------
