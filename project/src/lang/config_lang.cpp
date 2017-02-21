@@ -79,6 +79,12 @@ void ConfigLang::setLanguageEnglish() noexcept
     profileManager.tableNumber = L"#"s;
     profileManager.tableProfile = L"profile"s;
     profileManager.presets = { L"Fastest"s, L"Standard"s, L"Enhanced 2D"s, L"Enhanced 3D"s };
+    profileManager.msgBoxRemoveEmpty = L"Please select at least one profile to remove."s;
+    profileManager.msgBoxRemoveEmptyTitle = L"No profile selected..."s;
+    profileManager.msgBoxRemoveDefault = L"The default profile can't be removed."s;
+    profileManager.msgBoxRemoveDefaultTitle = L"Removal not allowed..."s;
+    profileManager.msgBoxRemoveConfirm = L"Are you sure you want to remove the selected profiles?"s;
+    profileManager.msgBoxRemoveConfirmTitle = L"Confirm removal..."s;
 
     filteringSettings.groupSmoothing = L"Smoothing / upscaling"s;
     //...
@@ -164,6 +170,12 @@ void ConfigLang::setLanguageFrench() noexcept
     profileManager.tableNumber = L"#"s;
     profileManager.tableProfile = L"profil"s;
     profileManager.presets = { L"Le plus rapide"s, L"Standard"s, L"2D optimisée"s, L"3D optimisée"s };
+    profileManager.msgBoxRemoveEmpty = L"Veuillez choisir au moins un profil à supprimer."s;
+    profileManager.msgBoxRemoveEmptyTitle = L"Aucun profil sélectionné..."s;
+    profileManager.msgBoxRemoveDefault = L"Le profil par défaut ne peut pas être supprimé."s;
+    profileManager.msgBoxRemoveDefaultTitle = L"Suppression impossible..."s;
+    profileManager.msgBoxRemoveConfirm = L"Voulez-vous supprimer les profils sélectionnés ?"s;
+    profileManager.msgBoxRemoveConfirmTitle = L"Confirmer la suppression..."s;
 
     filteringSettings.groupSmoothing = L"Lissage / agrandissement"s;
     //...

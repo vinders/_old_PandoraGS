@@ -351,7 +351,23 @@ void DataTable::insertRow(const std::vector<std::wstring>& row)
 void DataTable::updateRow(const uint32_t rowIndex, const std::vector<std::wstring>& row)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
+    if (rowIndex >= m_rowCount)
+        return;
 
+    // update row
+    LVITEM lviDef;
+    ZeroMemory(&lviDef, sizeof(LVITEM));
+    lviDef.mask = 0;
+    lviDef.iSubItem = 0;
+    lviDef.iItem = rowIndex; // index in table
+    SendDlgItemMessage(m_hParent, m_resourceId, LVM_SETITEM, 0, (LPARAM)&lviDef);
+
+    uint32_t col = (m_hasCheckboxes) ? 1u : 0u;
+    for (auto it = row.begin(); it != row.end() && col < m_columnSizes.size(); ++it)
+    {
+        ListView_SetItemText(m_hDataTable, rowIndex, col, (LPWSTR)it->c_str());
+        ++col;
+    }
 }
 #else
 {
@@ -367,7 +383,17 @@ void DataTable::updateRow(const uint32_t rowIndex, const std::vector<std::wstrin
 void DataTable::updateRow(const uint32_t rowIndex, const uint32_t columnIndex, const std::wstring& value)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
+    if (rowIndex >= m_rowCount || columnIndex >= m_columnSizes.size())
+        return;
 
+    // update row
+    LVITEM lviDef;
+    ZeroMemory(&lviDef, sizeof(LVITEM));
+    lviDef.mask = 0;
+    lviDef.iSubItem = 0;
+    lviDef.iItem = rowIndex; // index in table
+    SendDlgItemMessage(m_hParent, m_resourceId, LVM_SETITEM, 0, (LPARAM)&lviDef);
+    ListView_SetItemText(m_hDataTable, rowIndex, columnIndex, (LPWSTR)value.c_str());
 }
 #else
 {
@@ -381,7 +407,16 @@ void DataTable::updateRow(const uint32_t rowIndex, const uint32_t columnIndex, c
 void DataTable::removeRow(const uint32_t rowIndex)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
-    //...
+    if (rowIndex >= m_rowCount)
+        return;
+
+    // delete row
+    LVITEM lviDef;
+    ZeroMemory(&lviDef, sizeof(LVITEM));
+    lviDef.mask = 0;
+    lviDef.iSubItem = 0;
+    lviDef.iItem = rowIndex; // index in table
+    SendDlgItemMessage(m_hParent, m_resourceId, LVM_DELETEITEM, 0, (LPARAM)&lviDef);
 
     // decrease count (update display if scrollbar removed)
     --m_rowCount;
@@ -410,7 +445,14 @@ void DataTable::removeRow(const uint32_t rowIndex)
 void DataTable::getSelectedIndexes(std::vector<uint32_t>& outIndexes) noexcept
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
+    outIndexes.clear();
 
+    int32_t pos = ListView_GetNextItem(m_hDataTable, -1, LVNI_SELECTED);
+    while (pos != -1)
+    {
+        outIndexes.push_back(static_cast<uint32_t>(pos));
+        pos = ListView_GetNextItem(m_hDataTable, pos, LVNI_SELECTED);
+    }
 }
 #else
 {
@@ -424,7 +466,7 @@ void DataTable::getSelectedIndexes(std::vector<uint32_t>& outIndexes) noexcept
 int32_t DataTable::getFirstSelectedIndex() noexcept
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
-    return -1;
+    return ListView_GetNextItem(m_hDataTable, -1, LVNI_SELECTED);
 }
 #else
 {

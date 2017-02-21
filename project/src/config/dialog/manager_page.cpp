@@ -118,34 +118,45 @@ DIALOG_EVENT_RETURN ManagerPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
 DIALOG_EVENT_RETURN ManagerPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
 {
     ManagerPage& parent = getEventTargetPageReference(ManagerPage);
-    if (getEventActionType() != CBN_SELCHANGE) // ignore preset combo box events
+    if (getEventActionType() != static_cast<int32_t>(ComboBox::event_t::selectionChanged)) // ignore preset combo box events
     {
         switch (getEventTargetControlId())
         {
+            // apply profile preset
             case IDC_MNG_BTN_PRESETS:
-            {
+                //...confirm + warning if none
+                Button::unHighlight(getEventWindowHandle(), IDC_MNG_BTN_PRESETS);
                 break;
-            }
+
+            // add new profile
             case IDC_MNG_BTN_ADD:
-            {
+                //...dialog
+                Button::unHighlight(getEventWindowHandle(), IDC_MNG_BTN_ADD);
                 break;
-            }
+
+            // edit selected profile
             case IDC_MNG_BTN_EDIT:
-            {
+                //...dialog + warning if none
+                Button::unHighlight(getEventWindowHandle(), IDC_MNG_BTN_EDIT);
                 break;
-            }
+
+            // remove selected profile(s)
             case IDC_MNG_BTN_REMOVE:
-            {
+                parent.onProfileRemoval(getEventWindowHandle()); 
+                Button::unHighlight(getEventWindowHandle(), IDC_MNG_BTN_REMOVE);
                 break;
-            }
+
+            // import new/existing profile
             case IDC_MNG_BTN_IMPORT:
-            {
+                //...file dialog
+                Button::unHighlight(getEventWindowHandle(), IDC_MNG_BTN_IMPORT);
                 break;
-            }
+
+            // export selected profile(s)
             case IDC_MNG_BTN_EXPORT:
-            {
+                //...file dialog + warning if none
+                Button::unHighlight(getEventWindowHandle(), IDC_MNG_BTN_EXPORT);
                 break;
-            }
         }
     }
     return DIALOG_EVENT_RETURN_ERROR;
@@ -162,7 +173,7 @@ DIALOG_EVENT_RETURN ManagerPage::onNotify(PAGE_EVENT_HANDLER_ARGUMENTS)
         {
             parent.getDataTable().notifyEvent(getEventArgs());
         }
-        catch (...) { /* already reported in onInit */ }
+        catch (...) { /* already reported in onInit() */ }
     }
     return DIALOG_EVENT_RETURN_ERROR;
 }
@@ -170,6 +181,52 @@ DIALOG_EVENT_RETURN ManagerPage::onNotify(PAGE_EVENT_HANDLER_ARGUMENTS)
 
 
 // -- specialized handlers -- --------------------------------------
+
+/// @brief Profile removal event
+void ManagerPage::onProfileRemoval(window_handle_t hWindow)
+{
+    lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
+
+    // get selected index(es)
+    std::vector<uint32_t> selectedIndexes;
+    getDataTable().getSelectedIndexes(selectedIndexes);
+    if (selectedIndexes.size() == 0)
+    {
+        MsgBox::showMessage(langRes.profileManager.msgBoxRemoveEmptyTitle, langRes.profileManager.msgBoxRemoveEmpty,
+                            hWindow, MsgBox::button_set_t::ok, MsgBox::message_icon_t::warning);
+        return;
+    }
+
+    // show warning if default profile included (can't be removed)
+    for (uint32_t i = 0; i < selectedIndexes.size(); ++i)
+    {
+        if (selectedIndexes.at(i) == 0)
+        {
+            MsgBox::showMessage(langRes.profileManager.msgBoxRemoveDefaultTitle, langRes.profileManager.msgBoxRemoveDefault,
+                                hWindow, MsgBox::button_set_t::ok, MsgBox::message_icon_t::warning);
+            return;
+        }
+    }
+    
+    // confirm removal
+    std::wstring message = langRes.profileManager.msgBoxRemoveConfirm;
+    if (selectedIndexes.size() > 1)
+        message += L" ("s + std::to_wstring(selectedIndexes.size()) + L")"s;
+
+    if (MsgBox::showMessage(langRes.profileManager.msgBoxRemoveConfirmTitle, message, hWindow,
+        MsgBox::button_set_t::okCancel, MsgBox::message_icon_t::question) == MsgBox::result_t::ok)
+    {
+        for (uint32_t i = 0; i < selectedIndexes.size(); ++i)
+        {
+            // remove row from table
+            getDataTable().removeRow(selectedIndexes.at(i));
+
+            // remove profile from config
+            //...remove from config
+            //...
+        }
+    }
+}
 
 /// @brief Language change event
 /// @returns Validity

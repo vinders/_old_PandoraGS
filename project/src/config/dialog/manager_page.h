@@ -71,6 +71,9 @@ namespace config
 
             // -- specialized handlers -- --------------------------------------
 
+            /// @brief Profile removal event
+            void onProfileRemoval(controls::window_handle_t hWindow);
+
             /// @brief Language change event
             /// @returns Validity
             virtual bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS) override;
