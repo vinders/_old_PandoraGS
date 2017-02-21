@@ -261,7 +261,7 @@ void ConfigIO::readConfigProfileValues(ConfigFileIO<T>& reader, ConfigProfile& p
         profile.display.internalRes.x = 2u;
     if (reader.read(L"IntResY", profile.display.internalRes.y) == false || profile.display.internalRes.y == 0u)
         profile.display.internalRes.y = 2u;
-    reader.read(L"RatioMode", profile.display.ratioMode, SCREEN_RATIO_MODE_LENGTH, config::screen_ratio_mode_t::aspect);
+    reader.read(L"PxRatio", profile.display.pixelRatio, PIXEL_RATIO_MODE_LENGTH, config::pixel_ratio_mode_t::square);
     if (reader.read(L"RatioStretch", profile.display.ratioStretch) == false)
         profile.display.ratioStretch = 8u;
     if (reader.read(L"RatioCrop", profile.display.ratioCrop) == false)
@@ -348,7 +348,7 @@ void ConfigIO::writeConfigProfileValues(ConfigFileIO<T>& writer, ConfigProfile& 
 
     writer.writeInt(L"IntResX", profile.display.internalRes.x);
     writer.writeInt(L"IntResY", profile.display.internalRes.y);
-    writer.writeIntType(L"RatioMode", profile.display.ratioMode);
+    writer.writeIntType(L"PxRatio", profile.display.pixelRatio);
     writer.writeInt(L"RatioStretch", profile.display.ratioStretch);
     writer.writeInt(L"RatioCrop", profile.display.ratioCrop);
     writer.writeBool(L"ForceNtscRatio", profile.display.isNtscRatioForced);

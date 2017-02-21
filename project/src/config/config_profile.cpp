@@ -79,7 +79,6 @@ void ConfigProfile::setPresetValues(const config_preset_t preset) noexcept
 
             display.internalRes.x = 2u;
             display.internalRes.y = 4u;
-            display.ratioMode = screen_ratio_mode_t::aspect;
             display.ratioStretch = SCREEN_RATIO_STRETCH_FullWindow;
             display.ratioCrop = SCREEN_RATIO_CROP_FullWindow;
 
@@ -107,7 +106,6 @@ void ConfigProfile::setPresetValues(const config_preset_t preset) noexcept
  
             display.internalRes.x = 1u;
             display.internalRes.y = 1u;
-            display.ratioMode = screen_ratio_mode_t::aspect;
             display.ratioStretch = SCREEN_RATIO_STRETCH_Keep;
             display.ratioCrop = SCREEN_RATIO_CROP_Keep;
 
@@ -135,7 +133,6 @@ void ConfigProfile::setPresetValues(const config_preset_t preset) noexcept
 
             display.internalRes.x = 1u;
             display.internalRes.y = 1u;
-            display.ratioMode = screen_ratio_mode_t::aspect;
             display.ratioStretch = SCREEN_RATIO_STRETCH_Keep;
             display.ratioCrop = SCREEN_RATIO_CROP_Keep;
 
@@ -163,7 +160,6 @@ void ConfigProfile::setPresetValues(const config_preset_t preset) noexcept
 
             display.internalRes.x = 4u;
             display.internalRes.y = 8u;
-            display.ratioMode = screen_ratio_mode_t::aspect;
             display.ratioStretch = SCREEN_RATIO_STRETCH_Semi;
             display.ratioCrop = SCREEN_RATIO_CROP_Semi;
 
@@ -176,6 +172,7 @@ void ConfigProfile::setPresetValues(const config_preset_t preset) noexcept
     // common values
     isExternalShaders = false;
     display.isMirrored = false;
+    display.pixelRatio = pixel_ratio_mode_t::square;
     display.isNtscRatioForced = false;
     display.blackBorders.x = 0u;
     display.blackBorders.y = 0u;

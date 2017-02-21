@@ -127,14 +127,14 @@ namespace config
     };
     #define SCREEN_CURVATURE_LENGTH 3
 
-    /// @enum screen_ratio_mode_t
-    /// @brief Screen ratio modes
-    enum class screen_ratio_mode_t : uint32_t
+    /// @enum pixel_ratio_mode_t
+    /// @brief Pixel ratio modes
+    enum class pixel_ratio_mode_t : uint32_t
     {
-        aspect = 0u, // 15:10 - NTSC US/J + some PAL ports / 4:3 - PAL standard
-        pixel = 1u
+        nonSquare = 0u, // 15:10 - NTSC US/J + some PAL ports / 4:3 - PAL standard
+        square = 1u
     };
-    #define SCREEN_RATIO_MODE_LENGTH 2
+    #define PIXEL_RATIO_MODE_LENGTH 2
 
     // screen stretching presets
     #define SCREEN_RATIO_MAX_VAL  8
@@ -218,7 +218,7 @@ namespace config
     struct config_screen_t
     {
         display::coord_t    internalRes;       ///< Internal resolution (X, Y)
-        screen_ratio_mode_t ratioMode;         ///< Screen ratio mode (aspect ratio, pixel ratio)
+        pixel_ratio_mode_t  pixelRatio;        ///< Pixel ratio mode (non-square pixel ratio, square pixel ratio)
         uint32_t            ratioStretch;      ///< Screen stretching - "keep ratio" (0) / "full stretch" (8)
         uint32_t            ratioCrop;         ///< Screen cropping - "with black sides" (0) / "cropped" (8)
         bool                isNtscRatioForced; ///< Force 15:10 NTSC ratio for PAL games
