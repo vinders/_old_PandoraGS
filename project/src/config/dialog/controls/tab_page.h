@@ -18,9 +18,11 @@ Description : page for tab control - abstract class
 
 #if _DIALOGAPI == DIALOGAPI_WIN32
 #define PAGE_EVENT_HANDLER_ARGUMENTS TabPage* pPage, HWND hWindow, WPARAM wParam, LPARAM lParam
+#define PAGE_EVENT_HANDLER_ARGUMENTS_VALUES pPage,hWindow,wParam,lParam
 #define getEventTargetPageReference(TYPE) *(static_cast<TYPE*>(pPage))
 #else
 #define PAGE_EVENT_HANDLER_ARGUMENTS void* pPage
+#define PAGE_EVENT_HANDLER_ARGUMENTS_VALUES pPage
 #define getEventTargetPageReference(TYPE) *((TYPE*)pPage)
 #endif
 

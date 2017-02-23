@@ -31,11 +31,17 @@ namespace config
             /// @param[in] instance       Current instance handle
             /// @param[in] pParentDialog  Parent dialog reference
             ProfileFilteringPage(controls::library_instance_t instance, controls::Dialog* pParentDialog)
-                : controls::ScrollableTabPage(instance, pParentDialog, IDD_PROFILE_FILTERS_TAB) {}
+                : controls::ScrollableTabPage(instance, pParentDialog, IDD_PROFILE_FILTERS_TAB, 600) {}
 
 
             /// @brief Close tab page control - overridable method
             virtual void overridableClose() {}
+
+
+            // -- event handlers -- --------------------------------------------
+
+            /// @brief Initialization extendable event handler
+            virtual DIALOG_EVENT_RETURN onInitOverridable(PAGE_EVENT_HANDLER_ARGUMENTS) { return TRUE; }
 
 
             // -- specialized handlers -- --------------------------------------
