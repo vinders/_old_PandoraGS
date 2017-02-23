@@ -10,8 +10,12 @@ Description : scrollable page for tab control
 
 #include "../../../globals.h"
 #include <cstdint>
+#include <memory>
 #include "common.h"
+#include "mouse.h"
 #include "tab_page.h"
+
+#define SCROLLABLETABPAGE_SCROLLUNIT 16
 
 /// @namespace config
 /// Configuration management
@@ -30,7 +34,8 @@ namespace config
             class ScrollableTabPage : public TabPage
             {
             private:
-                uint32_t m_maxRange;
+                std::shared_ptr<Mouse> m_mouseManager; ///< Mouse wheel manager
+                uint32_t m_maxRange; ///< Max scrolling range
 
             public:
                 /// @brief Create tab page - profile compatibility settings
@@ -43,6 +48,27 @@ namespace config
                 virtual ~ScrollableTabPage() {}
 
 
+            private:
+                /// @brief Create tab page - profile compatibility settings
+                /// @param[in] hWindow  Page handle
+                /// @param[in] pos      Desired position
+                /// @param[in] prevPos  Previous position
+                static inline void setScrollPosition(window_handle_t hWindow, int32_t pos, const int32_t prevPos)
+                {
+                    if (pos != prevPos)
+                    {
+                        #if _DIALOGAPI == DIALOGAPI_WIN32
+                        // set scrollbar
+                        SetScrollPos(reinterpret_cast<HWND>(hWindow), SB_VERT, pos, TRUE);
+                        pos = GetScrollPos(reinterpret_cast<HWND>(hWindow), SB_VERT); // get real position
+                        // scroll page
+                        ScrollWindowEx(reinterpret_cast<HWND>(hWindow), 0, (prevPos - pos) * SCROLLABLETABPAGE_SCROLLUNIT, 
+                                       NULL, NULL, NULL, NULL, SW_ERASE | SW_INVALIDATE | SW_SCROLLCHILDREN);
+                        #endif
+                    }
+                }
+
+
                 // -- event handlers -- --------------------------------------------
 
                 /// @brief Initialization event handler
@@ -52,6 +78,8 @@ namespace config
 
                 /// @brief Vertical scroll event handler
                 static DIALOG_EVENT_RETURN onVerticalScroll(PAGE_EVENT_HANDLER_ARGUMENTS);
+                /// @brief Vertical mouse wheel event handler
+                static DIALOG_EVENT_RETURN onMouseWheel(PAGE_EVENT_HANDLER_ARGUMENTS);
             };
         }
     }

@@ -39,7 +39,8 @@ namespace config
                 command = 5u,
                 scrollX = 6u,
                 scrollY = 7u,
-                notify = 8u
+                notify = 8u,
+                wheelY = 9u
             };
 
             #if _DIALOGAPI == DIALOGAPI_WIN32

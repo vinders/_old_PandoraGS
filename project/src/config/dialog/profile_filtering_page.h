@@ -31,7 +31,7 @@ namespace config
             /// @param[in] instance       Current instance handle
             /// @param[in] pParentDialog  Parent dialog reference
             ProfileFilteringPage(controls::library_instance_t instance, controls::Dialog* pParentDialog)
-                : controls::ScrollableTabPage(instance, pParentDialog, IDD_PROFILE_FILTERS_TAB, 600) {}
+                : controls::ScrollableTabPage(instance, pParentDialog, IDD_PROFILE_FILTERS_TAB, 570) {}
 
 
             /// @brief Close tab page control - overridable method

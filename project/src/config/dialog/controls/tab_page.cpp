@@ -182,19 +182,19 @@ INT_PTR CALLBACK TabPage::pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam
                     return (INT_PTR)TRUE;
                 break;
             }
-            // horizontal scroll-bar / track-bar
-            case WM_HSCROLL:
-            {
-                if (pPage->isInitialized() && pPage->isRegisteredEvent(dialog_event_t::scrollX) // call handler
-                    && pPage->getEventHandler(dialog_event_t::scrollX).handler(pPage, hWindow, wParam, lParam) == (INT_PTR)TRUE)
-                    return (INT_PTR)TRUE;
-                break;
-            }
             // vertical scroll-bar
             case WM_VSCROLL:
             {
                 if (pPage->isInitialized() && pPage->isRegisteredEvent(dialog_event_t::scrollY) // call handler
                     && pPage->getEventHandler(dialog_event_t::scrollY).handler(pPage, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                    return (INT_PTR)TRUE;
+                break;
+            }
+            // vertical mouse wheel
+            case WM_MOUSEWHEEL:
+            {
+                if (pPage->isInitialized() && pPage->isRegisteredEvent(dialog_event_t::wheelY) // call handler
+                    && pPage->getEventHandler(dialog_event_t::wheelY).handler(pPage, hWindow, wParam, lParam) == (INT_PTR)TRUE)
                     return (INT_PTR)TRUE;
                 break;
             }

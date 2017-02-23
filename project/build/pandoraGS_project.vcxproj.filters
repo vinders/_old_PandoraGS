@@ -221,6 +221,9 @@
     <ClCompile Include="..\src\config\dialog\controls\data_table.cpp">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\config\dialog\controls\mouse.cpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\res\resource.h">
@@ -443,6 +446,9 @@
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
     <ClInclude Include="..\src\config\dialog\controls\simple_tabs.hpp">
+      <Filter>Source Files\config\dialog\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config\dialog\controls\mouse.h">
       <Filter>Source Files\config\dialog\controls</Filter>
     </ClInclude>
   </ItemGroup>

@@ -39,6 +39,7 @@
     <ClCompile Include="..\src\config\dialog\controls\button_icon.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\data_table.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\keyboard.cpp" />
+    <ClCompile Include="..\src\config\dialog\controls\mouse.cpp" />
     <ClCompile Include="..\src\config\dialog\controls\screen.cpp" />
     <ClCompile Include="..\src\config\dialog\profile_compatibility_page.cpp" />
     <ClCompile Include="..\src\config\dialog\config_dialog.cpp" />
@@ -102,6 +103,7 @@
     <ClInclude Include="..\src\config\dialog\controls\button_icon.h" />
     <ClInclude Include="..\src\config\dialog\controls\data_table.h" />
     <ClInclude Include="..\src\config\dialog\controls\keyboard.h" />
+    <ClInclude Include="..\src\config\dialog\controls\mouse.h" />
     <ClInclude Include="..\src\config\dialog\controls\screen.h" />
     <ClInclude Include="..\src\config\dialog\controls\simple_tabs.hpp" />
     <ClInclude Include="..\src\config\dialog\controls\text_field.hpp" />
