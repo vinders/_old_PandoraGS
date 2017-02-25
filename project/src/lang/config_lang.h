@@ -118,8 +118,8 @@ namespace lang
             std::wstring groupRendering;
             std::wstring groupHdr;
             std::wstring groupMisc;
-            std::wstring groupColor;
-            std::wstring groupCompatibility;
+            std::wstring btnScanlines;
+            std::wstring btnCursor;
         };
         /// @struct profile_content_t
         /// @brief Profile settings translations
@@ -133,6 +133,7 @@ namespace lang
         {
             std::wstring groupColor;
             std::wstring groupCompatibility;
+            std::wstring btnGameFixes;
         };
 
 

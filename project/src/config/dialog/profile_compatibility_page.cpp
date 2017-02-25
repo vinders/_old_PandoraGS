@@ -15,6 +15,12 @@ Description : tab sub-page - compatibility settings
 #include "../../events/utils/logger.h"
 #include "controls/common.h"
 #include "controls/tab_page.h"
+#include "controls/combo_box.h"
+#include "controls/check_box.hpp"
+#include "controls/label.hpp"
+#include "controls/button.hpp"
+#include "controls/msg_box.h"
+#include "config_dialog.h"
 #include "profile_compatibility_page.h"
 using namespace config::dialog;
 using namespace config::dialog::controls;
@@ -56,6 +62,36 @@ EVENT_RETURN ProfileCompatibilityPage::onInit(TabPage::event_args_t args)
 /// @brief Sub-control command event handler
 EVENT_RETURN ProfileCompatibilityPage::onCommand(TabPage::event_args_t args)
 {
+    if (args.isEventAction(Button::event_t::clicked)) // buttons
+    {
+        try
+        {
+            // open sub-dialog
+            if (args.controlId() == IDC_PROCPT_BTN_FIXES) // custom game fixes
+            {
+                controls::Dialog::event_handler_t handlerRef;
+                ProfileCompatibilityPage& parent = args.getParent<ProfileCompatibilityPage>();
+
+                controls::Dialog fixesDialog(parent.m_instance);
+                /*handlerRef.handler = onFixesDialogInit;
+                fixesDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
+                handlerRef.handler = onFixesDialogConfirm;
+                fixesDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);*/
+                fixesDialog.setParent(parent.getParentDialog<Dialog>());
+                // show modal dialog
+                fixesDialog.showDialog(IDD_FIXES_DIALOG, args.window,
+                            parent.getParentDialog<ConfigDialog>()->getLanguageResource().compatibilitySettings.btnGameFixes, false);
+
+                Button::unHighlight(args.window, IDC_PROCPT_BTN_FIXES);
+                return EVENT_RETURN_VALID;
+            }
+        }
+        catch (...)
+        {
+            MsgBox::showMessage(L"Dialog error"s, L"Could not open sub-dialog."s, args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+            return EVENT_RETURN_ERROR;
+        }
+    }
     return EVENT_RETURN_IGNORE;
 }
 

@@ -94,11 +94,14 @@ void ConfigLang::setLanguageEnglish() noexcept
     //...
     filteringSettings.groupMisc = L"Miscellaneous"s;
     //...
+    filteringSettings.btnScanlines = L"Scanlines settings..."s;
+    filteringSettings.btnCursor = L"Cursor settings..."s;
 
     compatibilitySettings.groupColor = L"Color correction"s;
     //...
     compatibilitySettings.groupCompatibility = L"Compatibility"s;
     //...
+    compatibilitySettings.btnGameFixes = L"Custom game fixes..."s;
 }
 
 /// @brief Set spanish values
@@ -185,11 +188,14 @@ void ConfigLang::setLanguageFrench() noexcept
     //...
     filteringSettings.groupMisc = L"Divers"s;
     //...
+    filteringSettings.btnScanlines = L"Options des lignes..."s;
+    filteringSettings.btnCursor = L"Options du viseur..."s;
 
     compatibilitySettings.groupColor = L"Correction des couleurs"s;
     //...
     compatibilitySettings.groupCompatibility = L"Compatibilité"s;
     //...
+    compatibilitySettings.btnGameFixes = L"Corrections spécifiques..."s;
 }
 
 /// @brief Set german values

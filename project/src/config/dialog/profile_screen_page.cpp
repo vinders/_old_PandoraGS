@@ -88,6 +88,26 @@ EVENT_RETURN ProfileScreenPage::onDrawItem(TabPage::event_args_t args)
 /// @brief Sub-control command event handler
 EVENT_RETURN ProfileScreenPage::onCommand(TabPage::event_args_t args)
 {
+    if (args.isEventAction(ComboBox::event_t::selectionChanged)) // combo-boxes
+    {
+        // screen stretching preset
+        if (args.controlId() == IDC_PROSTR_PRESET_LIST)
+        {
+            int32_t selection;
+            if (ComboBox::getSelectedIndex(args.window, IDC_PROSTR_PRESET_LIST, selection))
+            {
+                //...
+            }
+        }
+    }
+    else if (args.isEventAction(CheckBox::event_t::clicked)) // check-boxes
+    {
+        // mirror screen
+        if (args.controlId() == IDC_PROSTR_MIRROR)
+        {
+            //...
+        }
+    }
     return EVENT_RETURN_IGNORE;
 }
 
