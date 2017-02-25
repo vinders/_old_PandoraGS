@@ -16,7 +16,8 @@ using namespace command;
 /// @brief Set "busy" status
 void CommandBuffer::lock() noexcept
 {
-    while (m_isBusy)
+    int32_t timeout = 2000;
+    while (m_isBusy &&--timeout > 0)
         std::this_thread::yield();
     m_isBusy = true;
 }
