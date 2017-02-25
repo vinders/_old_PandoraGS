@@ -62,11 +62,11 @@ namespace config
             // -- event handlers -- --------------------------------------------
 
             /// @brief Initialization event handler
-            static DIALOG_EVENT_RETURN onInit(controls::TabPage::event_args_t args);
+            static EVENT_RETURN onInit(controls::TabPage::event_args_t args);
             /// @brief Sub-control command event handler
-            static DIALOG_EVENT_RETURN onCommand(controls::TabPage::event_args_t args);
+            static EVENT_RETURN onCommand(controls::TabPage::event_args_t args);
             /// @brief Notification event handler
-            static DIALOG_EVENT_RETURN onNotify(controls::TabPage::event_args_t args);
+            static EVENT_RETURN onNotify(controls::TabPage::event_args_t args);
 
 
             // -- specialized handlers -- --------------------------------------

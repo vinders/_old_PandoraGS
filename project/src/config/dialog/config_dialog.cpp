@@ -56,6 +56,7 @@ ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance)
     tabManager.page = std::make_shared<ManagerPage>(instance, (Dialog*)this);
     tabProfile.button = std::make_shared<TabButton>(instance, getLanguageResource().dialog.profileSettings, IDC_PROFILE_TAB, IDB_CONFIG_ICONS, 3, 48);
     tabProfile.page = std::make_shared<ProfilePage>(instance, (Dialog*)this);
+    m_pProfilePage = (ProfilePage*)tabProfile.page.get();
     // insert pages
     getTabControl().addTab(tabGeneral, IDC_GENERAL_TAB);
     getTabControl().addTab(tabManager, IDC_MANAGER_TAB);
@@ -69,6 +70,8 @@ ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance)
     Dialog::registerEvent(dialog_event_t::paint, eventHandler);
     eventHandler.handler = onCommand;
     Dialog::registerEvent(dialog_event_t::command, eventHandler);
+    eventHandler.handler = onMouseWheel;
+    Dialog::registerEvent(dialog_event_t::wheelY, eventHandler);
     eventHandler.handler = onConfirm;
     Dialog::registerEvent(dialog_event_t::confirm, eventHandler);
     eventHandler.handler = onClose;
@@ -95,7 +98,7 @@ Dialog::result_t ConfigDialog::showDialog()
 // -- event handlers -- --------------------------------------------
 
 /// @brief Initialization event handler
-DIALOG_EVENT_RETURN ConfigDialog::onInit(Dialog::event_args_t args)
+EVENT_RETURN ConfigDialog::onInit(Dialog::event_args_t args)
 {
     ConfigDialog& parent = args.getParent<ConfigDialog>();
 
@@ -118,14 +121,14 @@ DIALOG_EVENT_RETURN ConfigDialog::onInit(Dialog::event_args_t args)
     {
         MsgBox::showMessage(L"Initialization error"s, L"Failed to load page content..."s, args.window,
                             MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
-        return DIALOG_EVENT_RETURN_ERROR;
+        return EVENT_RETURN_ERROR;
     }
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 
 
 /// @brief Paint event handler - draw dialog
-DIALOG_EVENT_RETURN ConfigDialog::onPaint(Dialog::event_args_t args)
+EVENT_RETURN ConfigDialog::onPaint(Dialog::event_args_t args)
 {
     ConfigDialog& parent = args.getParent<ConfigDialog>();
     return parent.getTabControl().onPaint(args);
@@ -133,7 +136,7 @@ DIALOG_EVENT_RETURN ConfigDialog::onPaint(Dialog::event_args_t args)
 
 
 /// @brief Sub-control command event handler
-DIALOG_EVENT_RETURN ConfigDialog::onCommand(Dialog::event_args_t args)
+EVENT_RETURN ConfigDialog::onCommand(Dialog::event_args_t args)
 {
     ConfigDialog& parent = args.getParent<ConfigDialog>();
 
@@ -152,42 +155,55 @@ DIALOG_EVENT_RETURN ConfigDialog::onCommand(Dialog::event_args_t args)
         {
             MsgBox::showMessage(L"An error occurred during selection. Please try again."s, L"Language selection error"s, 
                                 args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+            return EVENT_RETURN_ERROR;
         }
     }
     // tab change
-    else if (parent.getTabControl().onCommand(args) == DIALOG_EVENT_RETURN_VALID)
+    else if (parent.getTabControl().onCommand(args) == EVENT_RETURN_VALID)
     {
         bool isProfilePage = parent.getTabControl().isActiveTab(IDC_PROFILE_TAB);
         Label::setVisible(args.window, IDC_PROFILE_LIST, isProfilePage);
         Label::setVisible(args.window, IDS_PROFILE, isProfilePage);
     }
-    return DIALOG_EVENT_RETURN_ERROR;
+    return EVENT_RETURN_IGNORE;
+}
+
+
+/// @brief Vertical mouse wheel event handler
+EVENT_RETURN ConfigDialog::onMouseWheel(Dialog::event_args_t args)
+{
+    ConfigDialog& parent = args.getParent<ConfigDialog>();
+    if (parent.getTabControl().isActiveTab(IDC_PROFILE_TAB))
+    {
+        parent.m_pProfilePage->onMouseWheel(args);
+    }
+    return EVENT_RETURN_IGNORE;
 }
 
 
 /// @brief Dialog confirm event handler - check validity
-DIALOG_EVENT_RETURN ConfigDialog::onConfirm(Dialog::event_args_t args)
+EVENT_RETURN ConfigDialog::onConfirm(Dialog::event_args_t args)
 {
     ConfigDialog& parent = args.getParent<ConfigDialog>();
 
     // read and check values
     if (parent.getTabControl().onDialogConfirm(args) == false)
-        return DIALOG_EVENT_RETURN_ERROR;
+        return EVENT_RETURN_ERROR;
 
     // save config and profiles
     //...save values
     //...
 
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 
 
 /// @brief Dialog close event handler
-DIALOG_EVENT_RETURN ConfigDialog::onClose(Dialog::event_args_t args)
+EVENT_RETURN ConfigDialog::onClose(Dialog::event_args_t args)
 {
     ConfigDialog& parent = args.getParent<ConfigDialog>();
     parent.getTabControl().close();
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 
 

@@ -108,7 +108,6 @@ TabPage* TabPage::getCurrentPage(HWND hWindow)
     return pPage;
 }
 
-
 /// @brief Tab page event handler
 /// @param[in] hWindow  Window handle
 /// @param[in] msg      Event message

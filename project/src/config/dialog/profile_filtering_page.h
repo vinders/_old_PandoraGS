@@ -41,7 +41,7 @@ namespace config
             // -- event handlers -- --------------------------------------------
 
             /// @brief Initialization extendable event handler
-            virtual DIALOG_EVENT_RETURN onInitOverridable(controls::TabPage::event_args_t& args) { return TRUE; }
+            virtual EVENT_RETURN onInitOverridable(controls::TabPage::event_args_t& args) { return TRUE; }
 
 
             // -- specialized handlers -- --------------------------------------

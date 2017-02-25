@@ -53,9 +53,9 @@ namespace config
             // -- event handlers -- --------------------------------------------
 
             /// @brief Initialization event handler
-            static DIALOG_EVENT_RETURN onInit(controls::TabPage::event_args_t args);
+            static EVENT_RETURN onInit(controls::TabPage::event_args_t args);
             /// @brief Sub-control command event handler
-            static DIALOG_EVENT_RETURN onCommand(controls::TabPage::event_args_t args);
+            static EVENT_RETURN onCommand(controls::TabPage::event_args_t args);
 
 
             // -- specialized handlers -- --------------------------------------
@@ -69,13 +69,13 @@ namespace config
 
         private:
             /// @brief Initialize key binding sub-dialog
-            static DIALOG_EVENT_RETURN onKeyBindDialogInit(controls::Dialog::event_args_t args);
+            static EVENT_RETURN onKeyBindDialogInit(controls::Dialog::event_args_t args);
             /// @brief Confirm key binding sub-dialog settings
-            static DIALOG_EVENT_RETURN onKeyBindDialogConfirm(controls::Dialog::event_args_t args);
+            static EVENT_RETURN onKeyBindDialogConfirm(controls::Dialog::event_args_t args);
             /// @brief Initialize advanced settings sub-dialog
-            static DIALOG_EVENT_RETURN onAdvancedDialogInit(controls::Dialog::event_args_t args);
+            static EVENT_RETURN onAdvancedDialogInit(controls::Dialog::event_args_t args);
             /// @brief Confirm advanced settings sub-dialog settings
-            static DIALOG_EVENT_RETURN onAdvancedDialogConfirm(controls::Dialog::event_args_t args);
+            static EVENT_RETURN onAdvancedDialogConfirm(controls::Dialog::event_args_t args);
         };
     }
 }

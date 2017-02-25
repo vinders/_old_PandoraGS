@@ -121,9 +121,9 @@ namespace config
                 void onLanguageChange(Dialog::event_args_t& args);
 
                 /// @brief Trigger control drawing
-                DIALOG_EVENT_RETURN onPaint(Dialog::event_args_t& args);
+                EVENT_RETURN onPaint(Dialog::event_args_t& args);
                 /// @brief Tab button command event handler
-                DIALOG_EVENT_RETURN onCommand(Dialog::event_args_t& args);
+                EVENT_RETURN onCommand(Dialog::event_args_t& args);
             };
         }
     }

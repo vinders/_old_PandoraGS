@@ -15,6 +15,7 @@ Description : tab page - profile settings
 #include "controls/common.h"
 #include "controls/tab_page.h"
 #include "controls/tab_control.h"
+#include "controls/scrollable_tab_page.h"
 
 /// @namespace config
 /// Configuration management
@@ -41,6 +42,7 @@ namespace config
             /// @brief Destroy tab page - profile settings
             ~ProfilePage() {}
 
+        private:
             /// @brief Close tab page control - overridable method
             virtual void overridableClose() override;
 
@@ -48,11 +50,12 @@ namespace config
             // -- event handlers -- --------------------------------------------
 
             /// @brief Initialization event handler
-            static DIALOG_EVENT_RETURN onInit(controls::TabPage::event_args_t args);
+            static EVENT_RETURN onInit(controls::TabPage::event_args_t args);
             /// @brief Notification event handler
-            static DIALOG_EVENT_RETURN onNotify(controls::TabPage::event_args_t args);
+            static EVENT_RETURN onNotify(controls::TabPage::event_args_t args);
 
 
+        public:
             // -- specialized handlers -- --------------------------------------
 
             /// @brief Language change event
@@ -61,6 +64,16 @@ namespace config
             /// @brief Language change event
             /// @param[in] isRecursive  Also translate controls in child pages or not
             virtual void onLanguageChange(const bool IsRecursive) override;
+
+            /// @brief Transmit vertical mouse wheel event
+            inline void onMouseWheel(controls::Dialog::event_args_t& args)
+            {
+                if (m_activeSubPage == 0 && m_subPages.size() > 0 && m_subPages.at(0).get() != nullptr)
+                {
+                    controls::ScrollableTabPage::onMouseWheel(controls::TabPage::event_args_t(m_subPages.at(0).get(), 
+                                                              m_subPages.at(0)->getPageHandle(), args.eventData, 0));
+                }
+            }
         };
     }
 }

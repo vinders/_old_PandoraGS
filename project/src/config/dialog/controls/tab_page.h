@@ -73,7 +73,7 @@ namespace config
                 /// @brief Event handling function
                 struct event_handler_t
                 {
-                    std::function<DIALOG_EVENT_RETURN(TabPage::event_args_t)> handler;
+                    std::function<EVENT_RETURN(TabPage::event_args_t)> handler;
                 };
 
 
@@ -182,6 +182,7 @@ namespace config
                 {
                     return (Subclass*)m_pParentDialog;
                 }
+            public:
                 /// @brief Get page handle
                 /// @returns Page handle
                 inline window_handle_t getPageHandle() noexcept

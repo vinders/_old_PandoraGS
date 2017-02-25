@@ -183,14 +183,14 @@ bool TabControl::getTabButtonColors(uint32_t tabNumber, bool isHover, float* pCo
 
 
 /// @brief Trigger control drawing
-DIALOG_EVENT_RETURN TabControl::onPaint(Dialog::event_args_t& args)
+EVENT_RETURN TabControl::onPaint(Dialog::event_args_t& args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     PAINTSTRUCT paint;
     HDC hDC = nullptr;
     hDC = BeginPaint(args.window, &paint);
     if (hDC == nullptr)
-        return DIALOG_EVENT_RETURN_ERROR;
+        return EVENT_RETURN_ERROR;
 
     RECT windowRect;
     GetClientRect(args.window, &windowRect); 
@@ -250,18 +250,18 @@ DIALOG_EVENT_RETURN TabControl::onPaint(Dialog::event_args_t& args)
 
     EndPaint(args.window, &paint);
     ReleaseDC(args.window, hDC);
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 #else
 {
     //...
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 #endif
 
 
 /// @brief Tab button command event handler
-DIALOG_EVENT_RETURN TabControl::onCommand(Dialog::event_args_t& args)
+EVENT_RETURN TabControl::onCommand(Dialog::event_args_t& args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     // check if a tab button was clicked (and not already active)
@@ -280,13 +280,13 @@ DIALOG_EVENT_RETURN TabControl::onCommand(Dialog::event_args_t& args)
         // change tab page
         m_pages.at(m_activePageIndex).page->setVisible(true);
         m_pages.at(previousIndex).page->setVisible(false);
-        return DIALOG_EVENT_RETURN_VALID;
+        return EVENT_RETURN_VALID;
     }
-    return DIALOG_EVENT_RETURN_ERROR;
+    return EVENT_RETURN_IGNORE;
 }
 #else
 {
 //...
-return return DIALOG_EVENT_RETURN_ERROR;
+return return EVENT_RETURN_ERROR;
 }
 #endif

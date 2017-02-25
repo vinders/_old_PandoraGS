@@ -13,6 +13,7 @@ Description : configuration dialog
 #include "controls/dialog.h"
 #include "controls/tab_control.h"
 #include "../../lang/config_lang.h"
+#include "profile_page.h"
 
 /// @namespace config
 /// Configuration management
@@ -30,6 +31,7 @@ namespace config
         private:
             lang::ConfigLang m_languageResource; ///< Language resources
             controls::TabControl m_tabs;         ///< Advanced tab control
+            ProfilePage* m_pProfilePage;         ///< Profile page reference (for event bubbling)
 
 
         public:
@@ -64,15 +66,17 @@ namespace config
             // -- event handlers -- --------------------------------------------
 
             /// @brief Initialization event handler
-            static DIALOG_EVENT_RETURN onInit(Dialog::event_args_t args);
+            static EVENT_RETURN onInit(Dialog::event_args_t args);
             /// @brief Paint event handler - draw dialog
-            static DIALOG_EVENT_RETURN onPaint(Dialog::event_args_t args);
+            static EVENT_RETURN onPaint(Dialog::event_args_t args);
             /// @brief Sub-control command event handler
-            static DIALOG_EVENT_RETURN onCommand(Dialog::event_args_t args);
+            static EVENT_RETURN onCommand(Dialog::event_args_t args);
+            /// @brief Vertical mouse wheel event handler
+            static EVENT_RETURN onMouseWheel(Dialog::event_args_t args);
             /// @brief Dialog confirm event handler - check validity
-            static DIALOG_EVENT_RETURN onConfirm(Dialog::event_args_t args);
+            static EVENT_RETURN onConfirm(Dialog::event_args_t args);
             /// @brief Dialog close event handler
-            static DIALOG_EVENT_RETURN onClose(Dialog::event_args_t args);
+            static EVENT_RETURN onClose(Dialog::event_args_t args);
 
 
             // -- specialized handlers -- --------------------------------------

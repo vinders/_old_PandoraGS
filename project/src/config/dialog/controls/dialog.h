@@ -18,13 +18,15 @@ Description : dialog control
 using namespace std::literals::string_literals;
 
 #if _DIALOGAPI == DIALOGAPI_WIN32
-#define DIALOG_EVENT_RETURN INT_PTR
-#define DIALOG_EVENT_RETURN_VALID (INT_PTR)TRUE
-#define DIALOG_EVENT_RETURN_ERROR (INT_PTR)FALSE
+#define EVENT_RETURN INT_PTR
+#define EVENT_RETURN_VALID (INT_PTR)TRUE
+#define EVENT_RETURN_IGNORE (INT_PTR)FALSE
+#define EVENT_RETURN_ERROR (INT_PTR)FALSE
 #else
-#define DIALOG_EVENT_RETURN int32_t
-#define DIALOG_EVENT_RETURN_VALID 0
-#define DIALOG_EVENT_RETURN_ERROR -1
+#define EVENT_RETURN int32_t
+#define EVENT_RETURN_VALID 0
+#define EVENT_RETURN_ERROR -1
+#define EVENT_RETURN_IGNORE -2
 #endif
 #define DIALOG_USE_BASE_WINDOW INVALID_HANDLE_VALUE
 
@@ -82,7 +84,7 @@ namespace config
                 /// @brief Event handling function
                 struct event_handler_t
                 {
-                    std::function<DIALOG_EVENT_RETURN(Dialog::event_args_t)> handler;
+                    std::function<EVENT_RETURN(Dialog::event_args_t)> handler;
                 };
                 /// @enum result_t
                 /// @brief Action performed when closing a dialog

@@ -60,28 +60,28 @@ Dialog::result_t FileDialog::showDialog(const int32_t dialogResourceId, const in
 
 
 /// @brief Dialog initialization event handler
-DIALOG_EVENT_RETURN FileDialog::onInit(Dialog::event_args_t args)
+EVENT_RETURN FileDialog::onInit(Dialog::event_args_t args)
 {
     FileDialog& parent = args.getParent<FileDialog>();
     TextField::setValue(args.window, parent.m_fieldId, parent.m_filePath);
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 
 
 /// @brief Dialog initialization event handler
-DIALOG_EVENT_RETURN FileDialog::onCommand(Dialog::event_args_t args)
+EVENT_RETURN FileDialog::onCommand(Dialog::event_args_t args)
 {
     FileDialog& parent = args.getParent<FileDialog>();
 
     //...browser
     //...
 
-    return DIALOG_EVENT_RETURN_ERROR;
+    return EVENT_RETURN_IGNORE;
 }
 
 
 /// @brief Dialog confirm event handler - check validity
-DIALOG_EVENT_RETURN FileDialog::onConfirm(Dialog::event_args_t args)
+EVENT_RETURN FileDialog::onConfirm(Dialog::event_args_t args)
 {
     FileDialog& parent = args.getParent<FileDialog>();
     parent.m_filePath = TextField::getValue(args.window, parent.m_fieldId);
@@ -89,5 +89,5 @@ DIALOG_EVENT_RETURN FileDialog::onConfirm(Dialog::event_args_t args)
     //...check path
     //...
 
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }

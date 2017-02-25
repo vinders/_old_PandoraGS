@@ -64,7 +64,7 @@ void ProfilePage::overridableClose()
 // -- event handlers -- --------------------------------------------
 
 /// @brief Initialization event handler
-DIALOG_EVENT_RETURN ProfilePage::onInit(TabPage::event_args_t args)
+EVENT_RETURN ProfilePage::onInit(TabPage::event_args_t args)
 {
     ProfilePage& parent = args.getParent<ProfilePage>();
     parent.m_hPage = args.window;
@@ -83,12 +83,12 @@ DIALOG_EVENT_RETURN ProfilePage::onInit(TabPage::event_args_t args)
         parent.m_subPages.at(i)->create(args.window, 0, true);
         parent.m_subPages.at(i)->setVisible(i == parent.m_activeSubPage);
     }
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 
 
 /// @brief Notification event handler
-DIALOG_EVENT_RETURN ProfilePage::onNotify(TabPage::event_args_t args)
+EVENT_RETURN ProfilePage::onNotify(TabPage::event_args_t args)
 {
     ProfilePage& parent = args.getParent<ProfilePage>();
 
@@ -102,7 +102,7 @@ DIALOG_EVENT_RETURN ProfilePage::onNotify(TabPage::event_args_t args)
             parent.m_subPages.at(parent.m_activeSubPage)->setVisible(true);
         }
     }
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 
 

@@ -74,14 +74,16 @@ namespace config
                 // -- event handlers -- --------------------------------------------
 
                 /// @brief Initialization event handler
-                static DIALOG_EVENT_RETURN onInit(TabPage::event_args_t args);
+                static EVENT_RETURN onInit(TabPage::event_args_t args);
                 /// @brief Initialization extendable event handler
-                virtual DIALOG_EVENT_RETURN onInitOverridable(TabPage::event_args_t& args) = 0;
+                virtual EVENT_RETURN onInitOverridable(TabPage::event_args_t& args) = 0;
 
                 /// @brief Vertical scroll event handler
-                static DIALOG_EVENT_RETURN onVerticalScroll(TabPage::event_args_t args);
+                static EVENT_RETURN onVerticalScroll(TabPage::event_args_t args);
+
+            public:
                 /// @brief Vertical mouse wheel event handler
-                static DIALOG_EVENT_RETURN onMouseWheel(TabPage::event_args_t args);
+                static EVENT_RETURN onMouseWheel(TabPage::event_args_t args);
             };
         }
     }

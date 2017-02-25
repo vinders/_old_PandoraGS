@@ -63,7 +63,7 @@ void GeneralPage::overridableClose()
 // -- event handlers -- --------------------------------------------
 
 /// @brief Initialization event handler
-DIALOG_EVENT_RETURN GeneralPage::onInit(TabPage::event_args_t args)
+EVENT_RETURN GeneralPage::onInit(TabPage::event_args_t args)
 {
     GeneralPage& parent = args.getParent<GeneralPage>();
 
@@ -110,12 +110,12 @@ DIALOG_EVENT_RETURN GeneralPage::onInit(TabPage::event_args_t args)
         frameRateLimitStr << Config::timer.frameRateLimit;
         TextField::setValue(args.window, IDC_GEN_FRAMELIMIT_EDIT, frameRateLimitStr.str());
     }
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 
 
 /// @brief Sub-control command event handler
-DIALOG_EVENT_RETURN GeneralPage::onCommand(TabPage::event_args_t args)
+EVENT_RETURN GeneralPage::onCommand(TabPage::event_args_t args)
 {
     if (args.isEventAction(Button::event_t::clicked))
     {
@@ -139,7 +139,7 @@ DIALOG_EVENT_RETURN GeneralPage::onCommand(TabPage::event_args_t args)
                                              parent.getParentDialog<ConfigDialog>()->getLanguageResource().generalSettings.btnKeyBinding, false);
 
                     Button::unHighlight(args.window, IDC_GEN_BTN_KEYBINDING);
-                    return DIALOG_EVENT_RETURN_VALID; break;
+                    return EVENT_RETURN_VALID; break;
                 }
                 case IDC_GEN_BTN_ADVANCED: // advanced settings
                 {
@@ -154,17 +154,17 @@ DIALOG_EVENT_RETURN GeneralPage::onCommand(TabPage::event_args_t args)
                                               parent.getParentDialog<ConfigDialog>()->getLanguageResource().generalSettings.btnAdvanced, false);
 
                     Button::unHighlight(args.window, IDC_GEN_BTN_ADVANCED);
-                    return DIALOG_EVENT_RETURN_VALID; break;
+                    return EVENT_RETURN_VALID; break;
                 }
             }
         }
         catch (...)
         {
             MsgBox::showMessage(L"Dialog error"s, L"Could not open sub-dialog."s, args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
-            return DIALOG_EVENT_RETURN_ERROR;
+            return EVENT_RETURN_ERROR;
         }
     }
-    return DIALOG_EVENT_RETURN_ERROR;
+    return EVENT_RETURN_IGNORE;
 }
 
 
@@ -290,7 +290,7 @@ void GeneralPage::onLanguageChange(const bool isUpdate)
 
 
 /// @brief Initialize key binding sub-dialog
-DIALOG_EVENT_RETURN GeneralPage::onKeyBindDialogInit(Dialog::event_args_t args)
+EVENT_RETURN GeneralPage::onKeyBindDialogInit(Dialog::event_args_t args)
 {
     // fill lists of keys
     Keyboard keys;
@@ -337,11 +337,11 @@ DIALOG_EVENT_RETURN GeneralPage::onKeyBindDialogInit(Dialog::event_args_t args)
         Button::setText(args.window, IDOK, langRes.dialog.confirm);
         Button::setText(args.window, IDCANCEL, langRes.dialog.cancel);
     }
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 
 /// @brief Confirm key binding sub-dialog settings
-DIALOG_EVENT_RETURN GeneralPage::onKeyBindDialogConfirm(Dialog::event_args_t args)
+EVENT_RETURN GeneralPage::onKeyBindDialogConfirm(Dialog::event_args_t args)
 {
     Keyboard keys(false);
     int32_t noKeyIndex = keys.getNoKeyIndex();
@@ -370,7 +370,7 @@ DIALOG_EVENT_RETURN GeneralPage::onKeyBindDialogConfirm(Dialog::event_args_t arg
             {
                 MsgBox::showMessage(L"Invalid settings"s, L"Each key can only be used once (except \"<none>\")."s, 
                     args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::warning);
-                return DIALOG_EVENT_RETURN_ERROR;
+                return EVENT_RETURN_ERROR;
             }
         }
         else
@@ -380,12 +380,12 @@ DIALOG_EVENT_RETURN GeneralPage::onKeyBindDialogConfirm(Dialog::event_args_t arg
     // update config
     for (int32_t i = 0; i < EVENT_KEYS_STRING_LENGTH - 1; ++i)
         Config::events.pTriggerKeys[i] = static_cast<char>(keys.indexToKeyCode(bufferArray[i]));
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 
 
 /// @brief Initialize advanced settings sub-dialog
-DIALOG_EVENT_RETURN GeneralPage::onAdvancedDialogInit(Dialog::event_args_t args)
+EVENT_RETURN GeneralPage::onAdvancedDialogInit(Dialog::event_args_t args)
 {
     //...use settings from Config
     //...
@@ -401,13 +401,13 @@ DIALOG_EVENT_RETURN GeneralPage::onAdvancedDialogInit(Dialog::event_args_t args)
         Button::setText(args.window, IDOK, langRes.dialog.confirm);
         Button::setText(args.window, IDCANCEL, langRes.dialog.cancel);
     }
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 
 /// @brief Confirm advanced settings sub-dialog settings
-DIALOG_EVENT_RETURN GeneralPage::onAdvancedDialogConfirm(Dialog::event_args_t args)
+EVENT_RETURN GeneralPage::onAdvancedDialogConfirm(Dialog::event_args_t args)
 {
     //...copy settings in Config
     //...
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }

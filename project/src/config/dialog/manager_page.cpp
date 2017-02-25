@@ -68,7 +68,7 @@ void ManagerPage::overridableClose()
 // -- event handlers -- --------------------------------------------
 
 /// @brief Initialization event handler
-DIALOG_EVENT_RETURN ManagerPage::onInit(TabPage::event_args_t args)
+EVENT_RETURN ManagerPage::onInit(TabPage::event_args_t args)
 {
     ManagerPage& parent = args.getParent<ManagerPage>();
     parent.m_hPage = args.window;
@@ -97,7 +97,7 @@ DIALOG_EVENT_RETURN ManagerPage::onInit(TabPage::event_args_t args)
     {
         MsgBox::showMessage(L"Profile manager initialization failure"s, L"Failed to create data table..."s, 
                             args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
-        return DIALOG_EVENT_RETURN_ERROR;
+        return EVENT_RETURN_ERROR;
     }
     // fill data table
     std::vector<std::wstring>& profileNames = Config::getAllProfileNames();
@@ -110,12 +110,12 @@ DIALOG_EVENT_RETURN ManagerPage::onInit(TabPage::event_args_t args)
 
     // translate controls/labels
     parent.onLanguageChange(false);
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 
 
 /// @brief Sub-control command event handler
-DIALOG_EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
+EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
 {
     ManagerPage& parent = args.getParent<ManagerPage>();
     if (args.isEventSignedAction(ComboBox::event_t::selectionChanged) == false) // ignore preset combo box events
@@ -159,12 +159,12 @@ DIALOG_EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
                 break;
         }
     }
-    return DIALOG_EVENT_RETURN_ERROR;
+    return EVENT_RETURN_IGNORE;
 }
 
 
 /// @brief Notification event handler
-DIALOG_EVENT_RETURN ManagerPage::onNotify(TabPage::event_args_t args)
+EVENT_RETURN ManagerPage::onNotify(TabPage::event_args_t args)
 {
     if (args.notifierData)
     {
@@ -173,9 +173,12 @@ DIALOG_EVENT_RETURN ManagerPage::onNotify(TabPage::event_args_t args)
         {
             parent.getDataTable().notifyEvent(args.notifierData);
         }
-        catch (...) { /* already reported in onInit() */ }
+        catch (...) // already reported in onInit()
+        { 
+            return EVENT_RETURN_ERROR;
+        }
     }
-    return DIALOG_EVENT_RETURN_ERROR;
+    return EVENT_RETURN_IGNORE;
 }
 
 
