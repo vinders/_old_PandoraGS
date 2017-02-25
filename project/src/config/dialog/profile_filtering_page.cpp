@@ -184,14 +184,26 @@ bool ProfileFilteringPage::onDialogConfirm(controls::Dialog::event_args_t& args)
 /// @param[in] isUpdate  Set to false to initialize controls
 void ProfileFilteringPage::onLanguageChange(const bool isUpdate)
 {
+    lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
+
     if (isUpdate)
     {
-        //ComboBox::initValues();
+        ComboBox::initValues(getPageHandle(), IDC_PRO_TXFILTER_LIST, langRes.filteringSettings.interpolations, 0u);//...read config
+        ComboBox::initValues(getPageHandle(), IDC_PRO_2DFILTER_LIST, langRes.filteringSettings.interpolations, 0u);//...read config
+        ComboBox::initValues(getPageHandle(), IDC_PRO_SCRFILTER_LIST, langRes.filteringSettings.screenSmoothing, 0u);//...read config
+
+        //...
     }
     else
     {
-        //ComboBox::setValues();
+        ComboBox::setValues(getPageHandle(), IDC_PRO_TXFILTER_LIST, langRes.filteringSettings.interpolations);
+        ComboBox::setValues(getPageHandle(), IDC_PRO_2DFILTER_LIST, langRes.filteringSettings.interpolations);
+        ComboBox::setValues(getPageHandle(), IDC_PRO_SCRFILTER_LIST, langRes.filteringSettings.screenSmoothing);
+
+        //...
     }
+
+    //...
 }
 
 
@@ -289,6 +301,7 @@ void ProfileFilteringPage::onUpscalingFactorChange(const int32_t listResourceId,
 /// @returns Validity
 bool ProfileFilteringPage::onProfileSave() 
 {
+    //...
     return true; 
 }
 

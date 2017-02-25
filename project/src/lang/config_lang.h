@@ -117,6 +117,8 @@ namespace lang
             std::wstring groupSmoothing;
             std::wstring nativeScale;
             std::wstring noScreenScale;
+            std::vector<std::wstring> interpolations;
+            std::vector<std::wstring> screenSmoothing;
             std::wstring groupRendering;
             std::wstring groupHdr;
             std::wstring groupMisc;
