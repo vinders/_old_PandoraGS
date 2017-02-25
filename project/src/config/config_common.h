@@ -82,6 +82,21 @@ namespace config
     #define UPSCALING_MODE_LENGTH 8
     #define UPSCALING_MODE_TEXTURE_MAX_FACTOR 4
 
+    /// @brief Convert list index to upscaling factor
+    /// @param[in] index  List index (0 - 5)
+    inline uint32_t upscalingIndexToFactor(const uint32_t index)
+    {
+        return (index >= 5u) ? 8u : (index + 1u);
+    }
+    /// @brief Convert upscaling factor to list index
+    /// @param[in] factor  Upscaling factor (1 - 8x)
+    inline uint32_t upscalingFactorToIndex(const uint32_t factor)
+    {
+        if (factor == 0u)
+            return 0u;
+        return (factor > 5u) ? 5u : (factor - 1u);
+    }
+
     /// @enum mdec_filter_t
     /// @brief MDEF filter types
     enum class mdec_filter_t : uint32_t

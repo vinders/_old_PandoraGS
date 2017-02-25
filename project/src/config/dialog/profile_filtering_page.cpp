@@ -89,7 +89,7 @@ EVENT_RETURN ProfileFilteringPage::onCommand(TabPage::event_args_t args)
                 int32_t selection;
                 if (ComboBox::getSelectedIndex(args.window, IDC_PRO_2DUPSCALE_FACTOR, selection))
                 {
-                    selection = (selection >= 5) ? 8 : selection + 1; // convert {0-5} to {1,2,3,4,5,8}
+                    selection = config::upscalingIndexToFactor(selection);
                     parent.onUpscalingFactorChange(IDC_PRO_2DUPSCALE_LIST, selection, config::upscaling_mode_t::native,
                                                    parent.getParentDialog<ConfigDialog>()->getLanguageResource().filteringSettings.nativeScale);
                 }
@@ -102,7 +102,7 @@ EVENT_RETURN ProfileFilteringPage::onCommand(TabPage::event_args_t args)
                 int32_t selection;
                 if (ComboBox::getSelectedIndex(args.window, IDC_PRO_SCRUPSCALE_FACTOR, selection))
                 {
-                    selection = (selection >= 5) ? 8 : selection + 1; // convert {0-5} to {1,2,3,4,5,8}
+                    selection = config::upscalingIndexToFactor(selection);
                     parent.onUpscalingFactorChange(IDC_PRO_SCRUPSCALE_LIST, selection, config::upscaling_mode_t::native,
                                                    parent.getParentDialog<ConfigDialog>()->getLanguageResource().filteringSettings.noScreenScale);
                 }
@@ -302,11 +302,7 @@ void ProfileFilteringPage::onProfileChange(const bool isUpdate)
 
     // screen upscaling factors + scalers
     std::vector<std::wstring> factors = { L"1x"s, L"2x"s, L"3x"s, L"4x"s, L"5x"s, L"8x"s };
-    uint32_t selectedIndex = profile.scaling.screenScaling.factor - 1u;
-    if (selectedIndex > 4u)
-    {
-        selectedIndex = (selectedIndex == 7u) ? 5u : 0u;
-    }
+    uint32_t selectedIndex = config::upscalingFactorToIndex(profile.scaling.screenScaling.factor);
     if (isUpdate == false)
         ComboBox::initValues(getPageHandle(), IDC_PRO_SCRUPSCALE_FACTOR, factors, selectedIndex);
     else
@@ -314,11 +310,7 @@ void ProfileFilteringPage::onProfileChange(const bool isUpdate)
     onUpscalingFactorChange(IDC_PRO_SCRUPSCALE_LIST, profile.scaling.screenScaling.factor, profile.scaling.screenScaling.mode, langRes.filteringSettings.noScreenScale);
 
     // sprite upscaling factors + scalers
-    selectedIndex = profile.scaling.spriteScaling.factor - 1u;
-    if (selectedIndex > 4u)
-    {
-        selectedIndex = (selectedIndex == 7u) ? 5u : 0u;
-    }
+    selectedIndex = config::upscalingFactorToIndex(profile.scaling.spriteScaling.factor);
     if (isUpdate == false)
         ComboBox::initValues(getPageHandle(), IDC_PRO_2DUPSCALE_FACTOR, factors, selectedIndex);
     else
@@ -329,7 +321,7 @@ void ProfileFilteringPage::onProfileChange(const bool isUpdate)
     while (factors.size() > UPSCALING_MODE_TEXTURE_MAX_FACTOR)
         factors.pop_back();
     selectedIndex = profile.scaling.textureScaling.factor - 1u;
-    if (selectedIndex > 3u)
+    if (selectedIndex >= UPSCALING_MODE_TEXTURE_MAX_FACTOR)
         selectedIndex = 0u;
     if (isUpdate == false)
         ComboBox::initValues(getPageHandle(), IDC_PRO_TXUPSCALE_FACTOR, factors, selectedIndex);
