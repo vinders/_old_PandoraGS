@@ -9,6 +9,7 @@ Description : tab sub-page - filtering settings
 #include "../../globals.h"
 #include <string>
 #include <stdexcept>
+#include <vector>
 #include <functional>
 #include "../../lang/config_lang.h"
 #include "../../res/resource.h"
@@ -56,7 +57,7 @@ EVENT_RETURN ProfileFilteringPage::onInitOverridable(controls::TabPage::event_ar
     // translate controls/labels
     onLanguageChange(false);
     // set config values
-    onProfileChange();
+    onProfileChange(false);
     return EVENT_RETURN_VALID; 
 }
 
@@ -66,6 +67,7 @@ EVENT_RETURN ProfileFilteringPage::onCommand(TabPage::event_args_t args)
 {
     if (args.isEventAction(ComboBox::event_t::selectionChanged)) // combo-boxes
     {
+        ProfileFilteringPage& parent = args.getParent<ProfileFilteringPage>();
         switch (args.controlId())
         {
             // texture upscaling
@@ -74,7 +76,9 @@ EVENT_RETURN ProfileFilteringPage::onCommand(TabPage::event_args_t args)
                 int32_t selection;
                 if (ComboBox::getSelectedIndex(args.window, IDC_PRO_TXUPSCALE_FACTOR, selection))
                 {
-                    //...
+                    selection = (selection >= UPSCALING_MODE_TEXTURE_MAX_FACTOR) ? UPSCALING_MODE_TEXTURE_MAX_FACTOR : selection + 1;
+                    parent.onUpscalingFactorChange(IDC_PRO_TXUPSCALE_LIST, selection, config::upscaling_mode_t::native,
+                                                   parent.getParentDialog<ConfigDialog>()->getLanguageResource().filteringSettings.nativeScale);
                 }
                 break;
             }
@@ -85,7 +89,9 @@ EVENT_RETURN ProfileFilteringPage::onCommand(TabPage::event_args_t args)
                 int32_t selection;
                 if (ComboBox::getSelectedIndex(args.window, IDC_PRO_2DUPSCALE_FACTOR, selection))
                 {
-                    //...
+                    selection = (selection >= 5) ? 8 : selection + 1; // convert {0-5} to {1,2,3,4,5,8}
+                    parent.onUpscalingFactorChange(IDC_PRO_2DUPSCALE_LIST, selection, config::upscaling_mode_t::native,
+                                                   parent.getParentDialog<ConfigDialog>()->getLanguageResource().filteringSettings.nativeScale);
                 }
                 break;
             }
@@ -96,7 +102,9 @@ EVENT_RETURN ProfileFilteringPage::onCommand(TabPage::event_args_t args)
                 int32_t selection;
                 if (ComboBox::getSelectedIndex(args.window, IDC_PRO_SCRUPSCALE_FACTOR, selection))
                 {
-                    //...
+                    selection = (selection >= 5) ? 8 : selection + 1; // convert {0-5} to {1,2,3,4,5,8}
+                    parent.onUpscalingFactorChange(IDC_PRO_SCRUPSCALE_LIST, selection, config::upscaling_mode_t::native,
+                                                   parent.getParentDialog<ConfigDialog>()->getLanguageResource().filteringSettings.noScreenScale);
                 }
                 break;
             }
@@ -187,6 +195,96 @@ void ProfileFilteringPage::onLanguageChange(const bool isUpdate)
 }
 
 
+
+/// @brief Upscaling factor change event
+/// @param[in] listResourceId  Combo-box resource identifier
+/// @param[in] factor          Selected factor
+/// @param[in] selectedScaler  Index to select in list of upscalers
+/// @param[in] nativeLabel     Label for native entry
+void ProfileFilteringPage::onUpscalingFactorChange(const int32_t listResourceId, const uint32_t factor, const config::upscaling_mode_t selectedScaler, const std::wstring& nativeLabel)
+{
+    std::vector<std::wstring> scalers;
+    uint32_t selectedIndex = 0u;
+    switch (factor)
+    {
+        case 2u:
+        {
+            scalers = { L"SaI"s, L"xBR"s, L"xBRZ"s, L"NNEDI3"s, L"super-xBR"s, L"super-xBR bilateral"s };
+            switch (selectedScaler)
+            {
+                case config::upscaling_mode_t::sai:             selectedIndex = 0u; break;
+                case config::upscaling_mode_t::xbr:             selectedIndex = 1u; break;
+                case config::upscaling_mode_t::xbrz:            selectedIndex = 2u; break;
+                case config::upscaling_mode_t::nnedi3:          selectedIndex = 3u; break;
+                case config::upscaling_mode_t::superXbr:        selectedIndex = 4u; break;
+                case config::upscaling_mode_t::superXbrFastBlt: selectedIndex = 5u; break;
+                default: selectedIndex = 0u; break;
+            }
+            break;
+        }
+        case 3u:
+        {
+            scalers = { L"xBR"s, L"xBRZ"s, L"xBRZ depolarized"s };
+            switch (selectedScaler)
+            {
+                case config::upscaling_mode_t::xbr:          selectedIndex = 0u; break;
+                case config::upscaling_mode_t::xbrz:         selectedIndex = 1u; break;
+                case config::upscaling_mode_t::xbrzEnhanced: selectedIndex = 2u; break;
+                default: selectedIndex = 1u; break;
+            }
+            break;
+        }
+        case 4u:
+        {
+            scalers = { L"xBR"s, L"xBRZ"s, L"xBRZ depolarized"s, L"NNEDI3"s, L"super-xBR"s, L"super-xBR bilateral"s };
+            switch (selectedScaler)
+            {
+                case config::upscaling_mode_t::xbr:             selectedIndex = 0u; break;
+                case config::upscaling_mode_t::xbrz:            selectedIndex = 1u; break;
+                case config::upscaling_mode_t::xbrzEnhanced:    selectedIndex = 2u; break;
+                case config::upscaling_mode_t::nnedi3:          selectedIndex = 3u; break;
+                case config::upscaling_mode_t::superXbr:        selectedIndex = 4u; break;
+                case config::upscaling_mode_t::superXbrFastBlt: selectedIndex = 5u; break;
+                default: selectedIndex = 4u; break;
+            }
+            break;
+        }
+        case 5u:
+        {
+            scalers = { L"xBRZ"s, L"xBRZ depolarized"s };
+            switch (selectedScaler)
+            {
+                case config::upscaling_mode_t::xbrz:            selectedIndex = 0u; break;
+                case config::upscaling_mode_t::xbrzEnhanced:    selectedIndex = 1u; break;
+                default: selectedIndex = 0u; break;
+            }
+            break;
+        }
+        case 8u:
+        {
+            scalers = { L"NNEDI3"s, L"super-xBR"s, L"super-xBR bilateral"s };
+            switch (selectedScaler)
+            {
+                case config::upscaling_mode_t::nnedi3:          selectedIndex = 0u; break;
+                case config::upscaling_mode_t::superXbr:        selectedIndex = 1u; break;
+                case config::upscaling_mode_t::superXbrFastBlt: selectedIndex = 2u; break;
+                default: selectedIndex = 1u; break;
+            }
+            break;
+        }
+        default:
+        {
+            scalers = { nativeLabel };
+            selectedIndex = 0u; 
+            break;
+        }
+    }
+    // fill list of scalers
+    ComboBox::setValues(getPageHandle(), listResourceId, scalers, selectedIndex);
+}
+
+
+
 /// @brief Profile save event
 /// @returns Validity
 bool ProfileFilteringPage::onProfileSave() 
@@ -196,6 +294,48 @@ bool ProfileFilteringPage::onProfileSave()
 
 
 /// @brief Profile change event
-void ProfileFilteringPage::onProfileChange() 
+/// @param[in] isUpdate  Set to false to initialize controls
+void ProfileFilteringPage::onProfileChange(const bool isUpdate) 
 {
+    ConfigProfile& profile = *(Config::getCurrentProfile());
+    lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
+
+    // screen upscaling factors + scalers
+    std::vector<std::wstring> factors = { L"1x"s, L"2x"s, L"3x"s, L"4x"s, L"5x"s, L"8x"s };
+    uint32_t selectedIndex = profile.scaling.screenScaling.factor - 1u;
+    if (selectedIndex > 4u)
+    {
+        selectedIndex = (selectedIndex == 7u) ? 5u : 0u;
+    }
+    if (isUpdate == false)
+        ComboBox::initValues(getPageHandle(), IDC_PRO_SCRUPSCALE_FACTOR, factors, selectedIndex);
+    else
+        ComboBox::setValues(getPageHandle(), IDC_PRO_SCRUPSCALE_FACTOR, factors, selectedIndex);
+    onUpscalingFactorChange(IDC_PRO_SCRUPSCALE_LIST, profile.scaling.screenScaling.factor, profile.scaling.screenScaling.mode, langRes.filteringSettings.noScreenScale);
+
+    // sprite upscaling factors + scalers
+    selectedIndex = profile.scaling.spriteScaling.factor - 1u;
+    if (selectedIndex > 4u)
+    {
+        selectedIndex = (selectedIndex == 7u) ? 5u : 0u;
+    }
+    if (isUpdate == false)
+        ComboBox::initValues(getPageHandle(), IDC_PRO_2DUPSCALE_FACTOR, factors, selectedIndex);
+    else
+        ComboBox::setValues(getPageHandle(), IDC_PRO_2DUPSCALE_FACTOR, factors, selectedIndex);
+    onUpscalingFactorChange(IDC_PRO_2DUPSCALE_LIST, profile.scaling.spriteScaling.factor, profile.scaling.spriteScaling.mode, langRes.filteringSettings.nativeScale);
+
+    // texture upscaling factors + scalers
+    while (factors.size() > UPSCALING_MODE_TEXTURE_MAX_FACTOR)
+        factors.pop_back();
+    selectedIndex = profile.scaling.textureScaling.factor - 1u;
+    if (selectedIndex > 3u)
+        selectedIndex = 0u;
+    if (isUpdate == false)
+        ComboBox::initValues(getPageHandle(), IDC_PRO_TXUPSCALE_FACTOR, factors, selectedIndex);
+    else
+        ComboBox::setValues(getPageHandle(), IDC_PRO_TXUPSCALE_FACTOR, factors, selectedIndex);
+    onUpscalingFactorChange(IDC_PRO_TXUPSCALE_LIST, profile.scaling.textureScaling.factor, profile.scaling.textureScaling.mode, langRes.filteringSettings.nativeScale);
+
+    //...
 }

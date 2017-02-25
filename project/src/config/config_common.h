@@ -80,6 +80,7 @@ namespace config
         nnedi3 = 7u           // 2x,     4x,     8x
     };
     #define UPSCALING_MODE_LENGTH 8
+    #define UPSCALING_MODE_TEXTURE_MAX_FACTOR 4
 
     /// @enum mdec_filter_t
     /// @brief MDEF filter types
@@ -87,7 +88,7 @@ namespace config
     {
         none = 0u,
         standard = 1u,
-        superxbr = 2u,
+        superXbr = 2u,
         nnedi3 = 3u
     };
     #define MDEC_FILTER_LENGTH 4

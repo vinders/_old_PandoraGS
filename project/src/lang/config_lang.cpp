@@ -87,6 +87,8 @@ void ConfigLang::setLanguageEnglish() noexcept
     profileManager.msgBoxRemoveConfirmTitle = L"Confirm removal..."s;
 
     filteringSettings.groupSmoothing = L"Smoothing / upscaling"s;
+    filteringSettings.nativeScale = L"native"s;
+    filteringSettings.noScreenScale = L"normal"s;
     //...
     filteringSettings.groupRendering = L"Rendering"s;
     //...
@@ -181,6 +183,8 @@ void ConfigLang::setLanguageFrench() noexcept
     profileManager.msgBoxRemoveConfirmTitle = L"Confirmer la suppression..."s;
 
     filteringSettings.groupSmoothing = L"Lissage / agrandissement"s;
+    filteringSettings.nativeScale = L"natif"s;
+    filteringSettings.noScreenScale = L"normal"s;
     //...
     filteringSettings.groupRendering = L"Rendu"s;
     //...

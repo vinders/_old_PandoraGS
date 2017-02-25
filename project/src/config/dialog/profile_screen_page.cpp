@@ -63,7 +63,7 @@ EVENT_RETURN ProfileScreenPage::onInit(TabPage::event_args_t args)
     // translate controls/labels
     parent.onLanguageChange(false);
     // set config values
-    parent.onProfileChange();
+    parent.onProfileChange(false);
     return EVENT_RETURN_IGNORE;
 }
 
@@ -74,12 +74,13 @@ EVENT_RETURN ProfileScreenPage::onDrawItem(TabPage::event_args_t args)
     if (args.eventData == IDC_PROSTR_PICTUREBOX)
     {
         // read parameters
-        uint32_t stretchVal = TrackBar::getValue(args.window, IDC_PROSTR_STRETCH_SLIDER);
-        uint32_t cropVal = TrackBar::getValue(args.window, IDC_PROSTR_CUT_SLIDER);
+        int32_t stretchVal, cropVal;
         bool isMirrored = CheckBox::isChecked(args.window, IDC_PROSTR_MIRROR);
-
-        // draw preview
-        //...draw preview box
+        if (TrackBar::getValue(args.window, IDC_PROSTR_STRETCH_SLIDER, stretchVal) && TrackBar::getValue(args.window, IDC_PROSTR_CUT_SLIDER, cropVal))
+        {
+            // draw preview
+            //...draw preview box
+        }
     }
     return EVENT_RETURN_IGNORE;
 }
@@ -154,6 +155,7 @@ bool ProfileScreenPage::onProfileSave()
 
 
 /// @brief Profile change event
-void ProfileScreenPage::onProfileChange()
+/// @param[in] isUpdate  Set to false to initialize controls
+void ProfileScreenPage::onProfileChange(const bool isUpdate)
 {
 }

@@ -115,6 +115,8 @@ namespace lang
         struct profile_content_t
         {
             std::wstring groupSmoothing;
+            std::wstring nativeScale;
+            std::wstring noScreenScale;
             std::wstring groupRendering;
             std::wstring groupHdr;
             std::wstring groupMisc;

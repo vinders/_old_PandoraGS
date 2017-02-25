@@ -44,10 +44,11 @@ namespace config
                 /// @param[in] value       Value to set
                 static void setValue(window_handle_t hWindow, const int32_t resourceId, const uint32_t value);
                 /// @brief Initialize track-bar control
-                /// @param[in] hWindow     Parent window handle
-                /// @param[in] resourceId  Track-bar resource identifier
-                /// @returns Current value (or -1)
-                static uint32_t getValue(window_handle_t hWindow, const int32_t resourceId);
+                /// @param[in]  hWindow     Parent window handle
+                /// @param[in]  resourceId  Track-bar resource identifier
+                /// @param[out] outValue    Output value
+                /// @returns Success
+                static bool getValue(window_handle_t hWindow, const int32_t resourceId, int32_t& outValue);
             };
         }
     }

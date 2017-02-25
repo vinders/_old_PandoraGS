@@ -54,7 +54,7 @@ EVENT_RETURN ProfileCompatibilityPage::onInit(TabPage::event_args_t args)
     // translate controls/labels
     parent.onLanguageChange(false);
     // set config values
-    parent.onProfileChange();
+    parent.onProfileChange(false);
     return EVENT_RETURN_IGNORE;
 }
 
@@ -123,6 +123,7 @@ bool ProfileCompatibilityPage::onProfileSave()
 
 
 /// @brief Profile change event
-void ProfileCompatibilityPage::onProfileChange()
+/// @param[in] isUpdate  Set to false to initialize controls
+void ProfileCompatibilityPage::onProfileChange(const bool isUpdate)
 {
 }

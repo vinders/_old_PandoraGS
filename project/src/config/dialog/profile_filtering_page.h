@@ -8,6 +8,8 @@ Description : tab sub-page - filtering settings
 *******************************************************************************/
 #pragma once
 
+#include <cstdint>
+#include <string>
 #include "controls/common.h"
 #include "controls/scrollable_tab_page.h"
 
@@ -53,12 +55,19 @@ namespace config
             /// @brief Language change event
             /// @param[in] isUpdate  Set to false to initialize controls
             virtual void onLanguageChange(const bool isUpdate);
+            /// @brief Upscaling factor change event
+            /// @param[in] listResourceId  Combo-box resource identifier
+            /// @param[in] factor          Selected factor
+            /// @param[in] selectedScaler  Index to select in list of upscalers
+            /// @param[in] nativeLabel     Label for native entry
+            void onUpscalingFactorChange(const int32_t listResourceId, const uint32_t factor, const config::upscaling_mode_t selectedScaler, const std::wstring& nativeLabel);
 
             /// @brief Profile save event
             /// @returns Validity
             bool onProfileSave();
             /// @brief Profile change event
-            void onProfileChange();
+            /// @param[in] isUpdate  Set to false to initialize controls
+            void onProfileChange(const bool isUpdate);
         };
     }
 }

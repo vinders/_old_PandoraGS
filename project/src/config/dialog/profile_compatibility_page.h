@@ -8,6 +8,7 @@ Description : tab sub-page - compatibility settings
 *******************************************************************************/
 #pragma once
 
+#include <cstdint>
 #include "controls/common.h"
 #include "controls/tab_page.h"
 
@@ -58,7 +59,8 @@ namespace config
             /// @returns Validity
             bool onProfileSave();
             /// @brief Profile change event
-            void onProfileChange();
+            /// @param[in] isUpdate  Set to false to initialize controls
+            void onProfileChange(const bool isUpdate);
         };
     }
 }

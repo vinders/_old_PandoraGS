@@ -8,6 +8,7 @@ Description : tab page - general settings
 *******************************************************************************/
 #pragma once
 
+#include <cstdint>
 #include <vector>
 #include "controls/common.h"
 #include "controls/tab_page.h"

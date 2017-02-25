@@ -8,6 +8,7 @@ Description : tab page - profile manager
 *******************************************************************************/
 #pragma once
 
+#include <cstdint>
 #include <vector>
 #include <memory>
 #include <stdexcept>

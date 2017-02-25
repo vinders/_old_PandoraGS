@@ -68,16 +68,18 @@ void TrackBar::setValue(window_handle_t hWindow, const int32_t resourceId, const
 
 
 /// @brief Initialize track-bar control
-/// @param[in] hWindow     Parent window handle
-/// @param[in] resourceId  Track-bar resource identifier
-/// @returns Current value (or -1)
-uint32_t TrackBar::getValue(window_handle_t hWindow, const int32_t resourceId)
+/// @param[in]  hWindow     Parent window handle
+/// @param[in]  resourceId  Track-bar resource identifier
+/// @param[out] outValue    Output value
+/// @returns Success
+bool TrackBar::getValue(window_handle_t hWindow, const int32_t resourceId, int32_t& outValue)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     HWND hControl = GetDlgItem(hWindow, resourceId);
     if (!hControl || hControl == (HWND)INVALID_HANDLE_VALUE)
-        return -1;
-    return SendMessage(hControl, TBM_GETPOS, 0, 0);
+        return false;
+    outValue = SendMessage(hControl, TBM_GETPOS, 0, 0);
+    return (outValue >= 0);
 }
 #else
 {
