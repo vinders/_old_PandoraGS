@@ -66,9 +66,9 @@ void GeneralPage::overridableClose()
 EVENT_RETURN GeneralPage::onInit(TabPage::event_args_t args)
 {
     GeneralPage& parent = args.getParent<GeneralPage>();
+    parent.m_hPage = args.window;
 
     // translate controls/labels
-    parent.m_hPage = args.window;
     parent.onLanguageChange(false);
 
     // set list of screen resolutions

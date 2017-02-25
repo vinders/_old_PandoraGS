@@ -30,8 +30,7 @@ namespace config
             /// @brief Create tab page - profile compatibility settings
             /// @param[in] instance       Current instance handle
             /// @param[in] pParentDialog  Parent dialog reference
-            ProfileFilteringPage(controls::library_instance_t instance, controls::Dialog* pParentDialog)
-                : controls::ScrollableTabPage(instance, pParentDialog, IDD_PROFILE_FILTERS_TAB, 570, false) {}
+            ProfileFilteringPage(controls::library_instance_t instance, controls::Dialog* pParentDialog);
 
 
             /// @brief Close tab page control - overridable method
@@ -41,17 +40,25 @@ namespace config
             // -- event handlers -- --------------------------------------------
 
             /// @brief Initialization extendable event handler
-            virtual EVENT_RETURN onInitOverridable(controls::TabPage::event_args_t& args) { return TRUE; }
+            virtual EVENT_RETURN onInitOverridable(controls::TabPage::event_args_t& args);
+            /// @brief Sub-control command event handler
+            static EVENT_RETURN onCommand(TabPage::event_args_t args);
 
 
             // -- specialized handlers -- --------------------------------------
 
             /// @brief Language change event
             /// @returns Validity
-            virtual bool onDialogConfirm(controls::Dialog::event_args_t& args) { return true; };
+            virtual bool onDialogConfirm(controls::Dialog::event_args_t& args);
             /// @brief Language change event
-            /// @param[in] isRecursive    Also translate controls in child pages or not
-            virtual void onLanguageChange(const bool isRecursive) {};
+            /// @param[in] isUpdate  Set to false to initialize controls
+            virtual void onLanguageChange(const bool isUpdate);
+
+            /// @brief Profile save event
+            /// @returns Validity
+            bool onProfileSave();
+            /// @brief Profile change event
+            void onProfileChange();
         };
     }
 }

@@ -181,6 +181,14 @@ INT_PTR CALLBACK TabPage::pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam
                     return (INT_PTR)TRUE;
                 break;
             }
+            // horizontal track-bar
+            case WM_HSCROLL:
+            {
+                if (pPage->isInitialized() && pPage->isRegisteredEvent(dialog_event_t::scrollX) // call handler
+                    && pPage->getEventHandler(dialog_event_t::scrollX).handler(TabPage::event_args_t(pPage, hWindow, wParam, lParam)) == (INT_PTR)TRUE)
+                    return (INT_PTR)TRUE;
+                break;
+            }
             // vertical scroll-bar
             case WM_VSCROLL:
             {

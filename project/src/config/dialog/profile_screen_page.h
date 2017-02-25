@@ -30,22 +30,39 @@ namespace config
             /// @brief Create tab page - profile compatibility settings
             /// @param[in] instance       Current instance handle
             /// @param[in] pParentDialog  Parent dialog reference
-            ProfileScreenPage(controls::library_instance_t instance, controls::Dialog* pParentDialog)
-                : controls::TabPage(instance, pParentDialog, IDD_PROFILE_STRETCHING_TAB) {}
+            ProfileScreenPage(controls::library_instance_t instance, controls::Dialog* pParentDialog);
 
 
             /// @brief Close tab page control - overridable method
             virtual void overridableClose() {}
 
 
+            // -- event handlers -- --------------------------------------------
+
+            /// @brief Initialization event handler
+            static EVENT_RETURN onInit(TabPage::event_args_t args);
+            /// @brief Special drawing event handler
+            static EVENT_RETURN onDrawItem(TabPage::event_args_t args);
+            /// @brief Sub-control command event handler
+            static EVENT_RETURN onCommand(TabPage::event_args_t args);
+            /// @brief Track-bar event handler
+            static EVENT_RETURN onTrackBarChange(TabPage::event_args_t args);
+
+
             // -- specialized handlers -- --------------------------------------
 
             /// @brief Language change event
             /// @returns Validity
-            virtual bool onDialogConfirm(controls::Dialog::event_args_t& args) { return true; };
+            virtual bool onDialogConfirm(controls::Dialog::event_args_t& args);
             /// @brief Language change event
-            /// @param[in] isRecursive    Also translate controls in child pages or not
-            virtual void onLanguageChange(const bool isRecursive) {};
+            /// @param[in] isUpdate  Set to false to initialize controls
+            virtual void onLanguageChange(const bool isUpdate);
+
+            /// @brief Profile save event
+            /// @returns Validity
+            bool onProfileSave();
+            /// @brief Profile change event
+            void onProfileChange();
         };
     }
 }
