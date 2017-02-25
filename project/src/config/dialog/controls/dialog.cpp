@@ -159,14 +159,14 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
             {
                 int32_t success = TRUE;
                 if (pDialog->isRegisteredEvent(dialog_event_t::init)) // call handler
-                    success = pDialog->getEventHandler(dialog_event_t::init).handler(pDialog, hWindow, wParam, lParam);
+                    success = pDialog->getEventHandler(dialog_event_t::init).handler(Dialog::event_args_t(pDialog, hWindow, wParam));
                 pDialog->m_dialogData.isInitialized = true;
                 return (INT_PTR)success; break;
             }
             case WM_PAINT:
             {
                 if (pDialog->isRegisteredEvent(dialog_event_t::paint) // call handler
-                 && pDialog->getEventHandler(dialog_event_t::paint).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                 && pDialog->getEventHandler(dialog_event_t::paint).handler(Dialog::event_args_t(pDialog, hWindow, wParam)) == (INT_PTR)TRUE)
                     return (INT_PTR)TRUE;
                 break;
             }
@@ -180,10 +180,10 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
                     case IDOK:
                     {
                         if (pDialog->isRegisteredEvent(dialog_event_t::confirm) == false // no handler (confirm directly) or handler returns true
-                         || pDialog->getEventHandler(dialog_event_t::confirm).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                         || pDialog->getEventHandler(dialog_event_t::confirm).handler(Dialog::event_args_t(pDialog, hWindow, wParam)) == (INT_PTR)TRUE)
                         {
                             if (pDialog->isRegisteredEvent(dialog_event_t::close) == false // no handler (close directly) or handler returns true
-                             || pDialog->getEventHandler(dialog_event_t::close).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                             || pDialog->getEventHandler(dialog_event_t::close).handler(Dialog::event_args_t(pDialog, hWindow, wParam)) == (INT_PTR)TRUE)
                             {
                                 EndDialog(hWindow, TRUE);
                                 pDialog->setDialogResult(Dialog::result_t::confirm);
@@ -198,7 +198,7 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
                     case IDCANCEL:
                     {
                         if (pDialog->isRegisteredEvent(dialog_event_t::close) == false // no handler (close directly) or handler returns true
-                         || pDialog->getEventHandler(dialog_event_t::close).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                         || pDialog->getEventHandler(dialog_event_t::close).handler(Dialog::event_args_t(pDialog, hWindow, wParam)) == (INT_PTR)TRUE)
                         {
                             EndDialog(hWindow, TRUE);
                             pDialog->setDialogResult(Dialog::result_t::cancel);
@@ -212,17 +212,18 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
                     default:
                     {
                         if (pDialog->m_dialogData.isInitialized && pDialog->isRegisteredEvent(dialog_event_t::command) // call handler
-                         && pDialog->getEventHandler(dialog_event_t::command).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                         && pDialog->getEventHandler(dialog_event_t::command).handler(Dialog::event_args_t(pDialog, hWindow, wParam)) == (INT_PTR)TRUE)
                             return (INT_PTR)TRUE;
                         break;
                     }
                 }
                 break;
             }
-            case WM_CLOSE: // close button/shortcut
+            // close button/shortcut
+            case WM_CLOSE: 
             {
                 if (pDialog->isRegisteredEvent(dialog_event_t::close) == false // no handler (close directly) or handler returns true
-                 || pDialog->getEventHandler(dialog_event_t::close).handler(pDialog, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                 || pDialog->getEventHandler(dialog_event_t::close).handler(Dialog::event_args_t(pDialog, hWindow, wParam)) == (INT_PTR)TRUE)
                 {
                     EndDialog(hWindow, TRUE);
                     pDialog->setDialogResult(Dialog::result_t::cancel);
@@ -230,6 +231,14 @@ INT_PTR CALLBACK Dialog::dialogEventHandler(HWND hWindow, UINT msg, WPARAM wPara
                 }
                 else
                     return (INT_PTR)FALSE;
+                break;
+            }
+            // vertical mouse wheel
+            case WM_MOUSEWHEEL:
+            {
+                if (pDialog->m_dialogData.isInitialized && pDialog->isRegisteredEvent(dialog_event_t::wheelY) // call handler
+                    && pDialog->getEventHandler(dialog_event_t::wheelY).handler(Dialog::event_args_t(pDialog, hWindow, wParam)) == (INT_PTR)TRUE)
+                    return (INT_PTR)TRUE;
                 break;
             }
         }

@@ -53,29 +53,29 @@ namespace config
             // -- event handlers -- --------------------------------------------
 
             /// @brief Initialization event handler
-            static DIALOG_EVENT_RETURN onInit(PAGE_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onInit(controls::TabPage::event_args_t args);
             /// @brief Sub-control command event handler
-            static DIALOG_EVENT_RETURN onCommand(PAGE_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onCommand(controls::TabPage::event_args_t args);
 
 
             // -- specialized handlers -- --------------------------------------
 
             /// @brief Language change event
             /// @returns Validity
-            virtual bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS) override;
+            virtual bool onDialogConfirm(controls::Dialog::event_args_t& args) override;
             /// @brief Language change event
             /// @param[in] IsUpdate  Set to false to initialize controls
             virtual void onLanguageChange(const bool isRecursive) override;
 
         private:
             /// @brief Initialize key binding sub-dialog
-            static DIALOG_EVENT_RETURN onKeyBindDialogInit(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onKeyBindDialogInit(controls::Dialog::event_args_t args);
             /// @brief Confirm key binding sub-dialog settings
-            static DIALOG_EVENT_RETURN onKeyBindDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onKeyBindDialogConfirm(controls::Dialog::event_args_t args);
             /// @brief Initialize advanced settings sub-dialog
-            static DIALOG_EVENT_RETURN onAdvancedDialogInit(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onAdvancedDialogInit(controls::Dialog::event_args_t args);
             /// @brief Confirm advanced settings sub-dialog settings
-            static DIALOG_EVENT_RETURN onAdvancedDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onAdvancedDialogConfirm(controls::Dialog::event_args_t args);
         };
     }
 }

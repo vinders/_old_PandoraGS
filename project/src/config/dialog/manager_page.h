@@ -62,11 +62,11 @@ namespace config
             // -- event handlers -- --------------------------------------------
 
             /// @brief Initialization event handler
-            static DIALOG_EVENT_RETURN onInit(PAGE_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onInit(controls::TabPage::event_args_t args);
             /// @brief Sub-control command event handler
-            static DIALOG_EVENT_RETURN onCommand(PAGE_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onCommand(controls::TabPage::event_args_t args);
             /// @brief Notification event handler
-            static DIALOG_EVENT_RETURN onNotify(PAGE_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onNotify(controls::TabPage::event_args_t args);
 
 
             // -- specialized handlers -- --------------------------------------
@@ -76,7 +76,7 @@ namespace config
 
             /// @brief Language change event
             /// @returns Validity
-            virtual bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS) override;
+            virtual bool onDialogConfirm(controls::Dialog::event_args_t& args) override;
             /// @brief Language change event
             /// @param[in] IsUpdate  Set to false to initialize controls
             virtual void onLanguageChange(const bool IsUpdate) override;

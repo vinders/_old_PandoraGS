@@ -24,36 +24,40 @@ using namespace std::literals::string_literals;
 
 
 /// @brief Create tab page - profile compatibility settings
-/// @param[in] instance       Current instance handle
-/// @param[in] pParentDialog  Parent dialog reference
-/// @param[in] resourceId     Tab page description identifier
-/// @param[in] maxRange       Max scroll range
-ScrollableTabPage::ScrollableTabPage(library_instance_t instance, Dialog* pParentDialog, const int32_t resourceId, const uint32_t maxRange)
+/// @param[in] instance        Current instance handle
+/// @param[in] pParentDialog   Parent dialog reference
+/// @param[in] resourceId      Tab page description identifier
+/// @param[in] maxRange        Max scroll range
+/// @param[in] isWheelManaged  Mouse wheel event self managed (true) or transmitted by parent (false)
+ScrollableTabPage::ScrollableTabPage(library_instance_t instance, Dialog* pParentDialog, const int32_t resourceId, const uint32_t maxRange, const bool isWheelManaged)
     : controls::TabPage(instance, pParentDialog, resourceId), m_maxRange(maxRange)
 {
     // set event handlers
     TabPage::event_handler_t eventHandler;
-    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(PAGE_EVENT_HANDLER_ARGUMENTS)>(onInit);
+    eventHandler.handler = onInit;
     TabPage::registerEvent(dialog_event_t::init, eventHandler);
-    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(PAGE_EVENT_HANDLER_ARGUMENTS)>(onVerticalScroll);
+    eventHandler.handler = onVerticalScroll;
     TabPage::registerEvent(dialog_event_t::scrollY, eventHandler);
-    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(PAGE_EVENT_HANDLER_ARGUMENTS)>(onMouseWheel);
-    TabPage::registerEvent(dialog_event_t::wheelY, eventHandler);
+    if (isWheelManaged)
+    {
+        eventHandler.handler = onMouseWheel;
+        TabPage::registerEvent(dialog_event_t::wheelY, eventHandler);
+    }
 }
 
 
 // -- event handlers -- --------------------------------------------
 
 /// @brief Initialization event handler
-DIALOG_EVENT_RETURN ScrollableTabPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN ScrollableTabPage::onInit(TabPage::event_args_t args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
-    ScrollableTabPage& parent = getEventTargetPageReference(ScrollableTabPage);
-    parent.m_hPage = getEventWindowHandle();
+    ScrollableTabPage& parent = args.getParent<ScrollableTabPage>();
+    parent.m_hPage = args.window;
 
     // display vertical scrollbar
-    EnableScrollBar(getEventWindowHandle(), SB_VERT, ESB_ENABLE_BOTH);
-    ShowScrollBar(getEventWindowHandle(), SB_VERT, TRUE);
+    EnableScrollBar(args.window, SB_VERT, ESB_ENABLE_BOTH);
+    ShowScrollBar(args.window, SB_VERT, TRUE);
 
     // configure scrollbar
     RECT pageRect;
@@ -66,13 +70,13 @@ DIALOG_EVENT_RETURN ScrollableTabPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
     si.nMax = parent.m_maxRange / SCROLLABLETABPAGE_SCROLLUNIT;
     si.nPage = pageSize;
     si.nPos = 0;
-    SetScrollInfo(getEventWindowHandle(), SB_VERT, &si, FALSE);
+    SetScrollInfo(args.window, SB_VERT, &si, FALSE);
 
     // mouse wheel manager
     parent.m_mouseManager = std::make_shared<Mouse>(pageSize);
 
     // custom init handler
-    return parent.onInitOverridable(PAGE_EVENT_HANDLER_ARGUMENTS_VALUES);
+    return parent.onInitOverridable(args);
 }
 #else
 {
@@ -83,7 +87,7 @@ DIALOG_EVENT_RETURN ScrollableTabPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
 
 
 /// @brief Vertical scroll event handler
-DIALOG_EVENT_RETURN ScrollableTabPage::onVerticalScroll(PAGE_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN ScrollableTabPage::onVerticalScroll(TabPage::event_args_t args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     // get scrollbar previous state
@@ -91,11 +95,11 @@ DIALOG_EVENT_RETURN ScrollableTabPage::onVerticalScroll(PAGE_EVENT_HANDLER_ARGUM
     SCROLLINFO si;
     si.cbSize = sizeof(si);
     si.fMask = SIF_RANGE | SIF_PAGE | SIF_POS | SIF_TRACKPOS;
-    GetScrollInfo(getEventWindowHandle(), SB_VERT, &si);
+    GetScrollInfo(args.window, SB_VERT, &si);
     prevPos = si.nPos;
 
     // set new position
-    int32_t action = getEventTargetControlId();
+    int32_t action = args.controlId();
     switch (action)
     {
         case SB_TOP:           pos = si.nMin; break;
@@ -108,7 +112,7 @@ DIALOG_EVENT_RETURN ScrollableTabPage::onVerticalScroll(PAGE_EVENT_HANDLER_ARGUM
         case SB_THUMBPOSITION: pos = si.nPos; break;
         default:               pos = si.nPos; break;
     }
-    ScrollableTabPage::setScrollPosition(getEventWindowHandle(), pos, prevPos);
+    ScrollableTabPage::setScrollPosition(args.window, pos, prevPos);
     return DIALOG_EVENT_RETURN_ERROR;
 }
 #else
@@ -120,14 +124,14 @@ DIALOG_EVENT_RETURN ScrollableTabPage::onVerticalScroll(PAGE_EVENT_HANDLER_ARGUM
 
 
 /// @brief Vertical mouse wheel event handler
-DIALOG_EVENT_RETURN ScrollableTabPage::onMouseWheel(PAGE_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN ScrollableTabPage::onMouseWheel(TabPage::event_args_t args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
-    int32_t delta = getEventSignedActionType();
+    int32_t delta = args.actionSignedType();
     if (delta == 0)
         return DIALOG_EVENT_RETURN_ERROR;
 
-    ScrollableTabPage& parent = getEventTargetPageReference(ScrollableTabPage);
+    ScrollableTabPage& parent = args.getParent<ScrollableTabPage>();
     if (parent.m_mouseManager == nullptr)
         return DIALOG_EVENT_RETURN_ERROR;
 
@@ -136,12 +140,12 @@ DIALOG_EVENT_RETURN ScrollableTabPage::onMouseWheel(PAGE_EVENT_HANDLER_ARGUMENTS
     SCROLLINFO si;
     si.cbSize = sizeof(si);
     si.fMask = SIF_PAGE | SIF_POS;
-    GetScrollInfo(getEventWindowHandle(), SB_VERT, &si);
+    GetScrollInfo(args.window, SB_VERT, &si);
     prevPos = si.nPos;
 
     // set new position
     pos = prevPos + parent.m_mouseManager->getVerticalWheelScroll(delta, si.nPage);
-    ScrollableTabPage::setScrollPosition(getEventWindowHandle(), pos, prevPos);
+    ScrollableTabPage::setScrollPosition(args.window, pos, prevPos);
     return DIALOG_EVENT_RETURN_ERROR;
 }
 #else

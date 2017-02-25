@@ -39,11 +39,13 @@ namespace config
 
             public:
                 /// @brief Create tab page - profile compatibility settings
-                /// @param[in] instance       Current instance handle
-                /// @param[in] pParentDialog  Parent dialog reference
-                /// @param[in] resourceId     Tab page description identifier
-                /// @param[in] maxRange       Max scroll range
-                ScrollableTabPage(controls::library_instance_t instance, controls::Dialog* pParentDialog, const int32_t resourceId, const uint32_t maxRange);
+                /// @param[in] instance        Current instance handle
+                /// @param[in] pParentDialog   Parent dialog reference
+                /// @param[in] resourceId      Tab page description identifier
+                /// @param[in] maxRange        Max scroll range
+                /// @param[in] isWheelManaged  Mouse wheel event self managed (true) or transmitted by parent (false)
+                ScrollableTabPage(controls::library_instance_t instance, controls::Dialog* pParentDialog, const int32_t resourceId, 
+                                  const uint32_t maxRange, const bool isWheelManaged);
                 // @brief Destroy tab page - profile compatibility settings
                 virtual ~ScrollableTabPage() {}
 
@@ -72,14 +74,14 @@ namespace config
                 // -- event handlers -- --------------------------------------------
 
                 /// @brief Initialization event handler
-                static DIALOG_EVENT_RETURN onInit(PAGE_EVENT_HANDLER_ARGUMENTS);
+                static DIALOG_EVENT_RETURN onInit(TabPage::event_args_t args);
                 /// @brief Initialization extendable event handler
-                virtual DIALOG_EVENT_RETURN onInitOverridable(PAGE_EVENT_HANDLER_ARGUMENTS) = 0;
+                virtual DIALOG_EVENT_RETURN onInitOverridable(TabPage::event_args_t& args) = 0;
 
                 /// @brief Vertical scroll event handler
-                static DIALOG_EVENT_RETURN onVerticalScroll(PAGE_EVENT_HANDLER_ARGUMENTS);
+                static DIALOG_EVENT_RETURN onVerticalScroll(TabPage::event_args_t args);
                 /// @brief Vertical mouse wheel event handler
-                static DIALOG_EVENT_RETURN onMouseWheel(PAGE_EVENT_HANDLER_ARGUMENTS);
+                static DIALOG_EVENT_RETURN onMouseWheel(TabPage::event_args_t args);
             };
         }
     }

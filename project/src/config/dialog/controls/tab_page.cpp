@@ -127,7 +127,7 @@ INT_PTR CALLBACK TabPage::pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam
             {
                 int32_t success = TRUE;
                 if (pPage->isRegisteredEvent(dialog_event_t::init)) // call handler
-                    success = pPage->getEventHandler(dialog_event_t::init).handler(pPage, hWindow, wParam, lParam);
+                    success = pPage->getEventHandler(dialog_event_t::init).handler(TabPage::event_args_t(pPage, hWindow, wParam, lParam));
                 pPage->setInitialized();
                 return (INT_PTR)success; break;
             }
@@ -135,7 +135,7 @@ INT_PTR CALLBACK TabPage::pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam
             {
                 if (pPage->isRegisteredEvent(dialog_event_t::paint)) // call handler
                 {
-                    return pPage->getEventHandler(dialog_event_t::paint).handler(pPage, hWindow, wParam, lParam);
+                    return pPage->getEventHandler(dialog_event_t::paint).handler(TabPage::event_args_t(pPage, hWindow, wParam, lParam));
                 }
                 else // default painting (white background)
                 {
@@ -164,13 +164,13 @@ INT_PTR CALLBACK TabPage::pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam
             case WM_DRAWITEM:
             {
                 if (pPage->isRegisteredEvent(dialog_event_t::drawItem)) // call handler
-                    return pPage->getEventHandler(dialog_event_t::drawItem).handler(pPage, hWindow, wParam, lParam);
+                    return pPage->getEventHandler(dialog_event_t::drawItem).handler(TabPage::event_args_t(pPage, hWindow, wParam, lParam));
                 break;
             }
             case WM_NOTIFY:
             {
                 if (pPage->isRegisteredEvent(dialog_event_t::notify)) // call handler
-                    return pPage->getEventHandler(dialog_event_t::notify).handler(pPage, hWindow, wParam, lParam);
+                    return pPage->getEventHandler(dialog_event_t::notify).handler(TabPage::event_args_t(pPage, hWindow, wParam, lParam));
                 break;
             }
 
@@ -178,7 +178,7 @@ INT_PTR CALLBACK TabPage::pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam
             case WM_COMMAND:
             {
                 if (pPage->isInitialized() && pPage->isRegisteredEvent(dialog_event_t::command) // call handler
-                    && pPage->getEventHandler(dialog_event_t::command).handler(pPage, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                    && pPage->getEventHandler(dialog_event_t::command).handler(TabPage::event_args_t(pPage, hWindow, wParam, lParam)) == (INT_PTR)TRUE)
                     return (INT_PTR)TRUE;
                 break;
             }
@@ -186,7 +186,7 @@ INT_PTR CALLBACK TabPage::pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam
             case WM_VSCROLL:
             {
                 if (pPage->isInitialized() && pPage->isRegisteredEvent(dialog_event_t::scrollY) // call handler
-                    && pPage->getEventHandler(dialog_event_t::scrollY).handler(pPage, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                    && pPage->getEventHandler(dialog_event_t::scrollY).handler(TabPage::event_args_t(pPage, hWindow, wParam, lParam)) == (INT_PTR)TRUE)
                     return (INT_PTR)TRUE;
                 break;
             }
@@ -194,7 +194,7 @@ INT_PTR CALLBACK TabPage::pageEventHandler(HWND hWindow, UINT msg, WPARAM wParam
             case WM_MOUSEWHEEL:
             {
                 if (pPage->isInitialized() && pPage->isRegisteredEvent(dialog_event_t::wheelY) // call handler
-                    && pPage->getEventHandler(dialog_event_t::wheelY).handler(pPage, hWindow, wParam, lParam) == (INT_PTR)TRUE)
+                    && pPage->getEventHandler(dialog_event_t::wheelY).handler(TabPage::event_args_t(pPage, hWindow, wParam, lParam)) == (INT_PTR)TRUE)
                     return (INT_PTR)TRUE;
                 break;
             }

@@ -31,7 +31,7 @@ namespace config
             /// @param[in] instance       Current instance handle
             /// @param[in] pParentDialog  Parent dialog reference
             ProfileFilteringPage(controls::library_instance_t instance, controls::Dialog* pParentDialog)
-                : controls::ScrollableTabPage(instance, pParentDialog, IDD_PROFILE_FILTERS_TAB, 570) {}
+                : controls::ScrollableTabPage(instance, pParentDialog, IDD_PROFILE_FILTERS_TAB, 570, false) {}
 
 
             /// @brief Close tab page control - overridable method
@@ -41,14 +41,14 @@ namespace config
             // -- event handlers -- --------------------------------------------
 
             /// @brief Initialization extendable event handler
-            virtual DIALOG_EVENT_RETURN onInitOverridable(PAGE_EVENT_HANDLER_ARGUMENTS) { return TRUE; }
+            virtual DIALOG_EVENT_RETURN onInitOverridable(controls::TabPage::event_args_t& args) { return TRUE; }
 
 
             // -- specialized handlers -- --------------------------------------
 
             /// @brief Language change event
             /// @returns Validity
-            virtual bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS) { return true; };
+            virtual bool onDialogConfirm(controls::Dialog::event_args_t& args) { return true; };
             /// @brief Language change event
             /// @param[in] isRecursive    Also translate controls in child pages or not
             virtual void onLanguageChange(const bool isRecursive) {};

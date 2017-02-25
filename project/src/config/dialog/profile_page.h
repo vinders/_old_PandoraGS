@@ -48,16 +48,16 @@ namespace config
             // -- event handlers -- --------------------------------------------
 
             /// @brief Initialization event handler
-            static DIALOG_EVENT_RETURN onInit(PAGE_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onInit(controls::TabPage::event_args_t args);
             /// @brief Notification event handler
-            static DIALOG_EVENT_RETURN onNotify(PAGE_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onNotify(controls::TabPage::event_args_t args);
 
 
             // -- specialized handlers -- --------------------------------------
 
             /// @brief Language change event
             /// @returns Validity
-            virtual bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS) override;
+            virtual bool onDialogConfirm(controls::Dialog::event_args_t& args) override;
             /// @brief Language change event
             /// @param[in] isRecursive  Also translate controls in child pages or not
             virtual void onLanguageChange(const bool IsRecursive) override;

@@ -98,12 +98,12 @@ void TabControl::close()
 
 /// @brief Language change event
 /// @returns Validity
-bool TabControl::onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
+bool TabControl::onDialogConfirm(Dialog::event_args_t& args)
 {
     // check settings validity in pages
     for (uint32_t i = 0; i < m_pages.size(); ++i)
     {
-        if (m_pages.at(i).page->onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES) == false)
+        if (m_pages.at(i).page->onDialogConfirm(args) == false)
             return false;
     }
     return true;
@@ -111,7 +111,7 @@ bool TabControl::onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
 
 /// @brief Language change event
 /// @param[in] instance  Library instance handle
-void TabControl::onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS)
+void TabControl::onLanguageChange(Dialog::event_args_t& args)
 {
     for (uint32_t i = 0; i < m_pages.size(); ++i)
     {
@@ -183,17 +183,17 @@ bool TabControl::getTabButtonColors(uint32_t tabNumber, bool isHover, float* pCo
 
 
 /// @brief Trigger control drawing
-DIALOG_EVENT_RETURN TabControl::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN TabControl::onPaint(Dialog::event_args_t& args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     PAINTSTRUCT paint;
     HDC hDC = nullptr;
-    hDC = BeginPaint(getEventWindowHandle(), &paint);
+    hDC = BeginPaint(args.window, &paint);
     if (hDC == nullptr)
         return DIALOG_EVENT_RETURN_ERROR;
 
     RECT windowRect;
-    GetClientRect(getEventWindowHandle(), &windowRect); 
+    GetClientRect(args.window, &windowRect); 
 
     // tab control bottom border
     HBRUSH borderBrush = CreateSolidBrush(COLOR_BORDER);
@@ -248,8 +248,8 @@ DIALOG_EVENT_RETURN TabControl::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
         DeleteObject(borderBrush);
     }
 
-    EndPaint(hWindow, &paint);
-    ReleaseDC(hWindow, hDC);
+    EndPaint(args.window, &paint);
+    ReleaseDC(args.window, hDC);
     return DIALOG_EVENT_RETURN_VALID;
 }
 #else
@@ -261,12 +261,12 @@ DIALOG_EVENT_RETURN TabControl::onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS)
 
 
 /// @brief Tab button command event handler
-DIALOG_EVENT_RETURN TabControl::onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN TabControl::onCommand(Dialog::event_args_t& args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     // check if a tab button was clicked (and not already active)
-    int32_t resourceId = getEventTargetControlId();
-    if (m_resourceIdMap.count(resourceId) && eventActionEquals(Button::event_t::clicked) && m_resourceIdMap[resourceId] != m_activePageIndex)
+    int32_t resourceId = args.controlId();
+    if (m_resourceIdMap.count(resourceId) && args.isEventAction(Button::event_t::clicked) && m_resourceIdMap[resourceId] != m_activePageIndex)
     {
         // deselect previous tab button
         int32_t previousIndex = m_activePageIndex;

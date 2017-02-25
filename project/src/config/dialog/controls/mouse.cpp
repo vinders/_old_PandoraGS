@@ -21,7 +21,7 @@ using namespace config::dialog::controls;
 
 /// @brief Create mouse manager
 /// @param[in] nPage  Current scrolling page
-Mouse::Mouse(const uint32_t nPage) : m_isReady(false), m_accumulator(0), m_previousTime(0)
+Mouse::Mouse(const uint32_t nPage) : m_isReady(true), m_accumulator(0), m_previousTime(0)
 {
     #if _DIALOGAPI == DIALOGAPI_WIN32
     // get scrolling speed
@@ -52,8 +52,11 @@ int32_t Mouse::getVerticalWheelScroll(const int32_t delta, uint32_t nPage)
     // get current time
     DWORD currentTime = GetTickCount();
 
-    while (m_isReady == false)
+    int32_t timeout = 2000;
+    while (m_isReady == false && --timeout > 0)
         std::this_thread::yield();
+    if (timeout <= 0)
+        return 0;
     m_isReady = false; // lock
 
     if (currentTime - m_previousTime > GetDoubleClickTime() * 2 // long period of inactivity -> reset accumulator

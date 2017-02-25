@@ -115,15 +115,15 @@ namespace config
 
                 /// @brief Language change event
                 /// @returns Validity
-                bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
+                bool onDialogConfirm(Dialog::event_args_t& args);
                 /// @brief Language change event
                 /// @param[in] instance  Library instance handle
-                void onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS);
+                void onLanguageChange(Dialog::event_args_t& args);
 
                 /// @brief Trigger control drawing
-                DIALOG_EVENT_RETURN onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS);
+                DIALOG_EVENT_RETURN onPaint(Dialog::event_args_t& args);
                 /// @brief Tab button command event handler
-                DIALOG_EVENT_RETURN onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS);
+                DIALOG_EVENT_RETURN onCommand(Dialog::event_args_t& args);
             };
         }
     }

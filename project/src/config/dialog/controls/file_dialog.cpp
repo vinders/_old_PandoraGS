@@ -32,11 +32,11 @@ FileDialog::FileDialog(library_instance_t instance, file_mode_t mode)
     : Dialog(instance), m_mode(mode), m_fieldId(0), m_browserId(0), m_filePath(L"./file.csv"s)
 {
     Dialog::event_handler_t eventHandler;
-    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onInit);
+    eventHandler.handler = onInit;
     Dialog::registerEvent(dialog_event_t::init, eventHandler);
-    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onCommand);
+    eventHandler.handler = onCommand;
     Dialog::registerEvent(dialog_event_t::command, eventHandler);
-    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)>(onConfirm);
+    eventHandler.handler = onConfirm;
     Dialog::registerEvent(dialog_event_t::confirm, eventHandler);
 }
 
@@ -60,18 +60,18 @@ Dialog::result_t FileDialog::showDialog(const int32_t dialogResourceId, const in
 
 
 /// @brief Dialog initialization event handler
-DIALOG_EVENT_RETURN FileDialog::onInit(DIALOG_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN FileDialog::onInit(Dialog::event_args_t args)
 {
-    FileDialog& parent = getEventTargetDialogReference(FileDialog);
-    TextField::setValue(getEventWindowHandle(), parent.m_fieldId, parent.m_filePath);
+    FileDialog& parent = args.getParent<FileDialog>();
+    TextField::setValue(args.window, parent.m_fieldId, parent.m_filePath);
     return DIALOG_EVENT_RETURN_VALID;
 }
 
 
 /// @brief Dialog initialization event handler
-DIALOG_EVENT_RETURN FileDialog::onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN FileDialog::onCommand(Dialog::event_args_t args)
 {
-    FileDialog& parent = getEventTargetDialogReference(FileDialog);
+    FileDialog& parent = args.getParent<FileDialog>();
 
     //...browser
     //...
@@ -81,10 +81,10 @@ DIALOG_EVENT_RETURN FileDialog::onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS)
 
 
 /// @brief Dialog confirm event handler - check validity
-DIALOG_EVENT_RETURN FileDialog::onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN FileDialog::onConfirm(Dialog::event_args_t args)
 {
-    FileDialog& parent = getEventTargetDialogReference(FileDialog);
-    parent.m_filePath = TextField::getValue(getEventWindowHandle(), parent.m_fieldId);
+    FileDialog& parent = args.getParent<FileDialog>();
+    parent.m_filePath = TextField::getValue(args.window, parent.m_fieldId);
 
     //...check path
     //...

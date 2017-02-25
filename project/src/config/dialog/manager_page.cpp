@@ -42,11 +42,11 @@ ManagerPage::ManagerPage(controls::library_instance_t instance, controls::Dialog
 {
     // set event handlers
     TabPage::event_handler_t eventHandler;
-    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(PAGE_EVENT_HANDLER_ARGUMENTS)>(onInit);
+    eventHandler.handler = onInit;
     TabPage::registerEvent(dialog_event_t::init, eventHandler);
-    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(PAGE_EVENT_HANDLER_ARGUMENTS)>(onCommand);
+    eventHandler.handler = onCommand;
     TabPage::registerEvent(dialog_event_t::command, eventHandler);
-    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(PAGE_EVENT_HANDLER_ARGUMENTS)>(onNotify);
+    eventHandler.handler = onNotify;
     TabPage::registerEvent(dialog_event_t::notify, eventHandler);
 }
 
@@ -68,35 +68,35 @@ void ManagerPage::overridableClose()
 // -- event handlers -- --------------------------------------------
 
 /// @brief Initialization event handler
-DIALOG_EVENT_RETURN ManagerPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN ManagerPage::onInit(TabPage::event_args_t args)
 {
-    ManagerPage& parent = getEventTargetPageReference(ManagerPage);
-    parent.m_hPage = getEventWindowHandle();
+    ManagerPage& parent = args.getParent<ManagerPage>();
+    parent.m_hPage = args.window;
 
     // add icons to buttons
     parent.m_buttonIcons.push_back(std::make_shared<controls::ButtonIcon>(parent.m_instance, IDI_CONFIG_BUTTON_ADD, 24, 24));
-    parent.m_buttonIcons.at(0)->addIconToButton(getEventWindowHandle(), IDC_MNG_BTN_ADD, L"Add"s);
+    parent.m_buttonIcons.at(0)->addIconToButton(args.window, IDC_MNG_BTN_ADD, L"Add"s);
     parent.m_buttonIcons.push_back(std::make_shared<controls::ButtonIcon>(parent.m_instance, IDI_CONFIG_BUTTON_EDIT, 24, 24));
-    parent.m_buttonIcons.at(1)->addIconToButton(getEventWindowHandle(), IDC_MNG_BTN_EDIT, L"Edit"s);
+    parent.m_buttonIcons.at(1)->addIconToButton(args.window, IDC_MNG_BTN_EDIT, L"Edit"s);
     parent.m_buttonIcons.push_back(std::make_shared<controls::ButtonIcon>(parent.m_instance, IDI_CONFIG_BUTTON_DEL, 24, 24));
-    parent.m_buttonIcons.at(2)->addIconToButton(getEventWindowHandle(), IDC_MNG_BTN_REMOVE, L"Del."s);
+    parent.m_buttonIcons.at(2)->addIconToButton(args.window, IDC_MNG_BTN_REMOVE, L"Del."s);
     parent.m_buttonIcons.push_back(std::make_shared<controls::ButtonIcon>(parent.m_instance, IDI_CONFIG_BUTTON_IN, 24, 24));
-    parent.m_buttonIcons.at(3)->addIconToButton(getEventWindowHandle(), IDC_MNG_BTN_IMPORT, L"In."s);
+    parent.m_buttonIcons.at(3)->addIconToButton(args.window, IDC_MNG_BTN_IMPORT, L"In."s);
     parent.m_buttonIcons.push_back(std::make_shared<controls::ButtonIcon>(parent.m_instance, IDI_CONFIG_BUTTON_OUT, 24, 24));
-    parent.m_buttonIcons.at(4)->addIconToButton(getEventWindowHandle(), IDC_MNG_BTN_EXPORT, L"Exp."s);
+    parent.m_buttonIcons.at(4)->addIconToButton(args.window, IDC_MNG_BTN_EXPORT, L"Exp."s);
 
     // create data table
     try
     {
         lang::ConfigLang& langRes = parent.getParentDialog<ConfigDialog>()->getLanguageResource();
-        parent.m_pDataTable = new DataTable(parent.m_instance, getEventWindowHandle(), IDC_MNG_LISTVIEW, true, 30, 40, 389, 309);
+        parent.m_pDataTable = new DataTable(parent.m_instance, args.window, IDC_MNG_LISTVIEW, true, 30, 40, 389, 309);
         parent.m_pDataTable->addColumn(langRes.profileManager.tableNumber, 40);
         parent.m_pDataTable->addColumn(langRes.profileManager.tableProfile, 0);
     }
     catch (...)
     {
         MsgBox::showMessage(L"Profile manager initialization failure"s, L"Failed to create data table..."s, 
-                            getEventWindowHandle(), MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+                            args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
         return DIALOG_EVENT_RETURN_ERROR;
     }
     // fill data table
@@ -115,47 +115,47 @@ DIALOG_EVENT_RETURN ManagerPage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
 
 
 /// @brief Sub-control command event handler
-DIALOG_EVENT_RETURN ManagerPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
 {
-    ManagerPage& parent = getEventTargetPageReference(ManagerPage);
-    if (getEventActionType() != static_cast<int32_t>(ComboBox::event_t::selectionChanged)) // ignore preset combo box events
+    ManagerPage& parent = args.getParent<ManagerPage>();
+    if (args.isEventSignedAction(ComboBox::event_t::selectionChanged) == false) // ignore preset combo box events
     {
-        switch (getEventTargetControlId())
+        switch (args.controlId())
         {
             // apply profile preset
             case IDC_MNG_BTN_PRESETS:
                 //...confirm + warning if none
-                Button::unHighlight(getEventWindowHandle(), IDC_MNG_BTN_PRESETS);
+                Button::unHighlight(args.window, IDC_MNG_BTN_PRESETS);
                 break;
 
             // add new profile
             case IDC_MNG_BTN_ADD:
                 //...dialog
-                Button::unHighlight(getEventWindowHandle(), IDC_MNG_BTN_ADD);
+                Button::unHighlight(args.window, IDC_MNG_BTN_ADD);
                 break;
 
             // edit selected profile
             case IDC_MNG_BTN_EDIT:
                 //...dialog + warning if none
-                Button::unHighlight(getEventWindowHandle(), IDC_MNG_BTN_EDIT);
+                Button::unHighlight(args.window, IDC_MNG_BTN_EDIT);
                 break;
 
             // remove selected profile(s)
             case IDC_MNG_BTN_REMOVE:
-                parent.onProfileRemoval(getEventWindowHandle()); 
-                Button::unHighlight(getEventWindowHandle(), IDC_MNG_BTN_REMOVE);
+                parent.onProfileRemoval(args.window); 
+                Button::unHighlight(args.window, IDC_MNG_BTN_REMOVE);
                 break;
 
             // import new/existing profile
             case IDC_MNG_BTN_IMPORT:
                 //...file dialog
-                Button::unHighlight(getEventWindowHandle(), IDC_MNG_BTN_IMPORT);
+                Button::unHighlight(args.window, IDC_MNG_BTN_IMPORT);
                 break;
 
             // export selected profile(s)
             case IDC_MNG_BTN_EXPORT:
                 //...file dialog + warning if none
-                Button::unHighlight(getEventWindowHandle(), IDC_MNG_BTN_EXPORT);
+                Button::unHighlight(args.window, IDC_MNG_BTN_EXPORT);
                 break;
         }
     }
@@ -164,14 +164,14 @@ DIALOG_EVENT_RETURN ManagerPage::onCommand(PAGE_EVENT_HANDLER_ARGUMENTS)
 
 
 /// @brief Notification event handler
-DIALOG_EVENT_RETURN ManagerPage::onNotify(PAGE_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN ManagerPage::onNotify(TabPage::event_args_t args)
 {
-    if (getEventArgs())
+    if (args.notifierData)
     {
-        ManagerPage& parent = getEventTargetPageReference(ManagerPage);
+        ManagerPage& parent = args.getParent<ManagerPage>();
         try
         {
-            parent.getDataTable().notifyEvent(getEventArgs());
+            parent.getDataTable().notifyEvent(args.notifierData);
         }
         catch (...) { /* already reported in onInit() */ }
     }
@@ -230,7 +230,7 @@ void ManagerPage::onProfileRemoval(window_handle_t hWindow)
 
 /// @brief Language change event
 /// @returns Validity
-bool ManagerPage::onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
+bool ManagerPage::onDialogConfirm(Dialog::event_args_t& args)
 {
     // update config
     //...copy config settings

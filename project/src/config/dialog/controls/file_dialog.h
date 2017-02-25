@@ -79,11 +79,11 @@ namespace config
 
             public:
                 /// @brief Dialog initialization event handler
-                static DIALOG_EVENT_RETURN onInit(DIALOG_EVENT_HANDLER_ARGUMENTS);
+                static DIALOG_EVENT_RETURN onInit(Dialog::event_args_t args);
                 /// @brief Dialog command event handler
-                static DIALOG_EVENT_RETURN onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS);
+                static DIALOG_EVENT_RETURN onCommand(Dialog::event_args_t args);
                 /// @brief Dialog confirm event handler - check validity
-                static DIALOG_EVENT_RETURN onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
+                static DIALOG_EVENT_RETURN onConfirm(Dialog::event_args_t args);
             };
         }
     }

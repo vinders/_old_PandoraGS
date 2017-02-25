@@ -19,11 +19,11 @@ using namespace std::literals::string_literals;
 #include <Windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
-#define getTabEventActionType() static_cast<config::dialog::controls::SimpleTabs::event_t>(((LPNMHDR)lParam)->code)
-#define getTabEventControlId() (((LPNMHDR)lParam)->hwndFrom)
+#define isTabEventAction(NOTIFIERDATA, EVENTTYPE) static_cast<int32_t>(((LPNMHDR)NOTIFIERDATA)->code) == static_cast<int32_t>(EVENTTYPE)
+#define tabControlId(NOTIFIERDATA) (((LPNMHDR)NOTIFIERDATA)->hwndFrom)
 #else
-#define getTabEventActionType() ((type>>8)&0x0FF)
-#define getTabEventControlId() (type&0x0FF)
+#define isTabEventAction(DATA, EVENTTYPE) ((DATA>>8)&0x0FF)==EVENTTYPE
+#define tabControlId(DATA) (DATA&0x0FF)
 #endif
 
 /// @namespace config

@@ -16,16 +16,6 @@ Description : page for tab control - abstract class
 
 #define DIALOG_BUTTON_BAR_HEIGHT 43 // OK/Cancel bar size
 
-#if _DIALOGAPI == DIALOGAPI_WIN32
-#define PAGE_EVENT_HANDLER_ARGUMENTS TabPage* pPage, HWND hWindow, WPARAM wParam, LPARAM lParam
-#define PAGE_EVENT_HANDLER_ARGUMENTS_VALUES pPage,hWindow,wParam,lParam
-#define getEventTargetPageReference(TYPE) *(static_cast<TYPE*>(pPage))
-#else
-#define PAGE_EVENT_HANDLER_ARGUMENTS void* pPage
-#define PAGE_EVENT_HANDLER_ARGUMENTS_VALUES pPage
-#define getEventTargetPageReference(TYPE) *((TYPE*)pPage)
-#endif
-
 /// @namespace config
 /// Configuration management
 namespace config
@@ -43,11 +33,47 @@ namespace config
             class TabPage
             {
             public:
+                /// @struct event_args_t
+                /// @brief Dialog/page event arguments
+                struct event_args_t
+                {
+                private:
+                    const TabPage* pParent; ///< Parent page
+                public:
+                    const window_handle_t window; ///< Parent window handle
+                    uint32_t eventData;   ///< Raw event data
+                    int32_t notifierData; ///< Notification data
+
+                    template<typename T> T& getParent() { return *((T*)pParent); } ///< Cast parent page
+                    #if _DIALOGAPI == DIALOGAPI_WIN32
+                    inline uint32_t actionType() noexcept { return static_cast<uint32_t>(HIWORD(eventData)); }      ///< Extract action type
+                    inline uint32_t actionSignedType() noexcept { return static_cast<int32_t>(HIWORD(eventData)); } ///< Extract action type (signed)
+                    inline int32_t  controlId() noexcept { return static_cast<int32_t>(LOWORD(eventData)); }        ///< Extract affected control ID
+                    #else
+                    inline uint32_t actionType() noexcept { return ((eventData >> 8) & 0x0FF); } ///< Extract action type
+                    inline uint32_t actionSignedType() noexcept { return (eventData & 0x0FF); }  ///< Extract action type (signed)
+                    inline int32_t  controlId() noexcept { return (eventData & 0x0FF); }         ///< Extract affected control ID
+                    #endif
+
+                    template <typename EventType>
+                    bool isEventAction(EventType type) { return (actionType() == static_cast<uint32_t>(type)); } ///< Compare action with event type
+                    template <typename EventType>
+                    bool isEventSignedAction(EventType type) { return (actionSignedType() == static_cast<int32_t>(type)); } ///< Compare action with event type (signed)
+
+                    #if _DIALOGAPI == DIALOGAPI_WIN32
+                    /// @brief Initialization constructor
+                    event_args_t(TabPage* pPage, HWND hWindow, WPARAM wParam, LPARAM lParam)
+                        : pParent(pPage), window(hWindow), eventData(static_cast<uint32_t>(wParam)), notifierData(static_cast<uint32_t>(lParam)) {}
+                    /// @brief Copy constructor
+                    event_args_t(const TabPage::event_args_t& copy)
+                        : pParent(copy.pParent), window(copy.window), eventData(copy.eventData), notifierData(copy.notifierData) {}
+                    #endif
+                };
                 /// @struct page_event_handler_t
                 /// @brief Event handling function
                 struct event_handler_t
                 {
-                    std::function<DIALOG_EVENT_RETURN(PAGE_EVENT_HANDLER_ARGUMENTS)> handler;
+                    std::function<DIALOG_EVENT_RETURN(TabPage::event_args_t)> handler;
                 };
 
 
@@ -186,7 +212,7 @@ namespace config
 
                 /// @brief Language change event
                 /// @returns Validity
-                virtual bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS) = 0;
+                virtual bool onDialogConfirm(Dialog::event_args_t& args) = 0;
                 /// @brief Language change event
                 /// @param[in] isRecursive    Also translate controls in child pages or not
                 virtual void onLanguageChange(const bool isRecursive) = 0;

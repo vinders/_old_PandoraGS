@@ -42,7 +42,7 @@ namespace config
 
             /// @brief Language change event
             /// @returns Validity
-            virtual bool onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS) { return true; };
+            virtual bool onDialogConfirm(controls::Dialog::event_args_t& args) { return true; };
             /// @brief Language change event
             /// @param[in] isRecursive    Also translate controls in child pages or not
             virtual void onLanguageChange(const bool isRecursive) {};

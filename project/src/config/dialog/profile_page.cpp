@@ -41,9 +41,9 @@ ProfilePage::ProfilePage(controls::library_instance_t instance, controls::Dialog
 
     // set event handlers
     TabPage::event_handler_t eventHandler;
-    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(PAGE_EVENT_HANDLER_ARGUMENTS)>(onInit);
+    eventHandler.handler = onInit;
     TabPage::registerEvent(dialog_event_t::init, eventHandler);
-    eventHandler.handler = std::function<DIALOG_EVENT_RETURN(PAGE_EVENT_HANDLER_ARGUMENTS)>(onNotify);
+    eventHandler.handler = onNotify;
     TabPage::registerEvent(dialog_event_t::notify, eventHandler);
 }
 
@@ -64,10 +64,10 @@ void ProfilePage::overridableClose()
 // -- event handlers -- --------------------------------------------
 
 /// @brief Initialization event handler
-DIALOG_EVENT_RETURN ProfilePage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN ProfilePage::onInit(TabPage::event_args_t args)
 {
-    ProfilePage& parent = getEventTargetPageReference(ProfilePage);
-    parent.m_hPage = getEventWindowHandle();
+    ProfilePage& parent = args.getParent<ProfilePage>();
+    parent.m_hPage = args.window;
     lang::ConfigLang& langRes = parent.getParentDialog<ConfigDialog>()->getLanguageResource();
 
     // insert tabs for sub-pages
@@ -76,11 +76,11 @@ DIALOG_EVENT_RETURN ProfilePage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
     tabNames.push_back(langRes.profile.filteringTab);
     tabNames.push_back(langRes.profile.screenTab);
     tabNames.push_back(langRes.profile.compatibilityTab);
-    SimpleTabs::insertTabs(getEventWindowHandle(), IDC_PROFILE_TABS, tabNames, parent.m_activeSubPage);
+    SimpleTabs::insertTabs(args.window, IDC_PROFILE_TABS, tabNames, parent.m_activeSubPage);
     // create sub-pages
     for (uint32_t i = 0; i < parent.m_subPages.size(); ++i)
     {
-        parent.m_subPages.at(i)->create(getEventWindowHandle(), 0, true);
+        parent.m_subPages.at(i)->create(args.window, 0, true);
         parent.m_subPages.at(i)->setVisible(i == parent.m_activeSubPage);
     }
     return DIALOG_EVENT_RETURN_VALID;
@@ -88,17 +88,17 @@ DIALOG_EVENT_RETURN ProfilePage::onInit(PAGE_EVENT_HANDLER_ARGUMENTS)
 
 
 /// @brief Notification event handler
-DIALOG_EVENT_RETURN ProfilePage::onNotify(PAGE_EVENT_HANDLER_ARGUMENTS)
+DIALOG_EVENT_RETURN ProfilePage::onNotify(TabPage::event_args_t args)
 {
-    ProfilePage& parent = getEventTargetPageReference(ProfilePage);
+    ProfilePage& parent = args.getParent<ProfilePage>();
 
     // sub-tab change
-    if (getTabEventActionType() == controls::SimpleTabs::event_t::tabChanged)
+    if (isTabEventAction(args.notifierData, controls::SimpleTabs::event_t::tabChanged))
     {
         if (parent.m_subPages.empty() == false)
         {
             parent.m_subPages.at(parent.m_activeSubPage)->setVisible(false);
-            parent.m_activeSubPage = SimpleTabs::getActiveTabIndex(getTabEventControlId());
+            parent.m_activeSubPage = SimpleTabs::getActiveTabIndex(tabControlId(args.notifierData));
             parent.m_subPages.at(parent.m_activeSubPage)->setVisible(true);
         }
     }
@@ -111,11 +111,11 @@ DIALOG_EVENT_RETURN ProfilePage::onNotify(PAGE_EVENT_HANDLER_ARGUMENTS)
 
 /// @brief Language change event
 /// @returns Validity
-bool ProfilePage::onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS)
+bool ProfilePage::onDialogConfirm(Dialog::event_args_t& args)
 {
     for (uint32_t i = 0; i < m_subPages.size(); ++i)
     {
-        if (m_subPages.at(i)->onDialogConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES) == false)
+        if (m_subPages.at(i)->onDialogConfirm(args) == false)
             return false;
     }
     return true;

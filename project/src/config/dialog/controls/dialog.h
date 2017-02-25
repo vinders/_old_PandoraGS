@@ -18,31 +18,16 @@ Description : dialog control
 using namespace std::literals::string_literals;
 
 #if _DIALOGAPI == DIALOGAPI_WIN32
-#define DIALOG_EVENT_HANDLER_ARGUMENTS config::dialog::controls::Dialog* pDialog, HWND hWindow, WPARAM wParam, LPARAM lParam
-#define DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES pDialog,hWindow,wParam,lParam
 #define DIALOG_EVENT_RETURN INT_PTR
 #define DIALOG_EVENT_RETURN_VALID (INT_PTR)TRUE
 #define DIALOG_EVENT_RETURN_ERROR (INT_PTR)FALSE
-#define getEventTargetControlId() LOWORD(wParam)
-#define getEventActionType() static_cast<uint32_t>(HIWORD(wParam))
-#define getEventSignedActionType() static_cast<int32_t>(HIWORD(wParam))
-#define getEventArgs() static_cast<uint32_t>(lParam)
 #else
-#define DIALOG_EVENT_HANDLER_ARGUMENTS void* pDialog, int hWindow, int type
-#define DIALOG_EVENT_HANDLER_ARGUMENTS_VALUES pDialog,hWindow,type
 #define DIALOG_EVENT_RETURN int32_t
 #define DIALOG_EVENT_RETURN_VALID 0
 #define DIALOG_EVENT_RETURN_ERROR -1
-#define getEventTargetControlId() (type&0x0FF)
-#define getEventActionType() ((type>>8)&0x0FF)
-#define getEventSignedActionType() ((type>>8)&0x0FF)
-#define getEventArgs() ((type>>16)&0x0FF)
 #endif
-#define getEventTargetDialogReference(TYPE) *((TYPE*)(pDialog))
-#define getEventWindowHandle() reinterpret_cast<window_handle_t>(hWindow)
-#define eventActionEquals(VAL) getEventActionType()==static_cast<uint32_t>(VAL)
-#define eventActionDiffers(VAL) getEventActionType()!=static_cast<uint32_t>(VAL)
 #define DIALOG_USE_BASE_WINDOW INVALID_HANDLE_VALUE
+
 
 /// @namespace config
 /// Configuration management
@@ -61,11 +46,43 @@ namespace config
             class Dialog
             {
             public:
+                /// @struct event_args_t
+                /// @brief Dialog/page event arguments
+                struct event_args_t
+                {
+                private:
+                    const Dialog* pParent; ///< Parent dialog
+                public:
+                    const window_handle_t window; ///< Parent window handle
+                    uint32_t eventData;   ///< Raw event data
+
+                    template<typename T> T& getParent() { return *((T*)pParent); } ///< Cast parent dialog
+                    #if _DIALOGAPI == DIALOGAPI_WIN32
+                    inline uint32_t actionType() noexcept { return static_cast<uint32_t>(HIWORD(eventData)); }      ///< Extract action type
+                    inline uint32_t actionSignedType() noexcept { return static_cast<int32_t>(HIWORD(eventData)); } ///< Extract action type (signed)
+                    inline int32_t  controlId() noexcept { return static_cast<int32_t>(LOWORD(eventData)); }        ///< Extract affected control ID
+                    #else
+                    inline uint32_t actionType() noexcept { return ((eventData >> 8) & 0x0FF); } ///< Extract action type
+                    inline uint32_t actionSignedType() noexcept { return (eventData & 0x0FF); }  ///< Extract action type (signed)
+                    inline int32_t  controlId() noexcept { return (eventData & 0x0FF); }         ///< Extract affected control ID
+                    #endif
+
+                    template <typename EventType>
+                    bool isEventAction(EventType type) { return (actionType() == static_cast<uint32_t>(type)); } ///< Compare action with event type
+                    template <typename EventType>
+                    bool isEventSignedAction(EventType type) { return (actionSignedType() == static_cast<int32_t>(type)); } ///< Compare action with event type (signed)
+
+                    #if _DIALOGAPI == DIALOGAPI_WIN32
+                    /// @brief Initialization constructor
+                    event_args_t(Dialog* pDialog, HWND hWindow, WPARAM wParam)
+                        : pParent(pDialog), window(hWindow), eventData(static_cast<uint32_t>(wParam)) {}
+                    #endif
+                };
                 /// @struct dialog_event_handler_t
                 /// @brief Event handling function
                 struct event_handler_t
                 {
-                    std::function<DIALOG_EVENT_RETURN(DIALOG_EVENT_HANDLER_ARGUMENTS)> handler;
+                    std::function<DIALOG_EVENT_RETURN(Dialog::event_args_t)> handler;
                 };
                 /// @enum result_t
                 /// @brief Action performed when closing a dialog

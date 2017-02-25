@@ -64,15 +64,15 @@ namespace config
             // -- event handlers -- --------------------------------------------
 
             /// @brief Initialization event handler
-            static DIALOG_EVENT_RETURN onInit(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onInit(Dialog::event_args_t args);
             /// @brief Paint event handler - draw dialog
-            static DIALOG_EVENT_RETURN onPaint(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onPaint(Dialog::event_args_t args);
             /// @brief Sub-control command event handler
-            static DIALOG_EVENT_RETURN onCommand(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onCommand(Dialog::event_args_t args);
             /// @brief Dialog confirm event handler - check validity
-            static DIALOG_EVENT_RETURN onConfirm(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onConfirm(Dialog::event_args_t args);
             /// @brief Dialog close event handler
-            static DIALOG_EVENT_RETURN onClose(DIALOG_EVENT_HANDLER_ARGUMENTS);
+            static DIALOG_EVENT_RETURN onClose(Dialog::event_args_t args);
 
 
             // -- specialized handlers -- --------------------------------------
@@ -80,10 +80,10 @@ namespace config
             /// @brief Language selection event
             /// @param[in] value  Selected value
             /// @returns Language validity / file validity
-            bool onLanguageSelection(DIALOG_EVENT_HANDLER_ARGUMENTS, const int32_t value);
+            bool onLanguageSelection(Dialog::event_args_t& args, const int32_t value);
             /// @brief Language change event
             /// @param[in] isRecursive  Also translate controls in child pages or not
-            void onLanguageChange(DIALOG_EVENT_HANDLER_ARGUMENTS, const bool isRecursive);
+            void onLanguageChange(Dialog::event_args_t& args, const bool isRecursive);
         };
     }
 }
