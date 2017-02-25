@@ -49,7 +49,7 @@ ScrollableTabPage::ScrollableTabPage(library_instance_t instance, Dialog* pParen
 // -- event handlers -- --------------------------------------------
 
 /// @brief Initialization event handler
-DIALOG_EVENT_RETURN ScrollableTabPage::onInit(TabPage::event_args_t args)
+EVENT_RETURN ScrollableTabPage::onInit(TabPage::event_args_t args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     ScrollableTabPage& parent = args.getParent<ScrollableTabPage>();
@@ -81,13 +81,13 @@ DIALOG_EVENT_RETURN ScrollableTabPage::onInit(TabPage::event_args_t args)
 #else
 {
     //...
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_VALID;
 }
 #endif
 
 
 /// @brief Vertical scroll event handler
-DIALOG_EVENT_RETURN ScrollableTabPage::onVerticalScroll(TabPage::event_args_t args)
+EVENT_RETURN ScrollableTabPage::onVerticalScroll(TabPage::event_args_t args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     // get scrollbar previous state
@@ -113,27 +113,27 @@ DIALOG_EVENT_RETURN ScrollableTabPage::onVerticalScroll(TabPage::event_args_t ar
         default:               pos = si.nPos; break;
     }
     ScrollableTabPage::setScrollPosition(args.window, pos, prevPos);
-    return DIALOG_EVENT_RETURN_ERROR;
+    return EVENT_RETURN_IGNORE;
 }
 #else
 {
     //...
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_IGNORE;
 }
 #endif
 
 
 /// @brief Vertical mouse wheel event handler
-DIALOG_EVENT_RETURN ScrollableTabPage::onMouseWheel(TabPage::event_args_t args)
+EVENT_RETURN ScrollableTabPage::onMouseWheel(TabPage::event_args_t args)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
-    int32_t delta = args.actionSignedType();
-    if (delta == 0)
-        return DIALOG_EVENT_RETURN_ERROR;
+    int32_t delta = args.actionSignedType() - 32767;
+    if (delta > -50 && delta < 50)
+        return EVENT_RETURN_ERROR;
 
     ScrollableTabPage& parent = args.getParent<ScrollableTabPage>();
     if (parent.m_mouseManager == nullptr)
-        return DIALOG_EVENT_RETURN_ERROR;
+        return EVENT_RETURN_ERROR;
 
     // get scrollbar previous state
     int32_t pos, prevPos;
@@ -144,13 +144,13 @@ DIALOG_EVENT_RETURN ScrollableTabPage::onMouseWheel(TabPage::event_args_t args)
     prevPos = si.nPos;
 
     // set new position
-    pos = prevPos + parent.m_mouseManager->getVerticalWheelScroll(delta, si.nPage);
+    pos = prevPos + (parent.m_mouseManager->getVerticalWheelScroll(delta) / (16 * SCROLLABLETABPAGE_SCROLLUNIT));
     ScrollableTabPage::setScrollPosition(args.window, pos, prevPos);
-    return DIALOG_EVENT_RETURN_ERROR;
+    return EVENT_RETURN_IGNORE;
 }
 #else
 {
     //...
-    return DIALOG_EVENT_RETURN_VALID;
+    return EVENT_RETURN_IGNORE;
 }
 #endif

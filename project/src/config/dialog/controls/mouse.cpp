@@ -30,22 +30,19 @@ Mouse::Mouse(const uint32_t nPage) : m_isReady(true), m_accumulator(0), m_previo
 
     // adjust speed
     if (m_linesPerWheelDelta == WHEEL_PAGESCROLL || m_linesPerWheelDelta > nPage)
-        m_linesPerWheelDelta = nPage;
+        m_linesPerWheelDelta = (nPage > 0) ? nPage : 1u;
     #endif
 }
 
 
 /// @brief Get vertical scrolling value for a mouse wheel event
 /// @param[in] delta    Mouse wheel delta value
-/// @param[in] nPage    Current scrolling page
 /// @returns Scroll value
-int32_t Mouse::getVerticalWheelScroll(const int32_t delta, uint32_t nPage)
+int32_t Mouse::getVerticalWheelScroll(const int32_t delta)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     if (m_linesPerWheelDelta == 0) // exit if scrolling disabled on system
         return 0;
-    if (nPage < 1) // always scroll a little, even if less than a scrolling page
-        nPage = 1;
 
     int32_t scrollValue = 0; // lines to scroll
 
@@ -59,7 +56,7 @@ int32_t Mouse::getVerticalWheelScroll(const int32_t delta, uint32_t nPage)
         return 0;
     m_isReady = false; // lock
 
-    if (currentTime - m_previousTime > GetDoubleClickTime() * 2 // long period of inactivity -> reset accumulator
+    if (currentTime - m_previousTime > 800 // long period of inactivity -> reset accumulator
      || (m_accumulator > 0) == (delta < 0))                     // scrolling direction reversed -> reset accumulator
     {
         m_accumulator = 0; 
@@ -73,7 +70,7 @@ int32_t Mouse::getVerticalWheelScroll(const int32_t delta, uint32_t nPage)
     m_previousTime = currentTime;
 
     m_isReady = true; // unlock
-    return -scrollValue;
+    return scrollValue;
 }
 #else
 {

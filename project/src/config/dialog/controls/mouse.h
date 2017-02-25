@@ -45,9 +45,8 @@ namespace config
 
                 /// @brief Get vertical scrolling value for a mouse wheel event
                 /// @param[in] delta  Mouse wheel delta value
-                /// @param[in] nPage  Current scrolling page
                 /// @returns Scroll value
-                int32_t getVerticalWheelScroll(const int32_t delta, uint32_t nPage);
+                int32_t getVerticalWheelScroll(const int32_t delta);
             };
         }
     }
