@@ -243,6 +243,33 @@ namespace config
         screen_curvature_t  curvature;         ///< Curved CRT screen simulation
     };
 
+    /// @brief Convert list index to internal X resolution factor
+    /// @param[in] index  List index (0 - 4)
+    inline uint32_t internalResXIndexToFactor(const uint32_t index)
+    {
+        return (index == 0u) ? 1u : (index * 2u);
+    }
+    /// @brief Convert internal X resolution factor to list index
+    /// @param[in] factor  Internal X resolution factor (1x, 2x, 4x, 6x, 8x)
+    inline uint32_t internalResXFactorToIndex(const uint32_t factor)
+    {
+        return (factor > 8u) ? 1u : (factor / 2u);
+    }
+    /// @brief Convert list index to internal Y resolution factor
+    /// @param[in] index  List index (0 - 5)
+    inline uint32_t internalResYIndexToFactor(const uint32_t index)
+    {
+        if (index == 0u)
+            return 1u;
+        return (index > 2u) ? ((index + 1u) * 2u) : (index * 2u);
+    }
+    /// @brief Convert internal Y resolution factor to list index
+    /// @param[in] factor  Internal Y resolution factor (1x, 2x, 4x, 8x, 10x, 12x)
+    inline uint32_t internalResYFactorToIndex(const uint32_t factor)
+    {
+        return (factor > 4u) ? ((factor - 2u) / 2u) : (factor / 2u);
+    }
+
     /// @struct config_shading_t
     /// @brief Shader effects settings
     struct config_shading_t

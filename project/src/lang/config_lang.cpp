@@ -101,6 +101,21 @@ void ConfigLang::setLanguageEnglish() noexcept
     filteringSettings.btnScanlines = L"Scanlines settings..."s;
     filteringSettings.btnCursor = L"Cursor settings..."s;
 
+    screenSettings.internalRes = L"Internal resolution"s;
+    screenSettings.internalResX = { L"X: native (1x)"s, L"X: standard (2x)"s, L"X: high (4x)"s, L"X: ultra (6x, slow)"s, L"X: ultra+ (8x, slow)"s };
+    screenSettings.internalResY = { L"Y: native (1x)"s, L"Y: low (2x)"s, L"Y: standard (4x)"s, L"Y: high (8x)"s, L"Y: ultra (10x, slow)"s, L"Y: ultra+ (12x, slow)"s };
+    screenSettings.stretchingPresets = { L"Custom settings"s, L"Full window (stretched)"s, L"Keep ratio (best with 2D)"s, L"Keep ratio & fill (cropped)"s, L"Semi stretched/cropped"s };
+    screenSettings.unstretched = L"Keep ratio"s;
+    screenSettings.stretched = L"stretch"s;
+    screenSettings.uncropped = L"Uncropped"s;
+    screenSettings.cropped = L"fill/crop"s;
+    screenSettings.pixelRatio = L"Non-square pixel ratio (for CRT screens)"s;
+    screenSettings.mirror = L"Mirror screen"s;
+    screenSettings.blackBorders = L"Add black borders (anti-flicker):"s;
+    screenSettings.blackBordersX = L"X (sides):"s;
+    screenSettings.blackBordersY = L"Y (top/bottom):"s;
+    //...
+
     compatibilitySettings.groupColor = L"Color correction"s;
     //...
     compatibilitySettings.groupCompatibility = L"Compatibility"s;
@@ -198,6 +213,21 @@ void ConfigLang::setLanguageFrench() noexcept
     //...
     filteringSettings.btnScanlines = L"Options des lignes..."s;
     filteringSettings.btnCursor = L"Options du viseur..."s;
+
+    screenSettings.internalRes = L"Résolution interne"s;
+    screenSettings.internalResX = { L"X: native (1x)"s, L"X: standard (2x)"s, L"X: haute (4x)"s, L"X: ultra (6x, lent)"s, L"X: ultra+ (8x, lent)"s };
+    screenSettings.internalResY = { L"Y: native (1x)"s, L"Y: basse (2x)"s, L"Y: standard (4x)"s, L"Y: haute (8x)"s, L"Y: ultra (10x, lent)"s, L"Y: ultra+ (12x, lent)"s };
+    screenSettings.stretchingPresets = { L"Personnalisé"s, L"Remplir la fenêtre (étirer)"s, L"Conserver ratio (idéal en 2D)"s, L"Conserver ratio & tronquer"s, L"Semi étiré/tronqué"s };
+    screenSettings.unstretched = L"Garder ratio"s;
+    screenSettings.stretched = L"étirer"s;
+    screenSettings.uncropped = L"Non tronqué"s;
+    screenSettings.cropped = L"remplir"s;
+    screenSettings.pixelRatio = L"Pixels non carrés (écrans cathodiques)"s;
+    screenSettings.mirror = L"Inverser l'écran"s;
+    screenSettings.blackBorders = L"Bordures noires (anti-clignotements) :"s;
+    screenSettings.blackBordersX = L"X (côtés) :"s;
+    screenSettings.blackBordersY = L"Y (haut/bas) :"s;
+    //...
 
     compatibilitySettings.groupColor = L"Correction des couleurs"s;
     //...

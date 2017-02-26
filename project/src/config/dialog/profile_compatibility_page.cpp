@@ -103,6 +103,7 @@ EVENT_RETURN ProfileCompatibilityPage::onCommand(TabPage::event_args_t args)
 /// @returns Validity
 bool ProfileCompatibilityPage::onDialogConfirm(controls::Dialog::event_args_t& args)
 {
+    onProfileSave();
     return true;
 }
 
@@ -111,6 +112,7 @@ bool ProfileCompatibilityPage::onDialogConfirm(controls::Dialog::event_args_t& a
 /// @param[in] isUpdate  Set to false to initialize controls
 void ProfileCompatibilityPage::onLanguageChange(const bool isUpdate)
 {
+    //...
 }
 
 
@@ -118,6 +120,7 @@ void ProfileCompatibilityPage::onLanguageChange(const bool isUpdate)
 /// @returns Validity
 bool ProfileCompatibilityPage::onProfileSave()
 {
+    //...
     return true;
 }
 
@@ -126,4 +129,5 @@ bool ProfileCompatibilityPage::onProfileSave()
 /// @param[in] isUpdate  Set to false to initialize controls
 void ProfileCompatibilityPage::onProfileChange(const bool isUpdate)
 {
+    //...
 }

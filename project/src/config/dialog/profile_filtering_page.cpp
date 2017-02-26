@@ -176,6 +176,7 @@ EVENT_RETURN ProfileFilteringPage::onCommand(TabPage::event_args_t args)
 /// @returns Validity
 bool ProfileFilteringPage::onDialogConfirm(controls::Dialog::event_args_t& args)
 {
+    onProfileSave();
     return true;
 }
 
@@ -184,11 +185,11 @@ bool ProfileFilteringPage::onDialogConfirm(controls::Dialog::event_args_t& args)
 /// @param[in] isUpdate  Set to false to initialize controls
 void ProfileFilteringPage::onLanguageChange(const bool isUpdate)
 {
-    ConfigProfile& profile = *(Config::getCurrentProfile());
     lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
 
     if (isUpdate == false) // initialize
     {
+        ConfigProfile& profile = *(Config::getCurrentProfile());
         ComboBox::initValues(getPageHandle(), IDC_PRO_TXFILTER_LIST, langRes.filteringSettings.interpolations, static_cast<uint32_t>(profile.scaling.textureSmoothing));
         ComboBox::initValues(getPageHandle(), IDC_PRO_2DFILTER_LIST, langRes.filteringSettings.interpolations, static_cast<uint32_t>(profile.scaling.spriteSmoothing));
         ComboBox::initValues(getPageHandle(), IDC_PRO_SCRFILTER_LIST, langRes.filteringSettings.screenSmoothing, static_cast<uint32_t>(profile.scaling.screenSmoothing));
@@ -360,6 +361,15 @@ void ProfileFilteringPage::onProfileChange(const bool isUpdate)
     else
         ComboBox::setValues(getPageHandle(), IDC_PRO_TXUPSCALE_FACTOR, factors, selectedIndex);
     onUpscalingFactorChange(IDC_PRO_TXUPSCALE_LIST, profile.scaling.textureScaling.factor, profile.scaling.textureScaling.mode, langRes.filteringSettings.nativeScale);
+
+
+    if (isUpdate)
+    {
+        // smoothing
+        ComboBox::setSelectedIndex(getPageHandle(), IDC_PRO_TXFILTER_LIST, static_cast<uint32_t>(profile.scaling.textureSmoothing));
+        ComboBox::setSelectedIndex(getPageHandle(), IDC_PRO_2DFILTER_LIST, static_cast<uint32_t>(profile.scaling.spriteSmoothing));
+        ComboBox::setSelectedIndex(getPageHandle(), IDC_PRO_SCRFILTER_LIST, static_cast<uint32_t>(profile.scaling.screenSmoothing));
+    }
 
     //...
 }

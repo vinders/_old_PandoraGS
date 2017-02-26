@@ -59,6 +59,8 @@ namespace config
                     bool isEventAction(EventType type) { return (actionType() == static_cast<uint32_t>(type)); } ///< Compare action with event type
                     template <typename EventType>
                     bool isEventSignedAction(EventType type) { return (actionSignedType() == static_cast<int32_t>(type)); } ///< Compare action with event type (signed)
+                    template <typename EventType>
+                    bool isEventSubAction(EventType type) { return (controlId() == static_cast<uint32_t>(type)); } ///< Compare sub-action with event type
 
                     #if _DIALOGAPI == DIALOGAPI_WIN32
                     /// @brief Initialization constructor

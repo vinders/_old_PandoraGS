@@ -130,6 +130,18 @@ namespace lang
         struct screen_content_t
         {
             std::wstring internalRes;
+            std::vector<std::wstring> internalResX;
+            std::vector<std::wstring> internalResY;
+            std::vector<std::wstring> stretchingPresets;
+            std::wstring unstretched;
+            std::wstring stretched;
+            std::wstring uncropped;
+            std::wstring cropped;
+            std::wstring pixelRatio;
+            std::wstring mirror;
+            std::wstring blackBorders;
+            std::wstring blackBordersX;
+            std::wstring blackBordersY;
         };
         /// @struct profile_content_t
         /// @brief Profile settings translations
