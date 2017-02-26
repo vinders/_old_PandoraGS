@@ -9,7 +9,9 @@ Description : tab sub-page - screen settings
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include "controls/common.h"
+#include "controls/preview_box.h"
 #include "controls/tab_page.h"
 
 /// @namespace config
@@ -26,6 +28,7 @@ namespace config
         class ProfileScreenPage : public controls::TabPage
         {
         private:
+            std::shared_ptr<controls::PreviewBox> m_screenPreview;
         
         public:
             /// @brief Create tab page - profile compatibility settings

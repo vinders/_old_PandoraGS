@@ -24,6 +24,7 @@ Description : tab sub-page - screen settings
 #include "controls/track_bar.h"
 #include "controls/preview_box.h"
 #include "config_dialog.h"
+#include "../../pandoraGS.h"
 #include "profile_screen_page.h"
 using namespace config::dialog;
 using namespace config::dialog::controls;
@@ -34,7 +35,7 @@ using namespace std::literals::string_literals;
 /// @param[in] instance       Current instance handle
 /// @param[in] pParentDialog  Parent dialog reference
 ProfileScreenPage::ProfileScreenPage(controls::library_instance_t instance, controls::Dialog* pParentDialog)
-    : controls::TabPage(instance, pParentDialog, IDD_PROFILE_STRETCHING_TAB)
+    : controls::TabPage(instance, pParentDialog, IDD_PROFILE_STRETCHING_TAB), m_screenPreview(nullptr)
 {
     // set event handlers
     TabPage::event_handler_t eventHandler;
@@ -62,6 +63,10 @@ EVENT_RETURN ProfileScreenPage::onInit(TabPage::event_args_t args)
     TrackBar::initControl(args.window, IDC_PROSTR_STRETCH_SLIDER, SCREEN_RATIO_MAX_VAL, 1, SCREEN_RATIO_MAX_VAL / 2);
     TrackBar::initControl(args.window, IDC_PROSTR_CUT_SLIDER, SCREEN_RATIO_MAX_VAL, 1, SCREEN_RATIO_MAX_VAL / 2);
 
+    // initialize screen preview
+    parent.m_screenPreview = std::make_shared<PreviewBox>(reinterpret_cast<library_instance_t>(PandoraGS::getInstance()), args.window,
+                                                          IDC_PROSTR_PICTUREBOX, 180, 135, IDB_RATIO, 140, 105);
+
     // translate controls/labels
     parent.onLanguageChange(false);
     // set config values
@@ -81,7 +86,7 @@ EVENT_RETURN ProfileScreenPage::onDrawItem(TabPage::event_args_t args)
         if (TrackBar::getValue(args.window, IDC_PROSTR_STRETCH_SLIDER, stretchVal) && TrackBar::getValue(args.window, IDC_PROSTR_CUT_SLIDER, cropVal))
         {
             // draw preview
-            //...draw preview box
+            args.getParent<ProfileScreenPage>().m_screenPreview->drawScreenPreview(args, SCREEN_RATIO_MAX_VAL, stretchVal, cropVal, isMirrored);
         }
     }
     return EVENT_RETURN_IGNORE;
@@ -120,8 +125,8 @@ EVENT_RETURN ProfileScreenPage::onCommand(TabPage::event_args_t args)
                         break;
                 }
 
-                // invalidate preview
-                //...
+                // redraw preview
+                args.getParent<ProfileScreenPage>().m_screenPreview->invalidate();
                 return EVENT_RETURN_VALID;
             }
         }
@@ -131,8 +136,8 @@ EVENT_RETURN ProfileScreenPage::onCommand(TabPage::event_args_t args)
         // mirror screen
         if (args.controlId() == IDC_PROSTR_MIRROR)
         {
-            // invalidate preview
-            //...
+            // redraw preview
+            args.getParent<ProfileScreenPage>().m_screenPreview->invalidate();
         }
     }
     return EVENT_RETURN_IGNORE;
@@ -164,8 +169,8 @@ EVENT_RETURN ProfileScreenPage::onTrackBarChange(TabPage::event_args_t args)
                 ComboBox::setSelectedIndex(args.window, IDC_PROSTR_PRESET_LIST, presetIndex);
             }
 
-            // invalidate preview
-            //...
+            // redraw preview
+            args.getParent<ProfileScreenPage>().m_screenPreview->invalidate();
             return EVENT_RETURN_VALID;
         }
     }
@@ -211,6 +216,7 @@ void ProfileScreenPage::onLanguageChange(const bool isUpdate)
 
     // labels
     Label::setText(getPageHandle(), IDS_PROSTR_INTRES, langRes.screenSettings.internalRes);
+    Label::setText(getPageHandle(), IDS_PROSTR_GROUP1, langRes.screenSettings.groupAspectRatio);
     Label::setText(getPageHandle(), IDS_PROSTR_STRETCH_MIN, langRes.screenSettings.unstretched);
     Label::setText(getPageHandle(), IDS_PROSTR_STRETCH_MAX, langRes.screenSettings.stretched);
     Label::setText(getPageHandle(), IDS_PROSTR_CUT_MIN, langRes.screenSettings.uncropped);
@@ -263,8 +269,8 @@ void ProfileScreenPage::onProfileChange(const bool isUpdate)
     else if (profile.display.ratioStretch == SCREEN_RATIO_STRETCH_Semi && profile.display.ratioCrop == SCREEN_RATIO_CROP_Semi)
         presetIndex = 4u;
     ComboBox::setSelectedIndex(getPageHandle(), IDC_PROSTR_PRESET_LIST, presetIndex);
-    // invalidate preview
-    //...
+    // redraw preview
+    m_screenPreview->invalidate();
 
     // misc
     CheckBox::setChecked(getPageHandle(), IDC_PROSTR_BLACKBORDERS_CHECK, (profile.display.blackBorders.x != 0u || profile.display.blackBorders.y != 0u));

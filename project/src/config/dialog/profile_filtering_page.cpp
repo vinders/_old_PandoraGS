@@ -223,6 +223,15 @@ void ProfileFilteringPage::onLanguageChange(const bool isUpdate)
         //...
     }
 
+    Label::setText(getPageHandle(), IDS_PRO_GROUP1, langRes.filteringSettings.groupSmoothing);
+    Label::setText(getPageHandle(), IDS_PRO_TXFILTER, langRes.filteringSettings.textureFilter);
+    Label::setText(getPageHandle(), IDS_PRO_2DFILTER, langRes.filteringSettings.spriteFilter);
+    Label::setText(getPageHandle(), IDS_PRO_SCRFILTER, langRes.filteringSettings.screenFilter);
+    //...
+    Label::setText(getPageHandle(), IDS_PRO_GROUP2, langRes.filteringSettings.groupRendering);
+    Label::setText(getPageHandle(), IDS_PRO_GROUP3, langRes.filteringSettings.groupHdr);
+    Label::setText(getPageHandle(), IDS_PRO_GROUP4, langRes.filteringSettings.groupMisc);
+
     //...
 }
 

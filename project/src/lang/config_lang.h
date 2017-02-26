@@ -115,6 +115,9 @@ namespace lang
         struct profile_content_t
         {
             std::wstring groupSmoothing;
+            std::wstring textureFilter;
+            std::wstring spriteFilter;
+            std::wstring screenFilter;
             std::wstring nativeScale;
             std::wstring noScreenScale;
             std::vector<std::wstring> interpolations;
@@ -132,6 +135,7 @@ namespace lang
             std::wstring internalRes;
             std::vector<std::wstring> internalResX;
             std::vector<std::wstring> internalResY;
+            std::wstring groupAspectRatio;
             std::vector<std::wstring> stretchingPresets;
             std::wstring unstretched;
             std::wstring stretched;

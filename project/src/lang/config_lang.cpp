@@ -87,6 +87,9 @@ void ConfigLang::setLanguageEnglish() noexcept
     profileManager.msgBoxRemoveConfirmTitle = L"Confirm removal..."s;
 
     filteringSettings.groupSmoothing = L"Smoothing / upscaling"s;
+    filteringSettings.textureFilter = L"Texture filter"s;
+    filteringSettings.spriteFilter = L"2D/sprite filter"s;
+    filteringSettings.screenFilter = L"Screen filter"s;
     filteringSettings.nativeScale = L"native"s;
     filteringSettings.noScreenScale = L"normal"s;
     filteringSettings.interpolations = { L"Nearest neighbor", L"Bilinear filter - standard", L"Bilinear filter - enhanced", L"Bicubic filter (slow)", L"Gaussian filter (slow)" };
@@ -104,6 +107,7 @@ void ConfigLang::setLanguageEnglish() noexcept
     screenSettings.internalRes = L"Internal resolution"s;
     screenSettings.internalResX = { L"X: native (1x)"s, L"X: standard (2x)"s, L"X: high (4x)"s, L"X: ultra (6x, slow)"s, L"X: ultra+ (8x, slow)"s };
     screenSettings.internalResY = { L"Y: native (1x)"s, L"Y: low (2x)"s, L"Y: standard (4x)"s, L"Y: high (8x)"s, L"Y: ultra (10x, slow)"s, L"Y: ultra+ (12x, slow)"s };
+    screenSettings.groupAspectRatio = L"Aspect ratio"s;
     screenSettings.stretchingPresets = { L"Custom settings"s, L"Full window (stretched)"s, L"Keep ratio (best with 2D)"s, L"Keep ratio & fill (cropped)"s, L"Semi stretched/cropped"s };
     screenSettings.unstretched = L"Keep ratio"s;
     screenSettings.stretched = L"stretch"s;
@@ -200,6 +204,9 @@ void ConfigLang::setLanguageFrench() noexcept
     profileManager.msgBoxRemoveConfirmTitle = L"Confirmer la suppression..."s;
 
     filteringSettings.groupSmoothing = L"Lissage / agrandissement"s;
+    filteringSettings.textureFilter = L"Filtrage textures"s;
+    filteringSettings.spriteFilter = L"Filtrage 2D/sprites"s;
+    filteringSettings.screenFilter = L"Filtre écran"s;
     filteringSettings.nativeScale = L"natif"s;
     filteringSettings.noScreenScale = L"normal"s;
     filteringSettings.interpolations = { L"Au plus proche", L"Filtre bilinéaire - standard", L"Filtre bilinéaire - amélioré", L"Filtre bicubique (lent)", L"Filtre gaussien (lent)" };
@@ -217,6 +224,7 @@ void ConfigLang::setLanguageFrench() noexcept
     screenSettings.internalRes = L"Résolution interne"s;
     screenSettings.internalResX = { L"X: native (1x)"s, L"X: standard (2x)"s, L"X: haute (4x)"s, L"X: ultra (6x, lent)"s, L"X: ultra+ (8x, lent)"s };
     screenSettings.internalResY = { L"Y: native (1x)"s, L"Y: basse (2x)"s, L"Y: standard (4x)"s, L"Y: haute (8x)"s, L"Y: ultra (10x, lent)"s, L"Y: ultra+ (12x, lent)"s };
+    screenSettings.groupAspectRatio = L"Rapport de forme"s;
     screenSettings.stretchingPresets = { L"Personnalisé"s, L"Remplir la fenêtre (étirer)"s, L"Conserver ratio (idéal en 2D)"s, L"Conserver ratio & tronquer"s, L"Semi étiré/tronqué"s };
     screenSettings.unstretched = L"Garder ratio"s;
     screenSettings.stretched = L"étirer"s;
