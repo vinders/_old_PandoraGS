@@ -184,21 +184,40 @@ bool ProfileFilteringPage::onDialogConfirm(controls::Dialog::event_args_t& args)
 /// @param[in] isUpdate  Set to false to initialize controls
 void ProfileFilteringPage::onLanguageChange(const bool isUpdate)
 {
+    ConfigProfile& profile = *(Config::getCurrentProfile());
     lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
 
-    if (isUpdate)
+    if (isUpdate == false) // initialize
     {
-        ComboBox::initValues(getPageHandle(), IDC_PRO_TXFILTER_LIST, langRes.filteringSettings.interpolations, 0u);//...read config
-        ComboBox::initValues(getPageHandle(), IDC_PRO_2DFILTER_LIST, langRes.filteringSettings.interpolations, 0u);//...read config
-        ComboBox::initValues(getPageHandle(), IDC_PRO_SCRFILTER_LIST, langRes.filteringSettings.screenSmoothing, 0u);//...read config
+        ComboBox::initValues(getPageHandle(), IDC_PRO_TXFILTER_LIST, langRes.filteringSettings.interpolations, static_cast<uint32_t>(profile.scaling.textureSmoothing));
+        ComboBox::initValues(getPageHandle(), IDC_PRO_2DFILTER_LIST, langRes.filteringSettings.interpolations, static_cast<uint32_t>(profile.scaling.spriteSmoothing));
+        ComboBox::initValues(getPageHandle(), IDC_PRO_SCRFILTER_LIST, langRes.filteringSettings.screenSmoothing, static_cast<uint32_t>(profile.scaling.screenSmoothing));
 
         //...
     }
-    else
+    else // update
     {
+        // smoothing
         ComboBox::setValues(getPageHandle(), IDC_PRO_TXFILTER_LIST, langRes.filteringSettings.interpolations);
         ComboBox::setValues(getPageHandle(), IDC_PRO_2DFILTER_LIST, langRes.filteringSettings.interpolations);
         ComboBox::setValues(getPageHandle(), IDC_PRO_SCRFILTER_LIST, langRes.filteringSettings.screenSmoothing);
+        // upscaling
+        int32_t selection;
+        if (ComboBox::getSelectedIndex(getPageHandle(), IDC_PRO_TXUPSCALE_FACTOR, selection) && selection == 0)
+        {
+            std::vector<std::wstring> nativeLabel = { langRes.filteringSettings.nativeScale };
+            ComboBox::setValues(getPageHandle(), IDC_PRO_TXUPSCALE_LIST, nativeLabel);
+        }
+        if (ComboBox::getSelectedIndex(getPageHandle(), IDC_PRO_2DUPSCALE_FACTOR, selection) && selection == 0)
+        {
+            std::vector<std::wstring> nativeLabel = { langRes.filteringSettings.nativeScale };
+            ComboBox::setValues(getPageHandle(), IDC_PRO_2DUPSCALE_LIST, nativeLabel);
+        }
+        if (ComboBox::getSelectedIndex(getPageHandle(), IDC_PRO_SCRUPSCALE_FACTOR, selection) && selection == 0)
+        {
+            std::vector<std::wstring> nativeLabel = { langRes.filteringSettings.noScreenScale };
+            ComboBox::setValues(getPageHandle(), IDC_PRO_SCRUPSCALE_LIST, nativeLabel);
+        }
 
         //...
     }
