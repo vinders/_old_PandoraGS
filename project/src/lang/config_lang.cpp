@@ -92,7 +92,7 @@ void ConfigLang::setLanguageEnglish() noexcept
     filteringSettings.screenFilter = L"Screen filter"s;
     filteringSettings.nativeScale = L"native"s;
     filteringSettings.noScreenScale = L"normal"s;
-    filteringSettings.interpolations = { L"Nearest neighbor", L"Bilinear filter - standard", L"Bilinear filter - enhanced", L"Bicubic filter (slow)", L"Gaussian filter (slow)" };
+    filteringSettings.interpolations = { L"Nearest neighbor", L"Bilinear filter - standard", L"Bilinear filter - enhanced", L"Bicubic filter (slow)", L"Lanczos filter (slow)" };
     filteringSettings.screenSmoothing = { L"None", L"Slight blur", L"Blur", L"Blur & add grain" };
     //...
     filteringSettings.groupRendering = L"Rendering"s;
@@ -209,7 +209,7 @@ void ConfigLang::setLanguageFrench() noexcept
     filteringSettings.screenFilter = L"Filtre écran"s;
     filteringSettings.nativeScale = L"natif"s;
     filteringSettings.noScreenScale = L"normal"s;
-    filteringSettings.interpolations = { L"Au plus proche", L"Filtre bilinéaire - standard", L"Filtre bilinéaire - amélioré", L"Filtre bicubique (lent)", L"Filtre gaussien (lent)" };
+    filteringSettings.interpolations = { L"Au plus proche", L"Filtre bilinéaire - standard", L"Filtre bilinéaire - amélioré", L"Filtre bicubique (lent)", L"Filtre Lanczos (lent)" };
     filteringSettings.screenSmoothing = { L"Aucun", L"Léger flou", L"Flou", L"Flou & ajout de bruit" };
     //...
     filteringSettings.groupRendering = L"Rendu"s;

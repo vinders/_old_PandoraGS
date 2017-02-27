@@ -95,12 +95,14 @@ void ConfigIO::loadConfig(std::vector<std::wstring>* pOutProfileNames)
         // load list of profile names (optional)
         if (pOutProfileNames != nullptr)
         {
+            pOutProfileNames->clear();
             listProfileNames(profileCount, *pOutProfileNames);
         }
     }
     // if no config available, set default profile name
     else if (pOutProfileNames != nullptr)
     {
+        pOutProfileNames->clear();
         pOutProfileNames->push_back(L"<default>"s);
     }
 }

@@ -62,7 +62,7 @@ namespace config
         bilinear = 1u,
         bilinearEnhanced = 2u,
         bicubic = 3u,
-        gauss = 4u
+        lanczos = 4u
     };
     #define INTERPOLATION_MODE_LENGTH 5
 
