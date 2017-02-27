@@ -77,6 +77,20 @@ namespace config
                 Dialog::result_t showDialog(const int32_t dialogResourceId, const int32_t fieldResourceId, window_handle_t hParentWindow, 
                                             const int32_t browserResourceId, const std::wstring& defaultFile = L""s, const std::wstring title = L""s);
 
+                /// @brief Set parent dialog reference
+                /// @param[in] pParent  Parent dialog reference
+                inline void setParent(Dialog* pParent) noexcept
+                {
+                    Dialog::setParent(pParent);
+                }
+                /// @brief Get parent dialog reference
+                /// @returns Parent dialog reference (or null)
+                template<typename Subclass>
+                Subclass* getParent() noexcept
+                {
+                    return Dialog::getParent<Subclass>();
+                }
+
             public:
                 /// @brief Dialog initialization event handler
                 static EVENT_RETURN onInit(Dialog::event_args_t args);

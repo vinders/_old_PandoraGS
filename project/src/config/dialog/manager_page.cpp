@@ -117,46 +117,99 @@ EVENT_RETURN ManagerPage::onInit(TabPage::event_args_t args)
 /// @brief Sub-control command event handler
 EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
 {
-    ManagerPage& parent = args.getParent<ManagerPage>();
-    if (args.isEventSignedAction(ComboBox::event_t::selectionChanged) == false) // ignore preset combo box events
+    if (args.isEventSignedAction(Button::event_t::clicked)) // buttons
     {
+        ManagerPage& parent = args.getParent<ManagerPage>();
         switch (args.controlId())
         {
             // apply profile preset
             case IDC_MNG_BTN_PRESETS:
                 //...confirm + warning if none
                 Button::unHighlight(args.window, IDC_MNG_BTN_PRESETS);
-                break;
+                return EVENT_RETURN_VALID; break;
 
             // add new profile
             case IDC_MNG_BTN_ADD:
-                //...dialog
+            {
+                controls::Dialog::event_handler_t handlerRef;
+                controls::Dialog addProfileDialog(parent.m_instance);
+                /*handlerRef.handler = onAddProfileDialogInit;
+                addProfileDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
+                handlerRef.handler = onAddProfileDialogConfirm;
+                addProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);*/
+                addProfileDialog.setParent(parent.getParentDialog<Dialog>());
+                // show modal dialog
+                addProfileDialog.showDialog(IDD_ADDPROFILE_DIALOG, args.window,
+                                 parent.getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnAdd, false);
+
                 Button::unHighlight(args.window, IDC_MNG_BTN_ADD);
-                break;
+                return EVENT_RETURN_VALID; break;
+            }
 
             // edit selected profile
             case IDC_MNG_BTN_EDIT:
-                //...dialog + warning if none
+            {
+                //...warning if no selection
+
+                controls::Dialog::event_handler_t handlerRef;
+                controls::Dialog editProfileDialog(parent.m_instance);
+                /*handlerRef.handler = onEditProfileDialogInit;
+                editProfileDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
+                handlerRef.handler = onEditProfileDialogConfirm;
+                editProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);*/
+                editProfileDialog.setParent(parent.getParentDialog<Dialog>());
+                // show modal dialog
+                editProfileDialog.showDialog(IDD_EDITPROFILE_DIALOG, args.window,
+                                  parent.getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnEdit, false);
+
                 Button::unHighlight(args.window, IDC_MNG_BTN_EDIT);
-                break;
+                return EVENT_RETURN_VALID; break;
+            }
 
             // remove selected profile(s)
             case IDC_MNG_BTN_REMOVE:
                 parent.onProfileRemoval(args.window); 
                 Button::unHighlight(args.window, IDC_MNG_BTN_REMOVE);
-                break;
+                return EVENT_RETURN_VALID; break;
 
             // import new/existing profile
             case IDC_MNG_BTN_IMPORT:
-                //...file dialog
+            {
+                controls::Dialog::event_handler_t handlerRef;
+                controls::FileDialog importProfileDialog(parent.m_instance, controls::FileDialog::file_mode_t::load);
+                /*handlerRef.handler = onImportProfileDialogInit;
+                importProfileDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
+                handlerRef.handler = onImportProfileDialogConfirm;
+                importProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);*/
+                importProfileDialog.setParent(parent.getParentDialog<Dialog>());
+                // show modal dialog
+                importProfileDialog.showDialog(IDD_IMPORT_DIALOG, IDC_IMPORT_PATH_EDIT, args.window, IDC_IMPORT_BTN_PATH, L""s,
+                                    parent.getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnImport);
+
                 Button::unHighlight(args.window, IDC_MNG_BTN_IMPORT);
-                break;
+                return EVENT_RETURN_VALID; break;
+            }
 
             // export selected profile(s)
             case IDC_MNG_BTN_EXPORT:
-                //...file dialog + warning if none
+            {
+                //...warning if no selection
+                //...if more than one, no choice for name
+
+                controls::Dialog::event_handler_t handlerRef;
+                controls::FileDialog exportProfileDialog(parent.m_instance, controls::FileDialog::file_mode_t::save);
+                /*handlerRef.handler = onExportProfileDialogInit;
+                exportProfileDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
+                handlerRef.handler = onExportProfileDialogConfirm;
+                exportProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);*/
+                exportProfileDialog.setParent(parent.getParentDialog<Dialog>());
+                // show modal dialog
+                exportProfileDialog.showDialog(IDD_EXPORT_DIALOG, IDC_EXPORT_PATH_EDIT, args.window, IDC_EXPORT_BTN_PATH, /*...récup_nom + L".csv"s...*/L"profile.csv"s,
+                                    parent.getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnExport);
+
                 Button::unHighlight(args.window, IDC_MNG_BTN_EXPORT);
-                break;
+                return EVENT_RETURN_VALID; break;
+            }
         }
     }
     return EVENT_RETURN_IGNORE;
