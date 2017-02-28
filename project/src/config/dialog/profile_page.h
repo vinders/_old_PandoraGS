@@ -64,6 +64,8 @@ namespace config
             /// @brief Language change event
             /// @param[in] isRecursive  Also translate controls in child pages or not
             virtual void onLanguageChange(const bool IsRecursive) override;
+            /// @brief Profile change event
+            void onProfileChange();
 
             /// @brief Transmit vertical mouse wheel event
             inline void onMouseWheel(controls::Dialog::event_args_t& args)

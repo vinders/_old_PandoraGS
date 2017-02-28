@@ -103,12 +103,14 @@ namespace lang
             std::wstring tableNumber;
             std::wstring tableProfile;
             std::vector<std::wstring> presets;
-            std::wstring msgBoxRemoveEmpty;
-            std::wstring msgBoxRemoveEmptyTitle;
+            std::wstring msgBoxEmpty;
+            std::wstring msgBoxEmptyTitle;
             std::wstring msgBoxRemoveDefault;
             std::wstring msgBoxRemoveDefaultTitle;
             std::wstring msgBoxRemoveConfirm;
             std::wstring msgBoxRemoveConfirmTitle;
+            std::wstring msgBoxPresetConfirm;
+            std::wstring msgBoxPresetConfirmTitle;
         };
         /// @struct profile_content_t
         /// @brief Profile settings translations

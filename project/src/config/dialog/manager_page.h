@@ -74,6 +74,8 @@ namespace config
 
             /// @brief Profile removal event
             void onProfileRemoval(controls::window_handle_t hWindow);
+            /// @brief Profile preset choice event
+            void onProfilePresetChoice(controls::window_handle_t hWindow);
 
             /// @brief Language change event
             /// @returns Validity

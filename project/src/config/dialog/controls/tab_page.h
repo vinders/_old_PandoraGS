@@ -219,6 +219,9 @@ namespace config
                 /// @brief Language change event
                 /// @param[in] isRecursive    Also translate controls in child pages or not
                 virtual void onLanguageChange(const bool isRecursive) = 0;
+                /// @brief Profile change event
+                /// @param[in] isUpdate  Set to false to initialize controls
+                virtual void onProfileChange(const bool isUpdate) {}
             };
         }
     }

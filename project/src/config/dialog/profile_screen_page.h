@@ -67,7 +67,7 @@ namespace config
             bool onProfileSave();
             /// @brief Profile change event
             /// @param[in] isUpdate  Set to false to initialize controls
-            void onProfileChange(const bool isUpdate);
+            virtual void onProfileChange(const bool isUpdate) override;
         };
     }
 }

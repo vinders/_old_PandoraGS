@@ -146,3 +146,12 @@ void ProfilePage::onLanguageChange(const bool isRecursive)
     }
     m_subPages.at(m_activeSubPage)->setVisible(true);
 }
+
+/// @brief Profile change event
+void ProfilePage::onProfileChange()
+{
+    for (uint32_t i = 0; i < m_subPages.size(); ++i)
+    {
+        m_subPages.at(i)->onProfileChange(true);
+    }
+}

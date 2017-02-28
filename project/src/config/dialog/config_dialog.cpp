@@ -35,7 +35,7 @@ using namespace std::literals::string_literals;
 /// @param[in] instance  Current instance handle
 /// @throws runtime_error     Dialog creation error
 /// @throws invalid_argument  Invalid instance
-ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance)
+ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance), m_currentProfile(0u)
 {
     // load config values
     config::Config::init();
@@ -101,8 +101,10 @@ Dialog::result_t ConfigDialog::showDialog()
 EVENT_RETURN ConfigDialog::onInit(Dialog::event_args_t args)
 {
     ConfigDialog& parent = args.getParent<ConfigDialog>();
+    parent.m_hWindow = args.window;
 
     // set list of profiles
+    parent.m_currentProfile = 0u;
     ComboBox::initValues(args.window, IDC_PROFILE_LIST, Config::getAllProfileNames(), 0u);
     Label::setVisible(args.window, IDC_PROFILE_LIST, false); // hide (only visible when profile tab is active)
     Label::setVisible(args.window, IDS_PROFILE, false);
@@ -139,23 +141,47 @@ EVENT_RETURN ConfigDialog::onPaint(Dialog::event_args_t args)
 EVENT_RETURN ConfigDialog::onCommand(Dialog::event_args_t args)
 {
     ConfigDialog& parent = args.getParent<ConfigDialog>();
-
-    // language selection event
-    if (args.controlId() == IDC_LANG_LIST && args.isEventAction(ComboBox::event_t::selectionChanged))
+    if (args.isEventAction(ComboBox::event_t::selectionChanged))
     {
-        int32_t buffer;
-        if (ComboBox::getSelectedIndex(args.window, IDC_LANG_LIST, buffer))
+        switch (args.controlId())
         {
-            if (parent.onLanguageSelection(args, buffer))
+            // language selection
+            case IDC_LANG_LIST:
             {
-                parent.onLanguageChange(args, true); // translate window components
+                int32_t selectedLang;
+                if (ComboBox::getSelectedIndex(args.window, IDC_LANG_LIST, selectedLang))
+                {
+                    if (parent.onLanguageSelection(args, selectedLang))
+                    {
+                        parent.onLanguageChange(args, true); // translate window components
+                    }
+                }
+                else
+                {
+                    MsgBox::showMessage(L"An error occurred during selection. Please try again."s, L"Language selection error"s, 
+                                        args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+                    return EVENT_RETURN_ERROR;
+                }
+                break;
             }
-        }
-        else
-        {
-            MsgBox::showMessage(L"An error occurred during selection. Please try again."s, L"Language selection error"s, 
-                                args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
-            return EVENT_RETURN_ERROR;
+            // profile selection
+            case IDC_PROFILE_LIST:
+            {
+                int32_t selectedProfile;
+                if (ComboBox::getSelectedIndex(args.window, IDC_PROFILE_LIST, selectedProfile) == false || selectedProfile < 0)
+                {
+                    MsgBox::showMessage(L"An error occurred during selection. Please try again."s, L"Profile selection error"s, 
+                                        args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+                    return EVENT_RETURN_ERROR;
+                }
+                if (selectedProfile != static_cast<uint32_t>(parent.m_currentProfile))
+                {
+                    parent.m_currentProfile = static_cast<uint32_t>(selectedProfile);
+                    Config::useProfile(parent.m_currentProfile);
+                    parent.m_pProfilePage->onProfileChange();
+                }
+                break;
+            }
         }
     }
     // tab change
@@ -278,4 +304,42 @@ void ConfigDialog::onLanguageChange(Dialog::event_args_t& args, const bool isRec
     {
         getTabControl().onLanguageChange(args);
     }
+}
+
+
+/// @brief Profile settings update event - refresh list and pages (if necessary)
+/// @param[in] isProfileRemoved  Current profile is removed (another one must be selected)
+/// @param[in] changedProfiles   List of updated profiles
+void ConfigDialog::onProfileDataUpdate(const bool isProfileRemoved, const std::vector<uint32_t>& changedProfiles)
+{
+    // check if current profile is updated
+    bool isCurrentProfileUpdated = false;
+    for (uint32_t i = 0; isCurrentProfileUpdated == false && i < changedProfiles.size(); ++i)
+    {
+        if (changedProfiles.at(i) == m_currentProfile)
+            isCurrentProfileUpdated = true;
+    }
+
+    if (isProfileRemoved)
+    {
+        // current profile removed -> select default
+        if (isCurrentProfileUpdated)
+            m_currentProfile = 0;
+        // reload list of profiles
+        ComboBox::setValues(m_hWindow, IDC_PROFILE_LIST, Config::getAllProfileNames(), m_currentProfile);
+    }
+    // refresh current profile settings
+    if (isCurrentProfileUpdated)
+        m_pProfilePage->onProfileChange();
+}
+
+/// @brief Profile list update event - refresh list and selection
+/// @param[in] oldIndex  Previous index of edited profile
+/// @param[in] newIndex  New index of edited profile
+void ConfigDialog::onProfileListUpdate(const uint32_t oldIndex, const uint32_t newIndex)
+{
+    if (m_currentProfile == oldIndex) // if current profile edited, save new index
+        m_currentProfile = newIndex;
+    // reload list of profiles
+    ComboBox::setValues(m_hWindow, IDC_PROFILE_LIST, Config::getAllProfileNames(), m_currentProfile);
 }

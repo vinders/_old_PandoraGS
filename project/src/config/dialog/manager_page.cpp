@@ -124,7 +124,7 @@ EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
         {
             // apply profile preset
             case IDC_MNG_BTN_PRESETS:
-                //...confirm + warning if none
+                parent.onProfilePresetChoice(args.window);
                 Button::unHighlight(args.window, IDC_MNG_BTN_PRESETS);
                 return EVENT_RETURN_VALID; break;
 
@@ -161,6 +161,8 @@ EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
                 // show modal dialog
                 editProfileDialog.showDialog(IDD_EDITPROFILE_DIALOG, args.window,
                                   parent.getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnEdit, false);
+                    // update name and order
+                    // call ConfigDialog->onProfileListChange(oldIndex, newIndex)
 
                 Button::unHighlight(args.window, IDC_MNG_BTN_EDIT);
                 return EVENT_RETURN_VALID; break;
@@ -248,7 +250,7 @@ void ManagerPage::onProfileRemoval(window_handle_t hWindow)
     getDataTable().getSelectedIndexes(selectedIndexes);
     if (selectedIndexes.size() == 0)
     {
-        MsgBox::showMessage(langRes.profileManager.msgBoxRemoveEmptyTitle, langRes.profileManager.msgBoxRemoveEmpty,
+        MsgBox::showMessage(langRes.profileManager.msgBoxEmptyTitle, langRes.profileManager.msgBoxEmpty,
                             hWindow, MsgBox::button_set_t::ok, MsgBox::message_icon_t::warning);
         return;
     }
@@ -270,7 +272,7 @@ void ManagerPage::onProfileRemoval(window_handle_t hWindow)
         message += L" ("s + std::to_wstring(selectedIndexes.size()) + L")"s;
 
     if (MsgBox::showMessage(langRes.profileManager.msgBoxRemoveConfirmTitle, message, hWindow,
-        MsgBox::button_set_t::okCancel, MsgBox::message_icon_t::question) == MsgBox::result_t::ok)
+            MsgBox::button_set_t::okCancel, MsgBox::message_icon_t::question) == MsgBox::result_t::ok)
     {
         for (uint32_t i = 0; i < selectedIndexes.size(); ++i)
         {
@@ -280,9 +282,59 @@ void ManagerPage::onProfileRemoval(window_handle_t hWindow)
             // remove profile from config
             //...remove from config
             //...
+
+            // refresh profile list + profile pages
+            getParentDialog<ConfigDialog>()->onProfileDataUpdate(true, selectedIndexes);
         }
     }
 }
+
+
+/// @brief Profile preset choice event
+void ManagerPage::onProfilePresetChoice(window_handle_t hWindow)
+{
+    lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
+
+    // get selected index(es)
+    std::vector<uint32_t> selectedIndexes;
+    getDataTable().getSelectedIndexes(selectedIndexes);
+    if (selectedIndexes.size() == 0)
+    {
+        MsgBox::showMessage(langRes.profileManager.msgBoxEmptyTitle, langRes.profileManager.msgBoxEmpty,
+                            hWindow, MsgBox::button_set_t::ok, MsgBox::message_icon_t::warning);
+        return;
+    }
+
+    // confirm preset selection
+    std::wstring message = langRes.profileManager.msgBoxPresetConfirm;
+    if (selectedIndexes.size() > 1)
+        message += L" ("s + std::to_wstring(selectedIndexes.size()) + L")"s;
+
+    if (MsgBox::showMessage(langRes.profileManager.msgBoxPresetConfirmTitle, message, hWindow,
+            MsgBox::button_set_t::okCancel, MsgBox::message_icon_t::question) == MsgBox::result_t::ok)
+    {
+        // get preset choice
+        int32_t profilePresetIndex;
+        if (ComboBox::getSelectedIndex(hWindow, IDC_MNG_PRESETS_LIST, profilePresetIndex) == false 
+         || profilePresetIndex < 0 || profilePresetIndex >= CONFIG_PRESET_LENGTH)
+        {
+            MsgBox::showMessage(L"Failed to read selection"s, L"Could not read selected preset. No change applied."s,
+                                hWindow, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+            return;
+        }
+        // apply preset
+        for (uint32_t i = 0; i < selectedIndexes.size(); ++i)
+        {
+            ConfigProfile* pProfile = Config::getProfile(selectedIndexes.at(i));
+            if (pProfile != nullptr)
+                pProfile->setPresetValues(static_cast<config::config_preset_t>(profilePresetIndex));
+        }
+        // refresh profile pages
+        getParentDialog<ConfigDialog>()->onProfileDataUpdate(false, selectedIndexes);
+    }
+}
+
+
 
 /// @brief Language change event
 /// @returns Validity
@@ -293,6 +345,7 @@ bool ManagerPage::onDialogConfirm(Dialog::event_args_t& args)
     //...
     return true;
 }
+
 
 /// @brief Language change event
 /// @param[in] IsUpdate  Set to false to initialize controls
