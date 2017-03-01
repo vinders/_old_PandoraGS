@@ -12,6 +12,8 @@ Description : file IO toolbox
 #include <string>
 #include <fstream>
 #include <cerrno>
+#include <locale>
+#include <codecvt>
 #include <io.h>
 #include <fcntl.h>
 #ifdef _WINDOWS
@@ -72,4 +74,12 @@ std::string FileIO::getWritableFilePath() noexcept
         filePath = ""s;
     }
     return filePath;
+}
+
+/// @brief Get file path with write access (same as plugin or home path)
+/// @returns File path as wide string
+std::wstring FileIO::getWritableFileWidePath() noexcept
+{
+    std::string narrow = getWritableFilePath();
+    return std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(narrow);
 }

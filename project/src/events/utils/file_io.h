@@ -25,7 +25,10 @@ namespace events
         public:
             /// @brief Get file path with write access (same as plugin or home path)
             /// @returns File path
-            static std::string FileIO::getWritableFilePath() noexcept;
+            static std::string getWritableFilePath() noexcept;
+            /// @brief Get file path with write access (same as plugin or home path)
+            /// @returns File path as wide string
+            static std::wstring getWritableFileWidePath() noexcept;
         };
     }
 }

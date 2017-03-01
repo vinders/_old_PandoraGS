@@ -81,6 +81,8 @@ void ConfigLang::setLanguageEnglish() noexcept
     profileManager.presets = { L"Fastest"s, L"Standard"s, L"Enhanced 2D"s, L"Enhanced 3D"s };
     profileManager.msgBoxEmpty = L"Please select at least one profile."s;
     profileManager.msgBoxEmptyTitle = L"No profile selected..."s;
+    profileManager.msgBoxEditDefault = L"The default profile can't be renamed nor moved."s;
+    profileManager.msgBoxEditDefaultTitle = L"Editing not allowed..."s;
     profileManager.msgBoxRemoveDefault = L"The default profile can't be removed."s;
     profileManager.msgBoxRemoveDefaultTitle = L"Removal not allowed..."s;
     profileManager.msgBoxRemoveConfirm = L"Are you sure you want to remove the selected profiles?"s;
@@ -200,6 +202,8 @@ void ConfigLang::setLanguageFrench() noexcept
     profileManager.presets = { L"Le plus rapide"s, L"Standard"s, L"2D optimisée"s, L"3D optimisée"s };
     profileManager.msgBoxEmpty = L"Veuillez choisir au moins un profil."s;
     profileManager.msgBoxEmptyTitle = L"Aucun profil sélectionné..."s;
+    profileManager.msgBoxEditDefault = L"Le profil par défaut ne peut pas être renommé ni déplacé."s;
+    profileManager.msgBoxEditDefaultTitle = L"Édition non autorisée..."s;
     profileManager.msgBoxRemoveDefault = L"Le profil par défaut ne peut pas être supprimé."s;
     profileManager.msgBoxRemoveDefaultTitle = L"Suppression impossible..."s;
     profileManager.msgBoxRemoveConfirm = L"Voulez-vous supprimer les profils sélectionnés ?"s;

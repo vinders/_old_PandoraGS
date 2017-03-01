@@ -105,6 +105,8 @@ namespace lang
             std::vector<std::wstring> presets;
             std::wstring msgBoxEmpty;
             std::wstring msgBoxEmptyTitle;
+            std::wstring msgBoxEditDefault;
+            std::wstring msgBoxEditDefaultTitle;
             std::wstring msgBoxRemoveDefault;
             std::wstring msgBoxRemoveDefaultTitle;
             std::wstring msgBoxRemoveConfirm;

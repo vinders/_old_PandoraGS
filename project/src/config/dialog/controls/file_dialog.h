@@ -91,6 +91,20 @@ namespace config
                     return Dialog::getParent<Subclass>();
                 }
 
+                /// @brief Register a handler for an event
+                /// @param[in] eventType  Event type
+                /// @param[in] handler    Event handler
+                inline void registerEvent(const dialog_event_t eventType, Dialog::event_handler_t& handler) noexcept
+                {
+                    Dialog::registerEvent(eventType, handler);
+                }
+                /// @brief Unregister handlers for an event
+                /// @param[in] eventType  Event type
+                inline void unregisterEvent(const dialog_event_t eventType) noexcept
+                {
+                    Dialog::unregisterEvent(eventType);
+                }
+
             public:
                 /// @brief Dialog initialization event handler
                 static EVENT_RETURN onInit(Dialog::event_args_t args);

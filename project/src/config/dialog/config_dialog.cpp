@@ -340,6 +340,8 @@ void ConfigDialog::onProfileListUpdate(const uint32_t oldIndex, const uint32_t n
 {
     if (m_currentProfile == oldIndex) // if current profile edited, save new index
         m_currentProfile = newIndex;
+    else if (m_currentProfile < oldIndex && m_currentProfile > newIndex) // offset
+        ++m_currentProfile;
     // reload list of profiles
     ComboBox::setValues(m_hWindow, IDC_PROFILE_LIST, Config::getAllProfileNames(), m_currentProfile);
 }

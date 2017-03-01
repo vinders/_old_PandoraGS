@@ -72,8 +72,12 @@ namespace config
 
             // -- specialized handlers -- --------------------------------------
 
+            /// @brief Profile edit event - open dialog
+            void onProfileEdit(controls::window_handle_t hWindow);
             /// @brief Profile removal event
             void onProfileRemoval(controls::window_handle_t hWindow);
+            /// @brief Profile export event - open dialog
+            void onProfileExport(controls::window_handle_t hWindow);
             /// @brief Profile preset choice event
             void onProfilePresetChoice(controls::window_handle_t hWindow);
 
@@ -83,6 +87,29 @@ namespace config
             /// @brief Language change event
             /// @param[in] IsUpdate  Set to false to initialize controls
             virtual void onLanguageChange(const bool IsUpdate) override;
+
+
+            // -- sub-dialogs handlers -- --------------------------------------
+
+            /// @brief Add profile dialog - Initialization event handler
+            static EVENT_RETURN onAddProfileDialogInit(controls::Dialog::event_args_t args);
+            /// @brief Add profile dialog - Confirm event handler
+            static EVENT_RETURN onAddProfileDialogConfirm(controls::Dialog::event_args_t args);
+
+            /// @brief Edit profile dialog - Initialization event handler
+            static EVENT_RETURN onEditProfileDialogInit(controls::Dialog::event_args_t args);
+            /// @brief Edit profile dialog - Confirm event handler
+            static EVENT_RETURN onEditProfileDialogConfirm(controls::Dialog::event_args_t args);
+
+            /// @brief Import profile dialog - Initialization event handler
+            static EVENT_RETURN onImportProfileDialogInit(controls::Dialog::event_args_t args);
+            /// @brief Import profile dialog - Confirm event handler
+            static EVENT_RETURN onImportProfileDialogConfirm(controls::Dialog::event_args_t args);
+
+            /// @brief Export profile dialog - Initialization event handler
+            static EVENT_RETURN onExportProfileDialogInit(controls::Dialog::event_args_t args);
+            /// @brief Export profile dialog - Confirm event handler
+            static EVENT_RETURN onExportProfileDialogConfirm(controls::Dialog::event_args_t args);
         };
     }
 }

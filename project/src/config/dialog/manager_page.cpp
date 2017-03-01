@@ -28,6 +28,7 @@ Description : tab page - profile manager
 #include "controls/tooltip.hpp"
 #include "controls/data_table.h"
 #include "controls/msg_box.h"
+#include "../../events/utils/file_io.h"
 #include "manager_page.h"
 using namespace config::dialog;
 using namespace config::dialog::controls;
@@ -133,10 +134,10 @@ EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
             {
                 controls::Dialog::event_handler_t handlerRef;
                 controls::Dialog addProfileDialog(parent.m_instance);
-                /*handlerRef.handler = onAddProfileDialogInit;
+                handlerRef.handler = onAddProfileDialogInit;
                 addProfileDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
                 handlerRef.handler = onAddProfileDialogConfirm;
-                addProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);*/
+                addProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);
                 addProfileDialog.setParent(parent.getParentDialog<Dialog>());
                 // show modal dialog
                 addProfileDialog.showDialog(IDD_ADDPROFILE_DIALOG, args.window,
@@ -148,25 +149,9 @@ EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
 
             // edit selected profile
             case IDC_MNG_BTN_EDIT:
-            {
-                //...warning if no selection
-
-                controls::Dialog::event_handler_t handlerRef;
-                controls::Dialog editProfileDialog(parent.m_instance);
-                /*handlerRef.handler = onEditProfileDialogInit;
-                editProfileDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
-                handlerRef.handler = onEditProfileDialogConfirm;
-                editProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);*/
-                editProfileDialog.setParent(parent.getParentDialog<Dialog>());
-                // show modal dialog
-                editProfileDialog.showDialog(IDD_EDITPROFILE_DIALOG, args.window,
-                                  parent.getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnEdit, false);
-                    // update name and order
-                    // call ConfigDialog->onProfileListChange(oldIndex, newIndex)
-
+                parent.onProfileEdit(args.window);
                 Button::unHighlight(args.window, IDC_MNG_BTN_EDIT);
                 return EVENT_RETURN_VALID; break;
-            }
 
             // remove selected profile(s)
             case IDC_MNG_BTN_REMOVE:
@@ -179,10 +164,10 @@ EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
             {
                 controls::Dialog::event_handler_t handlerRef;
                 controls::FileDialog importProfileDialog(parent.m_instance, controls::FileDialog::file_mode_t::load);
-                /*handlerRef.handler = onImportProfileDialogInit;
+                handlerRef.handler = onImportProfileDialogInit;
                 importProfileDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
                 handlerRef.handler = onImportProfileDialogConfirm;
-                importProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);*/
+                importProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);
                 importProfileDialog.setParent(parent.getParentDialog<Dialog>());
                 // show modal dialog
                 importProfileDialog.showDialog(IDD_IMPORT_DIALOG, IDC_IMPORT_PATH_EDIT, args.window, IDC_IMPORT_BTN_PATH, L""s,
@@ -194,24 +179,9 @@ EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
 
             // export selected profile(s)
             case IDC_MNG_BTN_EXPORT:
-            {
-                //...warning if no selection
-                //...if more than one, no choice for name
-
-                controls::Dialog::event_handler_t handlerRef;
-                controls::FileDialog exportProfileDialog(parent.m_instance, controls::FileDialog::file_mode_t::save);
-                /*handlerRef.handler = onExportProfileDialogInit;
-                exportProfileDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
-                handlerRef.handler = onExportProfileDialogConfirm;
-                exportProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);*/
-                exportProfileDialog.setParent(parent.getParentDialog<Dialog>());
-                // show modal dialog
-                exportProfileDialog.showDialog(IDD_EXPORT_DIALOG, IDC_EXPORT_PATH_EDIT, args.window, IDC_EXPORT_BTN_PATH, /*...récup_nom + L".csv"s...*/L"profile.csv"s,
-                                    parent.getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnExport);
-
+                parent.onProfileExport(args.window);
                 Button::unHighlight(args.window, IDC_MNG_BTN_EXPORT);
                 return EVENT_RETURN_VALID; break;
-            }
         }
     }
     return EVENT_RETURN_IGNORE;
@@ -240,6 +210,40 @@ EVENT_RETURN ManagerPage::onNotify(TabPage::event_args_t args)
 
 // -- specialized handlers -- --------------------------------------
 
+/// @brief Profile edit event - open dialog
+void ManagerPage::onProfileEdit(window_handle_t hWindow)
+{
+    lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
+
+    // get selected index(es)
+    int32_t selectedIndex = getDataTable().getFirstSelectedIndex();
+    if (selectedIndex < 0)
+    {
+        MsgBox::showMessage(langRes.profileManager.msgBoxEmptyTitle, langRes.profileManager.msgBoxEmpty,
+                            hWindow, MsgBox::button_set_t::ok, MsgBox::message_icon_t::warning);
+        return;
+    }
+    // default profile cannot be edited
+    if (selectedIndex == 0)
+    {
+        MsgBox::showMessage(langRes.profileManager.msgBoxEditDefaultTitle, langRes.profileManager.msgBoxEditDefault,
+            hWindow, MsgBox::button_set_t::ok, MsgBox::message_icon_t::warning);
+        return;
+    }
+
+    controls::Dialog::event_handler_t handlerRef;
+    controls::Dialog editProfileDialog(m_instance);
+    handlerRef.handler = onEditProfileDialogInit;
+    editProfileDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
+    handlerRef.handler = onEditProfileDialogConfirm;
+    editProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);
+    editProfileDialog.setParent(getParentDialog<Dialog>());
+    // show modal dialog
+    editProfileDialog.showDialog(IDD_EDITPROFILE_DIALOG, hWindow,
+                      getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnEdit, false);
+}
+
+
 /// @brief Profile removal event
 void ManagerPage::onProfileRemoval(window_handle_t hWindow)
 {
@@ -254,7 +258,6 @@ void ManagerPage::onProfileRemoval(window_handle_t hWindow)
                             hWindow, MsgBox::button_set_t::ok, MsgBox::message_icon_t::warning);
         return;
     }
-
     // show warning if default profile included (can't be removed)
     for (uint32_t i = 0; i < selectedIndexes.size(); ++i)
     {
@@ -287,6 +290,36 @@ void ManagerPage::onProfileRemoval(window_handle_t hWindow)
             getParentDialog<ConfigDialog>()->onProfileDataUpdate(true, selectedIndexes);
         }
     }
+}
+
+
+/// @brief Profile export event - open dialog
+void ManagerPage::onProfileExport(window_handle_t hWindow)
+{
+    lang::ConfigLang& langRes = getParentDialog<ConfigDialog>()->getLanguageResource();
+
+    // get selected index(es)
+    std::vector<uint32_t> selectedIndexes;
+    getDataTable().getSelectedIndexes(selectedIndexes);
+    if (selectedIndexes.size() == 0)
+    {
+        MsgBox::showMessage(langRes.profileManager.msgBoxEmptyTitle, langRes.profileManager.msgBoxEmpty,
+            hWindow, MsgBox::button_set_t::ok, MsgBox::message_icon_t::warning);
+        return;
+    }
+    // get writable file path
+    std::wstring defaultPath = events::utils::FileIO::getWritableFileWidePath();
+
+    controls::Dialog::event_handler_t handlerRef;
+    controls::FileDialog exportProfileDialog(m_instance, controls::FileDialog::file_mode_t::save);
+    handlerRef.handler = onExportProfileDialogInit;
+    exportProfileDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
+    handlerRef.handler = onExportProfileDialogConfirm;
+    exportProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);
+    exportProfileDialog.setParent(getParentDialog<Dialog>());
+    // show modal dialog
+    exportProfileDialog.showDialog(IDD_EXPORT_DIALOG, IDC_EXPORT_PATH_EDIT, hWindow, IDC_EXPORT_BTN_PATH, defaultPath,
+                        getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnExport);
 }
 
 
@@ -382,4 +415,80 @@ void ManagerPage::onLanguageChange(const bool IsUpdate)
     m_tooltips[2]->setText(IDC_MNG_BTN_REMOVE, langRes.profileManager.btnRemove);
     m_tooltips[3]->setText(IDC_MNG_BTN_IMPORT, langRes.profileManager.btnImport);
     m_tooltips[4]->setText(IDC_MNG_BTN_EXPORT, langRes.profileManager.btnExport);
+}
+
+
+
+// -- sub-dialogs handlers -- --------------------------------------
+
+/// @brief Add profile dialog - Initialization event handler
+EVENT_RETURN ManagerPage::onAddProfileDialogInit(controls::Dialog::event_args_t args)
+{
+    //...choix indice placement (combo avec nb 1 à N (et [0] == "At the end"))
+    //...
+    return EVENT_RETURN_VALID;
+}
+
+/// @brief Add profile dialog - Confirm event handler
+EVENT_RETURN ManagerPage::onAddProfileDialogConfirm(controls::Dialog::event_args_t args)
+{
+    // update name and order
+    // call ConfigDialog->onProfileListChange(oldIndex, newIndex)
+
+    return EVENT_RETURN_VALID;
+}
+
+
+/// @brief Edit profile dialog - Initialization event handler
+EVENT_RETURN ManagerPage::onEditProfileDialogInit(controls::Dialog::event_args_t args)
+{
+    //...choix indice placement (combo avec nb 1 à N)
+    //...
+    return EVENT_RETURN_VALID;
+}
+
+/// @brief Edit profile dialog - Confirm event handler
+EVENT_RETURN ManagerPage::onEditProfileDialogConfirm(controls::Dialog::event_args_t args)
+{
+    // update name and order
+    // call ConfigDialog->onProfileListChange(oldIndex, newIndex)
+
+    return EVENT_RETURN_VALID;
+}
+
+
+/// @brief Import profile dialog - Initialization event handler
+EVENT_RETURN ManagerPage::onImportProfileDialogInit(controls::Dialog::event_args_t args)
+{
+    FileDialog::onInit(args);
+    //...retirer champ de choix de nom ?
+    //...
+    //...choix indice placement (combo avec nb 1 à N)
+    //...
+    //...radio pour insérer nouveau ou remplacer existant (si remplace <default>, le nom de profil du fichier n'est pas pris en compte)
+    return EVENT_RETURN_VALID;
+}
+
+/// @brief Import profile dialog - Confirm event handler
+EVENT_RETURN ManagerPage::onImportProfileDialogConfirm(controls::Dialog::event_args_t args)
+{
+    // update name and order
+    // call ConfigDialog->onProfileListChange(oldIndex, newIndex)
+
+    return EVENT_RETURN_VALID;
+}
+
+
+/// @brief Export profile dialog - Initialization event handler
+EVENT_RETURN ManagerPage::onExportProfileDialogInit(controls::Dialog::event_args_t args)
+{
+    FileDialog::onInit(args);
+    //...seulement choix de path, pas du nom des fichiers (potentiellement plusieurs)
+    return EVENT_RETURN_VALID;
+}
+
+/// @brief Export profile dialog - Confirm event handler
+EVENT_RETURN ManagerPage::onExportProfileDialogConfirm(controls::Dialog::event_args_t args)
+{
+    return EVENT_RETURN_VALID;
 }
