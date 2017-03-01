@@ -178,7 +178,7 @@ namespace lang
         /// @brief Create language resource (for config dialog)
         /// @param[in] code      Language code
         /// @param[in] filePath  Language file path (optional)
-        ConfigLang(const langcode_t code, const std::wstring filePath = L"pandoraGS.lang"s)
+        ConfigLang(const langcode_t code, const std::wstring filePath = L"pandoraGS_lang.csv"s)
         {
             setLanguage(code, filePath);
         }

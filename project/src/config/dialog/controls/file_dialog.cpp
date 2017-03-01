@@ -9,14 +9,19 @@ Description : file selection dialog control
 #include "../../../globals.h"
 #include <string>
 #include <stdexcept>
+#include <io.h>
 #if _DIALOGAPI == DIALOGAPI_WIN32
 #include <Windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
+#include <shlobj.h>
+#include <Commdlg.h>
 #endif
 #include "../../../res/resource.h"
 #include "common.h"
 #include "dialog.h"
+#include "button.hpp"
+#include "msg_box.h"
 #include "text_field.hpp"
 #include "file_dialog.h"
 using namespace config::dialog;
@@ -58,7 +63,6 @@ Dialog::result_t FileDialog::showDialog(const int32_t dialogResourceId, const in
     return Dialog::showDialog(dialogResourceId, hParentWindow, title, false);
 }
 
-
 /// @brief Dialog initialization event handler
 EVENT_RETURN FileDialog::onInit(Dialog::event_args_t args)
 {
@@ -68,26 +72,159 @@ EVENT_RETURN FileDialog::onInit(Dialog::event_args_t args)
 }
 
 
+
 /// @brief Dialog initialization event handler
 EVENT_RETURN FileDialog::onCommand(Dialog::event_args_t args)
 {
-    FileDialog& parent = args.getParent<FileDialog>();
+    if (args.isEventSignedAction(Button::event_t::clicked)) // buttons
+    {
+        FileDialog& parent = args.getParent<FileDialog>();
+        if (args.controlId() == parent.m_browserId)
+        {
+            // file browser
+            switch (parent.m_mode)
+            {
+                // browse to load a file
+                case file_mode_t::load:
+                {
+                    WCHAR path[MAX_PATH];
+                    memset(path, 0, sizeof(path));
 
-    //...browser
-    //...
+                    OPENFILENAME ofn;
+                    ZeroMemory(&ofn, sizeof(ofn));
+                    ofn.lStructSize = sizeof(ofn);
+                    ofn.hwndOwner = args.window;
+                    ofn.lpstrDefExt = nullptr;
+                    ofn.lpstrFile = path;
+                    ofn.lpstrFile[0] = '\0';
+                    ofn.nMaxFile = MAX_PATH;
+                    ofn.lpstrFilter = L"CSV files (*.csv)\0*.csv\0All files (*.*)\0*.*\0";
+                    ofn.nFilterIndex = 0;
+                    ofn.lpstrInitialDir = nullptr;
+                    ofn.lpstrTitle = nullptr;
+                    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
+                    // open dialog
+                    if (GetOpenFileName(&ofn) && path[0])
+                    {
+                        // get file path
+                        parent.m_filePath = std::wstring(path);
+                        TextField::setValue(args.window, parent.m_fieldId, parent.m_filePath);
+                    }
+                    break;
+                }
+
+                // browse to save a file
+                case file_mode_t::save:
+                {
+                    WCHAR path[MAX_PATH];
+                    memset(path, 0, sizeof(path));
+
+                    OPENFILENAME ofn;
+                    ZeroMemory(&ofn, sizeof(ofn));
+                    ofn.lStructSize = sizeof(ofn);
+                    ofn.hwndOwner = args.window;
+                    ofn.lpstrDefExt = nullptr;
+                    ofn.lpstrFile = path;
+                    ofn.lpstrFile[0] = '\0';
+                    ofn.nMaxFile = MAX_PATH;
+                    ofn.lpstrFilter = L"CSV files (*.csv)\0*.csv\0All files (*.*)\0*.*\0";
+                    ofn.nFilterIndex = 0;
+                    ofn.lpstrInitialDir = nullptr;
+                    ofn.lpstrTitle = nullptr;
+                    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+                    // save dialog
+                    if (GetSaveFileName(&ofn) && path[0])
+                    {
+                        // get file path
+                        parent.m_filePath = std::wstring(path);
+                        TextField::setValue(args.window, parent.m_fieldId, parent.m_filePath);
+                    }
+                    break;
+                }
+
+                // browse for save folder
+                case file_mode_t::savePath:
+                {
+                    #if _DIALOGAPI == DIALOGAPI_WIN32
+                    BROWSEINFO binf = { 0 };
+                    binf.lParam = reinterpret_cast<LPARAM>(parent.m_filePath.c_str());
+                    binf.lpfn = folderbrowserEventHandler;
+                    LPITEMIDLIST pidl = SHBrowseForFolder(&binf);
+
+                    // get folder path
+                    if (pidl != 0)
+                    {
+                        WCHAR path[MAX_PATH];
+                        SHGetPathFromIDList(pidl, path);
+                        IMalloc* imalloc = 0;
+                        if (SUCCEEDED(SHGetMalloc(&imalloc)))
+                        {
+                            imalloc->Free(pidl);
+                            imalloc->Release();
+                        }
+                        parent.m_filePath = std::wstring(path);
+                        TextField::setValue(args.window, parent.m_fieldId, parent.m_filePath);
+                    }
+                    #endif
+                    break;
+                }
+            }
+        }
+    }
     return EVENT_RETURN_IGNORE;
 }
+
 
 
 /// @brief Dialog confirm event handler - check validity
 EVENT_RETURN FileDialog::onConfirm(Dialog::event_args_t args)
 {
     FileDialog& parent = args.getParent<FileDialog>();
-    parent.m_filePath = TextField::getValue(args.window, parent.m_fieldId);
 
-    //...check path
+    // get path
+    std::wstring checkedPath;
+    if (parent.m_mode == file_mode_t::save) 
+    {
+        // if file save, extract containing folder path
+        size_t pos = parent.m_filePath.find_last_of(L'/');
+        if (pos == std::wstring::npos)
+            pos = parent.m_filePath.find_last_of(L'\\');
+        if (pos == std::wstring::npos)
+            checkedPath = parent.m_filePath.substr(0, pos + 1u);
+        else
+            checkedPath = L"./"s;
+    }
+    else
+    {
+        checkedPath = parent.m_filePath;
+    }
+
+    // check path validity
+    #if _DIALOGAPI == DIALOGAPI_WIN32
+    if (_waccess(checkedPath.c_str(), 06) != 0)
+    #else
     //...
-
+    #endif
+    {
+        MsgBox::showMessage(L"Invalid file path..."s, L"The selected file path is invalid, or the application doesn't have the rights to access it."s, 
+                            args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+        return EVENT_RETURN_ERROR;
+    }
     return EVENT_RETURN_VALID;
 }
+
+
+
+#if _DIALOGAPI == DIALOGAPI_WIN32
+/// @brief Folder browser event handler
+int CALLBACK FileDialog::folderbrowserEventHandler(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+{
+    if (uMsg == BFFM_INITIALIZED) {
+        LPCTSTR path = reinterpret_cast<LPCTSTR>(lpData);
+        ::SendMessage(hwnd, BFFM_SETSELECTION, true, (LPARAM)path);
+    }
+    return 0;
+}
+#endif

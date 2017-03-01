@@ -311,7 +311,7 @@ void ManagerPage::onProfileExport(window_handle_t hWindow)
     std::wstring defaultPath = events::utils::FileIO::getWritableFileWidePath();
 
     controls::Dialog::event_handler_t handlerRef;
-    controls::FileDialog exportProfileDialog(m_instance, controls::FileDialog::file_mode_t::save);
+    controls::FileDialog exportProfileDialog(m_instance, controls::FileDialog::file_mode_t::savePath);
     handlerRef.handler = onExportProfileDialogInit;
     exportProfileDialog.registerEvent(controls::dialog_event_t::init, handlerRef);
     handlerRef.handler = onExportProfileDialogConfirm;
@@ -460,7 +460,9 @@ EVENT_RETURN ManagerPage::onEditProfileDialogConfirm(controls::Dialog::event_arg
 /// @brief Import profile dialog - Initialization event handler
 EVENT_RETURN ManagerPage::onImportProfileDialogInit(controls::Dialog::event_args_t args)
 {
-    FileDialog::onInit(args);
+    if (FileDialog::onInit(args) != EVENT_RETURN_VALID)
+        return EVENT_RETURN_ERROR;
+
     //...retirer champ de choix de nom ?
     //...
     //...choix indice placement (combo avec nb 1 à N)
@@ -472,6 +474,9 @@ EVENT_RETURN ManagerPage::onImportProfileDialogInit(controls::Dialog::event_args
 /// @brief Import profile dialog - Confirm event handler
 EVENT_RETURN ManagerPage::onImportProfileDialogConfirm(controls::Dialog::event_args_t args)
 {
+    if (FileDialog::onConfirm(args) != EVENT_RETURN_VALID)
+        return EVENT_RETURN_ERROR;
+
     // update name and order
     // call ConfigDialog->onProfileListChange(oldIndex, newIndex)
 
@@ -482,7 +487,9 @@ EVENT_RETURN ManagerPage::onImportProfileDialogConfirm(controls::Dialog::event_a
 /// @brief Export profile dialog - Initialization event handler
 EVENT_RETURN ManagerPage::onExportProfileDialogInit(controls::Dialog::event_args_t args)
 {
-    FileDialog::onInit(args);
+    if (FileDialog::onInit(args) != EVENT_RETURN_VALID)
+        return EVENT_RETURN_ERROR;
+
     //...seulement choix de path, pas du nom des fichiers (potentiellement plusieurs)
     return EVENT_RETURN_VALID;
 }
@@ -490,5 +497,9 @@ EVENT_RETURN ManagerPage::onExportProfileDialogInit(controls::Dialog::event_args
 /// @brief Export profile dialog - Confirm event handler
 EVENT_RETURN ManagerPage::onExportProfileDialogConfirm(controls::Dialog::event_args_t args)
 {
+    if (FileDialog::onConfirm(args) != EVENT_RETURN_VALID)
+        return EVENT_RETURN_ERROR;
+
+
     return EVENT_RETURN_VALID;
 }

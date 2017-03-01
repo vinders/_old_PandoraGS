@@ -42,7 +42,7 @@ void Config::init()
 
     // set default values
     langCode = LANGCODE_DEFAULT;
-    langFilePath = L"./pandoraGS.lang"s;
+    langFilePath = L"./pandoraGS_lang.csv"s;
     memset(events.pTriggerKeys, 0x0, EVENT_KEYS_STRING_LENGTH);
     reset(true);
 

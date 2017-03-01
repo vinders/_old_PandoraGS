@@ -38,7 +38,8 @@ namespace config
                 enum class file_mode_t : int32_t
                 {
                     load = 0,
-                    save = 1
+                    save = 1,
+                    savePath = 2
                 };
 
 
@@ -112,6 +113,12 @@ namespace config
                 static EVENT_RETURN onCommand(Dialog::event_args_t args);
                 /// @brief Dialog confirm event handler - check validity
                 static EVENT_RETURN onConfirm(Dialog::event_args_t args);
+
+            private:
+                #if _DIALOGAPI == DIALOGAPI_WIN32
+                /// @brief Folder browser event handler
+                static int CALLBACK folderbrowserEventHandler(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
+                #endif
             };
         }
     }
