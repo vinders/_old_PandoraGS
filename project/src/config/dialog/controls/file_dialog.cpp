@@ -87,6 +87,7 @@ EVENT_RETURN FileDialog::onCommand(Dialog::event_args_t args)
                 // browse to load a file
                 case file_mode_t::load:
                 {
+                    #if _DIALOGAPI == DIALOGAPI_WIN32
                     WCHAR path[MAX_PATH];
                     memset(path, 0, sizeof(path));
 
@@ -110,13 +111,16 @@ EVENT_RETURN FileDialog::onCommand(Dialog::event_args_t args)
                         // get file path
                         parent.m_filePath = std::wstring(path);
                         TextField::setValue(args.window, parent.m_fieldId, parent.m_filePath);
+                        return EVENT_RETURN_VALID;
                     }
+                    #endif
                     break;
                 }
 
                 // browse to save a file
                 case file_mode_t::save:
                 {
+                    #if _DIALOGAPI == DIALOGAPI_WIN32
                     WCHAR path[MAX_PATH];
                     memset(path, 0, sizeof(path));
 
@@ -140,7 +144,9 @@ EVENT_RETURN FileDialog::onCommand(Dialog::event_args_t args)
                         // get file path
                         parent.m_filePath = std::wstring(path);
                         TextField::setValue(args.window, parent.m_fieldId, parent.m_filePath);
+                        return EVENT_RETURN_VALID;
                     }
+                    #endif
                     break;
                 }
 
@@ -164,8 +170,10 @@ EVENT_RETURN FileDialog::onCommand(Dialog::event_args_t args)
                             imalloc->Free(pidl);
                             imalloc->Release();
                         }
+
                         parent.m_filePath = std::wstring(path);
                         TextField::setValue(args.window, parent.m_fieldId, parent.m_filePath);
+                        return EVENT_RETURN_VALID;
                     }
                     #endif
                     break;
