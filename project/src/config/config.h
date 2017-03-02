@@ -119,12 +119,6 @@ namespace config
         /// @param[in] pProfile  Profile data
         /// @returns Success
         static bool insertProfile(const uint32_t index, ConfigProfile* pProfile);
-        /// @brief Insert profile at the end of the list
-        /// @param[in] pProfile  Profile data
-        static inline bool appendProfile(ConfigProfile* pProfile)
-        {
-            return insertProfile(PROFILE_INDEX_APPEND, pProfile);
-        }
         /// @brief Change profile position in the list
         /// @param[in] oldIndex  Profile to move (0 based index, bigger than 0) 
         /// @param[in] newIndex  New position (0 based index, bigger than 0) 

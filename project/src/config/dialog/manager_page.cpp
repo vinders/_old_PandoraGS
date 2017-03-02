@@ -34,6 +34,8 @@ using namespace config::dialog;
 using namespace config::dialog::controls;
 using namespace std::literals::string_literals;
 
+ManagerPage* ManagerPage::s_pLastParentPage = nullptr; ///< Page reference buffer (for subdialogs)
+
 
 /// @brief Create tab page - profile manager
 /// @param[in] instance       Current instance handle
@@ -140,8 +142,11 @@ EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
                 addProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);
                 addProfileDialog.setParent(parent.getParentDialog<Dialog>());
                 // show modal dialog
+                ManagerPage* pPrevBuffer = s_pLastParentPage;
+                s_pLastParentPage = &parent;
                 addProfileDialog.showDialog(IDD_ADDPROFILE_DIALOG, args.window,
                                  parent.getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnAdd, false);
+                s_pLastParentPage = pPrevBuffer;
 
                 Button::unHighlight(args.window, IDC_MNG_BTN_ADD);
                 return EVENT_RETURN_VALID; break;
@@ -170,8 +175,11 @@ EVENT_RETURN ManagerPage::onCommand(TabPage::event_args_t args)
                 importProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);
                 importProfileDialog.setParent(parent.getParentDialog<Dialog>());
                 // show modal dialog
+                ManagerPage* pPrevBuffer = s_pLastParentPage;
+                s_pLastParentPage = &parent;
                 importProfileDialog.showDialog(IDD_IMPORT_DIALOG, IDC_IMPORT_PATH_EDIT, args.window, IDC_IMPORT_BTN_PATH, L""s,
                                     parent.getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnImport);
+                s_pLastParentPage = pPrevBuffer;
 
                 Button::unHighlight(args.window, IDC_MNG_BTN_IMPORT);
                 return EVENT_RETURN_VALID; break;
@@ -239,8 +247,11 @@ void ManagerPage::onProfileEdit(window_handle_t hWindow)
     editProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);
     editProfileDialog.setParent(getParentDialog<Dialog>());
     // show modal dialog
+    ManagerPage* pPrevBuffer = s_pLastParentPage;
+    s_pLastParentPage = this;
     editProfileDialog.showDialog(IDD_EDITPROFILE_DIALOG, hWindow,
                       getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnEdit, false);
+    s_pLastParentPage = pPrevBuffer;
 }
 
 
@@ -277,18 +288,37 @@ void ManagerPage::onProfileRemoval(window_handle_t hWindow)
     if (MsgBox::showMessage(langRes.profileManager.msgBoxRemoveConfirmTitle, message, hWindow,
             MsgBox::button_set_t::okCancel, MsgBox::message_icon_t::question) == MsgBox::result_t::ok)
     {
+        // sort by reversed index order
+        for (int32_t j = 1; j < static_cast<int32_t>(selectedIndexes.size()); ++j)
+        {
+            int32_t i = j - 1;
+            uint32_t curIndex = selectedIndexes.at(j);
+            while (i >= 0 && selectedIndexes.at(i) < curIndex)
+            {
+                selectedIndexes.at(i + 1) = selectedIndexes.at(i);
+                --i;
+            }
+            selectedIndexes.at(i + 1) = curIndex;
+        }
+        // remove rows from table + config
         for (uint32_t i = 0; i < selectedIndexes.size(); ++i)
         {
-            // remove row from table
-            getDataTable().removeRow(selectedIndexes.at(i));
+            // update config
+            Config::removeProfile(selectedIndexes.at(i));
+            //...mark ID as removed (for later save)
 
-            // remove profile from config
-            //...remove from config
-            //...
-
-            // refresh profile list + profile pages
-            getParentDialog<ConfigDialog>()->onProfileDataUpdate(true, selectedIndexes);
+            // refill data table
+            getDataTable().clearRows();
+            std::vector<std::wstring>& profileNames = Config::getAllProfileNames();
+            std::vector<std::vector<std::wstring>> rowData;
+            for (uint32_t pr = 0; pr < profileNames.size(); ++pr)
+            {
+                rowData.push_back({ std::to_wstring(pr), profileNames.at(pr) });
+            }
+            getDataTable().insertRows(rowData);
         }
+        // refresh profile list + profile pages
+        getParentDialog<ConfigDialog>()->onProfileDataUpdate(true, selectedIndexes);
     }
 }
 
@@ -318,8 +348,11 @@ void ManagerPage::onProfileExport(window_handle_t hWindow)
     exportProfileDialog.registerEvent(controls::dialog_event_t::confirm, handlerRef);
     exportProfileDialog.setParent(getParentDialog<Dialog>());
     // show modal dialog
+    ManagerPage* pPrevBuffer = s_pLastParentPage;
+    s_pLastParentPage = this;
     exportProfileDialog.showDialog(IDD_EXPORT_DIALOG, IDC_EXPORT_PATH_EDIT, hWindow, IDC_EXPORT_BTN_PATH, defaultPath,
                         getParentDialog<ConfigDialog>()->getLanguageResource().profileManager.btnExport);
+    s_pLastParentPage = pPrevBuffer;
 }
 
 
@@ -424,17 +457,92 @@ void ManagerPage::onLanguageChange(const bool IsUpdate)
 /// @brief Add profile dialog - Initialization event handler
 EVENT_RETURN ManagerPage::onAddProfileDialogInit(controls::Dialog::event_args_t args)
 {
-    //...choix indice placement (combo avec nb 1 à N (et [0] == "At the end"))
-    //...
+    if (s_pLastParentPage == nullptr)
+        return EVENT_RETURN_ERROR;
+
+    // translate controls
+    lang::ConfigLang& langRes = args.getParent<Dialog>().getParent<ConfigDialog>()->getLanguageResource();
+    Label::setText(args.window, IDS_ADD_NAME, langRes.profileManager.profileName);
+    CheckBox::setText(args.window, IDC_ADD_PRESET_RADIO, langRes.profileManager.addUsePreset);
+    CheckBox::setText(args.window, IDC_ADD_CLONE_RADIO, langRes.profileManager.addCloneProfile);
+    Label::setText(args.window, IDS_ADD_POS, langRes.profileManager.choosePosition);
+    Label::setText(args.window, IDOK, langRes.dialog.confirm);
+    Label::setText(args.window, IDCANCEL, langRes.dialog.cancel);
+
+    // position selector
+    std::vector<std::wstring> positions = { langRes.profileManager.endPosition };
+    for (uint32_t i = 1; i < Config::countProfiles(); ++i)
+        positions.push_back(L"# "s + std::to_wstring(i));
+    ComboBox::initValues(args.window, IDC_ADD_POS_LIST, positions, 0);
+
+    // profile preset selector
+    CheckBox::setChecked(args.window, IDC_ADD_PRESET_RADIO, true);
+    ComboBox::initValues(args.window, IDC_ADD_PRESET_LIST, langRes.profileManager.presets, 1);
+    // profile clone selector
+    ComboBox::initValues(args.window, IDC_ADD_CLONE_LIST, Config::getAllProfileNames(), 0);
     return EVENT_RETURN_VALID;
 }
 
 /// @brief Add profile dialog - Confirm event handler
 EVENT_RETURN ManagerPage::onAddProfileDialogConfirm(controls::Dialog::event_args_t args)
 {
-    // update name and order
-    // call ConfigDialog->onProfileListChange(oldIndex, newIndex)
+    if (s_pLastParentPage == nullptr)
+    {
+        MsgBox::showMessage(L"No parent page reference..."s, L"Could not apply changes."s, args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+        return EVENT_RETURN_ERROR;
+    }
+    ConfigProfile* pProfile = new ConfigProfile(Config::countProfiles(), TextField::getValue(args.window, IDC_ADD_NAME_EDIT));
+    if (pProfile == nullptr)
+        return EVENT_RETURN_ERROR;
 
+    if (CheckBox::isChecked(args.window, IDC_ADD_CLONE_RADIO)) // clone existing profile
+    {
+        int32_t selectedProfile;
+        if (ComboBox::getSelectedIndex(args.window, IDC_ADD_CLONE_LIST, selectedProfile) == false || selectedProfile < 0 || selectedProfile >= Config::countProfiles())
+            selectedProfile = 0;
+        ConfigProfile* pDataToCopy = Config::getProfile(selectedProfile);
+        if (pDataToCopy != nullptr)
+            pProfile->clone(*pDataToCopy);
+        else
+            pProfile->setPresetValues(config::config_preset_t::standard);
+    }
+    else // use preset
+    {
+        int32_t selectedPreset;
+        if (ComboBox::getSelectedIndex(args.window, IDC_ADD_PRESET_LIST, selectedPreset) == false || selectedPreset < 0 || selectedPreset >= CONFIG_PRESET_LENGTH)
+            selectedPreset = 0;
+        pProfile->setPresetValues(static_cast<config::config_preset_t>(selectedPreset));
+    }
+
+    // update config
+    int32_t pos;
+    if (ComboBox::getSelectedIndex(args.window, IDC_ADD_POS_LIST, pos) == false || pos < 0 || pos >= Config::countProfiles())
+        pos = PROFILE_INDEX_APPEND;
+    Config::insertProfile(pos, pProfile);
+
+    // update data table
+    ManagerPage& parent = *ManagerPage::s_pLastParentPage;
+    std::vector<std::wstring> row;
+    if (pos == PROFILE_INDEX_APPEND) // simply append
+    {
+        row = { std::to_wstring(Config::countProfiles() - 1), pProfile->getProfileName() };
+        parent.getDataTable().insertRow(row, -1);
+    }
+    else // insert at specified index and add offset to next profiles
+    {
+        row = { std::to_wstring(pos), pProfile->getProfileName() };
+        parent.getDataTable().insertRow(row, pos);
+        for (pos += 1; pos < Config::countProfiles(); ++pos)
+        {
+            row = { std::to_wstring(pos) };
+            parent.getDataTable().updateRow(pos, row);
+            //...mark offset (for later save)
+        }
+    }
+
+    // refresh profile list
+    ConfigDialog& parentDialog = *(parent.getParentDialog<ConfigDialog>());
+    parentDialog.onProfileListUpdate(Config::countProfiles(), Config::countProfiles());
     return EVENT_RETURN_VALID;
 }
 
@@ -442,6 +550,9 @@ EVENT_RETURN ManagerPage::onAddProfileDialogConfirm(controls::Dialog::event_args
 /// @brief Edit profile dialog - Initialization event handler
 EVENT_RETURN ManagerPage::onEditProfileDialogInit(controls::Dialog::event_args_t args)
 {
+    if (s_pLastParentPage == nullptr)
+        return EVENT_RETURN_ERROR;
+
     //...choix indice placement (combo avec nb 1 à N)
     //...
     return EVENT_RETURN_VALID;
@@ -450,9 +561,17 @@ EVENT_RETURN ManagerPage::onEditProfileDialogInit(controls::Dialog::event_args_t
 /// @brief Edit profile dialog - Confirm event handler
 EVENT_RETURN ManagerPage::onEditProfileDialogConfirm(controls::Dialog::event_args_t args)
 {
-    // update name and order
-    // call ConfigDialog->onProfileListChange(oldIndex, newIndex)
+    if (s_pLastParentPage == nullptr)
+    {
+        MsgBox::showMessage(L"No parent page reference..."s, L"Could not apply changes."s, args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+        return EVENT_RETURN_ERROR;
+    }
 
+    // update name and order
+    // ...
+    ManagerPage& parent = *ManagerPage::s_pLastParentPage;
+    ConfigDialog& parentDialog = *(parent.getParentDialog<ConfigDialog>());
+    //parentDialog.onProfileListUpdate(oldIndex, newIndex);
     return EVENT_RETURN_VALID;
 }
 
@@ -460,7 +579,7 @@ EVENT_RETURN ManagerPage::onEditProfileDialogConfirm(controls::Dialog::event_arg
 /// @brief Import profile dialog - Initialization event handler
 EVENT_RETURN ManagerPage::onImportProfileDialogInit(controls::Dialog::event_args_t args)
 {
-    if (FileDialog::onInit(args) != EVENT_RETURN_VALID)
+    if (FileDialog::onInit(args) != EVENT_RETURN_VALID || s_pLastParentPage == nullptr)
         return EVENT_RETURN_ERROR;
 
     //...retirer champ de choix de nom ?
@@ -476,6 +595,11 @@ EVENT_RETURN ManagerPage::onImportProfileDialogConfirm(controls::Dialog::event_a
 {
     if (FileDialog::onConfirm(args) != EVENT_RETURN_VALID)
         return EVENT_RETURN_ERROR;
+    if (s_pLastParentPage == nullptr)
+    {
+        MsgBox::showMessage(L"No parent page reference..."s, L"Could not apply changes."s, args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+        return EVENT_RETURN_ERROR;
+    }
 
     // update name and order
     // call ConfigDialog->onProfileListChange(oldIndex, newIndex)
@@ -487,7 +611,7 @@ EVENT_RETURN ManagerPage::onImportProfileDialogConfirm(controls::Dialog::event_a
 /// @brief Export profile dialog - Initialization event handler
 EVENT_RETURN ManagerPage::onExportProfileDialogInit(controls::Dialog::event_args_t args)
 {
-    if (FileDialog::onInit(args) != EVENT_RETURN_VALID)
+    if (FileDialog::onInit(args) != EVENT_RETURN_VALID || s_pLastParentPage == nullptr)
         return EVENT_RETURN_ERROR;
 
     //...seulement choix de path, pas du nom des fichiers (potentiellement plusieurs)
@@ -499,6 +623,11 @@ EVENT_RETURN ManagerPage::onExportProfileDialogConfirm(controls::Dialog::event_a
 {
     if (FileDialog::onConfirm(args) != EVENT_RETURN_VALID)
         return EVENT_RETURN_ERROR;
+    if (s_pLastParentPage == nullptr)
+    {
+        MsgBox::showMessage(L"No parent page reference..."s, L"Could not obtain selection from list."s, args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+        return EVENT_RETURN_ERROR;
+    }
 
 
     return EVENT_RETURN_VALID;

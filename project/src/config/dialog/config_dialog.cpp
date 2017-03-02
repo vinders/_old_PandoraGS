@@ -314,10 +314,13 @@ void ConfigDialog::onProfileDataUpdate(const bool isProfileRemoved, const std::v
 {
     // check if current profile is updated
     bool isCurrentProfileUpdated = false;
+    uint32_t currentProfileOffset = 0u;
     for (uint32_t i = 0; isCurrentProfileUpdated == false && i < changedProfiles.size(); ++i)
     {
         if (changedProfiles.at(i) == m_currentProfile)
             isCurrentProfileUpdated = true;
+        if (changedProfiles.at(i) < m_currentProfile && isProfileRemoved)
+            ++currentProfileOffset;
     }
 
     if (isProfileRemoved)
@@ -325,6 +328,14 @@ void ConfigDialog::onProfileDataUpdate(const bool isProfileRemoved, const std::v
         // current profile removed -> select default
         if (isCurrentProfileUpdated)
             m_currentProfile = 0;
+        // current profile with offset -> re-select
+        else if (currentProfileOffset)
+        {
+            if (currentProfileOffset > m_currentProfile)
+                m_currentProfile = 0;
+            else
+                m_currentProfile -= currentProfileOffset;
+        }
         // reload list of profiles
         ComboBox::setValues(m_hWindow, IDC_PROFILE_LIST, Config::getAllProfileNames(), m_currentProfile);
     }

@@ -41,6 +41,13 @@ ConfigProfile::ConfigProfile(const ConfigProfile& copy) noexcept
 {
     m_profileId = copy.m_profileId;
     m_profileName = copy.m_profileName;
+    clone(copy);
+}
+
+/// @brief Copy profile values
+/// @param[in] copy  Profile container to copy
+void ConfigProfile::clone(const ConfigProfile& copy) noexcept
+{
     isExternalShaders = copy.isExternalShaders;
     shadersPath = copy.shadersPath;
 

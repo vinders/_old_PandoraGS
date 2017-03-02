@@ -305,21 +305,23 @@ void DataTable::insertRows(std::vector<std::vector<std::wstring>>& data)
 
 /// @brief Insert one row
 /// @param[in] row  Vector of column values
-void DataTable::insertRow(const std::vector<std::wstring>& row)
+/// @param[in] pos  Position in table (-1 to append)
+void DataTable::insertRow(const std::vector<std::wstring>& row, const int32_t pos)
 #if _DIALOGAPI == DIALOGAPI_WIN32
 {
     // insert row
+    int32_t newIndex = (pos >= 0) ? pos : m_rowCount;
     LVITEM lviDef;
     ZeroMemory(&lviDef, sizeof(LVITEM));
     lviDef.mask = 0;
     lviDef.iSubItem = 0;
-    lviDef.iItem = m_rowCount; // index in table
+    lviDef.iItem = newIndex; // index in table
     SendDlgItemMessage(m_hParent, m_resourceId, LVM_INSERTITEM, 0, (LPARAM)&lviDef);
 
     uint32_t col = (m_hasCheckboxes) ? 1u : 0u;
     for (auto it = row.begin(); it != row.end(); ++it)
     {
-        ListView_SetItemText(m_hDataTable, m_rowCount, col, (LPWSTR)it->c_str());
+        ListView_SetItemText(m_hDataTable, newIndex, col, (LPWSTR)it->c_str());
         ++col;
     }
 
@@ -411,12 +413,7 @@ void DataTable::removeRow(const uint32_t rowIndex)
         return;
 
     // delete row
-    LVITEM lviDef;
-    ZeroMemory(&lviDef, sizeof(LVITEM));
-    lviDef.mask = 0;
-    lviDef.iSubItem = 0;
-    lviDef.iItem = rowIndex; // index in table
-    SendDlgItemMessage(m_hParent, m_resourceId, LVM_DELETEITEM, 0, (LPARAM)&lviDef);
+    SendDlgItemMessage(m_hParent, m_resourceId, LVM_DELETEITEM, rowIndex, 0);
 
     // decrease count (update display if scrollbar removed)
     --m_rowCount;

@@ -85,7 +85,8 @@ namespace config
                 void insertRows(std::vector<std::vector<std::wstring>>& data);
                 /// @brief Insert one row
                 /// @param[in] row  Vector of column values
-                void insertRow(const std::vector<std::wstring>& row);
+                /// @param[in] pos  Position in table (-1 to append)
+                void insertRow(const std::vector<std::wstring>& row, const int32_t pos = -1);
 
                 /// @brief Update a row
                 /// @param[in] rowIndex  Row index
@@ -99,6 +100,13 @@ namespace config
                 /// @brief Remove a row
                 /// @param[in] rowIndex  Row index
                 void removeRow(const uint32_t rowIndex);
+
+                /// @brief Remove all rows
+                void clearRows()
+                {
+                    for (int32_t i = m_rowCount - 1; i >= 0; --i)
+                        removeRow(i);
+                }
 
                 /// @brief Get indexes of all selected rows
                 /// @param[out] outIndexes  Vector of indexes to fill

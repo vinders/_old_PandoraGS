@@ -87,6 +87,9 @@ namespace config
         /// @brief Set profile preset values
         /// @param[in] preset  Default values to use
         void setPresetValues(const config_preset_t preset) noexcept;
+        /// @brief Copy profile values
+        /// @param[in] copy  Profile container to copy
+        void clone(const ConfigProfile& copy) noexcept;
 
 
         // -- getters -- -------------------------------------------------------

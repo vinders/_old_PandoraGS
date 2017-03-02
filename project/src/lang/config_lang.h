@@ -103,6 +103,15 @@ namespace lang
             std::wstring tableNumber;
             std::wstring tableProfile;
             std::vector<std::wstring> presets;
+
+            std::wstring profileName;
+            std::wstring addUsePreset;
+            std::wstring addCloneProfile;
+            std::wstring importSource;
+            std::wstring exportDestination;
+            std::wstring fileBrowse;
+            std::wstring choosePosition;
+            std::wstring endPosition;
             std::wstring msgBoxEmpty;
             std::wstring msgBoxEmptyTitle;
             std::wstring msgBoxEditDefault;

@@ -36,6 +36,7 @@ namespace config
             std::vector<std::shared_ptr<controls::ButtonIcon>> m_buttonIcons;  ///< Icons for side buttons
             std::vector<std::shared_ptr<controls::Tooltip>> m_tooltips; ///< Tooltips for side buttons
             controls::DataTable* m_pDataTable; ///< Data table (profiles)
+            static ManagerPage* s_pLastParentPage; ///< Page reference buffer (for subdialogs)
 
         
         public:

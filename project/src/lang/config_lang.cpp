@@ -79,6 +79,15 @@ void ConfigLang::setLanguageEnglish() noexcept
     profileManager.tableNumber = L"#"s;
     profileManager.tableProfile = L"profile"s;
     profileManager.presets = { L"Fastest"s, L"Standard"s, L"Enhanced 2D"s, L"Enhanced 3D"s };
+
+    profileManager.profileName = L"Profile name"s;
+    profileManager.addUsePreset = L"Use a preset"s;
+    profileManager.addCloneProfile = L"Clone a profile"s;
+    profileManager.importSource = L"Imported file"s;
+    profileManager.exportDestination = L"Destination"s;
+    profileManager.fileBrowse = L"Browse..."s;
+    profileManager.choosePosition = L"Insert at position"s;
+    profileManager.endPosition = L"Append at the end"s;
     profileManager.msgBoxEmpty = L"Please select at least one profile."s;
     profileManager.msgBoxEmptyTitle = L"No profile selected..."s;
     profileManager.msgBoxEditDefault = L"The default profile can't be renamed nor moved."s;
@@ -200,6 +209,15 @@ void ConfigLang::setLanguageFrench() noexcept
     profileManager.tableNumber = L"#"s;
     profileManager.tableProfile = L"profil"s;
     profileManager.presets = { L"Le plus rapide"s, L"Standard"s, L"2D optimisée"s, L"3D optimisée"s };
+
+    profileManager.profileName = L"Nom du profil"s;
+    profileManager.addUsePreset = L"Préconfiguration"s;
+    profileManager.addCloneProfile = L"Cloner un profil"s;
+    profileManager.importSource = L"Fichier importé"s;
+    profileManager.exportDestination = L"Destination"s;
+    profileManager.fileBrowse = L"Parcourir..."s;
+    profileManager.choosePosition = L"Position d'insertion"s;
+    profileManager.endPosition = L"Ajouter à la fin"s;
     profileManager.msgBoxEmpty = L"Veuillez choisir au moins un profil."s;
     profileManager.msgBoxEmptyTitle = L"Aucun profil sélectionné..."s;
     profileManager.msgBoxEditDefault = L"Le profil par défaut ne peut pas être renommé ni déplacé."s;
