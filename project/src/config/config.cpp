@@ -170,10 +170,11 @@ bool Config::insertProfile(const uint32_t index, ConfigProfile* pProfile)
     {
         s_profileNames.insert(s_profileNames.begin() + index, pProfile->getProfileName());
         s_profiles.insert(s_profiles.begin() + index, pProfile);
+
+        // if current profile moved, re-select
+        if (index <= s_currentProfileId)
+            ++s_currentProfileId;
     }
-    // if current profile moved, re-select
-    if (index <= s_currentProfileId)
-        ++s_currentProfileId;
 
     unlock();
     return true;
@@ -217,12 +218,20 @@ bool Config::moveProfile(const uint32_t oldIndex, const uint32_t newIndex)
     s_profileNames.at(newIndex) = pMovedProfile->getProfileName();
 
     // if current profile moved, re-select
-    if (newIndex <= s_currentProfileId && oldIndex > s_currentProfileId)
-        ++s_currentProfileId;
-    else if (newIndex > s_currentProfileId && oldIndex < s_currentProfileId)
-        --s_currentProfileId;
-    else if (oldIndex == s_currentProfileId)
+    if (oldIndex == s_currentProfileId)
+    {
         s_currentProfileId = newIndex;
+    }
+    else if (oldIndex < s_currentProfileId)
+    {
+        if (newIndex > s_currentProfileId)
+            --s_currentProfileId;
+    }
+    else // oldIndex > s_currentProfileId
+    {
+        if (newIndex <= s_currentProfileId)
+            ++s_currentProfileId;
+    }
 
     unlock();
     return true;

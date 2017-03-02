@@ -325,18 +325,8 @@ void ConfigDialog::onProfileDataUpdate(const bool isProfileRemoved, const std::v
 
     if (isProfileRemoved)
     {
-        // current profile removed -> select default
-        if (isCurrentProfileUpdated)
-            m_currentProfile = 0;
-        // current profile with offset -> re-select
-        else if (currentProfileOffset)
-        {
-            if (currentProfileOffset > m_currentProfile)
-                m_currentProfile = 0;
-            else
-                m_currentProfile -= currentProfileOffset;
-        }
         // reload list of profiles
+        m_currentProfile = Config::getCurrentProfileId();
         ComboBox::setValues(m_hWindow, IDC_PROFILE_LIST, Config::getAllProfileNames(), m_currentProfile);
     }
     // refresh current profile settings
@@ -349,10 +339,7 @@ void ConfigDialog::onProfileDataUpdate(const bool isProfileRemoved, const std::v
 /// @param[in] newIndex  New index of edited profile
 void ConfigDialog::onProfileListUpdate(const uint32_t oldIndex, const uint32_t newIndex)
 {
-    if (m_currentProfile == oldIndex) // if current profile edited, save new index
-        m_currentProfile = newIndex;
-    else if (m_currentProfile < oldIndex && m_currentProfile > newIndex) // offset
-        ++m_currentProfile;
     // reload list of profiles
+    m_currentProfile = Config::getCurrentProfileId();
     ComboBox::setValues(m_hWindow, IDC_PROFILE_LIST, Config::getAllProfileNames(), m_currentProfile);
 }
