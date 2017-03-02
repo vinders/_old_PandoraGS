@@ -147,6 +147,98 @@ ConfigProfile* Config::getProfile(const uint32_t index)
 }
 
 
+/// @brief Insert profile at the specified index
+/// @param[in] index     Profile index (index == 0 : append at the end ; index > 0 : specified index) 
+/// @param[in] pProfile  Profile data
+/// @returns Success
+bool Config::insertProfile(const uint32_t index, ConfigProfile* pProfile)
+{
+    waitLock();
+    lock();
+    if (s_isInitialized == false || index >= countProfiles())
+    {
+        unlock();
+        return false;
+    }
+
+    if (index == PROFILE_INDEX_APPEND) // insert at the end
+    {
+        s_profileNames.push_back(pProfile->getProfileName());
+        s_profiles.push_back(pProfile);
+    }
+    else // insert at specified index
+    {
+        s_profileNames.insert(s_profileNames.begin() + index, pProfile->getProfileName());
+        s_profiles.insert(s_profiles.begin() + index, pProfile);
+    }
+
+    unlock();
+    return true;
+}
+
+/// @brief Change profile position in the list
+/// @param[in] oldIndex  Profile to move (0 based index, bigger than 0) 
+/// @param[in] newIndex  New position (0 based index, bigger than 0) 
+/// @param[in] pProfile  Profile data
+/// @returns Success
+bool Config::moveProfile(const uint32_t oldIndex, const uint32_t newIndex)
+{
+    waitLock();
+    lock();
+    if (s_isInitialized == false || oldIndex == newIndex 
+     || oldIndex >= countProfiles() || oldIndex == 0 
+     || newIndex >= countProfiles() || newIndex == 0)
+    {
+        unlock();
+        return false;
+    }
+
+    ConfigProfile* pMovedProfile = s_profiles.at(oldIndex);
+    if (oldIndex < newIndex) // move after current position
+    {
+        for (uint32_t i = oldIndex; i < newIndex; ++i)
+        {
+            s_profiles.at(i) = s_profiles.at(i + 1);
+            s_profileNames.at(i) = s_profileNames.at(i + 1);
+        }
+    }
+    else // move before current position
+    {
+        for (uint32_t i = newIndex; i < oldIndex; ++i)
+        {
+            s_profiles.at(i + 1) = s_profiles.at(i);
+            s_profileNames.at(i + 1) = s_profileNames.at(i);
+        }
+    }
+    s_profiles.at(newIndex) = pMovedProfile;
+    s_profileNames.at(newIndex) = pMovedProfile->getProfileName();
+
+    unlock();
+    return true;
+}
+
+/// @brief Remove specific profile
+/// @param[in] index  Profile index (0 based ; note: profile 0 can't be removed) 
+/// @returns Success
+bool Config::removeProfile(const uint32_t index)
+{
+    waitLock();
+    lock();
+    if (s_isInitialized == false || index >= countProfiles() || index == 0)
+    {
+        unlock();
+        return false;
+    }
+
+    // remove at index
+    s_profiles.erase(s_profiles.begin() + index);
+    s_profileNames.erase(s_profileNames.begin() + index);
+
+    unlock();
+    return true;
+}
+
+
 // -- profile selection -- ---------------------------------------------
 
 /// @brief Set default profile as current

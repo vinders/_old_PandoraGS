@@ -14,6 +14,8 @@ Description : configuration container
 #include "config_common.h"
 #include "config_profile.h"
 
+#define PROFILE_INDEX_APPEND 0
+
 // config constants
 #define RESOLUTION_AUTODETECT 0u
 #define FRAMELIMIT_AUTODETECT 0.0f
@@ -111,6 +113,28 @@ namespace config
         {
             return s_profiles.size();
         }
+
+        /// @brief Insert profile at the specified index
+        /// @param[in] index     Profile index (index == 0 : append at the end ; index > 0 : specified index) 
+        /// @param[in] pProfile  Profile data
+        /// @returns Success
+        static bool insertProfile(const uint32_t index, ConfigProfile* pProfile);
+        /// @brief Insert profile at the end of the list
+        /// @param[in] pProfile  Profile data
+        static inline bool appendProfile(ConfigProfile* pProfile)
+        {
+            return insertProfile(PROFILE_INDEX_APPEND, pProfile);
+        }
+        /// @brief Change profile position in the list
+        /// @param[in] oldIndex  Profile to move (0 based index, bigger than 0) 
+        /// @param[in] newIndex  New position (0 based index, bigger than 0) 
+        /// @param[in] pProfile  Profile data
+        /// @returns Success
+        static bool moveProfile(const uint32_t oldIndex, const uint32_t newIndex);
+        /// @brief Remove specific profile
+        /// @param[in] index  Profile index (0 based ; note: profile 0 can't be removed) 
+        /// @returns Success
+        static bool removeProfile(const uint32_t index);
 
 
         // -- profile selection -- ---------------------------------------------
