@@ -224,7 +224,7 @@ bool Config::moveProfile(const uint32_t oldIndex, const uint32_t newIndex)
     }
     else if (oldIndex < s_currentProfileId)
     {
-        if (newIndex > s_currentProfileId)
+        if (newIndex >= s_currentProfileId)
             --s_currentProfileId;
     }
     else // oldIndex > s_currentProfileId

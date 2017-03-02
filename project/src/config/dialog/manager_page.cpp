@@ -498,7 +498,8 @@ EVENT_RETURN ManagerPage::onAddProfileDialogConfirm(controls::Dialog::event_args
     if (CheckBox::isChecked(args.window, IDC_ADD_CLONE_RADIO)) // clone existing profile
     {
         int32_t selectedProfile;
-        if (ComboBox::getSelectedIndex(args.window, IDC_ADD_CLONE_LIST, selectedProfile) == false || selectedProfile < 0 || selectedProfile >= Config::countProfiles())
+        if (ComboBox::getSelectedIndex(args.window, IDC_ADD_CLONE_LIST, selectedProfile) == false 
+         || selectedProfile < 0 || static_cast<uint32_t>(selectedProfile) >= Config::countProfiles())
             selectedProfile = 0;
         ConfigProfile* pDataToCopy = Config::getProfile(selectedProfile);
         if (pDataToCopy != nullptr)
@@ -509,14 +510,16 @@ EVENT_RETURN ManagerPage::onAddProfileDialogConfirm(controls::Dialog::event_args
     else // use preset
     {
         int32_t selectedPreset;
-        if (ComboBox::getSelectedIndex(args.window, IDC_ADD_PRESET_LIST, selectedPreset) == false || selectedPreset < 0 || selectedPreset >= CONFIG_PRESET_LENGTH)
+        if (ComboBox::getSelectedIndex(args.window, IDC_ADD_PRESET_LIST, selectedPreset) == false 
+         || selectedPreset < 0 || selectedPreset >= CONFIG_PRESET_LENGTH)
             selectedPreset = 0;
         pProfile->setPresetValues(static_cast<config::config_preset_t>(selectedPreset));
     }
 
     // update config
     int32_t pos;
-    if (ComboBox::getSelectedIndex(args.window, IDC_ADD_POS_LIST, pos) == false || pos < 0 || pos >= Config::countProfiles())
+    if (ComboBox::getSelectedIndex(args.window, IDC_ADD_POS_LIST, pos) == false 
+     || pos < 0 || static_cast<uint32_t>(pos) >= Config::countProfiles())
         pos = PROFILE_INDEX_APPEND;
     Config::insertProfile(pos, pProfile);
 
@@ -532,10 +535,10 @@ EVENT_RETURN ManagerPage::onAddProfileDialogConfirm(controls::Dialog::event_args
     {
         row = { std::to_wstring(pos), pProfile->getProfileName() };
         parent.getDataTable().insertRow(row, pos);
-        for (pos += 1; pos < Config::countProfiles(); ++pos)
+        for (uint32_t upos = static_cast<uint32_t>(pos) + 1u; upos < Config::countProfiles(); ++upos)
         {
-            row = { std::to_wstring(pos) };
-            parent.getDataTable().updateRow(pos, row);
+            row = { std::to_wstring(upos) };
+            parent.getDataTable().updateRow(upos, row);
             //...mark offset (for later save)
         }
     }
