@@ -8,6 +8,7 @@ Description : configuration container
 *******************************************************************************/
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <thread>
@@ -36,7 +37,8 @@ namespace config
     {
     private:
         static std::vector<ConfigProfile*> s_profiles;   ///< Config profiles (vector)
-        static std::vector<std::wstring> s_profileNames; ///< Names of the profiles (for in-game menu -> no need to load every profile)
+        static std::vector<std::wstring> s_profileNames; ///< Names of the profiles (for in-game menu: no need to load every profile)
+        static std::vector<bool> s_removedProfiles;      ///< History of removed profiles
         static uint32_t s_currentProfileId;              ///< Active profile ID
         static bool s_isInitialized;                     ///< Initialization status
         static bool s_isReady;                           ///< Fast mutual exclusion
@@ -55,10 +57,13 @@ namespace config
 
     public:
         /// @brief Create config container (default values + default profile)
-        static void init();
-
+        /// @param[in] isLoadingAllProfiles  Load all existing profiles
+        static void init(const bool isLoadingAllProfiles = false);
         /// @brief Close config container and profiles
         static void close();
+        /// @brief Save config updates
+        /// @param[in] isSavingAllProfiles  Save all existing profiles
+        static void saveUpdates(const bool isSavingAllProfiles);
 
         /// @brief Set default config values
         /// @param[in] isKeyBindingReset  Also reset event-trigger key bindings
@@ -66,11 +71,17 @@ namespace config
         /// @brief Reset event-trigger key bindings
         static void resetKeyBindings() noexcept;
 
-        /// @brief Check if config / profile is initialized
+        /// @brief Check if config / profile is ready or busy
         /// @returns Status (true = ready)
         static inline bool isConfigReady() noexcept
         {
             return s_isReady;
+        }
+        /// @brief Check if config is initialized
+        /// @returns Initialization status
+        static inline bool isInitialized() noexcept
+        {
+            return s_isInitialized;
         }
         
     private:
@@ -84,6 +95,15 @@ namespace config
         {
             while (s_isReady == false)
                 std::this_thread::yield();
+        }
+        /// @brief Wait while status is "not ready"
+        /// @brief param[in] timeout  Max loop count to wait
+        /// @returns Unlocked (true) or timeout (false)
+        static inline bool waitLock(int32_t timeout) noexcept
+        {
+            while (s_isReady == false && --timeout > 0)
+                std::this_thread::yield();
+            return s_isReady;
         }
         /// @brief Set status to "ready"
         static inline void unlock() noexcept

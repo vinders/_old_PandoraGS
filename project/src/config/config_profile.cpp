@@ -21,6 +21,7 @@ ConfigProfile::ConfigProfile(const uint32_t id) noexcept
     m_profileId = id;
     isExternalShaders = false;
     fixBits = 0u;
+    m_isUpdated = false;
 }
 
 /// @brief Create profile container
@@ -33,6 +34,7 @@ ConfigProfile::ConfigProfile(const uint32_t id, const std::wstring name) noexcep
     isExternalShaders = false;
     shadersPath = "./gpuShader"s;
     fixBits = 0u;
+    m_isUpdated = false;
 }
 
 /// @brief Copy profile container
@@ -42,6 +44,7 @@ ConfigProfile::ConfigProfile(const ConfigProfile& copy) noexcept
     m_profileId = copy.m_profileId;
     m_profileName = copy.m_profileName;
     clone(copy);
+    m_isUpdated = false;
 }
 
 /// @brief Copy profile values

@@ -58,6 +58,7 @@ namespace config
     private:
         uint32_t m_profileId;        ///< Profile unique identifier
         std::wstring m_profileName;  ///< Profile displayed name
+        bool m_isUpdated;              ///< Update flag
 
     public:
         bool isExternalShaders;       ///< Use external shaders (bypass built-in effects)
@@ -92,7 +93,7 @@ namespace config
         void clone(const ConfigProfile& copy) noexcept;
 
 
-        // -- getters -- -------------------------------------------------------
+        // -- getters / setters -- ---------------------------------------------
 
         /// @brief Get profile identifier
         /// @returns Profile ID
@@ -100,11 +101,34 @@ namespace config
         {
             return m_profileId;
         }
+        /// @brief Get profile identifier
+        /// @returns Profile ID
+        inline void setProfileId(uint32_t id) noexcept
+        {
+            m_profileId = id;
+        }
         /// @brief Get profile name
         /// @returns Reference to profile name
         inline std::wstring& getProfileName() noexcept
         {
             return m_profileName;
+        }
+        /// @brief Get profile name
+        /// @returns Reference to profile name
+        inline void setProfileName(std::wstring& name) noexcept
+        {
+            m_profileName = name;
+        }
+        /// @brief Set flag to show that the profile has been modified (for config dialog)
+        inline void setUpdateFlag() noexcept
+        {
+            m_isUpdated = true;
+        }
+        /// @brief Check if profile has been modified (for config dialog)
+        /// @returns Update flag values
+        inline bool isUpdateFlag() const noexcept
+        {
+            return m_isUpdated;
         }
 
 

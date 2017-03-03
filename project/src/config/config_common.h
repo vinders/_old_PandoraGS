@@ -15,6 +15,8 @@ Description : configuration common tools
 #include "../events/timer.h"
 #include "../lang/i_lang.h"
 
+#define NEW_CONFIG_PROFILE_ID 0u
+
 /// @namespace config
 /// Configuration management
 namespace config

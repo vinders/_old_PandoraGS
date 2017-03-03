@@ -9,6 +9,7 @@ Description : configuration container
 #include "../globals.h"
 #include <cstdlib>
 #include <cstring>
+#include <cstdint>
 #include <string>
 #include <vector>
 using namespace std::literals::string_literals;
@@ -18,8 +19,9 @@ using namespace std::literals::string_literals;
 #include "config.h"
 using namespace config;
 
-std::vector<ConfigProfile*> Config::s_profiles; ///< Config profiles (vector)
+std::vector<ConfigProfile*> Config::s_profiles;   ///< Config profiles (vector)
 std::vector<std::wstring> Config::s_profileNames; ///< Names of the profiles
+std::vector<bool> Config::s_removedProfiles;      ///< History of removed profiles
 uint32_t Config::s_currentProfileId = 0u;       ///< Active profile ID
 bool Config::s_isInitialized = false;           ///< Initialization status
 bool Config::s_isReady = true;                  ///< Fast mutual exclusion
@@ -36,8 +38,11 @@ uint32_t Config::runtimeFixBits = 0u; ///< Fixes set by emulator
 
 
 /// @brief Create config container (default values + default profile)
-void Config::init()
+/// @param[in] isLoadingAllProfiles  Load all existing profiles
+void Config::init(const bool isLoadingAllProfiles)
 {
+    if (s_isInitialized)
+        close();
     lock();
 
     // set default values
@@ -48,14 +53,27 @@ void Config::init()
 
     // load general config
     ConfigIO::loadConfig(&s_profileNames);
-    // initialize profile array
-    s_profiles.reserve(s_profileNames.size());
-    for (int i = s_profileNames.size(); i > 0; --i)
-        s_profiles.push_back(nullptr);
 
-    // load default profile
-    s_currentProfileId = 0u;
-    s_profiles[0] = ConfigIO::loadConfigProfile(0u, false);
+    if (isLoadingAllProfiles) // load all profiles
+    {
+        s_profiles.reserve(s_profileNames.size());
+        s_removedProfiles.reserve(s_profileNames.size());
+        for (uint32_t i = 0; i < s_profileNames.size(); ++i)
+        {
+            s_profiles.push_back(ConfigIO::loadConfigProfile(i, true));
+            s_removedProfiles.push_back(false);
+        }
+    }
+    else // lazy loading
+    {
+        // initialize profile array
+        s_profiles.reserve(s_profileNames.size());
+        for (int32_t i = s_profileNames.size(); i > 0; --i)
+            s_profiles.push_back(nullptr);
+        // load default profile
+        s_currentProfileId = 0u;
+        s_profiles[0] = ConfigIO::loadConfigProfile(0u, false);
+    }
 
     s_isInitialized = true;
     unlock();
@@ -65,7 +83,7 @@ void Config::init()
 void Config::close()
 {
     s_isInitialized = false;
-    waitLock();
+    waitLock(400);
     lock();
 
     // clear profile array
@@ -77,10 +95,24 @@ void Config::close()
     }
     s_profiles.clear();
     s_profileNames.clear();
+    s_removedProfiles.clear();
     s_currentProfileId = 0u;
 
     unlock();
 }
+
+/// @brief Save config updates
+/// @param[in] isSavingAllProfiles  Save all existing profiles
+void Config::saveUpdates(const bool isSavingAllProfiles)
+{
+    if (s_isInitialized == false)
+        return;
+    waitLock(800);
+    lock();
+    ConfigIO::saveConfig(true, isSavingAllProfiles, s_profiles, s_removedProfiles);
+    unlock();
+}
+
 
 /// @brief Set default config values
 /// @param[in] isKeyBindingReset  Also reset event-trigger key bindings
@@ -189,12 +221,18 @@ bool Config::moveProfile(const uint32_t oldIndex, const uint32_t newIndex)
 {
     waitLock();
     lock();
-    if (s_isInitialized == false || oldIndex == newIndex 
+    if (s_isInitialized == false
      || oldIndex >= countProfiles() || oldIndex == 0 
      || newIndex >= countProfiles() || newIndex == 0)
     {
         unlock();
         return false;
+    }
+    if (oldIndex == newIndex) // not moved -> update name only
+    {
+        s_profileNames.at(newIndex) = s_profiles.at(newIndex)->getProfileName();
+        unlock();
+        return true;
     }
 
     ConfigProfile* pMovedProfile = s_profiles.at(oldIndex);
@@ -256,6 +294,10 @@ bool Config::removeProfile(const uint32_t index)
     // if current profile moved, re-select
     else if (index < s_currentProfileId)
         --s_currentProfileId;
+
+    // add to removal history (if not a new profile)
+    if (s_profiles.at(index)->getProfileId() != NEW_CONFIG_PROFILE_ID)
+        s_removedProfiles[s_profiles.at(index)->getProfileId()] = true;
     // remove at index
     delete s_profiles.at(index);
     s_profiles.erase(s_profiles.begin() + index);

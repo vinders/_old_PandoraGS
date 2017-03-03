@@ -108,10 +108,12 @@ void ConfigIO::loadConfig(std::vector<std::wstring>* pOutProfileNames)
 }
 
 /// @brief Save config values
-/// @param[in] hasProfiles  Also save contained profiles (true) / only save main config (false)
-/// @param[in] profiles     Array of config profiles (necessary, even if profiles not saved)
+/// @param[in] hasProfiles          Also save contained profiles (true) / only save main config (false)
+/// @param[in] isSavingAllProfiles  Save all profiles (true) or only profiles with update flag (false)
+/// @param[in] profiles             Array of config profiles (necessary, even if profiles not saved)
+/// @param[in] removedProfiles      List of all previous profiles with remove indicator
 /// @throws runtime_error  Saving failure
-void ConfigIO::saveConfig(const bool hasProfiles, const std::vector<ConfigProfile*>& profiles)
+void ConfigIO::saveConfig(const bool hasProfiles, const bool isSavingAllProfiles, const std::vector<ConfigProfile*>& profiles, const std::vector<bool>& removedProfiles)
 {
     // create main file/registry key
     ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE> writer;
@@ -143,13 +145,77 @@ void ConfigIO::saveConfig(const bool hasProfiles, const std::vector<ConfigProfil
     writer.writeInt(L"ProfileCount", profiles.size());
     writer.close();
    
-    // save config profiles
+    // update profiles
     if (hasProfiles)
     {
-        for (uint32_t p = 0u; p < profiles.size(); p++)
+        // save everything (if removals and/or re-orderings)
+        if (isSavingAllProfiles)
         {
-            if (profiles[p] != nullptr)
-                saveConfigProfile(*(profiles[p]));
+            // find removed profiles
+            std::unordered_map<uint32_t, int32_t> changesPerProfile;
+            for (uint32_t i = 0; i < removedProfiles.size(); ++i)
+            {
+                if (removedProfiles.at(i)) // removed
+                {
+                    changesPerProfile[i] = -1;
+                    removeConfigProfile(i);
+                }
+            }
+            // find re-ordered profiles
+            for (uint32_t i = 0; i < profiles.size(); ++i)
+            {
+                if (profiles.at(i)->getProfileId() != NEW_CONFIG_PROFILE_ID && profiles.at(i)->getProfileId() != i)
+                    changesPerProfile[profiles.at(i)->getProfileId()] = i;
+            }
+            // update associations
+            int32_t changeBuffer;
+            std::vector<config::game_profile_association_t> assoc;
+            getProfileAssociations(assoc);
+            auto assocIt = assoc.begin();
+            while (assocIt != assoc.end())
+            {
+                if (changesPerProfile.count(assocIt->profileId)) // changed profile
+                {
+                    changeBuffer = changesPerProfile[assocIt->profileId];
+                    if (changeBuffer == -1) // removed
+                    {
+                        assocIt = assoc.erase(assocIt);
+                    }
+                    else // re-ordered
+                    {
+                        assocIt->profileId = changeBuffer;
+                        ++assocIt;
+                    }
+                }
+            }
+            setProfileAssociations(assoc);
+
+            // save config profiles
+            for (uint32_t p = 0u; p < profiles.size(); p++)
+            {
+                if (profiles[p] != nullptr)
+                {
+                    profiles[p]->setProfileId(p);
+                    saveConfigProfile(*(profiles[p]));
+                }
+            }
+            // if less profiles than previously, remove last ones
+            for (uint32_t i = removedProfiles.size(); i > profiles.size(); --i)
+            {
+                removeConfigProfile(i - 1);
+            }
+        }
+        else
+        {
+            // save only updated profiles
+            for (uint32_t p = 0u; p < profiles.size(); p++)
+            {
+                if (profiles[p] != nullptr && profiles[p]->isUpdateFlag())
+                {
+                    profiles[p]->setProfileId(p);
+                    saveConfigProfile(*(profiles[p]));
+                }
+            }
         }
     }
 }
@@ -432,7 +498,7 @@ uint32_t ConfigIO::getGameAssociation(const std::string& gameExecutableId)
 
 /// @brief Set the game/profile associations (settings)
 /// @param[in] associations  List of associated games/profiles
-void ConfigIO::setProfileAssociations(const std::list<game_profile_association_t>& associations)
+void ConfigIO::setProfileAssociations(const std::vector<game_profile_association_t>& associations)
 {
     #ifdef _WINDOWS
     // remove all previous associations
@@ -455,7 +521,7 @@ void ConfigIO::setProfileAssociations(const std::list<game_profile_association_t
 
 /// @brief Get the list of all the game/profile associations (settings)
 /// @param[out] outAssociations  Destination variable for returned list
-void ConfigIO::getProfileAssociations(std::list<game_profile_association_t>& outAssociations)
+void ConfigIO::getProfileAssociations(std::vector<game_profile_association_t>& outAssociations)
 {
     // open game/profile associations
     ConfigFileIO<CONFIG_INTERNAL_FILE_TYPE> reader;
@@ -468,6 +534,7 @@ void ConfigIO::getProfileAssociations(std::list<game_profile_association_t>& out
 
         // convert and return data
         outAssociations.clear();
+        outAssociations.reserve(100);
         if (values.empty() == false)
         {
             for (auto it = values.begin(); it != values.end(); ++it)

@@ -41,10 +41,13 @@ namespace config
         /// @param[out] pOutProfileNames  Profile name list to complete (or NULL to ignore it)
         static void loadConfig(std::vector<std::wstring>* pOutProfileNames = NULL);
         /// @brief Save config values
-        /// @param[in] hasProfiles  Also save contained profiles (true) / only save main config (false)
-        /// @param[in] profiles     Array of config profiles (necessary, even if profiles not saved)
+        /// @param[in] hasProfiles          Also save contained profiles (true) / only save main config (false)
+        /// @param[in] isSavingAllProfiles  Save all profiles (true) or only profiles with update flag (false)
+        /// @param[in] profiles             Array of config profiles (necessary, even if profiles not saved)
+        /// @param[in] removedProfiles      List of all previous profiles with remove indicator
         /// @throws runtime_error  Saving failure
-        static void saveConfig(const bool hasProfiles, const std::vector<ConfigProfile*>& profiles);
+        static void saveConfig(const bool hasProfiles, const bool isSavingAllProfiles, 
+                               const std::vector<ConfigProfile*>& profiles, const std::vector<bool>& removedProfiles);
         /// @brief Initialize list of profile names
         /// @param[in]  profileCount  Number of profiles to read
         /// @param[out] profileNames  Reference to list of names to complete
@@ -98,9 +101,9 @@ namespace config
 
         /// @brief Set the game/profile associations (settings)
         /// @param[in] associations  List of associated games/profiles
-        static void setProfileAssociations(const std::list<game_profile_association_t>& associations);
+        static void setProfileAssociations(const std::vector<game_profile_association_t>& associations);
         /// @brief Get the list of all the game/profile associations (settings)
         /// @param[out] outAssociations  Destination variable for returned list
-        static void getProfileAssociations(std::list<game_profile_association_t>& outAssociations);
+        static void getProfileAssociations(std::vector<game_profile_association_t>& outAssociations);
     };
 }
