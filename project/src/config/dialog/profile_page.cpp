@@ -155,3 +155,16 @@ void ProfilePage::onProfileChange()
         m_subPages.at(i)->onProfileChange(true);
     }
 }
+
+/// @brief Profile save event
+/// @returns Validity
+bool ProfilePage::onProfileSave()
+{
+    bool result = true;
+    for (uint32_t i = 0; i < m_subPages.size(); ++i)
+    {
+        if (m_subPages.at(i)->onProfileSave() == false)
+            result = false;
+    }
+    return result;
+}

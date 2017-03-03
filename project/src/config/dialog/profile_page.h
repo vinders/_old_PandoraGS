@@ -66,6 +66,9 @@ namespace config
             virtual void onLanguageChange(const bool IsRecursive) override;
             /// @brief Profile change event
             void onProfileChange();
+            /// @brief Profile save event
+            /// @returns Validity
+            virtual bool onProfileSave() override;
 
             /// @brief Transmit vertical mouse wheel event
             inline void onMouseWheel(controls::Dialog::event_args_t& args)

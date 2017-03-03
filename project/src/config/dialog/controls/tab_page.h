@@ -222,6 +222,9 @@ namespace config
                 /// @brief Profile change event
                 /// @param[in] isUpdate  Set to false to initialize controls
                 virtual void onProfileChange(const bool isUpdate) {}
+                /// @brief Profile save event
+                /// @returns Validity
+                virtual bool onProfileSave() { return true; }
             };
         }
     }

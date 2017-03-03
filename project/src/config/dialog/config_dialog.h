@@ -34,6 +34,7 @@ namespace config
             controls::TabControl m_tabs;         ///< Advanced tab control
             ProfilePage* m_pProfilePage;         ///< Profile page reference (for event bubbling)
             uint32_t m_currentProfile;           ///< Selected profile
+            bool m_isProfilesOrderChanged;       ///< Indicates if order of profiles has changed (removal, edit, insert at specific position)
             
 
         public:
@@ -92,11 +93,11 @@ namespace config
             void onLanguageChange(Dialog::event_args_t& args, const bool isRecursive);
 
         public:
-            /// @brief Profile settings update event - refresh list and pages (if necessary)
+            /// @brief Profile settings update event - refresh list and pages (if necessary) - preset applied or removal
             /// @param[in] isProfileRemoved  Current profile is removed (another one must be selected)
             /// @param[in] changedProfiles   List of updated profiles
             void onProfileDataUpdate(const bool isProfileRemoved, const std::vector<uint32_t>& changedProfiles);
-            /// @brief Profile list update event - refresh list and selection
+            /// @brief Profile list update event - refresh list and selection - edit or insert
             /// @param[in] oldIndex  Previous index of edited profile
             /// @param[in] newIndex  New index of edited profile
             void onProfileListUpdate(const uint32_t oldIndex, const uint32_t newIndex);

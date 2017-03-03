@@ -35,10 +35,10 @@ using namespace std::literals::string_literals;
 /// @param[in] instance  Current instance handle
 /// @throws runtime_error     Dialog creation error
 /// @throws invalid_argument  Invalid instance
-ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance), m_currentProfile(0u)
+ConfigDialog::ConfigDialog(library_instance_t instance) : Dialog(instance), m_currentProfile(0u), m_isProfilesOrderChanged(false)
 {
     // load config values
-    config::Config::init();
+    config::Config::init(true);
     try
     {
         getLanguageResource().setLanguage(config::Config::langCode, config::Config::langFilePath);
@@ -103,8 +103,13 @@ EVENT_RETURN ConfigDialog::onInit(Dialog::event_args_t args)
     ConfigDialog& parent = args.getParent<ConfigDialog>();
     parent.m_hWindow = args.window;
 
-    // set list of profiles
+    // initialize profile flags
+    parent.m_isProfilesOrderChanged = false;
     parent.m_currentProfile = 0u;
+    if (Config::getCurrentProfile() != nullptr)
+        Config::getCurrentProfile()->setUpdateFlag();
+
+    // set list of profiles
     ComboBox::initValues(args.window, IDC_PROFILE_LIST, Config::getAllProfileNames(), 0u);
     Label::setVisible(args.window, IDC_PROFILE_LIST, false); // hide (only visible when profile tab is active)
     Label::setVisible(args.window, IDS_PROFILE, false);
@@ -176,9 +181,12 @@ EVENT_RETURN ConfigDialog::onCommand(Dialog::event_args_t args)
                 }
                 if (selectedProfile != static_cast<uint32_t>(parent.m_currentProfile))
                 {
+                    parent.m_pProfilePage->onProfileSave();
                     parent.m_currentProfile = static_cast<uint32_t>(selectedProfile);
                     Config::useProfile(parent.m_currentProfile);
                     parent.m_pProfilePage->onProfileChange();
+                    if (Config::getCurrentProfile() != nullptr)
+                        Config::getCurrentProfile()->setUpdateFlag();
                 }
                 break;
             }
@@ -217,8 +225,9 @@ EVENT_RETURN ConfigDialog::onConfirm(Dialog::event_args_t args)
         return EVENT_RETURN_ERROR;
 
     // save config and profiles
-    //...save values
-    //...
+    if (parent.getTabControl().onDialogConfirm(args) == false)
+        return EVENT_RETURN_ERROR;
+    //Config::saveUpdates(parent.m_isProfilesOrderChanged);
 
     return EVENT_RETURN_VALID;
 }
@@ -307,7 +316,7 @@ void ConfigDialog::onLanguageChange(Dialog::event_args_t& args, const bool isRec
 }
 
 
-/// @brief Profile settings update event - refresh list and pages (if necessary)
+/// @brief Profile settings update event - refresh list and pages (if necessary) - preset applied or removal
 /// @param[in] isProfileRemoved  Current profile is removed (another one must be selected)
 /// @param[in] changedProfiles   List of updated profiles
 void ConfigDialog::onProfileDataUpdate(const bool isProfileRemoved, const std::vector<uint32_t>& changedProfiles)
@@ -328,13 +337,14 @@ void ConfigDialog::onProfileDataUpdate(const bool isProfileRemoved, const std::v
         // reload list of profiles
         m_currentProfile = Config::getCurrentProfileId();
         ComboBox::setValues(m_hWindow, IDC_PROFILE_LIST, Config::getAllProfileNames(), m_currentProfile);
+        m_isProfilesOrderChanged = true;
     }
     // refresh current profile settings
     if (isCurrentProfileUpdated)
         m_pProfilePage->onProfileChange();
 }
 
-/// @brief Profile list update event - refresh list and selection
+/// @brief Profile list update event - refresh list and selection - edit or insert
 /// @param[in] oldIndex  Previous index of edited profile
 /// @param[in] newIndex  New index of edited profile
 void ConfigDialog::onProfileListUpdate(const uint32_t oldIndex, const uint32_t newIndex)
@@ -342,4 +352,6 @@ void ConfigDialog::onProfileListUpdate(const uint32_t oldIndex, const uint32_t n
     // reload list of profiles
     m_currentProfile = Config::getCurrentProfileId();
     ComboBox::setValues(m_hWindow, IDC_PROFILE_LIST, Config::getAllProfileNames(), m_currentProfile);
+    if (oldIndex != newIndex)
+        m_isProfilesOrderChanged = true;
 }
