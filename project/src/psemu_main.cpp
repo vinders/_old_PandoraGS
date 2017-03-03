@@ -233,6 +233,7 @@ long CALLBACK GPUfreeze(unsigned long dataMode, GPUFreeze_t* pMem)
 /// @returns Success indicator
 long CALLBACK GPUconfigure()
 {
+    bool isConfigLoaded = config::Config::isInitialized();
 	try
 	{
 		config::dialog::ConfigDialog configDialog(static_cast<config::dialog::controls::library_instance_t>(PandoraGS::getInstance()));
@@ -243,6 +244,9 @@ long CALLBACK GPUconfigure()
 		events::utils::Logger::getInstance()->writeErrorEntry("GPUconfigure"s, exc.what());
 		return PSE_ERR_FATAL;
 	}
+
+    if (isConfigLoaded) // restore config state
+        config::Config::init();
     return PSE_SUCCESS;
 }
 
