@@ -128,18 +128,18 @@
 #define IDC_ADD_CLONE_LIST              455
 #define IDS_ADD_POS                     456
 #define IDC_ADD_POS_LIST                457
-#define IDS_IMPORT_NAME                 460
-#define IDC_IMPORT_NAME_EDIT            461
 #define IDS_IMPORT_PATH                 462
 #define IDC_IMPORT_PATH_EDIT            463
 #define IDC_IMPORT_BTN_PATH             464
-#define IDS_IMPORT_POS                  465
+#define IDC_IMPORT_POS_RADIO            465
 #define IDC_IMPORT_POS_LIST             466
-#define IDS_EXPORT_PATH                 467
-#define IDC_EXPORT_PATH_EDIT            468
-#define IDC_EXPORT_BTN_PATH             469
-#define IDS_EDT_NAME                    470
-#define IDC_EDT_NAME_EDIT               471
+#define IDC_IMPORT_REPLACE_RADIO        467
+#define IDC_IMPORT_REPLACE_LIST         468
+#define IDS_EXPORT_PATH                 469
+#define IDC_EXPORT_PATH_EDIT            470
+#define IDC_EXPORT_BTN_PATH             471
+#define IDS_EDT_NAME                    472
+#define IDC_EDT_NAME_EDIT               473
 #define IDS_EDT_POS                     475
 #define IDC_EDT_POS_LIST                476
 

@@ -212,6 +212,27 @@ bool Config::insertProfile(const uint32_t index, ConfigProfile* pProfile)
     return true;
 }
 
+/// @brief Replace profile at the specified index
+/// @param[in] index     Profile index (0 based)
+/// @param[in] pProfile  Profile data
+/// @returns Success
+bool Config::replaceProfile(const uint32_t index, ConfigProfile* pProfile)
+{
+    waitLock();
+    lock();
+    if (s_isInitialized == false || index >= countProfiles())
+    {
+        unlock();
+        return false;
+    }
+
+    pProfile->setProfileName(s_profiles.at(index)->getProfileName());
+    s_profiles.at(index) = pProfile;
+
+    unlock();
+    return true;
+}
+
 /// @brief Change profile position in the list
 /// @param[in] oldIndex  Profile to move (0 based index, bigger than 0) 
 /// @param[in] newIndex  New position (0 based index, bigger than 0) 

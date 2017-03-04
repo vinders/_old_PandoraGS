@@ -139,6 +139,11 @@ namespace config
         /// @param[in] pProfile  Profile data
         /// @returns Success
         static bool insertProfile(const uint32_t index, ConfigProfile* pProfile);
+        /// @brief Replace profile at the specified index
+        /// @param[in] index     Profile index (0 based)
+        /// @param[in] pProfile  Profile data
+        /// @returns Success
+        static bool replaceProfile(const uint32_t index, ConfigProfile* pProfile);
         /// @brief Change profile position in the list
         /// @param[in] oldIndex  Profile to move (0 based index, bigger than 0) 
         /// @param[in] newIndex  New position (0 based index, bigger than 0) 

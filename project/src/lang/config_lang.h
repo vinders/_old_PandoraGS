@@ -105,8 +105,11 @@ namespace lang
             std::vector<std::wstring> presets;
 
             std::wstring profileName;
+            std::wstring profileNameEmpty;
+            std::wstring profileNameEmptyTitle;
             std::wstring addUsePreset;
             std::wstring addCloneProfile;
+            std::wstring replaceProfile;
             std::wstring importSource;
             std::wstring exportDestination;
             std::wstring fileBrowse;

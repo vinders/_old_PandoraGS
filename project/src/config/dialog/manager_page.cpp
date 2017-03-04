@@ -29,6 +29,7 @@ Description : tab page - profile manager
 #include "controls/data_table.h"
 #include "controls/msg_box.h"
 #include "../../events/utils/file_io.h"
+#include "../config_io.h"
 #include "manager_page.h"
 using namespace config::dialog;
 using namespace config::dialog::controls;
@@ -496,7 +497,15 @@ EVENT_RETURN ManagerPage::onAddProfileDialogConfirm(controls::Dialog::event_args
     ManagerPage& parent = *ManagerPage::s_pLastParentPage;
 
     // create profile
-    ConfigProfile* pProfile = new ConfigProfile(NEW_CONFIG_PROFILE_ID, TextField::getValue(args.window, IDC_ADD_NAME_EDIT));
+    std::wstring title = TextField::getValue(args.window, IDC_ADD_NAME_EDIT);
+    if (title.empty())
+    {
+        lang::ConfigLang& langRes = args.getParent<Dialog>().getParent<ConfigDialog>()->getLanguageResource();
+        MsgBox::showMessage(langRes.profileManager.profileNameEmptyTitle, langRes.profileManager.profileNameEmpty, args.window, 
+                            MsgBox::button_set_t::ok, MsgBox::message_icon_t::warning);
+        return EVENT_RETURN_ERROR;
+    }
+    ConfigProfile* pProfile = new ConfigProfile(NEW_CONFIG_PROFILE_ID, title);
     if (pProfile == nullptr)
         return EVENT_RETURN_ERROR;
     pProfile->setUpdateFlag();
@@ -598,7 +607,15 @@ EVENT_RETURN ManagerPage::onEditProfileDialogConfirm(controls::Dialog::event_arg
     ConfigProfile* pProfile = Config::getProfile(oldIndex);
     if (pProfile == nullptr)
         return EVENT_RETURN_ERROR;
-    pProfile->setProfileName(TextField::getValue(args.window, IDC_EDT_NAME_EDIT));
+    std::wstring title = TextField::getValue(args.window, IDC_EDT_NAME_EDIT);
+    if (title.empty())
+    {
+        lang::ConfigLang& langRes = args.getParent<Dialog>().getParent<ConfigDialog>()->getLanguageResource();
+        MsgBox::showMessage(langRes.profileManager.profileNameEmptyTitle, langRes.profileManager.profileNameEmpty, args.window,
+            MsgBox::button_set_t::ok, MsgBox::message_icon_t::warning);
+        return EVENT_RETURN_ERROR;
+    }
+    pProfile->setProfileName(title);
     pProfile->setUpdateFlag();
 
     // get new position
@@ -637,10 +654,23 @@ EVENT_RETURN ManagerPage::onImportProfileDialogInit(controls::Dialog::event_args
     if (FileDialog::onInit(args) != EVENT_RETURN_VALID || s_pLastParentPage == nullptr)
         return EVENT_RETURN_ERROR;
 
-    //...choix indice placement (combo avec nb 1 à N)
-    //...
-    //...radio pour insérer nouveau ou remplacer existant (si remplace <default>, le nom de profil du fichier n'est pas pris en compte)
-        //-> choix insérer nouveau à position voulue, OU remplacer existant (même position) -> radios et 2 listes (positions et noms profils)
+    // translate controls
+    lang::ConfigLang& langRes = args.getParent<Dialog>().getParent<ConfigDialog>()->getLanguageResource();
+    Label::setText(args.window, IDS_IMPORT_PATH, langRes.profileManager.importSource);
+    CheckBox::setText(args.window, IDC_IMPORT_POS_RADIO, langRes.profileManager.choosePosition);
+    CheckBox::setText(args.window, IDC_IMPORT_REPLACE_RADIO, langRes.profileManager.replaceProfile);
+    Button::setText(args.window, IDC_IMPORT_BTN_PATH, langRes.profileManager.fileBrowse);
+    Label::setText(args.window, IDOK, langRes.dialog.confirm);
+    Label::setText(args.window, IDCANCEL, langRes.dialog.cancel);
+
+    // position selector
+    CheckBox::setChecked(args.window, IDC_IMPORT_POS_RADIO, true);
+    std::vector<std::wstring> positions = { langRes.profileManager.endPosition };
+    for (uint32_t i = 1; i < Config::countProfiles(); ++i)
+        positions.push_back(L"# "s + std::to_wstring(i));
+    ComboBox::initValues(args.window, IDC_IMPORT_POS_LIST, positions, 0);
+    // profile selector
+    ComboBox::initValues(args.window, IDC_IMPORT_REPLACE_LIST, Config::getAllProfileNames(), 0);
     return EVENT_RETURN_VALID;
 }
 
@@ -654,10 +684,70 @@ EVENT_RETURN ManagerPage::onImportProfileDialogConfirm(controls::Dialog::event_a
         MsgBox::showMessage(L"No parent page reference..."s, L"Could not apply changes."s, args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
         return EVENT_RETURN_ERROR;
     }
+    ManagerPage& parent = *ManagerPage::s_pLastParentPage;
 
-    // update name and order
-    // call ConfigDialog->onProfileListChange(oldIndex, newIndex)
+    // import profile
+    ConfigProfile* pProfile = nullptr;
+    try
+    {
+        pProfile = config::ConfigIO::importConfigProfile(NEW_CONFIG_PROFILE_ID, TextField::getValue(args.window, IDC_IMPORT_PATH_EDIT));
+        if (pProfile == nullptr)
+            return EVENT_RETURN_ERROR;
+    }
+    catch (...)
+    {
+        MsgBox::showMessage(L"Import failure..."s, L"Could not read the file."s, args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
+        return EVENT_RETURN_ERROR;
+    }
+    pProfile->setUpdateFlag();
 
+    // replace existing profile
+    if (CheckBox::isChecked(args.window, IDC_IMPORT_REPLACE_RADIO)) 
+    {
+        // update config
+        int32_t selectedIndex;
+        if (ComboBox::getSelectedIndex(args.window, IDC_IMPORT_REPLACE_LIST, selectedIndex) == false
+            || selectedIndex < 0 || static_cast<uint32_t>(selectedIndex) >= Config::countProfiles())
+            return EVENT_RETURN_ERROR;
+        Config::replaceProfile(selectedIndex, pProfile);
+
+        // refresh profile pages
+        std::vector<uint32_t> selectedIndexArray { static_cast<uint32_t>(selectedIndex) };
+        parent.getParentDialog<ConfigDialog>()->onProfileDataUpdate(false, selectedIndexArray);
+    }
+    // add new profile
+    else 
+    {
+        // update config
+        int32_t pos;
+        if (ComboBox::getSelectedIndex(args.window, IDC_IMPORT_POS_LIST, pos) == false
+            || pos < 0 || static_cast<uint32_t>(pos) >= Config::countProfiles())
+            pos = PROFILE_INDEX_APPEND;
+        Config::insertProfile(pos, pProfile);
+
+        // update data table
+        std::vector<std::wstring> row;
+        if (pos == PROFILE_INDEX_APPEND) // simply append
+        {
+            pos = Config::countProfiles() - 1;
+            row = { std::to_wstring(pos), pProfile->getProfileName() };
+            parent.getDataTable().insertRow(row, -1);
+        }
+        else // insert at specified index and add offset to next profiles
+        {
+            row = { std::to_wstring(pos), pProfile->getProfileName() };
+            parent.getDataTable().insertRow(row, pos);
+            for (uint32_t upos = static_cast<uint32_t>(pos) + 1u; upos < Config::countProfiles(); ++upos)
+            {
+                row = { std::to_wstring(upos) };
+                parent.getDataTable().updateRow(upos, row);
+            }
+        }
+
+        // refresh profile list
+        ConfigDialog& parentDialog = *(parent.getParentDialog<ConfigDialog>());
+        parentDialog.onProfileListUpdate(Config::countProfiles() - 1, pos);
+    }
     return EVENT_RETURN_VALID;
 }
 
@@ -668,7 +758,12 @@ EVENT_RETURN ManagerPage::onExportProfileDialogInit(controls::Dialog::event_args
     if (FileDialog::onInit(args) != EVENT_RETURN_VALID || s_pLastParentPage == nullptr)
         return EVENT_RETURN_ERROR;
 
-    //...seulement choix de path, pas du nom des fichiers (potentiellement plusieurs)
+    // translate controls
+    lang::ConfigLang& langRes = args.getParent<Dialog>().getParent<ConfigDialog>()->getLanguageResource();
+    Label::setText(args.window, IDS_EXPORT_PATH, langRes.profileManager.exportDestination);
+    Button::setText(args.window, IDC_EXPORT_BTN_PATH, langRes.profileManager.fileBrowse);
+    Label::setText(args.window, IDOK, langRes.dialog.confirm);
+    Label::setText(args.window, IDCANCEL, langRes.dialog.cancel);
     return EVENT_RETURN_VALID;
 }
 
@@ -682,7 +777,37 @@ EVENT_RETURN ManagerPage::onExportProfileDialogConfirm(controls::Dialog::event_a
         MsgBox::showMessage(L"No parent page reference..."s, L"Could not obtain selection from list."s, args.window, MsgBox::button_set_t::ok, MsgBox::message_icon_t::error);
         return EVENT_RETURN_ERROR;
     }
+    ManagerPage& parent = *ManagerPage::s_pLastParentPage;
 
+    // get export path
+    std::wstring basePath = TextField::getValue(args.window, IDC_EXPORT_PATH_EDIT);
+    if (basePath.empty())
+    {
+        basePath = L"./"s;
+    }
+    else if (basePath.at(0) == L'/' || basePath.at(0) == L'.')
+    {
+        if (basePath.at(basePath.length() - 1) != L'/')
+            basePath += L"/"s;
+    }
+    else
+    {
+        if (basePath.at(basePath.length() - 1) != L'\\')
+            basePath += L"\\"s;
+    }
 
+    // export selected profiles
+    std::vector<uint32_t> selectedIndexes;
+    parent.getDataTable().getSelectedIndexes(selectedIndexes);
+    if (selectedIndexes.empty() == false)
+    {
+        basePath += L"pgs_config_profile_"s;
+        for (uint32_t i = 0; i < selectedIndexes.size(); ++i)
+        {
+            std::wstring filePath = basePath + std::to_wstring(i) + L".csv"s;
+            if (Config::getProfile(i) != nullptr)
+                config::ConfigIO::exportConfigProfile(*(Config::getProfile(i)), filePath);
+        }
+    }
     return EVENT_RETURN_VALID;
 }

@@ -70,7 +70,7 @@ void ConfigLang::setLanguageEnglish() noexcept
     
     profileManager.groupList = L"Profile list management"s;
     profileManager.btnAdd = L"Add a new profile";
-    profileManager.btnEdit = L"Edit the selected profile (name and associations)";
+    profileManager.btnEdit = L"Edit the selected profile";
     profileManager.btnRemove = L"Remove selected profiles";
     profileManager.btnImport = L"Import profile (from file)";
     profileManager.btnExport = L"Export profile (save file)";
@@ -81,10 +81,13 @@ void ConfigLang::setLanguageEnglish() noexcept
     profileManager.presets = { L"Fastest"s, L"Standard"s, L"Enhanced 2D"s, L"Enhanced 3D"s };
 
     profileManager.profileName = L"Profile name"s;
+    profileManager.profileNameEmpty = L"Please add a profile name."s;
+    profileManager.profileNameEmptyTitle = L"Empty profile name..."s;
     profileManager.addUsePreset = L"Use a preset"s;
     profileManager.addCloneProfile = L"Clone a profile"s;
+    profileManager.replaceProfile = L"Replace existing profile"s;
     profileManager.importSource = L"Imported file"s;
-    profileManager.exportDestination = L"Destination"s;
+    profileManager.exportDestination = L"Destination folder"s;
     profileManager.fileBrowse = L"Browse..."s;
     profileManager.choosePosition = L"Insert at position"s;
     profileManager.endPosition = L"Append at the end"s;
@@ -200,7 +203,7 @@ void ConfigLang::setLanguageFrench() noexcept
 
     profileManager.groupList = L"Gestionnaire de profils"s;
     profileManager.btnAdd = L"Ajouter un profil";
-    profileManager.btnEdit = L"Editer le profil sélectionné (nom et associations)";
+    profileManager.btnEdit = L"Editer le profil sélectionné";
     profileManager.btnRemove = L"Supprimer la sélection";
     profileManager.btnImport = L"Importer profil (depuis fichier)";
     profileManager.btnExport = L"Exporter profil (sauvegarder)";
@@ -211,10 +214,13 @@ void ConfigLang::setLanguageFrench() noexcept
     profileManager.presets = { L"Le plus rapide"s, L"Standard"s, L"2D optimisée"s, L"3D optimisée"s };
 
     profileManager.profileName = L"Nom du profil"s;
+    profileManager.profileNameEmpty = L"Veuillez ajouter un nom de profil."s;
+    profileManager.profileNameEmptyTitle = L"Nom de profil incomplet..."s;
     profileManager.addUsePreset = L"Préconfiguration"s;
     profileManager.addCloneProfile = L"Cloner un profil"s;
+    profileManager.replaceProfile = L"Remplacer profil existant"s;
     profileManager.importSource = L"Fichier importé"s;
-    profileManager.exportDestination = L"Destination"s;
+    profileManager.exportDestination = L"Dossier de destination"s;
     profileManager.fileBrowse = L"Parcourir..."s;
     profileManager.choosePosition = L"Position d'insertion"s;
     profileManager.endPosition = L"Ajouter à la fin"s;
