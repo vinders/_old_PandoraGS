@@ -24,21 +24,20 @@ PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu compatible).
 * frame rate management - FPS counter, frame rate limit, frame skipping
 * user input - change profile, toggle config elements, goodies (fast forward, slow motion, ...)
 * configuration management - general settings, profile system, game/profile association
-* configuration dialog - user-friendly UI with tabs
+* configuration dialog - user-friendly UI with tabs, profile manager, settings, import/export
 * multilanguage support and error log system
 * debug mode - debug terminal + vram data export
 * test utilities - unit testing, primitive testing, rendering demo, dialog launcher
 
 ###Currently done:
 * refactoring - data transfers, memory management, FIFO buffer, renderer management
-* refactoring - dialog management - add OS abstraction layer
 
 ###To do:
 * processing and rendering of primitives and attributes
 * display management - screen resolution, internal resolution, ratio, stretching, cropping, mirroring, ...
 * textures/sprites/screen filtering and upscaling
 * shader effects (AA, motion blur, bump mapping, color filters, noise, HDR, ...)
-* configuration dialog - final settings, profile creation tool
+* configuration dialog - final settings
 * goodies (visual vibrations, snapshots, cursor, scanlines, ...)
 
 ###To do when complete:
