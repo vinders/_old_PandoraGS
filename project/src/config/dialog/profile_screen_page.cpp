@@ -185,8 +185,7 @@ EVENT_RETURN ProfileScreenPage::onTrackBarChange(TabPage::event_args_t args)
 /// @returns Validity
 bool ProfileScreenPage::onDialogConfirm(controls::Dialog::event_args_t& args)
 {
-    onProfileSave();
-    return true;
+    return onProfileSave();
 }
 
 

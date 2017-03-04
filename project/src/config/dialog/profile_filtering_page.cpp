@@ -176,8 +176,7 @@ EVENT_RETURN ProfileFilteringPage::onCommand(TabPage::event_args_t args)
 /// @returns Validity
 bool ProfileFilteringPage::onDialogConfirm(controls::Dialog::event_args_t& args)
 {
-    onProfileSave();
-    return true;
+    return onProfileSave();
 }
 
 

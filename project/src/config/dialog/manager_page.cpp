@@ -409,9 +409,6 @@ void ManagerPage::onProfilePresetChoice(window_handle_t hWindow)
 /// @returns Validity
 bool ManagerPage::onDialogConfirm(Dialog::event_args_t& args)
 {
-    // update config
-    //...copy config settings
-    //...
     return true;
 }
 
