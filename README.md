@@ -1,4 +1,4 @@
-#PandoraGS - GPU driver for emulator
+# PandoraGS - GPU driver for emulator
 ![GPLv2](https://img.shields.io/badge/license-GPL2-blue.svg)
 ![v0.3.1](https://img.shields.io/badge/latest-v0.3.1-blue.svg)
 ![Status](https://img.shields.io/badge/status-not_ready-red.svg)
@@ -7,7 +7,6 @@
 ![OpenGL4.1](https://img.shields.io/badge/api-OpenGL_4.1-lightgrey.svg)
 
 PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu compatible).
-#########################################################################
 
     Author       : Romain Vinders
     Languages    : English, French, Spanish, German (or external file)
@@ -17,9 +16,8 @@ PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu compatible).
                    OpenGL 4.1 compatible drivers,
                    256MB VRAM or more
 
-#########################################################################
 
-###Done:
+### Done:
 * driver init/open/close/shutdown, low-level commands, read/write access
 * frame rate management - FPS counter, frame rate limit, frame skipping
 * user input - change profile, toggle config elements, goodies (fast forward, slow motion, ...)
@@ -29,10 +27,10 @@ PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu compatible).
 * debug mode - debug terminal + vram data export
 * test utilities - unit testing, primitive testing, rendering demo, dialog launcher
 
-###Currently done:
-* refactoring - data transfers, memory management, FIFO buffer, renderer management
+### Currently done:
+* refactoring
 
-###To do:
+### To do:
 * processing and rendering of primitives and attributes
 * display management - screen resolution, internal resolution, ratio, stretching, cropping, mirroring, ...
 * textures/sprites/screen filtering and upscaling
@@ -40,7 +38,7 @@ PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu compatible).
 * configuration dialog - final settings
 * goodies (visual vibrations, snapshots, cursor, scanlines, ...)
 
-###To do when complete:
+### To do when complete:
 * fix game-specific bugs
 * full compatibility with ePSXe, PCSX-R and Zinc
 * gnu-linux (debian/ubuntu) port
