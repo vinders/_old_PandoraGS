@@ -8,36 +8,41 @@ Description : debug assertions (assert, verify, trace)
 
 #include <cstddef>
 
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
 // -- DEBUG MODE --
 
-#ifdef _x86
-#include <x86intrin.h>
+// portable __debugbreak
+#ifdef _MSC_VER
+#   include <intrin.h>
+#   ifndef __debugbreak
+#       define __debugbreak() __asm{int 0x03}
+#   endif
 #else
-    #ifdef _ARM
-    #include <armintrin.h>
-    #else
-    #include <intrin.h> // __debugbreak
-    #endif
+#   if defined(__arm__) || defined(_M_ARM) || defined(__arm) || defined(_ARM) || defined(_M_ARMT) || defined(__thumb__)
+#       include <armintrin.h>
+#   else
+#       include <x86intrin.h>
+#   endif
+#   ifndef __debugbreak
+#       define __debugbreak() __builtin_trap()
+#   endif
 #endif
-#ifndef __debugbreak
-#define __debugbreak() __asm{int 0x03}
-#endif 
 
 #include <string>
 #ifdef _WINDOWS
-#include <Windows.h> // OutputDebugString
+#   include <Windows.h> // OutputDebugString
 #else
-#include <cstdio>    // printf
+#   include <cstdio>    // printf
 #endif
 
 // debug assertion / verification
 #define ASSERT(cond)       if(!(cond)){__debugbreak();}       // check condition value (completely removed in release mode)
 #define VERIFY(cmd)        if(!(cmd)){__debugbreak();}        // check condition command (command kept in release mode)
-#define VERIFY_EQ(cmd,val) if((cmd)==(val)){__debugbreak();}  // check command equality (command kept in release mode)
-#define VERIFY_NE(cmd,val) if((cmd)!=(val)){__debugbreak();}  // check command difference (command kept in release mode)
+#define VERIFY_EQ(val,cmd) if((cmd)==(val)){__debugbreak();}  // check command equality (command kept in release mode)
+#define VERIFY_NE(val,cmd) if((cmd)!=(val)){__debugbreak();}  // check command difference (command kept in release mode)
 
-// debug tracer
+/// @brief Debug tracer
+/// @param[in] msg  Trace message
 inline void TRACE(std::string msg)
 {
     #ifdef _WINDOWS
@@ -52,11 +57,11 @@ inline void TRACE(std::string msg)
 // -- RELEASE MODE --
   
 #ifndef __noop
-#define __noop ((void)0)
+#   define __noop ((void)0)
 #endif
 
 // ignore debug messages
-#define ASSERT(cond)       __noop  // no verification
+#define ASSERT(cond)       __noop  // no assertion
 #define VERIFY(cmd)        (cmd)   // no verification but command executed
 #define VERIFY_EQ(cmd,val) (cmd)   // no verification but command executed
 #define VERIFY_NE(cmd,val) (cmd)   // no verification but command executed
