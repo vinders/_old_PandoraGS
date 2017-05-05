@@ -30,6 +30,7 @@ namespace utils
             /// @brief Move instance
             /// @param[in] other  Other instance to move
             explicit SpinLock(SpinLock&& other) : m_status(other.m_status) {}
+            // no copy allowed
             SpinLock(const SpinLock& other) = delete;
             
             
