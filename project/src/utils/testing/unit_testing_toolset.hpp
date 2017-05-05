@@ -29,7 +29,6 @@ Description : unit testing toolset - implementation (include 'unit_testing.h' fo
             { \
                 utils::testing::UnitTesting _ut(unitTestNameString, callBefore, callAfter);
 #define _UTT_END_UNIT_TEST() \
-                _ut.printResult(); \
             } \
         }
 
@@ -67,21 +66,15 @@ namespace utils
                 : m_unitName(unitName), m_callAfter(callAfter), totalTests(0u), failedTests(0u)
             {
                 printUnitName();
-                // beginning indicator
                 if (callBefore)
                     callBefore();
             }
             /// @brief Destroy unit testing object + execute "after" callback
             ~UnitTesting()
             {
+                printGeneralResult();
                 if (m_callAfter)
                     m_callAfter();
-                // end indicator
-                printUnitName();
-                if (failedTests == 0u)
-                    printSuccess();
-                else
-                    printFailure(std::to_string(failedTests) + std::string(" failed test(s)"));
             }
             
             /// @brief Execute overriden doTest method + before/after calls + result management
@@ -93,7 +86,7 @@ namespace utils
             ///                                           - must have (std::string& msg) argument
             void doTest(const std::string name, const std::function<void()> callBefore, const std::function<void()> callAfter, const std::function<bool(std::string&)> testCall)
             {
-                printTestName(name);
+                UnitTesting::printTestName(name);
                 if (callBefore) // pre-test
                     callBefore();
                 
@@ -101,43 +94,16 @@ namespace utils
                 std::string msg;
                 if (testProcedure(msg)) // test
                 {
-                    printSuccess();
+                    UnitTesting::printSuccess();
                 }
                 else
                 {
-                    printFailure(msg);
+                    UnitTesting::printFailure(msg);
                     ++failedTests;
                 }
                 
                 if (callAfter) // post-test
                     callAfter();
-            }
-            
-            /// @brief Print current statistics (number of successes and failures) on screen
-            void printResult()
-            {
-                INIT_ANSI_COLOR_SUPPORT();
-                uint32_t succeededTests = totalTests - failedTests;
-                if (failedTests > 0u)
-                {
-                    printf(" %s complete - ", m_unitName.c_str());
-                    SET_ANSI_COLOR(ANSI_COLOR_RED);
-                    printf("[ FAILURE ]");
-                    SET_ANSI_COLOR(ANSI_COLOR_RESET);
-                    printf("\n %u of %u tests succeeded.", succeededTests, totalTests);
-                    printf("\n %u tests failed.\n\n", failedTests);
-                }
-                else
-                {
-                    printf(" %s complete - ", m_unitName.c_str());
-                    SET_ANSI_COLOR(ANSI_COLOR_GREEN);
-                    printf("[ SUCCESS ]");
-                    SET_ANSI_COLOR(ANSI_COLOR_RESET);
-                    printf("\n %u of %u tests succeeded.", succeededTests, totalTests);
-                    printf("\n %u tests failed.\n\n", failedTests);
-                    printf("%u of %u tests succeeded.\n\n", succeededTests, totalTests);
-                }
-                printf("---\n\n");
             }
             
         private:
@@ -167,6 +133,32 @@ namespace utils
                 SET_ANSI_COLOR(ANSI_COLOR_RED);
                 printf("[ FAILURE ] - %s\n", msg.c_str());
                 SET_ANSI_COLOR(ANSI_COLOR_RESET);
+            }
+            /// @brief Print statistics (number of successes and failures) on screen
+            void printGeneralResult()
+            {
+                INIT_ANSI_COLOR_SUPPORT();
+                uint32_t succeededTests = totalTests - failedTests;
+                if (failedTests > 0u)
+                {
+                    printf(" %s complete - ", m_unitName.c_str());
+                    SET_ANSI_COLOR(ANSI_COLOR_RED);
+                    printf("[ FAILURE ]");
+                    SET_ANSI_COLOR(ANSI_COLOR_RESET);
+                    printf("\n %u of %u tests succeeded.", succeededTests, totalTests);
+                    printf("\n %u tests failed.\n\n", failedTests);
+                }
+                else
+                {
+                    printf(" %s complete - ", m_unitName.c_str());
+                    SET_ANSI_COLOR(ANSI_COLOR_GREEN);
+                    printf("[ SUCCESS ]");
+                    SET_ANSI_COLOR(ANSI_COLOR_RESET);
+                    printf("\n %u of %u tests succeeded.", succeededTests, totalTests);
+                    printf("\n %u tests failed.\n\n", failedTests);
+                    printf("%u of %u tests succeeded.\n\n", succeededTests, totalTests);
+                }
+                printf("---\n\n");
             }
             
             
