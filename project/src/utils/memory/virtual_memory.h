@@ -179,12 +179,12 @@ namespace utils
                 /// @brief Copy assignment
                 inline T* operator=(const VirtualMemory::iterator<T>& other) noexcept { it_memory = other.it_memory; it_pos = other.it_pos; return it_pos; }
                 /// @brief Value assignment at current position
-                inline T* operator=(const T value) noexcept { *it_pos = value; return it_pos; }
+                inline T operator=(const T value) { *it_pos = value; return value; }
                 /// @brief Value assignment at current position
                 inline void setData(const T value) { *it_pos = value; }
                 
-                /// @brief Reset position
-                inline void reset(const T value) noexcept { uint8_t* beginPos = it_memory.rend() + 1; it_pos = reinterpret_cast<T*>(beginPos) }
+                /// @brief Reset position at beginning
+                inline void begin(const T value) noexcept { it_pos = it_memory.rend<T>() + 1 }
                 /// @brief Pre-increment position
                 inline T* operator++() noexcept    { ++it_pos; return it_pos; }
                 /// @brief Post-increment position
