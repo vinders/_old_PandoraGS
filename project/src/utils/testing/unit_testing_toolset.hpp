@@ -2,7 +2,7 @@
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : unit testing toolset - implementation (include 'unit_testing.h' for your tests)
+Description : unit testing toolset - implementation (see 'unit_testing.h' for usage)
 *******************************************************************************/
 #pragma once
 
@@ -127,7 +127,7 @@ namespace utils
             }
             /// @brief Print current test result on screen - failure
             /// @param[in] msg  Error message
-            static void printFailure(std::string msg)
+            static void printFailure(const std::string msg)
             {
                 INIT_ANSI_COLOR_SUPPORT();
                 SET_ANSI_COLOR(ANSI_COLOR_RED);

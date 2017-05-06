@@ -32,7 +32,7 @@ void main()
 
 // Between BEGIN_UNIT_TEST and END_UNIT_TEST, only procedures can be declared.
 // If the program entry point is in a different file, use DECLARE_UNIT_TEST_HEADER(unitTestName).
-// Note that you can pass callbacks to execute 
+// Note that you can pass procedures to execute before/after tests:
 //      - before/after the whole unit testing :
 //        CREATE_UNIT_TEST(myUnitTest1, "myUnitTest1", myBefore, myAfter)
 //      - before/after each test :
