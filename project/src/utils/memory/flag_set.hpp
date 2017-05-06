@@ -104,6 +104,7 @@ namespace utils
             inline FlagSet& operator=(const FlagSet& other) noexcept
             {
                 m_flags = other.data();
+                return *this;
             }
             /// @brief Move assignment
             /// @param[in] other  Instance to move
@@ -111,6 +112,7 @@ namespace utils
             inline FlagSet& operator=(FlagSet&& other)
             {
                 m_flags = other.data();
+                return *this;
             }
 
             /// @brief Remove all flags
