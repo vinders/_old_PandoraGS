@@ -186,22 +186,22 @@ namespace utils
                 /// @brief Reset position at beginning
                 inline void begin(const T value) noexcept { it_pos = it_memory.rend<T>() + 1 }
                 /// @brief Pre-increment position
-                inline T* operator++() noexcept    { ++it_pos; return it_pos; }
+                inline T* operator++() noexcept    { return ++it_pos; }
                 /// @brief Post-increment position
                 inline T* operator++(int) noexcept { T copy = it_pos; ++it_pos; return copy; }
                 /// @brief Pre-decrement position
-                inline T* operator--() noexcept    { --it_pos; return it_pos; }
+                inline T* operator--() noexcept    { return --it_pos; }
                 /// @brief Post-decrement position
                 inline T* operator--(int) noexcept { T copy = it_pos; --it_pos; return copy; }
                 
+                /// @brief Calculate new position - positive offset
+                inline T* operator+(const int offset) noexcept    { return it_pos + offset; }
                 /// @brief Change position - positive offset
-                inline T* operator+(const int offset) noexcept  { it_pos += offset; return it_pos; }
-                /// @brief Change position - positive offset
-                inline T* operator+=(const int offset) noexcept { T copy = it_pos; it_pos += offset; return copy; }
+                inline void operator+=(const int offset) noexcept { it_pos += offset; }
+                /// @brief Calculate new position - negative offset
+                inline T* operator-(const int offset) noexcept    { return it_pos - offset; }
                 /// @brief Change position - negative offset
-                inline T* operator-(const int offset) noexcept  { it_pos -= offset; return it_pos; }
-                /// @brief Change position - negative offset
-                inline T* operator-=(const int offset) noexcept { T copy = it_pos; it_pos -= offset; return copy; }
+                inline void operator-=(const int offset) noexcept { it_pos -= offset; }
                 
             private:
                 const VirtualMemory& it_memory; ///< Iterated virtual memory image
