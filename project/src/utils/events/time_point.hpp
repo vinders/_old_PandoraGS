@@ -9,7 +9,7 @@ Description : high-resolution time reference point
 #include <cstdint>
 #include <cstddef>
 #ifdef _WINDOWS
-#include <Windows.h>
+#   include <windef.h>
 #endif
 
 /// @namespace utils
@@ -22,10 +22,10 @@ namespace utils
     {
         #ifdef _WINDOWS
         /// @brief Time point ticks
-        typedef DWORD ticks_t;
+        typedef LONGLONG ticks_t;
         #else
         /// @brief Time point ticks
-        typedef uint32_t ticks_t;
+        typedef uint64_t ticks_t;
         #endif
         
         
@@ -35,41 +35,48 @@ namespace utils
         {
         public:
             /// @brief Create time point set to zero
-            TimePoint() : m_nanoseconds(0u) {}
+            TimePoint() noexcept : m_nanoseconds(0u) {}
             /// @brief Create time point
             /// @param[in] nanoseconds  Time reference (nanoseconds)
-            TimePoint(const uint64_t nanoseconds) : m_nanoseconds(nanoseconds) {}
+            TimePoint(const uint64_t nanoseconds) noexcept : m_nanoseconds(nanoseconds) {}
             /// @brief Copy time point 
             /// @param[in] other  Other instance
-            TimePoint(const TimePoint& other) : m_nanoseconds(other.nanoseconds) {}
+            TimePoint(const TimePoint& other) noexcept : m_nanoseconds(other.nanoseconds) {}
             /// @brief Move time point
             /// @param[in] other  Other instance
-            TimePoint(TimePoint&& other) : m_nanoseconds(other.nanoseconds) {}
+            TimePoint(TimePoint&& other) noexcept : m_nanoseconds(other.nanoseconds) {}
             
             
             // -- Builders --
             
             /// @brief Build time point from total number of days
             /// @param[in] ticks  Number of days
-            static TimePoint fromDays(const uint64_t days)       { return TimePoint(days * (24uLL * 3600uLL * 1000000000uLL)); }
+            static TimePoint fromDays(const uint64_t days) noexcept       { return TimePoint(days * (24uLL * 3600uLL * 1000000000uLL)); }
             /// @brief Build time point from total number of hours
             /// @param[in] ticks  Number of hours
-            static TimePoint fromHours(const uint64_t hours)     { return TimePoint(hours * (3600uLL * 1000000000uLL)); }
+            static TimePoint fromHours(const uint64_t hours) noexcept     { return TimePoint(hours * (3600uLL * 1000000000uLL)); }
             /// @brief Build time point from total number of minutes
             /// @param[in] ticks  Number of minutes
-            static TimePoint fromMinutes(const uint64_t minutes) { return TimePoint(minutes * (60uLL * 1000000000uLL)); }
+            static TimePoint fromMinutes(const uint64_t minutes) noexcept { return TimePoint(minutes * (60uLL * 1000000000uLL)); }
             /// @brief Build time point from total number of seconds
             /// @param[in] ticks  Number of seconds
-            static TimePoint fromSeconds(const uint64_t seconds) { return TimePoint(seconds * 1000000000uLL); }
+            static TimePoint fromSeconds(const uint64_t seconds) noexcept { return TimePoint(seconds * 1000000000uLL); }
             /// @brief Build time point from total number of milliseconds
             /// @param[in] ticks  Number of milliseconds
-            static TimePoint fromMilliseconds(const uint64_t milliseconds) { return TimePoint(milliseconds * 1000000uLL); }
+            static TimePoint fromMilliseconds(const uint64_t milliseconds) noexcept { return TimePoint(milliseconds * 1000000uLL); }
             /// @brief Build time point from a number of ticks to convert
             /// @param[in] ticks  Number of ticks
-            /// @param[in] rate   Tick rate (ticks per second) to use for conversion
+            /// @param[in] rate   Tick rate (ticks per second) to use for conversion (if 0, defaults to 1000 ticks/sec)
             static TimePoint fromTicks(const ticks_t ticks, const uint64_t rate)
             {
-                return TimePoint((static_cast<uint64_t>(ticks) * 1000000000uLL) / rate);
+                if (rate > 0u) 
+                {
+                    uint64_t nanoseconds = (static_cast<uint64_t>(ticks) / rate) * 1000000000uLL;
+                    nanoseconds += ((static_cast<uint64_t>(ticks) % rate) * 1000000000uLL) / rate;
+                    return TimePoint(nanoseconds); // two-part calculation, to avoid reaching max value
+                }
+                else
+                    return TimePoint(static_cast<uint64_t>(ticks) * 1000000uLL);
             }
             
             
@@ -102,10 +109,19 @@ namespace utils
             inline uint64_t totalNanoseconds() const noexcept  { return m_nanoseconds; }
             
             /// @brief Convert time reference to ticks
-            /// @param[in] rate  Tick rate to use for conversion
+            /// @param[in] rate  Tick rate to use for conversion (if 0, defaults to 1000 ticks/sec)
             inline ticks_t toTicks(const uint64_t rate) const noexcept
             {
-                return (static_cast<uint64_t>(ticks) * rate) / 1000000000uLL;
+                uint64_t ticks;
+                if (rate > 0u) 
+                {
+                    // two-part calculation, to avoid reaching max value
+                    ticks = (m_nanoseconds / 1000000000uLL) * rate;
+                    ticks += ((m_nanoseconds % 1000000000uLL) * rate) / 1000000000uLL;
+                }
+                else
+                    ticks = m_nanoseconds / 1000000uLL;
+                return static_cast<ticks_t>(ticks);
             }
             
             /// @brief Compare 2 instances (equality)
@@ -138,7 +154,7 @@ namespace utils
             
             /// @brief Set time point value, based on total nanoseconds
             /// @param[in] nanoseconds  Number of nanoseconds
-            inline void setTotalNanoseconds(const uint64_t nanoseconds)
+            inline void setTotalNanoseconds(const uint64_t nanoseconds) noexcept
             {
                 m_nanoseconds = nanoseconds;
             }
@@ -149,13 +165,13 @@ namespace utils
             inline TimePoint& operator=(const uint64_t nanoseconds) noexcept { m_nanoseconds = nanoseconds; return *this; }
             
             /// @brief Pre-increment time reference
-            inline uint64_t operator++()    { return ++m_nanoseconds; }
+            inline uint64_t operator++() noexcept    { return ++m_nanoseconds; }
             /// @brief Post-increment time reference
-            inline uint64_t operator++(int) { uint64_t copy = m_nanoseconds; ++m_nanoseconds; return copy; }
+            inline uint64_t operator++(int) noexcept { uint64_t copy = m_nanoseconds; ++m_nanoseconds; return copy; }
             /// @brief Pre-decrement time reference
-            inline uint64_t operator--()    { return --m_nanoseconds; }
+            inline uint64_t operator--() noexcept    { return --m_nanoseconds; }
             /// @brief Post-decrement time reference
-            inline uint64_t operator--(int) { uint64_t copy = m_nanoseconds; --m_nanoseconds; return copy; }
+            inline uint64_t operator--(int) noexcept { uint64_t copy = m_nanoseconds; --m_nanoseconds; return copy; }
             
             /// @brief Add time reference to current time reference
             inline uint64_t operator+(const TimePoint& other) noexcept     { return m_nanoseconds + other.m_nanoseconds; }
