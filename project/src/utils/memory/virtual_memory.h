@@ -211,16 +211,16 @@ namespace utils
             
             // -- Iteration --
 
-            /// @brief Create iterator at beginning of usable memory zone (16-bit mode)
-            /// @returns 16-bit iterator
+            /// @brief Create iterator at beginning of usable memory zone
+            /// @returns Template (byte/16-bit/32-bit) iterator
             /// @throws logic_error  Unallocated memory
             template <typename T = uint8_t>
             inline VirtualMemory::iterator<T> begin() const
             {
                 return VirtualMemory::iterator<T>(*this, reinterpret_cast<T*>(m_pBegin));
             }
-            /// @brief Create iterator at beginning of usable memory zone (16-bit mode)
-            /// @returns 16-bit iterator
+            /// @brief Create iterator at last block of usable memory zone
+            /// @returns Template (byte/16-bit/32-bit) iterator
             /// @throws logic_error  Unallocated memory
             template <typename T = uint8_t>
             inline VirtualMemory::iterator<T> rbegin() const
@@ -229,29 +229,28 @@ namespace utils
                 return VirtualMemory::iterator<T>(*this, reinterpret_cast<T*>(m_pBegin) + (multipleSize - 1));
             }
             
-            /// @brief Get pointer after the end of usable memory zone (byte mode)
+            /// @brief Get pointer after the end of usable memory zone
             /// @returns End of memory
             template <typename T = uint8_t>
             inline T* end() const noexcept
             {
                 return reinterpret_cast<T*>(m_pEnd);
             }
-            /// @brief Get pointer after the end of usable memory zone (byte mode)
-            /// @returns End of memory
+            /// @brief Get pointer before the beginning of usable memory zone
+            /// @returns Reversed end of memory
             template <typename T = uint8_t>
             inline T* rend() const noexcept
             {
                 return reinterpret_cast<T*>(m_pBegin) - 1;
             }
             
-        
+            
         private:
-            // virtual memory image
             uint8_t*  m_pRawMemoryImage; ///< Raw memory image (usable memory + offsets)    
-            size_t    m_memorySize;      ///< Usable memory size
             size_t    m_offsetSize;      ///< Offset before and after usable memory (extra security)
-
-            // virtual memory limits
+            
+        protected:
+            size_t    m_memorySize;      ///< Usable memory size
             uint8_t*  m_pBegin;   ///< Usable memory origin (byte mode)
             uint8_t* m_pEnd;      ///< End of usable memory (byte mode)
         };
