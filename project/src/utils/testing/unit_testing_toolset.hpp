@@ -38,11 +38,15 @@ Description : unit testing toolset - implementation (see 'unit_testing.h' for us
 
 // report failed test
 #define _UTT_FAILED_UNIT_TEST(failureMsg)  ASSERT(false); \
-                                  msg = std::string("Error line ")+std::to_string(__LINE__)+std::string(": ")+failureMsg; \
-                                  return false
+                                           msg = std::string("Error line ")+std::to_string(__LINE__)+std::string(": ")+failureMsg; \
+                                           return false
 
 // exception-safe test check
-#define _UTT_CHECK_TEST(test,failureMsg)  try { if ((test) == false) { _UTT_FAILED_UNIT_TEST(failureMsg); } } catch (...) { _UTT_FAILED_UNIT_TEST(failureMsg); }
+#define _UTT_CHECK_TEST(test,failureMsg)  try { \
+                                              if ((test) == false) { \
+                                                  _UTT_FAILED_UNIT_TEST(failureMsg); \
+                                              } \
+                                          } catch (...) { _UTT_FAILED_UNIT_TEST(failureMsg); }
 
 
 /// @namespace utils

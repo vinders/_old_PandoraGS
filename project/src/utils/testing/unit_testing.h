@@ -11,7 +11,7 @@ Description : unit testing tool
 
 // -- how to use --
 /*
-BEGIN_UNIT_TEST(myUnitTest1, "myUnitTest1", myBefore, myAfter); // required, before first procedure
+BEGIN_UNIT_TEST(myUnitTest1, "myUnitTest1"); // required, before first procedure
 
 // example of procedure
 CREATE_UNIT_TEST_PROCEDURE("myTest", {
@@ -33,8 +33,8 @@ void main()
 // Between BEGIN_UNIT_TEST and END_UNIT_TEST, only procedures can be declared.
 // If the program entry point is in a different file, use DECLARE_UNIT_TEST_HEADER(unitTestName).
 // Note that you can pass procedures to execute before/after tests:
-//      - before/after the whole unit testing :
-//        CREATE_UNIT_TEST(myUnitTest1, "myUnitTest1", myBefore, myAfter)
+//      - before/after the whole unit testing, with more parameters in :
+//        BEGIN_UNIT_TEST(myUnitTest1, "myUnitTest1", myBefore, myAfter)
 //      - before/after each test :
 //        CREATE_UNIT_TEST_PROCEDURE("myTest", myBefore, myAfter, {});
 //      - use lambda or std::function for myBefore and myAfter, with signature void(void).
