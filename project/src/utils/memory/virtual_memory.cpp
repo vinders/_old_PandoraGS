@@ -76,7 +76,7 @@ void VirtualMemory::init(const size_t memorySize, const size_t offsetSize)
 /// @brief Copy assignment
 /// @param[in] other  Instance to copy
 /// @returns Reference to instance
-VirtualMemory& VirtualMemory::operator=(const VirtualMemory& other) noexcept
+VirtualMemory& VirtualMemory::operator=(const VirtualMemory& other)
 {
     init(other.m_memorySize, other.m_offsetSize);
     memcpy(m_pBegin, 0x0, other.m_offsetSize);

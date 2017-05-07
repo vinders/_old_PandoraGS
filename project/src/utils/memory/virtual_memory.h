@@ -24,7 +24,7 @@ namespace utils
         {
         public:
             /// @brief Create unallocated virtual memory
-            VirtualMemory() : m_pRawMemoryImage(nullptr), m_memorySize(0u), m_offsetSize(0u), m_pBegin(nullptr), m_pEnd(nullptr) {}
+            VirtualMemory() noexcept : m_pRawMemoryImage(nullptr), m_memorySize(0u), m_offsetSize(0u), m_pBegin(nullptr), m_pEnd(nullptr) {}
             /// @brief Create virtual memory
             /// @param[in] memorySize  Usable memory size
             /// @param[in] offsetSize  Offset before and after usable memory (extra security)
@@ -96,7 +96,7 @@ namespace utils
             /// @brief Copy assignment
             /// @param[in] other  Instance to copy
             /// @returns Reference to instance
-            inline VirtualMemory& operator=(const VirtualMemory& other) noexcept;
+            inline VirtualMemory& operator=(const VirtualMemory& other);
             /// @brief Move assignment
             /// @param[in] other  Instance to move
             /// @returns Reference to instance

@@ -25,7 +25,7 @@ namespace utils
         {
         public:
             /// @brief Create unallocated memory
-            DoubleBufferedMemory() : VirtualMemory(), m_pBeginSecondBuffer(nullptr) {}
+            DoubleBufferedMemory() noexcept : VirtualMemory(), m_pBeginSecondBuffer(nullptr) {}
             /// @brief Create double-buffered virtual memory
             /// @param[in] bufferSize  Size of a single buffer
             /// @param[in] offsetSize  Offset before and after usable memory (extra security)
@@ -100,7 +100,7 @@ namespace utils
             /// @brief Copy assignment
             /// @param[in] other  Instance to copy
             /// @returns Reference to instance
-            inline DoubleBufferedMemory& operator=(const DoubleBufferedMemory& other) noexcept
+            inline DoubleBufferedMemory& operator=(const DoubleBufferedMemory& other)
             {
                 VirtualMemory::operator=(other);
                 m_pBeginSecondBuffer = other.m_pBeginSecondBuffer;
