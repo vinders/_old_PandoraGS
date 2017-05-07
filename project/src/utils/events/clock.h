@@ -2,7 +2,7 @@
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : high-resolution counter
+Description : high-resolution clock
 *******************************************************************************/
 #pragma once
 
@@ -19,7 +19,7 @@ namespace utils
     namespace events
     {
         /// @class Clock
-        /// @brief High-resolution counter
+        /// @brief High-resolution clock
         class Clock
         {
         public:
