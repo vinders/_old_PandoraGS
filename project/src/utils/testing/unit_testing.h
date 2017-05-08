@@ -55,6 +55,9 @@ void main()
 // add procedure to unit test
 #define CREATE_UNIT_TEST_PROCEDURE(testNameString,procedure)                       _UTT_CREATE_UNIT_TEST_PROCEDURE(testNameString,[](void){},[](void){},procedure)
 #define CREATE_UNIT_TEST_PROCEDURE(testNameString,callBefore,callAfter,procedure)  _UTT_CREATE_UNIT_TEST_PROCEDURE(testNameString,callBefore,callAfter,procedure)
+// add procedure to unit test - unless concurrency enabled
+#define CREATE_UNIT_TEST_PROCEDURE_NO_CONCURRENCY(testNameString,procedure)                       if(!isConcurrency) { _UTT_CREATE_UNIT_TEST_PROCEDURE(testNameString,[](void){},[](void){},procedure); }
+#define CREATE_UNIT_TEST_PROCEDURE_NO_CONCURRENCY(testNameString,callBefore,callAfter,procedure)  if(!isConcurrency) { _UTT_CREATE_UNIT_TEST_PROCEDURE(testNameString,callBefore,callAfter,procedure); }
 
 
 // -- macros to use in tests --
