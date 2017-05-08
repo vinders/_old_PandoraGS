@@ -26,12 +26,13 @@ END_UNIT_TEST(); // required, after last procedure
 // program entry point
 void main()
 {
-    unit_testing::myUnitTest1();  // call unit test (execute all procedures)
+    unit_testing::myUnitTest1(false);  // trigger unit test (execute all procedures, with concurrency set to false)
 }
 
 
 // Between BEGIN_UNIT_TEST and END_UNIT_TEST, only procedures can be declared.
 // If the program entry point is in a different file, use DECLARE_UNIT_TEST_HEADER(unitTestName).
+// When triggering the unit testing, set argument to 'true' to enable concurrency (tests executed multiple times with multiple threads).
 // Note that you can pass procedures to execute before/after tests:
 //      - before/after the whole unit testing, with more parameters in :
 //        BEGIN_UNIT_TEST(myUnitTest1, "myUnitTest1", myBefore, myAfter)
@@ -44,7 +45,7 @@ void main()
 // -- macros to declare test procedures --
 
 // declare unit test (h/hpp file, if called from a different file)
-#define DECLARE_UNIT_TEST_HEADER(unitTestName)                                     namespace unit_testing { void unitTestName(); }
+#define DECLARE_UNIT_TEST_HEADER(unitTestName)                                     namespace unit_testing { void unitTestName(bool isConcurrency); }
 
 // create unit test (cpp file)
 #define BEGIN_UNIT_TEST(unitTestName,unitTestNameString)                           _UTT_BEGIN_UNIT_TEST(unitTestName,unitTestNameString,[](void){},[](void){})
@@ -71,8 +72,8 @@ void main()
 #define ASSERT_NOT_EQ(test,val)              _UTT_CHECK_TEST((test != val), (std::string("expected != ")+val)+std::string("; value: ")+test)
 #define ASSERT_LOWER(test,val)               _UTT_CHECK_TEST((test < val),  (std::string("expected < ")+val)+std::string("; value: ")+test)
 #define ASSERT_LOWER_EQ(test,val)            _UTT_CHECK_TEST((test <= val), (std::string("expected <= ")+val)+std::string("; value: ")+test)
-#define ASSERT_HIGHER(test,val)              _UTT_CHECK_TEST((test > val),  (std::string("expected > ")+val)+std::string("; value: ")+test)
-#define ASSERT_HIGHER_EQ(test,val)           _UTT_CHECK_TEST((test >= val), (std::string("expected >= ")+val)+std::string("; value: ")+test)
+#define ASSERT_GREATER(test,val)             _UTT_CHECK_TEST((test > val),  (std::string("expected > ")+val)+std::string("; value: ")+test)
+#define ASSERT_GREATER_EQ(test,val)          _UTT_CHECK_TEST((test >= val), (std::string("expected >= ")+val)+std::string("; value: ")+test)
 
 // objects state
 #define ASSERT_NULL(test)                    _UTT_CHECK_TEST(utils::testing::ObjectVerifier::isNull(test),                 std::string("expected: nullptr ; value: not null"))

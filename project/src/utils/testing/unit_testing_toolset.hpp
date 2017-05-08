@@ -13,6 +13,7 @@ Description : unit testing toolset - implementation (see 'unit_testing.h' for us
 #include <memory>
 #include <algorithm>
 #include <functional>
+#include <thread>
 #include "object_verifier.hpp"
 #include "string_verifier.hpp"
 #include "collection_verifier.hpp"
@@ -25,9 +26,9 @@ Description : unit testing toolset - implementation (see 'unit_testing.h' for us
 #define _UTT_BEGIN_UNIT_TEST(unitTestName,unitTestNameString,callBefore,callAfter) \
         namespace unit_testing  \
         { \
-            void unitTestName() \
+            void unitTestName(bool isConcurrency) \
             { \
-                utils::testing::UnitTesting _ut(unitTestNameString, callBefore, callAfter);
+                utils::testing::UnitTesting _ut(unitTestNameString, isConcurrency, callBefore, callAfter);
 #define _UTT_END_UNIT_TEST() \
             } \
         }
@@ -63,11 +64,12 @@ namespace utils
         {
         public:
             /// @brief Create test instance for one unit
-            /// @param[in] unitName    Name of tested unit
-            /// @param[in] callBefore  Procedure to call before executing the first test
-            /// @param[in] callAfter   Procedure to call after the last test (on destruction)
-            UnitTesting(const std::string unitName, const std::function<void()> callBefore = {}, const std::function<void()> callAfter = {}) 
-                : m_unitName(unitName), m_callAfter(callAfter), totalTests(0u), failedTests(0u)
+            /// @param[in] unitName       Name of tested unit
+            /// @param[in] isConcurrency  Check concurrency or not
+            /// @param[in] callBefore     Procedure to call before executing the first test
+            /// @param[in] callAfter      Procedure to call after the last test (on destruction)
+            UnitTesting(const std::string unitName, const bool isConcurrency, const std::function<void()> callBefore = {}, const std::function<void()> callAfter = {}) 
+                : m_unitName(unitName), m_callAfter(callAfter), m_totalTests(0u), m_failedTests(0u), m_isConcurrency(isConcurrency)
             {
                 printUnitName();
                 if (callBefore)
@@ -94,18 +96,61 @@ namespace utils
                 if (callBefore) // pre-test
                     callBefore();
                 
-                ++totalTests;
+                ++m_totalTests;
                 std::string msg;
-                if (testProcedure(msg)) // test
+                bool isSuccess = true;
+                
+                // multi-thread test execution
+                if (m_isConcurrency)
+                {
+                    // prepare test loop
+                    bool isTestReady = false;
+                    std::function<void()> testLoop = [&isTestReady, &isSuccess, &msg]()
+                    {
+                        while (isTestReady == false)
+                            std::this_thread::yield();
+                        
+                        std::string privateMsg;
+                        for (uint32_t i = 0; i < 4 && isSuccess; ++i)
+                        {
+                            if (testProcedure(privateMsg) == false)
+                            {
+                                isSuccess = false;
+                                msg = privateMsg;
+                                break;
+                            }
+                        }
+                    };
+                    
+                    // execute threads
+                    std::thread thread1(testLoop);
+                    std::thread thread2(testLoop);
+                    std::thread thread3(testLoop);
+                    std::thread thread4(testLoop);
+                    isTestReady = true;
+                    std::this_thread::yield();
+                    
+                    // wait until complete
+                    thread1.join();
+                    thread2.join();
+                    thread3.join();
+                    thread4.join();
+                }
+                else // single thread test execution
+                {
+                    isSuccess = testProcedure(msg);
+                }
+                
+                // result
+                if (isSuccess) 
                 {
                     UnitTesting::printSuccess();
                 }
                 else
                 {
                     UnitTesting::printFailure(msg);
-                    ++failedTests;
+                    ++m_failedTests;
                 }
-                
                 if (callAfter) // post-test
                     callAfter();
             }
@@ -114,7 +159,10 @@ namespace utils
             /// @brief Print unit test headline on screen
             void printUnitName()
             {
-                printf("--------------------\n %s - start of tests\n--------------------\n\n", m_unitName.c_str());
+                printf("--------------------\n %s - start of tests", m_unitName.c_str());
+                if (m_isConcurrency)
+                    printf(" (with concurrency)");
+                printf("\n--------------------\n\n", m_unitName.c_str());
             }
             /// @brief Print current test name on screen
             static void printTestName(std::string name)
@@ -142,15 +190,15 @@ namespace utils
             void printGeneralResult()
             {
                 INIT_ANSI_COLOR_SUPPORT();
-                uint32_t succeededTests = totalTests - failedTests;
-                if (failedTests > 0u)
+                uint32_t succeededTests = m_totalTests - m_failedTests;
+                if (m_failedTests > 0u)
                 {
                     printf(" %s complete - ", m_unitName.c_str());
                     SET_ANSI_COLOR(ANSI_COLOR_RED);
                     printf("[ FAILURE ]");
                     SET_ANSI_COLOR(ANSI_COLOR_RESET);
-                    printf("\n %u of %u tests succeeded.", succeededTests, totalTests);
-                    printf("\n %u tests failed.\n\n", failedTests);
+                    printf("\n %u of %u tests succeeded.", succeededTests, m_totalTests);
+                    printf("\n %u tests failed.\n\n", m_failedTests);
                 }
                 else
                 {
@@ -158,17 +206,18 @@ namespace utils
                     SET_ANSI_COLOR(ANSI_COLOR_GREEN);
                     printf("[ SUCCESS ]");
                     SET_ANSI_COLOR(ANSI_COLOR_RESET);
-                    printf("\n %u of %u tests succeeded.", succeededTests, totalTests);
-                    printf("\n %u tests failed.\n\n", failedTests);
-                    printf("%u of %u tests succeeded.\n\n", succeededTests, totalTests);
+                    printf("\n %u of %u tests succeeded.", succeededTests, m_totalTests);
+                    printf("\n %u tests failed.\n\n", m_failedTests);
+                    printf("%u of %u tests succeeded.\n\n", succeededTests, m_totalTests);
                 }
                 printf("---\n\n");
             }
             
             
         private:
-            uint32_t totalTests;    ///< Number of failed tests
-            uint32_t failedTests;   ///< Number of failed tests
+            bool m_isConcurrency;
+            uint32_t m_totalTests;    ///< Number of failed tests
+            uint32_t m_failedTests;   ///< Number of failed tests
             std::string m_unitName; ///< Name of tested unit
             const std::function<void()> m_callAfter; ///< Callback procedure, called on object destruction
         };
