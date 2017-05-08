@@ -143,8 +143,14 @@ namespace utils
             template <typename T = uint8_t>
             inline VirtualMemory::iterator<T> rbeginFront() const
             {
-                size_t multipleSize = (bufferSize() / sizeof(T)) * sizeof(T);
-                return VirtualMemory::iterator<T>(*this, reinterpret_cast<T*>(m_pBegin) + (multipleSize - 1));
+                size_t multipleSize = (bufferSize() / sizeof(T));
+                if (multipleSize > 0u)
+                {
+                    multipleSize *= sizeof(T); // truncate to integer multiplier
+                    return VirtualMemory::iterator<T>(*this, reinterpret_cast<T*>(m_pBegin) + (multipleSize - 1));
+                }
+                else
+                    return beginFront<T>();
             }
             /// @brief Create iterator at last block of second buffer
             /// @returns Template (byte/16-bit/32-bit) iterator
@@ -152,8 +158,14 @@ namespace utils
             template <typename T = uint8_t>
             inline VirtualMemory::iterator<T> rbeginBack() const
             {
-                size_t multipleSize = (m_memorySize / sizeof(T)) * sizeof(T);
-                return VirtualMemory::iterator<T>(*this, reinterpret_cast<T*>(m_pBegin) + (multipleSize - 1));
+                size_t multipleSize = (m_memorySize / sizeof(T));
+                if (multipleSize > 0u)
+                {
+                    multipleSize *= sizeof(T); // truncate to integer multiplier
+                    return VirtualMemory::iterator<T>(*this, reinterpret_cast<T*>(m_pBegin) + (multipleSize - 1));
+                }
+                else
+                    return beginBack<T>();
             }
             
             /// @brief Get pointer after the end of first buffer

@@ -225,8 +225,14 @@ namespace utils
             template <typename T = uint8_t>
             inline VirtualMemory::iterator<T> rbegin() const
             {
-                size_t multipleSize = (m_memorySize / sizeof(T)) * sizeof(T);
-                return VirtualMemory::iterator<T>(*this, reinterpret_cast<T*>(m_pBegin) + (multipleSize - 1));
+                size_t multipleSize = m_memorySize / sizeof(T);
+                if (multipleSize > 0u)
+                {
+                    multipleSize *= sizeof(T); // truncate to integer multiplier
+                    return VirtualMemory::iterator<T>(*this, reinterpret_cast<T*>(m_pBegin) + (multipleSize - 1));
+                }
+                else
+                    return begin<T>();
             }
             
             /// @brief Get pointer after the end of usable memory zone
