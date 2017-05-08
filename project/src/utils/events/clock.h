@@ -97,10 +97,11 @@ namespace utils
         
             /// @brief Create new time reference
             /// @returns Time reference (current time)
-            static TimePoint now() noexcept;
-            /// @brief Create new time reference (auxiliary)
-            /// @returns Low-resolution time reference (current time)
-            static TimePoint nowAuxMode() noexcept;
+            static TimePoint now() const noexcept;
+            /// @brief Create new time reference
+            /// @param[out] timeRef     Time reference (current time)
+            /// @param[out] timeRefAux  Auxiliary time reference (current time)
+            static void now(TimePoint& timeRef, TimePoint& timeRefAux) const noexcept;
             
             
         private:

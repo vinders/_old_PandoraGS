@@ -69,7 +69,7 @@ void Clock::setFrequency(const uint32_t freqNumerator, const uint32_t freqDenomi
 
 /// @brief Create new time reference
 /// @returns Time reference (current time)
-TimePoint Clock::now() noexcept
+TimePoint Clock::now() const noexcept
 {
     #ifdef _WINDOWS
     if (m_timeMode == Clock::timemode_t::highResCounter)
@@ -80,7 +80,7 @@ TimePoint Clock::now() noexcept
     }
     else
     {
-        return TimePoint::fromTicks(static_cast<events::ticks_t>(timeGetTime()), 1000uLL);
+        return TimePoint::fromMilliseconds(static_cast<uint64_t>(timeGetTime()));
     }
     #else
     auto time = (m_timeMode == Clock::timemode_t::highResCounter) ? std::chrono::high_resolution_clock::now() : std::chrono::system_clock::now();
@@ -88,23 +88,46 @@ TimePoint Clock::now() noexcept
     #endif
 }
 
-/// @brief Create new time reference (auxiliary)
-/// @returns Low-resolution time reference (current time)
-TimePoint Clock::nowAuxMode() noexcept
+/// @brief Create new time reference
+/// @param[out] timeRef     Time reference (current time)
+/// @param[out] timeRefAux  Auxiliary time reference (current time)
+void Clock::now(TimePoint& timeRef, TimePoint& timeRefAux) const noexcept
 {
     #ifdef _WINDOWS
     if (m_timeMode == Clock::timemode_t::highResCounter)
     {
-        return TimePoint::fromTicks(static_cast<events::ticks_t>(timeGetTime()), 1000uLL);
+        LARGE_INTEGER currentTime;
+        QueryPerformanceCounter(&currentTime);
+        uint64_t currentTimeAux = static_cast<uint64_t>(timeGetTime());
+        
+        timeRef = TimePoint::fromTicks(reinterpret_cast<events::ticks_t>(currentTime.QuadPart), m_tickRate);
+        timeRefAux = TimePoint::fromMilliseconds(currentTimeAux);
     }
     else
     {
-        auto time = std::chrono::system_clock::now();
-        return TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(time).count());
+        uint64_t currentTime = static_cast<uint64_t>(timeGetTime());
+        auto currentTimeAux = std::chrono::system_clock::now();
+        
+        timeRef = TimePoint::fromMilliseconds(currentTime);
+        timeRefAux = TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(currentTimeAux).count());
     }
-    #else
-    auto time = (m_timeMode == Clock::timemode_t::highResCounter) ? std::chrono::system_clock::now() : std::chrono::steady_clock::now();
-    return TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(time).count());
+    #else // Linux / UNIX
+    if (m_timeMode == Clock::timemode_t::highResCounter)
+    {
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        auto currentTimeAux = std::chrono::system_clock::now();
+        
+        timeRef = TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime).count());
+        timeRefAux = TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(currentTimeAux).count());
+    }
+    else
+    {
+        auto currentTime =  std::chrono::system_clock::now();
+        auto currentTimeAux = std::chrono::steady_clock::now();
+        
+        timeRef = TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime).count());
+        timeRefAux = TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(currentTimeAux).count());
+    }
     #endif
 }
 
@@ -115,8 +138,7 @@ TimePoint Clock::nowAuxMode() noexcept
 /// @brief Reset time reference
 void Clock::reset() noexcept
 {
-    m_timeReference = Clock::now();
-    m_auxTimeReference = Clock::nowAuxMode();
+    Clock::now(m_timeReference, m_auxTimeReference);
     m_runtimeDuration = m_periodDuration;
     m_droppedSubDurations = 0.0f;
     
@@ -137,8 +159,7 @@ uint64_t Clock::wait() noexcept
     uint32_t waitLoopCount = 0u;
     do
     {
-        currentReference = Clock::now();
-        currentAuxReference = Clock::nowAuxMode();
+        Clock::now(currentReference, currentAuxReference);
         elapsedTime = currentReference - m_timeReference;
         
         // invalid time : negative difference or huge number -> use low-res timer instead
@@ -167,7 +188,7 @@ uint64_t Clock::wait() noexcept
         }
         else
         {
-            m_runtimeDuration = m_periodDuration - lateness; // compensate
+            m_runtimeDuration = m_periodDuration - lateness; // compensation
         }
     }
     else
@@ -194,8 +215,7 @@ float Clock::checkFrequency() noexcept
     int64_t elapsedTime;
     
     // read current time
-    currentReference = Clock::now();
-    currentAuxReference = Clock::nowAuxMode();
+    Clock::now(currentReference, currentAuxReference);
     elapsedTime = currentReference - m_freqCalcReference;
     
     if (elapsedTime <= 0LL || elapsedTime > 500000000LL) // invalid time -> use low-res timer instead
