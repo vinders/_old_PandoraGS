@@ -9,36 +9,80 @@ Description : unit testing tool
 #include "unit_testing_toolset.hpp"
 
 
+// ----------------
 // -- how to use --
+// ----------------
 /*
-BEGIN_UNIT_TEST(myUnitTest1, "myUnitTest1"); // required, before first procedure
+// Define unit test group with BEGIN_UNIT_TEST and END_UNIT_TEST in source file (.cpp).
+// Between BEGIN_UNIT_TEST and END_UNIT_TEST, only procedures can be declared (CREATE_UNIT_TEST_PROCEDURE).
 
-// example of procedure
-CREATE_UNIT_TEST_PROCEDURE("myTest", {
-    int i = 2;
-    ASSERT_EQ(i, 2);
-    return true;
-});
+// In the program entry point, you can execute a unit test group this way :
+        unit_testing::yourUnitTestName(false);  // simple execution
+        unit_testing::yourUnitTestName(true);   // execute with concurrency check (tests executed multiple times with multiple threads).
+        
+// If the program entry point is in a different source file, use DECLARE_UNIT_TEST_HEADER(unitTestName) in a header file (.h) and include it.
 
-END_UNIT_TEST(); // required, after last procedure
+// Note that you can execute special procedures before/after the tests:
+//      - once before/after the whole unit test group, by using more arguments in BEGIN_UNIT_TEST :
+//        BEGIN_UNIT_TEST(myUnitTest1, "myUnitTest1", myBeforeUnit, myAfterUnit);
+//      - before/after each test, by declaring SET_PROCEDURE_CALLS once, just after BEGIN_UNIT_TEST :
+//        SET_PROCEDURE_CALLS(myBeforeEach, myAfterEach);
+//      - before/after one specific test, by using more arguments in CREATE_UNIT_TEST_PROCEDURE :
+//        CREATE_UNIT_TEST_PROCEDURE("myTest", myBefore, myAfter, { ... });
+// Use lambdas ([](void){ ... }) or std::function<void()> for the procedures to call before/after something.
+
+// Inside the tests, use asserts to check the validity of your unit. See list of asserts below, at the end of this file.
 
 
-// program entry point
-void main()
+// - simple example -
+// -----------------
+
+BEGIN_UNIT_TEST(myUnitTest1, "myUnitTest1");  // required, before first procedure
+
+    CREATE_UNIT_TEST_PROCEDURE("myTest", {    // example of procedure
+        int i = 2;
+        ASSERT_EQ(i, 2);
+        return true;
+    });
+
+END_UNIT_TEST();    // required, after last procedure
+
+void main()         // program entry point
 {
-    unit_testing::myUnitTest1(false);  // trigger unit test (execute all procedures, with concurrency set to false)
+    unit_testing::myUnitTest1(false);  // start unit testing group (execute all procedures, with concurrency set to false)
 }
 
 
-// Between BEGIN_UNIT_TEST and END_UNIT_TEST, only procedures can be declared.
-// If the program entry point is in a different file, use DECLARE_UNIT_TEST_HEADER(unitTestName).
-// When triggering the unit testing, set argument to 'true' to enable concurrency (tests executed multiple times with multiple threads).
-// Note that you can pass procedures to execute before/after tests:
-//      - before/after the whole unit testing, with more parameters in :
-//        BEGIN_UNIT_TEST(myUnitTest1, "myUnitTest1", myBefore, myAfter)
-//      - before/after each test :
-//        CREATE_UNIT_TEST_PROCEDURE("myTest", myBefore, myAfter, {});
-//      - use lambda or std::function for myBefore and myAfter, with signature void(void).
+// - advanced example -
+// --------------------
+
+BEGIN_UNIT_TEST(myUnitTest2, "myUnitTest2", 
+                [](void) { printf("start"); },            // lambda called before whole unit test
+                [](void) { printf("end"); });             // lambda called after whole unit test
+SET_PROCEDURE_CALLS([](void) { printf("new test"); },     // called before each test
+                    [](void) { printf("end of test"); }); // called after each test
+
+    CREATE_UNIT_TEST_PROCEDURE("mySimpleTest", {
+        int i = 2;
+        ASSERT_EQ(i, 2);
+        return true;
+    });
+    CREATE_UNIT_TEST_PROCEDURE("myTestWithBeforeAfter", 
+                               [](void) { printf("special test started"); }, // called only before this specific test
+                               [](void) { printf("special test ended"); },   // called only after this specific test
+    {
+        bool boolArray[] = { true, false };
+        ASSERT_TRUE(boolArray[0]);
+        ASSERT_ARRAY_CONTAINS(false);
+        return true;
+    });
+
+END_UNIT_TEST();
+
+void main()
+{
+    unit_testing::myUnitTest2(true);
+}
 */
 
 
@@ -52,6 +96,8 @@ void main()
 #define BEGIN_UNIT_TEST(unitTestName,unitTestNameString,callBefore,callAfter)      _UTT_BEGIN_UNIT_TEST(unitTestName,unitTestNameString,callBefore,callAfter)
 #define END_UNIT_TEST()                                                            _UTT_END_UNIT_TEST()
 
+// set functions to call before/after each test
+#define SET_PROCEDURE_CALLS(callBeforeEach, callAfterEach)                         _UTT_SET_PROCEDURE_CALLS(callBeforeEach, callAfterEach)
 // add procedure to unit test
 #define CREATE_UNIT_TEST_PROCEDURE(testNameString,procedure)                       _UTT_CREATE_UNIT_TEST_PROCEDURE(testNameString,[](void){},[](void){},procedure)
 #define CREATE_UNIT_TEST_PROCEDURE(testNameString,callBefore,callAfter,procedure)  _UTT_CREATE_UNIT_TEST_PROCEDURE(testNameString,callBefore,callAfter,procedure)

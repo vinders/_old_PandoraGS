@@ -20,6 +20,8 @@ Description : unit testing toolset - implementation (see 'unit_testing.h' for us
 #include "../io/ansi_color_codes.h"
 #include "../assert.h"
 
+#define _UTT_CONCURRENCY_THREAD_NB 4
+
 // -- private macros --
 
 // create unit test
@@ -32,6 +34,10 @@ Description : unit testing toolset - implementation (see 'unit_testing.h' for us
 #define _UTT_END_UNIT_TEST() \
             } \
         }
+
+// set functions to call before/after each test
+#define _UTT_SET_PROCEDURE_CALLS(callBeforeEach, callAfterEach) \
+        _ut.setCallBeforeEach(callBeforeEach); _ut.setCallAfterEach(callAfterEach)
 
 // add procedure to unit test
 #define _UTT_CREATE_UNIT_TEST_PROCEDURE(testNameString,callBefore,callAfter,procedure) \
@@ -69,7 +75,7 @@ namespace utils
             /// @param[in] callBefore     Procedure to call before executing the first test
             /// @param[in] callAfter      Procedure to call after the last test (on destruction)
             UnitTesting(const std::string unitName, const bool isConcurrency, const std::function<void()> callBefore = {}, const std::function<void()> callAfter = {}) 
-                : m_unitName(unitName), m_callAfter(callAfter), m_totalTests(0u), m_failedTests(0u), m_isConcurrency(isConcurrency)
+                : m_unitName(unitName), m_callAfterUnit(callAfter), m_totalTests(0u), m_failedTests(0u), m_isConcurrency(isConcurrency)
             {
                 printUnitName();
                 if (callBefore)
@@ -79,11 +85,24 @@ namespace utils
             ~UnitTesting()
             {
                 printGeneralResult();
-                if (m_callAfter)
-                    m_callAfter();
+                if (m_callAfterUnit)
+                    m_callAfterUnit();
             }
             
-            /// @brief Execute overriden doTest method + before/after calls + result management
+            /// @brief Set procedure to call before each test
+            /// @param[in] call  Procedure to call before each test
+            void setCallBeforeEach(const std::function<void()> call)
+            {
+                m_callBeforeEach = call;
+            }
+            /// @brief Set procedure to call after each test
+            /// @param[in] call  Procedure to call after each test
+            void setCallAfterEach(const std::function<void()> call)
+            {
+                m_callAfterEach = call;
+            }
+            
+            /// @brief Execute test method + before/after calls + result management
             /// @param[in] testName       Name of test function
             /// @param[in] callBefore     Procedure to call before the test
             /// @param[in] callAfter      Procedure to call after the test
@@ -93,6 +112,8 @@ namespace utils
             void doTest(const std::string name, const std::function<void()> callBefore, const std::function<void()> callAfter, const std::function<bool(std::string&)> testCall)
             {
                 UnitTesting::printTestName(name);
+                if (m_callBeforeEach) // call before each test
+                    m_callBeforeEach();
                 if (callBefore) // pre-test
                     callBefore();
                 
@@ -123,18 +144,20 @@ namespace utils
                     };
                     
                     // execute threads
-                    std::thread thread1(testLoop);
-                    std::thread thread2(testLoop);
-                    std::thread thread3(testLoop);
-                    std::thread thread4(testLoop);
+                    std::vector<std::thread> threads;
+                    threads.reserve(_UTT_CONCURRENCY_THREAD_NB);
+                    for (uint32_t i = 0; i < _UTT_CONCURRENCY_THREAD_NB; ++i)
+                    {
+                        threads.push_back(std::thread(testLoop));
+                    }
                     isTestReady = true;
                     std::this_thread::yield();
                     
                     // wait until complete
-                    thread1.join();
-                    thread2.join();
-                    thread3.join();
-                    thread4.join();
+                    for (uint32_t i = 0; i < _UTT_CONCURRENCY_THREAD_NB; ++i)
+                    {
+                        threads.at(i).join();
+                    }
                 }
                 else // single thread test execution
                 {
@@ -151,8 +174,11 @@ namespace utils
                     UnitTesting::printFailure(msg);
                     ++m_failedTests;
                 }
+                
                 if (callAfter) // post-test
                     callAfter();
+                if (m_callAfterEach) // call after each test
+                    m_callAfterEach();
             }
             
         private:
@@ -219,7 +245,9 @@ namespace utils
             uint32_t m_totalTests;    ///< Number of failed tests
             uint32_t m_failedTests;   ///< Number of failed tests
             std::string m_unitName; ///< Name of tested unit
-            const std::function<void()> m_callAfter; ///< Callback procedure, called on object destruction
+            const std::function<void()> m_callBeforeEach; ///< Callback procedure, called before each test
+            const std::function<void()> m_callAfterEach;  ///< Callback procedure, called after each test
+            const std::function<void()> m_callAfterUnit;  ///< Callback procedure, called on object destruction
         };
     }
 }
