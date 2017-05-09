@@ -14,7 +14,7 @@ Description : unit testing tool
 // ----------------
 /*
 // Define unit test group with BEGIN_UNIT_TEST and END_UNIT_TEST in source file (.cpp).
-// Between BEGIN_UNIT_TEST and END_UNIT_TEST, only procedures can be declared (CREATE_UNIT_TEST_PROCEDURE).
+// Between BEGIN_UNIT_TEST and END_UNIT_TEST, only tests can be declared (CREATE_UNIT_TEST_PROCEDURE) and settings (SET_PROCEDURE_CALLS).
 
 // In the program entry point, you can execute a unit test group this way :
         unit_testing::yourUnitTestName(false);  // simple execution
@@ -39,7 +39,7 @@ Description : unit testing tool
 
 BEGIN_UNIT_TEST(myUnitTest1, "myUnitTest1");  // required, before first procedure
 
-    CREATE_UNIT_TEST_PROCEDURE("myTest", {    // example of procedure
+    CREATE_UNIT_TEST_PROCEDURE("myTest", {    // example of test
         int i = 2;
         ASSERT_EQ(i, 2);
         return true;
