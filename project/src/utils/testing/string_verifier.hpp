@@ -29,25 +29,13 @@ namespace utils
             static bool isEmpty(const std::wstring data) { return (data.empty()); }
             template <typename T>
             static bool isEmpty(const std::basic_string<T> data) { return (data.empty()); }
-            // StringVerifier.isNotEmpty ("...")
-            static bool isNotEmpty(const char* data) { return (data != nullptr && data[0] != '\0'); }
-            static bool isNotEmpty(const std::string data) { return (!data.empty()); }
-            static bool isNotEmpty(const std::wstring data) { return (!data.empty()); }
-            template <typename T>
-            static bool isNotEmpty(const std::basic_string<T> data) { return (!data.empty()); }
             
             // StringVerifier.isEqual (==)
-            static bool isEqual(const char* first, const char* second) { return (first == second || strcmp(first, second) == 0); }
-            static bool isEqual(const std::string first, const std::string second) { return (first.compare(second) == 0); }
-            static bool isEqual(const std::wstring first, const std::wstring second) { return (first.compare(second) == 0); }
+            static bool equals(const char* first, const char* second) { return (first == second || strcmp(first, second) == 0); }
+            static bool equals(const std::string first, const std::string second) { return (first.compare(second) == 0); }
+            static bool equals(const std::wstring first, const std::wstring second) { return (first.compare(second) == 0); }
             template <typename T>
-            static bool isEqual(const std::basic_string<T> first, const std::basic_string<T> second) { return (data.empty()); }
-            // StringVerifier.isNotEqual (!=)
-            static bool isNotEqual(const char* first, const char* second) { return (first != second || strcmp(first, second) != 0); }
-            static bool isNotEqual(const std::string first, const std::string second) { return (first.compare(second) != 0); }
-            static bool isNotEqual(const std::wstring first, const std::wstring second) { return (first.compare(second) != 0); }
-            template <typename T>
-            static bool isNotEqual(const std::basic_string<T> first, const std::basic_string<T> second) { return (first.compare(second) != 0); }
+            static bool equals(const std::basic_string<T> first, const std::basic_string<T> second) { return (data.empty()); }
             
             // StringVerifier.startsWith (Abc[...])
             static bool startsWith(const std::string data, const std::string pattern) { return (data.find(pattern) == 0u); }

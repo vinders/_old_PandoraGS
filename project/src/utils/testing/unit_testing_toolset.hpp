@@ -14,17 +14,18 @@ Description : unit testing toolset - implementation (see 'unit_testing.h' for us
 #include <algorithm>
 #include <functional>
 #include <thread>
+#include <chrono>
 #include "object_verifier.hpp"
 #include "string_verifier.hpp"
 #include "collection_verifier.hpp"
-#include "../io/ansi_color_codes.h"
+#include "../display/ansi_color_codes.h"
 #include "../assert.h"
 
 #define _UTT_CONCURRENCY_THREAD_NB 4
 
 // -- private macros --
 
-// create unit test
+// create unit test case
 #define _UTT_BEGIN_UNIT_TEST(unitTestName,unitTestNameString,callBefore,callAfter) \
         namespace unit_testing  \
         { \
@@ -80,11 +81,13 @@ namespace utils
                 printUnitName();
                 if (callBefore)
                     callBefore();
+                m_startTime = std::chrono::system_clock::now();
             }
             /// @brief Destroy unit testing object + execute "after" callback
             ~UnitTesting()
             {
-                printGeneralResult();
+                auto totalTimeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - m_startTime);
+                printGeneralResult(totalTimeElapsed.count());
                 if (m_callAfterUnit)
                     m_callAfterUnit();
             }
@@ -111,7 +114,6 @@ namespace utils
             ///                                           - must have (std::string& msg) argument
             void doTest(const std::string name, const std::function<void()> callBefore, const std::function<void()> callAfter, const std::function<bool(std::string&)> testCall)
             {
-                UnitTesting::printTestName(name);
                 if (m_callBeforeEach) // call before each test
                     m_callBeforeEach();
                 if (callBefore) // pre-test
@@ -120,6 +122,7 @@ namespace utils
                 ++m_totalTests;
                 std::string msg;
                 bool isSuccess = true;
+                auto startTime = std::chrono::system_clock::now();
                 
                 // multi-thread test execution
                 if (m_isConcurrency)
@@ -165,13 +168,15 @@ namespace utils
                 }
                 
                 // result
+                auto endTime = std::chrono::system_clock::now();
+                auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
                 if (isSuccess) 
                 {
-                    UnitTesting::printSuccess();
+                    UnitTesting::printSuccess(name, timeElapsed.count());
                 }
                 else
                 {
-                    UnitTesting::printFailure(msg);
+                    UnitTesting::printFailure(name, msg, timeElapsed.count());
                     ++m_failedTests;
                 }
                 
@@ -185,66 +190,65 @@ namespace utils
             /// @brief Print unit test headline on screen
             void printUnitName()
             {
-                printf("--------------------\n %s - start of tests", m_unitName.c_str());
+                printf("[---------] starting tests from %s", m_unitName.c_str());
                 if (m_isConcurrency)
-                    printf(" (with concurrency)");
-                printf("\n--------------------\n\n", m_unitName.c_str());
-            }
-            /// @brief Print current test name on screen
-            static void printTestName(std::string name)
-            {
-                printf("   %s - ", name.c_str());
+                    printf(" (with concurrency tests)");
+                printf("\n");
             }
             /// @brief Print current test result on screen - success
-            static void printSuccess()
+            /// @param[in] testName     Name of test function
+            /// @param[in] timeElapsed  Time elapsed during test
+            static void printSuccess(const std::string name, const uint32_t timeElapsed)
             {
                 INIT_ANSI_COLOR_SUPPORT();
                 SET_ANSI_COLOR(ANSI_COLOR_GREEN);
-                printf("[ SUCCESS ]\n");
+                printf("[      OK ]");
                 SET_ANSI_COLOR(ANSI_COLOR_RESET);
+                printf(" %s.%s (%u ms)\n", m_unitName.c_str(), name.c_str(), timeElapsed);
             }
             /// @brief Print current test result on screen - failure
-            /// @param[in] msg  Error message
-            static void printFailure(const std::string msg)
+            /// @param[in] testName     Name of test function
+            /// @param[in] msg          Error message
+            /// @param[in] timeElapsed  Time elapsed during test
+            static void printFailure(const std::string name, const std::string msg, const uint32_t timeElapsed)
             {
                 INIT_ANSI_COLOR_SUPPORT();
                 SET_ANSI_COLOR(ANSI_COLOR_RED);
-                printf("[ FAILURE ] - %s\n", msg.c_str());
+                printf("[  FAILED ]");
                 SET_ANSI_COLOR(ANSI_COLOR_RESET);
+                printf(" %s.%s (%u ms)\n %s\n", m_unitName.c_str(), name.c_str(), timeElapsed, msg.c_str());
             }
             /// @brief Print statistics (number of successes and failures) on screen
-            void printGeneralResult()
+            /// @param[in] totalTimeElapsed  Total time elapsed during unit testing
+            void printGeneralResult(const uint32_t totalTimeElapsed)
             {
                 INIT_ANSI_COLOR_SUPPORT();
+                printf("[---------] %u tests from %s (%u ms total)\n", m_totalTests, m_unitName.c_str(), totalTimeElapsed);
+                
                 uint32_t succeededTests = m_totalTests - m_failedTests;
+                SET_ANSI_COLOR(ANSI_COLOR_GREEN);
+                printf("[ SUCCESS ]");
+                SET_ANSI_COLOR(ANSI_COLOR_RESET);
+                printf(" %u of %u tests succeeded.\n", succeededTests, m_totalTests);
+                    
                 if (m_failedTests > 0u)
                 {
-                    printf(" %s complete - ", m_unitName.c_str());
                     SET_ANSI_COLOR(ANSI_COLOR_RED);
                     printf("[ FAILURE ]");
                     SET_ANSI_COLOR(ANSI_COLOR_RESET);
-                    printf("\n %u of %u tests succeeded.", succeededTests, m_totalTests);
-                    printf("\n %u tests failed.\n\n", m_failedTests);
+                    printf(" %u tests failed.\n\n", m_failedTests);
                 }
-                else
-                {
-                    printf(" %s complete - ", m_unitName.c_str());
-                    SET_ANSI_COLOR(ANSI_COLOR_GREEN);
-                    printf("[ SUCCESS ]");
-                    SET_ANSI_COLOR(ANSI_COLOR_RESET);
-                    printf("\n %u of %u tests succeeded.", succeededTests, m_totalTests);
-                    printf("\n %u tests failed.\n\n", m_failedTests);
-                    printf("%u of %u tests succeeded.\n\n", succeededTests, m_totalTests);
-                }
-                printf("---\n\n");
             }
             
             
         private:
-            bool m_isConcurrency;
             uint32_t m_totalTests;    ///< Number of failed tests
             uint32_t m_failedTests;   ///< Number of failed tests
+            std::chrono::time_point<std::chrono::system_clock> m_startTime; ///< Time measured during object creation (for duration of tests)
+            
             std::string m_unitName; ///< Name of tested unit
+            bool m_isConcurrency;   ///< Enable concurrency testing (multiple threads)
+            
             const std::function<void()> m_callBeforeEach; ///< Callback procedure, called before each test
             const std::function<void()> m_callAfterEach;  ///< Callback procedure, called after each test
             const std::function<void()> m_callAfterUnit;  ///< Callback procedure, called on object destruction
