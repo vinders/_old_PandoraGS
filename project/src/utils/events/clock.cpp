@@ -29,15 +29,15 @@ void Clock::setTimeMode(const Clock::timemode_t preferedMode) noexcept
 {
     #ifdef _WINDOWS
     LARGE_INTEGER cpuFreq;
-    if (preferedMode == Clock::timemode_t::highResCounter && QueryPerformanceFrequency(&cpuFreq))
+    if (preferedMode == Clock::timemode_t::highResolutionClock && QueryPerformanceFrequency(&cpuFreq))
     {
         m_tickRate = reinterpret_cast<uint64_t>(cpuFreq.QuadPart);
-        m_timeMode = Clock::timemode_t::highResCounter;
+        m_timeMode = Clock::timemode_t::highResolutionClock;
     }
     else
     {
         m_tickRate = 1000uLL;
-        m_timeMode = Clock::timemode_t::multimediaClock;
+        m_timeMode = Clock::timemode_t::steadyClock;
     }
     #else
     m_timeMode = preferedMode;
@@ -59,6 +59,7 @@ void Clock::setFrequency(const uint32_t freqNumerator, const uint32_t freqDenomi
     else
     {
         m_periodDuration = 0uLL;
+        m_periodSubDuration = 0.0f;
     }
     m_droppedSubDurations = 0.0f;
 }
@@ -72,7 +73,7 @@ void Clock::setFrequency(const uint32_t freqNumerator, const uint32_t freqDenomi
 TimePoint Clock::now() const noexcept
 {
     #ifdef _WINDOWS
-    if (m_timeMode == Clock::timemode_t::highResCounter)
+    if (m_timeMode == Clock::timemode_t::highResolutionClock)
     {
         LARGE_INTEGER currentTime;
         QueryPerformanceCounter(&currentTime);
@@ -83,7 +84,7 @@ TimePoint Clock::now() const noexcept
         return TimePoint::fromMilliseconds(static_cast<uint64_t>(timeGetTime()));
     }
     #else
-    auto time = (m_timeMode == Clock::timemode_t::highResCounter) ? std::chrono::high_resolution_clock::now() : std::chrono::system_clock::now();
+    auto time = (m_timeMode == Clock::timemode_t::highResolutionClock) ? std::chrono::high_resolution_clock::now() : std::chrono::steady_clock::now();
     return TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(time).count());
     #endif
 }
@@ -94,7 +95,7 @@ TimePoint Clock::now() const noexcept
 void Clock::now(TimePoint& timeRef, TimePoint& timeRefAux) const noexcept
 {
     #ifdef _WINDOWS
-    if (m_timeMode == Clock::timemode_t::highResCounter)
+    if (m_timeMode == Clock::timemode_t::highResolutionClock)
     {
         LARGE_INTEGER currentTime;
         QueryPerformanceCounter(&currentTime);
@@ -106,16 +107,16 @@ void Clock::now(TimePoint& timeRef, TimePoint& timeRefAux) const noexcept
     else
     {
         uint64_t currentTime = static_cast<uint64_t>(timeGetTime());
-        auto currentTimeAux = std::chrono::system_clock::now();
+        auto currentTimeAux = std::chrono::steady_clock::now();
         
         timeRef = TimePoint::fromMilliseconds(currentTime);
         timeRefAux = TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(currentTimeAux).count());
     }
     #else // Linux / UNIX
-    if (m_timeMode == Clock::timemode_t::highResCounter)
+    if (m_timeMode == Clock::timemode_t::highResolutionClock)
     {
         auto currentTime = std::chrono::high_resolution_clock::now();
-        auto currentTimeAux = std::chrono::system_clock::now();
+        auto currentTimeAux = std::chrono::steady_clock::now();
         
         timeRef = TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime).count());
         timeRefAux = TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(currentTimeAux).count());

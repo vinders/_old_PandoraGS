@@ -80,6 +80,13 @@ namespace utils
                 return activeFlagsNumber;
             }
             
+            /// @brief Compare 2 instances
+            /// @param[in] other  Other instance
+            /// @returns Equal (true) or not (false)
+            inline bool equals(const FlagSet& other) const noexcept
+            {
+                return (m_flags == other.data());
+            }
             /// @brief Compare 2 instances (equality)
             /// @param[in] other  Other instance
             /// @returns Equal (true) or not (false)

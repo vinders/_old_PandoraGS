@@ -124,6 +124,10 @@ namespace utils
                 return static_cast<ticks_t>(ticks);
             }
             
+            /// @brief Compare 2 instances
+            inline bool equals(const TimePoint& other) const noexcept         { return (m_nanoseconds == other.m_nanoseconds); }
+            /// @brief Compare instance to nanoseconds
+            inline bool equals(const uint64_t nanoseconds) const noexcept     { return (m_nanoseconds == nanoseconds); }
             /// @brief Compare 2 instances (equality)
             inline bool operator==(const TimePoint& other) const noexcept     { return (m_nanoseconds == other.m_nanoseconds); }
             /// @brief Compare instance to nanoseconds (equality)
@@ -132,6 +136,7 @@ namespace utils
             inline bool operator!=(const TimePoint& other) const noexcept     { return (m_nanoseconds != other.m_nanoseconds); }
             /// @brief Compare instance to nanoseconds (difference)
             inline bool operator!=(const uint64_t nanoseconds) const noexcept { return (m_nanoseconds != nanoseconds); }
+
             /// @brief Compare 2 instances (lower)
             inline bool operator<(const TimePoint& other) const noexcept      { return (m_nanoseconds < other.m_nanoseconds); }
             /// @brief Compare instance to nanoseconds (lower)

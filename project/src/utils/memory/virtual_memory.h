@@ -55,6 +55,12 @@ namespace utils
             {
                 return m_memorySize;
             }
+            /// @brief Check if virtual memory unallocated
+            /// @returns Empty (unallocated) or not
+            inline bool isEmpty() const noexcept
+            {
+                return (m_memorySize == 0u);
+            }
             /// @brief Get direct access to memory
             /// @returns Pointer at beginning of usable memory
             inline uint8_t* data() const noexcept
@@ -62,19 +68,26 @@ namespace utils
                 return m_pBegin;
             }
             
+            /// @brief Compare 2 instances
+            /// @param[in] other  Other instance
+            /// @returns Equal (true) or not (false)
+            inline bool equals(const VirtualMemory& other) const noexcept
+            {
+                return (m_memorySize == other.m_memorySize && memcmp(m_pBegin, other.m_pBegin, m_memorySize) == 0);
+            }
             /// @brief Compare 2 instances (equality)
             /// @param[in] other  Other instance
             /// @returns Equal (true) or not (false)
             inline bool operator==(const VirtualMemory& other) const noexcept
             {
-                return (m_memorySize == other.m_memorySize && memcmp(m_pBegin, other.m_pBegin, m_memorySize) == 0);
+                return equals(other);
             }
             /// @brief Compare 2 instances (difference)
             /// @param[in] other  Other instance
             /// @returns Different (true) or not (false)
             inline bool operator!=(const VirtualMemory& other) const noexcept
             {
-                return (m_memorySize != other.m_memorySize || memcmp(m_pBegin, other.m_pBegin, m_memorySize) != 0);
+                return !equals(other);
             }
             
             
@@ -116,7 +129,7 @@ namespace utils
                 /// @param[in] target  Target position in memory
                 iterator(const VirtualMemory& memory, const T* pTarget) : it_memory(memory), it_pos(pTarget) 
                 {
-                    if (memory.size() == 0u)
+                    if (memory.isEmpty())
                         throw std::logic_error("VirtualMemory.iterator: can't iterate through empty/unallocated memory");
                 }
                 /// @brief Copy iterator
@@ -134,6 +147,8 @@ namespace utils
                 /// @brief Get referenced value at current position
                 inline T& operator*() { return *it_pos; }
                 
+                /// @brief Compare 2 iterators
+                inline bool equals(const VirtualMemory::iterator<T>& other) const noexcept { return (it_pos == other.it_pos); }
                 /// @brief Compare 2 iterators (equality)
                 inline bool operator==(const VirtualMemory::iterator<T>& other) const noexcept { return (it_pos == other.it_pos); }
                 /// @brief Compare 2 iterators (difference)
@@ -147,8 +162,8 @@ namespace utils
                 /// @brief Compare 2 iterators (higher or equal)
                 inline bool operator>=(const VirtualMemory::iterator<T>& other) const noexcept { return (it_pos >= other.it_pos); }
                 
-                /// @brief Compare iterator and position (equality)
-                inline bool operator==(const T* other) const noexcept
+                /// @brief Compare iterator and position
+                inline bool equals(const T* other) const noexcept
                 { 
                     if (it_pos >= it_memory.end<T>())
                         return (it_memory.end<T>() == other);
@@ -156,14 +171,15 @@ namespace utils
                         return (it_memory.rend<T>() == other);
                     return (it_pos == other); 
                 }
+                /// @brief Compare iterator and position (equality)
+                inline bool operator==(const T* other) const noexcept
+                { 
+                    return equals(other);
+                }
                 /// @brief Compare iterator and position (difference)
                 inline bool operator!=(const T* other) const noexcept
                 { 
-                    if (it_pos >= it_memory.end<T>())
-                        return (it_memory.end<T>() != other);
-                    if (it_pos <= it_memory.rend<T>())
-                        return (it_memory.rend<T>() != other);
-                    return (it_pos == other); 
+                    return !equals(other);
                 }
                 /// @brief Compare iterator and position (lower)
                 inline bool operator<(const T* other) const noexcept  { return (it_pos < other); }

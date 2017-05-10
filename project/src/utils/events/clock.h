@@ -27,14 +27,14 @@ namespace utils
             /// @brief Timing modes
             enum class timemode_t : uint32_t
             {
-                multimediaClock = 0u, ///< Low-resolution, steady
-                highResCounter = 1u   ///< High-resolution, unstable
+                steadyClock = 0u,         ///< Low-resolution, steady
+                highResolutionClock = 1u  ///< High-resolution, unstable
             };
             
             
             /// @brief Create default clock
             Clock() noexcept : 
-                m_timeMode(Clock::timemode_t::multimediaClock), m_periodDuration(20000000uLL), m_runtimeDuration(20000000uLL), m_periodSubDuration(0.0f), m_droppedSubDurations(0.0f), m_periodCount(1) {}
+                m_timeMode(Clock::timemode_t::steadyClock), m_periodDuration(20000000uLL), m_runtimeDuration(20000000uLL), m_periodSubDuration(0.0f), m_droppedSubDurations(0.0f), m_periodCount(1) {}
             /// @brief Create initialized clock
             /// @param[in] freqNumerator     Clock frequency (desired periods per second) - numerator (e.g.: 60000)
             /// @param[in] freqDenominator   Clock frequency (desired periods per second) - denominator (e.g.: 1001)
