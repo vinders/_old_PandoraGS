@@ -76,7 +76,13 @@ CREATE_TEST_FUNCTION(myTestCase2, MySimpleTest)
     ASSERT_EQ(i, 2);
 }
 
-CREATE_TEST_FUNCTION(myTestCase2, MyTestWithCustomHooks,
+CREATE_TEST_FUNCTION(myTestCase2, MyThreadUnsafeTest, false)  // force concurrency to be disabled
+{
+    static bool isTrue = true;
+    ASSERT_TRUE(isTrue);
+}
+
+CREATE_TEST_FUNCTION(myTestCase2, MyTestWithCustomHooks, true,
                      [](void) { printf("overriden start"); },   // called only before this specific test
                      [](void) { printf("overriden end !"); })   // called only after this specific test
 {
