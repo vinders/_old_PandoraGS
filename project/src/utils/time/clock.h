@@ -23,9 +23,9 @@ namespace utils
         class Clock
         {
         public:
-            /// @enum timemode_t
+            /// @enum time_mode_t
             /// @brief Timing modes
-            enum class timemode_t : uint32_t
+            enum class time_mode_t : uint32_t
             {
                 steadyClock = 0u,         ///< Low-resolution, steady
                 highResolutionClock = 1u  ///< High-resolution, unstable
@@ -34,12 +34,12 @@ namespace utils
             
             /// @brief Create default clock
             Clock() noexcept : 
-                m_timeMode(Clock::timemode_t::steadyClock), m_periodDuration(20000000uLL), m_runtimeDuration(20000000uLL), m_periodSubDuration(0.0f), m_droppedSubDurations(0.0f), m_periodCount(1) {}
+                m_timeMode(Clock::time_mode_t::steadyClock), m_periodDuration(20000000uLL), m_runtimeDuration(20000000uLL), m_periodSubDuration(0.0f), m_droppedSubDurations(0.0f), m_periodCount(1) {}
             /// @brief Create initialized clock
             /// @param[in] freqNumerator     Clock frequency (desired periods per second) - numerator (e.g.: 60000)
             /// @param[in] freqDenominator   Clock frequency (desired periods per second) - denominator (e.g.: 1001)
             /// @param[in] preferedMode  Prefered time mode (if available)
-            Clock(const uint32_t freqNumerator, const uint32_t freqDenominator, const Clock::timemode_t preferedMode) noexcept : m_periodCount(1)
+            Clock(const uint32_t freqNumerator, const uint32_t freqDenominator, const Clock::time_mode_t preferedMode) noexcept : m_periodCount(1)
             {
                 setTimeMode(preferedMode);
                 setFrequency(freqNumerator, freqDenominator);
@@ -72,7 +72,7 @@ namespace utils
             
             /// @brief Set time mode and tick rate
             /// @param[in] preferedMode  Prefered time mode (if available)
-            void setTimeMode(const Clock::timemode_t preferedMode) noexcept;
+            void setTimeMode(const Clock::time_mode_t preferedMode) noexcept;
             /// @brief Set clock frequency
             /// @param[in] freqNumerator     Clock frequency (desired periods per second) - numerator (e.g.: 60000)
             /// @param[in] freqDenominator   Clock frequency (desired periods per second) - denominator (e.g.: 1001)
@@ -106,7 +106,7 @@ namespace utils
             
         private:
             // clock settings
-            Clock::timemode_t m_timeMode;  ///< Timing mode
+            Clock::time_mode_t m_timeMode;  ///< Timing mode
             uint64_t m_periodDuration;     ///< Duration between two checks (nanoseconds)
             float m_periodSubDuration;     ///< Sub-duration (less than 1 nanosecond) to add to duration
             #ifdef _WINDOWS
