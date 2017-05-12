@@ -14,9 +14,9 @@ Description : high-resolution clock
 /// General utilities
 namespace utils
 {
-    /// @namespace utils.events
-    /// Event management utilities
-    namespace events
+    /// @namespace utils.time
+    /// Time management utilities
+    namespace time
     {
         /// @class Clock
         /// @brief High-resolution clock

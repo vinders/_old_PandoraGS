@@ -7,7 +7,6 @@ Description : high-resolution clock
 #include <cstdlib>
 #include <cstdint>
 #include <cstddef>
-#include <ctime>
 #include <chrono>
 #ifdef _WINDOWS
 #   define VC_EXTRALEAN
@@ -18,7 +17,7 @@ Description : high-resolution clock
 #endif
 #include "time_point.hpp"
 #include "clock.h"
-using namespace utils::events;
+using namespace utils::time;
 
 
 // -- Getters / Setters --
@@ -77,7 +76,7 @@ TimePoint Clock::now() const noexcept
     {
         LARGE_INTEGER currentTime;
         QueryPerformanceCounter(&currentTime);
-        return TimePoint::fromTicks(reinterpret_cast<events::ticks_t>(currentTime.QuadPart), m_tickRate);
+        return TimePoint::fromTicks(reinterpret_cast<time::ticks_t>(currentTime.QuadPart), m_tickRate);
     }
     else
     {
@@ -101,7 +100,7 @@ void Clock::now(TimePoint& timeRef, TimePoint& timeRefAux) const noexcept
         QueryPerformanceCounter(&currentTime);
         uint64_t currentTimeAux = static_cast<uint64_t>(timeGetTime());
         
-        timeRef = TimePoint::fromTicks(reinterpret_cast<events::ticks_t>(currentTime.QuadPart), m_tickRate);
+        timeRef = TimePoint::fromTicks(reinterpret_cast<time::ticks_t>(currentTime.QuadPart), m_tickRate);
         timeRefAux = TimePoint::fromMilliseconds(currentTimeAux);
     }
     else

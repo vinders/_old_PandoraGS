@@ -16,9 +16,9 @@ Description : high-resolution time reference point
 /// General utilities
 namespace utils
 {
-    /// @namespace utils.events
-    /// Event management utilities
-    namespace events
+    /// @namespace utils.time
+    /// Time management utilities
+    namespace time
     {
         #ifdef _WINDOWS
         /// @brief Time point ticks
