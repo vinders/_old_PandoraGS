@@ -2,7 +2,7 @@
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : unit testing toolset - implementation (see 'unit_testing.h' for usage)
+Description : unit testing toolset - test data containers
 *******************************************************************************/
 #pragma once
 

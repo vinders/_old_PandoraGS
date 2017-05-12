@@ -7,7 +7,7 @@ Description : unit testing tool
 #pragma once
 
 #include "unit_test_data.hpp"
-#include "unit_test_register.hpp"
+#include "unit_test_register.h"
 #include "unit_test_notifier.hpp"
 #include "unit_test_runner.hpp"
 #include "../object_verifier.hpp"
@@ -101,7 +101,7 @@ void main()
 // -- macros to declare tests --
 
 // run unit tests
-#define RUN_ALL_TESTS(useConcurrency)    UnitTestRegister::runTests(useConcurrency)
+#define RUN_ALL_TESTS(useConcurrency)    UnitTestRegister::tryRunTests(useConcurrency)
 
 // create test case
 #define CREATE_TEST_CASE(testCaseName)                                                          _UT_CREATE_TEST_CASE(testCaseName,[](void){},[](void){},[](void){},[](void){})

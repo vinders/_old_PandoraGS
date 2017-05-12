@@ -11,7 +11,6 @@ Description : unit testing toolset - unit test register
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <chrono>
 #include <stdexcept>
 #include "unit_test_data.hpp"
 #include "unit_test_notifier.hpp"
@@ -103,47 +102,23 @@ namespace utils
             
             /// @brief Run all tests
             /// @param[in] isConcurrency  Enable concurrency testing (multiple executions with multiple threads)
-            static void runTests(const bool useConcurrency)
+            static void runTests(const bool useConcurrency);
+            /// @brief Run all tests (with exception catched)
+            /// @param[in] isConcurrency  Enable concurrency testing (multiple executions with multiple threads)
+            static void tryRunTests(const bool useConcurrency)
             {
-                UnitTestNotifier::init();
-                
-                // run test cases, by order of declaration
-                uint32_t totalTests = 0;
-                uint32_t totalFailedTests = 0;
-                uint32_t totalTime = 0;
-                for (auto it = s_registeredTestCaseNames.begin(); it != s_registeredTestCaseNames.end(); ++it)
+                try
                 {
-                    TestCaseData& currentTestCase = s_registeredTestCases[*it];
-                    uint32_t failedTests = 0;
-                    UnitTestNotifier::printTestCaseName(currentTestCase.name, currentTestCase.unitTests.size(), useConcurrency);
-                    
-                    // init test case
-                    if (currentTestCase.initHook)
-                        s_registeredTestCases[*it].initHook();
-                    
-                    // run all tests from test case
-                    auto caseStartTime = std::chrono::system_clock::now();
-                    for (auto itTest = currentTestCase.unitTests.begin(); itTest != currentTestCase.unitTests.end(); ++itTest)
-                    {
-                        bool isSuccess = UnitTestRunner::doTest(currentTestCase, *itTest, useConcurrency);
-                        if (!isSuccess)
-                            ++failedTests;
-                    }
-                    auto caseEndTime = std::chrono::system_clock::now();
-                    
-                    // test case results
-                    auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(caseEndTime - caseStartTime).count();
-                    UnitTestNotifier::printTestCaseResult(currentTestCase.name, currentTestCase.unitTests.size(), failedTests, timeElapsed);
-                    totalTests += currentTestCase.unitTests.size();
-                    totalFailedTests += failedTests;
-                    totalTime += timeElapsed;
-                    
-                    // stop test case
-                    if (currentTestCase.closeHook)
-                        currentTestCase.closeHook();
+                    runTests(useConcurrency);
                 }
-                // global results
-                UnitTestNotifier::printGlobalResult(s_registeredTestCaseNames.size(), totalTests, totalFailedTests, totalTime);
+                catch (const std::exception& exc)
+                {
+                    printf("Exception - %s", exc.what());
+                }
+                catch (...)
+                {
+                    printf("Error - Unhandled object thrown");
+                }
             }
             
         private:
