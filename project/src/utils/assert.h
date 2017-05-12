@@ -40,17 +40,9 @@ Description : debug assertions (assert, verify, trace)
 #define VERIFY(cmd)        if(!(cmd)){__debugbreak();}        // check condition command (command kept in release mode)
 #define VERIFY_EQ(val,cmd) if((cmd)==(val)){__debugbreak();}  // check command equality (command kept in release mode)
 #define VERIFY_NE(val,cmd) if((cmd)!=(val)){__debugbreak();}  // check command difference (command kept in release mode)
-
-/// @brief Debug tracer
-/// @param[in] msg  Trace message
-inline void TRACE(std::string msg)
-{
-    #ifdef _WINDOWS
-    OutputDebugString(msg.c_str());
-    #else
-    printf("%s", msg.c_str());
-    #endif
-}
+   
+// debug tracer
+#define TRACE(format,...) fprintf(stderr, "%s(%d): " format "\n", __FILE__, __LINE__, __VA_ARGS__)
 
 
 #else
@@ -65,6 +57,6 @@ inline void TRACE(std::string msg)
 #define VERIFY(cmd)        (cmd)   // no verification but command executed
 #define VERIFY_EQ(cmd,val) (cmd)   // no verification but command executed
 #define VERIFY_NE(cmd,val) (cmd)   // no verification but command executed
-#define TRACE(msg)         __noop  // no tracer
+#define TRACE(format,...)  __noop  // no tracer
 
 #endif
