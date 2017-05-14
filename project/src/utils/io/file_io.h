@@ -126,7 +126,7 @@ namespace utils
             /// @returns Code-page string
             static inline std::string utf8ToCodePage(const char* utf8, const std::locale codePage)
             {
-                if (utf8 == nullptr || str[0] == '\0')
+                if (utf8 == nullptr || utf8[0] == '\0')
                     return std::string("");
                 
                 // UTF-8 to unicode
@@ -149,39 +149,7 @@ namespace utils
             /// @param[in] str       Source string
             /// @param[in] codePage  Code-page identifier
             /// @returns UTF-16 string
-            static inline std::wstring codePageToUtf16(const char* str, const std::locale codePage)
-            {
-                if (str == nullptr || str[0] == '\0')
-                    return std::wstring("");
-                
-                // code page to unicode
-                std::vector<wchar_t> unicodeVec(unicodeStr.size());
-                std::use_facet<std::ctype<wchar_t>>(codePage).widen(str, str + strlen(str), unicodeVec.data());
-                // unicode to UTF-16
-                uint32_t tmpCode;
-                std::vector<wchar_t> utf16Vec(unicodeStr.size());
-                utf16Vec.reserve(unicodeVec.size() << 1);
-                for (uint32_t i = 0; i < unicodeVec.size(); ++i)
-                {
-                    tmpCode = static_cast<uint32_t>(unicodeVec[i]);
-                    if (tmpCode < 0xD800u || (tmpCode > 0xDFFF && tmpCode <= 0xFFFF))
-                    {
-                        utf16Vec.push_back(unicodeVec[i]);
-                    }
-                    else if (tmpCode > 0xFFFFu && tmpCode <= 0x1FFFFFu)
-                    {
-                        int32_t tmpCodeSigned = static_cast<int32_t>(unicodeVec[i]);
-                        tmpCodeSigned -= 0x010000;
-                        utf16Vec.push_back((tmpCodeSigned >> 10) | 0xD800);
-                        utf16Vec.push_back((tmpCodeSigned & 0x3FF) | 0xDC00);
-                    }
-                    else
-                    {
-                        utf16Vec.push_back(0x003F); // '?'
-                    }
-                }
-                return std::wstring(utf16Vec.data(), utf16Vec.size());
-            }
+            static inline std::wstring codePageToUtf16(const char* str, const std::locale codePage);
             /// @brief Convert ANSI (Windows-1252) string to UTF-16 string
             /// @param[in] str       Source ANSI string
             /// @returns UTF-16 string
@@ -194,36 +162,7 @@ namespace utils
             /// @param[in] utf16     Source UTF-16 string
             /// @param[in] codePage  Code-page identifier
             /// @returns Code-page string
-            static inline std::string utf16ToCodePage(const wchar_t* utf16, const std::locale codePage)
-            {
-                if (utf16 == nullptr || str[0] == L'\0')
-                    return std::string("");
-                
-                // UTF-16 to unicode
-                uint32_t tmpCode;
-                std::vector<wchar_t> unicodeStr(256);
-                unicodeStr.reserve(unicodeVec.size() << 1);
-                for (uint32_t i = 0; utf16[i] != L'\0'; ++i)
-                {
-                    tmpCode = static_cast<uint32_t>(utf16[i]);
-                    if (tmpCode < 0xD800u || (tmpCode > 0xDFFF && tmpCode <= 0xFFFF))
-                    {
-                        unicodeStr.push_back(utf16[i]);
-                    }
-                    else
-                    {
-                        int32_t tmpCodeSigned = ((static_cast<int32_t>(utf16[i]) &~ 0xD800) << 10);
-                        ++i
-                        tmpCodeSigned += (static_cast<int32_t>(utf16[i]) &~ 0xDC00);
-                        tmpCodeSigned += 0x010000;
-                        unicodeStr.push_back(tmpCode);
-                    }
-                }
-                // unicode to code page
-                std::vector<char> codePageVec(unicodeStr.size());
-                std::use_facet<std::ctype<wchar_t>>(codePage).narrow(unicodeStr.data(), unicodeStr.data() + unicodeStr.size(), '?', codePageVec.data());
-                return std::string(codePageVec.data(), codePageVec.size());
-            }
+            static std::string utf16ToCodePage(const wchar_t* utf16, const std::locale codePage);
             /// @brief Convert UTF-16 string to ANSI (Windows-1252) string
             /// @param[in] utf16     Source UTF-16 string
             /// @returns Code-page string
@@ -282,26 +221,7 @@ namespace utils
             /// @brief Convert UTF-16 string to UCS-2 string
             /// @param[in] utf8  Source UTF-16 string
             /// @returns UCS-2 string
-            static inline std::wstring utf16ToUcs2(const wchar_t* utf16)
-            {
-                uint32_t tmpCode;
-                std::vector<wchar_t> ucs2Str;
-                ucs2Str.reserve(256);
-                for (uint32_t i = 0; utf16[i] != L'\0'; ++i)
-                {
-                    tmpCode = static_cast<uint32_t>(utf16[i])
-                    if (tmpCode < 0xD800u || tmpCode > 0xDFFF) // valid
-                    {
-                        ucs2Str.push_back(utf16[i]);
-                    }
-                    else // 2-code-point character -> no conversion
-                    {
-                        ucs2Str.push_back(0x003F); // '?'
-                        ++i; // skip second code-point
-                    }
-                }
-                return std::wstring(ucs2Str.data(), ucs2Str.size());
-            }
+            static std::wstring utf16ToUcs2(const wchar_t* utf16);
             /// @brief Convert UCS-2 string to UTF-16 string
             /// @param[in] ucs2  Source UCS-2 string
             /// @returns UTF-16 string
