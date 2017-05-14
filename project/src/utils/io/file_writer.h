@@ -42,7 +42,6 @@ namespace utils
             enum flag_t : uint32_t
             {
                 FileWriter_flushBufferOnWrite = 0x01,  ///< Flush output buffer content after each write operation
-                FileWriter_lineFeedWithCR = 0x02,      ///< Add carriage-return (CR) symbols before line-feeds (LF) (only in text mode)
                 FileWriter_boolAsAlpha = 0x04,         ///< Write boolean names ("true"/"false") instead of "1"/"0" (only in text mode)
                 FileWriter_showPositiveSign = 0x10,    ///< Add '+' sign before positive numbers (only in text mode)
                 FileWriter_intToHex = 0x11,            ///< Hexadecimal notation for integers (only in text mode)
@@ -127,7 +126,7 @@ namespace utils
             /// @param[in] offset  Offset, based on reference (bytes)
             /// @returns Current instance
             /// @throws failure  Seek failure
-            inline FileWriter& seek(const seek_reference_t whence, const int32_t offset)
+            inline FileWriter& seek(const FileIO::seek_reference_t whence, const int32_t offset)
             {
                 if (isOpen)
                 {
@@ -183,24 +182,42 @@ namespace utils
             FileWriter& put(const long double val);
             FileWriter& operator<<(const long double val);
             
-            FileWriter& write(const char* stream, size_t size);
+            FileWriter& writeStream(const uint8_t* stream, size_t size);
             
+            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
             FileWriter& write(const char* strVal);
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
             FileWriter& write(const wchar_t* strVal);
+            
+            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
             FileWriter& write(const std::string& strVal);
+            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
             FileWriter& operator<<(const std::string& val);
+            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
             FileWriter& write(std::string&& strVal);
+            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
             FileWriter& operator<<(std::string&& val);
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
             FileWriter& write(const std::wstring& strVal);
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
             FileWriter& operator<<(const std::wstring& val);
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
             FileWriter& write(std::wstring&& strVal);
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
             FileWriter& operator<<(std::wstring&& val);
             
+            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
             FileWriter& writeLine(const char* strVal);
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
             FileWriter& writeLine(const wchar_t* strVal);
+            
+            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
             FileWriter& writeLine(const std::string& strVal);
+            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
             FileWriter& writeLine(std::string&& strVal);
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
             FileWriter& writeLine(const std::wstring& strVal);
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
             FileWriter& writeLine(std::wstring&& strVal);
             
             
@@ -224,9 +241,12 @@ namespace utils
             /// @returns Current instance
             inline FileWriter& setFormatFlags(const flag_t formatFlags) noexcept
             {
-                lock<checkConcurrency>();
-                setFormatFlags_noLock(formatFlags);
-                unlock<checkConcurrency>();
+                if (isOpen())
+                {
+                    lock<checkConcurrency>();
+                    setFormatFlags_noLock(formatFlags);
+                    unlock<checkConcurrency>();
+                }
                 return *this;
             }
             
@@ -249,11 +269,6 @@ namespace utils
         
             
         private:
-            template <FileIO::file_encoder_t Encoder>
-            void encode(const char* stream, size_t size);
-            template <FileIO::file_encoder_t Encoder>
-            void encode(const wchar_t* stream, size_t size);
-            
             /// @brief Flush output buffer
             inline void flush_noLock()
             {
@@ -264,37 +279,26 @@ namespace utils
             /// @param[in] whence  Reference position to move from
             /// @param[in] offset  Offset, based on reference (bytes)
             /// @throws failure  Seek failure
-            void seek_noLock(const seek_reference_t whence, const int32_t offset)
+            void seek_noLock(const FileIO::seek_reference_t whence, const int32_t offset)
             {
                 switch (whence)
                 {
                     case FileIO::seek_reference_t::begin:
-                        m_fileStream.seekp(offset, ios_base::beg); 
+                        m_fileStream.seekp((Encoder != FileIO::file_encoder_t::utf8_bom) ? offset : offset + 3, ios_base::beg); 
                         break;
                     case FileIO::seek_reference_t::end:
                         m_fileStream.seekp(offset, ios_base::end); 
                         break;
                     case FileIO::seek_reference_t::cur
-                        m_fileStream.seekp(offset, ios_base::cur); 
                     default: 
+                        m_fileStream.seekp(offset, ios_base::cur); 
                         break;
                 }
             }
             
             /// @brief Set formatting flags - no lock
             /// @param[in] formatFlags  Flag(s)
-            inline void setFormatFlags_noLock(const flag_t formatFlags) noexcept
-            {
-                m_formatFlags = utils::memory::flag_set<flag_t>(formatFlags);
-                //...
-                //m_fileStream.setf(std::ios::fixed, std::ios::floatfield);
-                //m_fileStream.unsetf(std::ios::floatfield);
-                //...
-                //...
-                //...
-                //...
-                //...
-            }
+            void setFormatFlags_noLock(const flag_t formatFlags) noexcept;
             /// @brief Set decimal precision for floating point numbers - no lock
             /// @param[in] floatDecimalPrecision  Decimal precision
             inline void setFloatDecimalPrecision_noLock(const uint32_t floatDecimalPrecision) noexcept

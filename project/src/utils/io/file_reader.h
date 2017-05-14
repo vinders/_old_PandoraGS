@@ -49,12 +49,17 @@ namespace utils
             
             
             /// @brief Create file reader instance (specialized)
-            FileReader() noexcept;
+            FileReader() noexcept : FileIO(), m_fileLength(0u), m_formatFlags(0u) {}
             /// @brief Move file reader instance
             /// @param[in] other  Other instance
-            FileReader(FileReader&& other) noexcept;
+            FileReader(FileReader&& other) : 
+                FileIO(other), 
+                m_fileStream(std::move(other.m_fileStream)), 
+                m_fileLength(other.m_floatDecimalPrecision), 
+                m_formatFlags(other.m_formatFlags), 
+                m_errorBuffer(std::move(other.m_errorBuffer)) {}
             // no copy allowed
-            FileReader(const FileReader& other) noexcept;
+            FileReader(const FileReader& other) = delete;
             /// @brief Destroy file reader instance
             ~FileReader()
             {
@@ -64,12 +69,26 @@ namespace utils
             /// @brief Assign moved file reader instance
             /// @param[in] other  Other instance
             /// @returns Moved instance
-            FileReader& operator=(FileReader&& other) noexcept;
+            FileReader& operator=(FileReader&& other) noexcept
+            {
+                FileIO::operator=(other);
+                m_fileStream = std::move(other.m_fileStream); 
+                m_fileLength = other.m_fileLength;
+                m_formatFlags = other.m_formatFlags;
+                m_errorBuffer = std::move(other.m_errorBuffer);
+            }
             // no copy allowed
-            FileReader& operator=(const FileReader& other) noexcept;
+            FileReader& operator=(const FileReader& other) = delete;
             /// @brief Swap file reader instances
             /// @param[in] other  Other instance
-            void swap(FileReader& other) noexcept;
+            void swap(FileReader& other) noexcept
+            {
+                FileIO::swap(other);
+                m_fileStream.swap(other.m_fileStream); 
+                std::swap(m_fileLength, other.m_fileLength);
+                m_formatFlags.swap(other.m_formatFlags);
+                m_errorBuffer.swap(other.m_errorBuffer);
+            }
         
         
             // -- File management --
@@ -87,6 +106,7 @@ namespace utils
             /// @param[in] whence  Reference position to move from
             /// @param[in] offset  Offset, based on reference (bytes)
             /// @returns Current instance
+            /// @throws failure  Seek failure
             inline FileReader& seek(const seek_reference_t whence, const int32_t offset)
             {
                 lock<checkConcurrency>();
@@ -115,7 +135,7 @@ namespace utils
             }
             /// @brief Get total file length (bytes)
             /// @returns File length
-            inline size_t size() const noexcept
+            inline uint64_t size() const noexcept
             {
                 return m_fileLength;
             }
@@ -123,7 +143,7 @@ namespace utils
             /// @returns Empty (true) or not
             inline bool isEmpty() const noexcept
             {
-                return (size == 0u);
+                return (size() == 0uLL);
             }
             
             
@@ -152,17 +172,30 @@ namespace utils
             FileReader& get(long double val);
             FileReader& operator>>(long double val);
             
-            FileReader& read(char* stream, size_t size);
+            FileReader& readStream(uint8_t* stream, size_t maxSize);
             
-            FileReader& read(wchar_t* strVal, size_t size);
+            template <FileIO::string_encoder_t DestEncoder = FileIO::string_encoder_t::ansi>
+            FileReader& read(char* stream, size_t maxSize);
+            template <FileIO::wstring_encoder_t DestEncoder = FileIO::wstring_encoder_t::utf16>
+            FileReader& read(wchar_t* strVal, size_t maxSize);
+            
+            template <FileIO::string_encoder_t DestEncoder = FileIO::string_encoder_t::ansi>
             FileReader& read(std::string& strVal);
+            template <FileIO::string_encoder_t DestEncoder = FileIO::string_encoder_t::ansi>
             FileReader& operator>>(std::string& val);
+            template <FileIO::wstring_encoder_t DestEncoder = FileIO::wstring_encoder_t::utf16>
             FileReader& read(std::wstring& strVal);
+            template <FileIO::wstring_encoder_t DestEncoder = FileIO::wstring_encoder_t::utf16>
             FileReader& operator>>(std::wstring& val);
             
-            FileReader& readLine(const char* strVal, size_t size);
-            FileReader& readLine(wchar_t* strVal, size_t size);
+            template <FileIO::string_encoder_t DestEncoder = FileIO::string_encoder_t::ansi>
+            FileReader& readLine(char* strVal, size_t maxSize);
+            template <FileIO::wstring_encoder_t DestEncoder = FileIO::wstring_encoder_t::utf16>
+            FileReader& readLine(wchar_t* strVal, size_t maxSize);
+            
+            template <FileIO::string_encoder_t DestEncoder = FileIO::string_encoder_t::ansi>
             FileReader& readLine(std::string& strVal);
+            template <FileIO::wstring_encoder_t DestEncoder = FileIO::wstring_encoder_t::utf16>
             FileReader& readLine(std::wstring& strVal);
             
             
@@ -186,23 +219,37 @@ namespace utils
             /// @returns Current instance
             inline FileReader& setFormatFlags(const flag_t formatFlags) noexcept
             {
-                lock<checkConcurrency>();
-                setFormatFlags_noLock(formatFlags);
-                unlock<checkConcurrency>();
+                if (isOpen())
+                {
+                    lock<checkConcurrency>();
+                    setFormatFlags_noLock(formatFlags);
+                    unlock<checkConcurrency>();
+                }
                 return *this;
             }
             
             
         private:
-            template <FileIO::file_encoder_t Encoder>
-            void decode(char* stream, size_t size);
-            template <FileIO::file_encoder_t Encoder>
-            void decode(wchar_t* stream, size_t size);
-            
             /// @brief Change reader position in current file
             /// @param[in] whence  Reference position to move from
             /// @param[in] offset  Offset, based on reference (bytes)
-            void seek_noLock(const seek_reference_t whence, const int32_t offset);
+            /// @throws failure  Seek failure
+            void seek_noLock(const FileIO::seek_reference_t whence, const int32_t offset)
+            {
+                switch (whence)
+                {
+                    case FileIO::seek_reference_t::begin:
+                        m_fileStream.seekp((Encoder != FileIO::file_encoder_t::utf8_bom) ? offset : offset + 3, ios_base::beg);
+                        break;
+                    case FileIO::seek_reference_t::end:
+                        m_fileStream.seekg(offset, ios_base::end); 
+                        break;
+                    case FileIO::seek_reference_t::cur
+                    default: 
+                        m_fileStream.seekg(offset, ios_base::cur); 
+                        break;
+                }
+            }
             
             /// @brief Set formatting flags - no lock
             /// @param[in] formatFlags  Flag(s)
@@ -214,7 +261,7 @@ namespace utils
             
         private:
             std::ifstream m_fileStream; ///< File input stream
-            uint32_t m_fileLength;      ///< Total file length (bytes)
+            uint64_t m_fileLength;      ///< Total file length (bytes)
             std::string m_errorBuffer;  ///< Last opening error message
             
             utils::memory::flag_set<flag_t> m_formatFlags; ///< Formatting flags (text mode)
