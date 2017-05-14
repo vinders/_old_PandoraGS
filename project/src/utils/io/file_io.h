@@ -14,7 +14,7 @@ Description : file input/output and encoding - base
 #include <locale>
 #include <vector>
 #include "../thread/thread_mutex.hpp"
-#include "../string_encoder.h"
+#include "string_encoder.h"
 
 /// @namespace utils
 /// General utilities

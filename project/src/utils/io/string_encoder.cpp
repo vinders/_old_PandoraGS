@@ -13,7 +13,7 @@ Description : string encoding conversion
 #include <vector>
 #include <codecvt>
 #include "string_encoder.h"
-using namespace utils;
+using namespace utils::io;
 
 
 // -- Character byte conversion --
@@ -21,7 +21,7 @@ using namespace utils;
 /// @brief Convert wide character string to little-endian byte string
 /// @param[in] wstr  Wide character string
 /// @returns Little-endian byte string
-static std::vector<char> StringEncoder::wideStringToLittleEndianBytes(const wchar_t* wstr)
+std::vector<char> StringEncoder::wideStringToLittleEndianBytes(const wchar_t* wstr)
 {
     char bufferHigh, bufferLow;
     std::vector<char> byteStr;
@@ -37,7 +37,7 @@ static std::vector<char> StringEncoder::wideStringToLittleEndianBytes(const wcha
 /// @brief Convert little-endian byte string to wide character string
 /// @param[in] str  Byte string
 /// @returns Wide character string
-static std::wstring StringEncoder::littleEndianBytesToWideString(const std::vector<char> str)
+std::wstring StringEncoder::littleEndianBytesToWideString(const std::vector<char> str)
 {
     wchar_t buffer;
     std::vector<wchar_t> wideStr;
@@ -53,7 +53,7 @@ static std::wstring StringEncoder::littleEndianBytesToWideString(const std::vect
 /// @brief Convert wide character string to big-endian byte string
 /// @param[in] wstr  Wide character string
 /// @returns Big-endian byte string
-static std::vector<char> StringEncoder::wideStringToBigEndianBytes(const wchar_t* wstr)
+std::vector<char> StringEncoder::wideStringToBigEndianBytes(const wchar_t* wstr)
 {
     char bufferHigh, bufferLow;
     std::vector<char> byteStr;
@@ -69,7 +69,7 @@ static std::vector<char> StringEncoder::wideStringToBigEndianBytes(const wchar_t
 /// @brief Convert big-endian byte string to wide character string
 /// @param[in] str  Byte string
 /// @returns Wide character string
-static std::wstring StringEncoder::bigEndianBytesToWideString(const std::vector<char> str)
+std::wstring StringEncoder::bigEndianBytesToWideString(const std::vector<char> str)
 {
     wchar_t buffer;
     std::vector<wchar_t> wideStr;
