@@ -8,7 +8,7 @@ Description : file input/output - base
 
 #include <cstddef>
 #include <cstdint>
-#include "../memory/thread_spin_lock.hpp"
+#include "../thread/thread_mutex.hpp"
 
 /// @namespace utils
 /// General utilities
@@ -27,7 +27,7 @@ namespace utils
             /// @brief Reference point for seek operations
             enum class seek_reference_t : uint32_t
             {
-                start = 0u,   ///< reference from beginning of the file
+                begin = 0u,   ///< reference from beginning of the file
                 current = 1u, ///< reference from current read/write position
                 end = 2u      ///< reference from end of the file
             };
@@ -58,11 +58,32 @@ namespace utils
                 ucs2 = 6u
             };
             
-            /// @brief Default constructor
-            FileIO() {}
+            /// @brief Get system home directory
+            /// @returns Home directory path
+            static std::wstring getHomeDirectoryPath() noexcept;
+            /// @brief Get working directory
+            /// @returns Working directory path
+            static std::wstring getWorkingDirectoryPath() noexcept;
+            
             
         protected:
-            ThreadSpinLock m_fileLock;  ///< File single-access protection lock
+            /// @brief Default constructor
+            FileIO() {}
+            /// @brief Move instance
+            /// @param[in] other  Other instance
+            FileIO(FileIO&& other) : m_fileLock(std::move(other.m_fileLock)) {}
+            /// @brief Swap instances
+            /// @param[in] other  Other instance
+            void swap(FileWriter& other) noexcept
+            {
+                ThreadSpinLock tmp = std::move(other.m_fileLock);
+                other.m_fileLock = std::move(m_fileLock);
+                m_fileLock = std::move(tmp);
+            }
+            
+            
+        protected:
+            utils::thread::ThreadMutex m_fileLock;  ///< Concurrency protection lock
         };
     }
 }
