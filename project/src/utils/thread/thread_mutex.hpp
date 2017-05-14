@@ -2,14 +2,14 @@
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : spin-lock with multi-lock per thread : very fast mutex (if no wait -> only use if rare concurrency)
+Description : mutex lockable multiple times by the same thread (without deadlock)
 *******************************************************************************/
 #pragma once
 
 #include <cstddef>
 #include <cstdint>
 #include <thread>
-#include <atomic>
+#include <mutex>
 #include <chrono>
 #include <thread>
 
@@ -21,36 +21,18 @@ namespace utils
     /// Memory management utilities
     namespace memory
     {
-        /// @class ThreadSpinLock
-        /// @brief Spin-lock mutex (locked once per thread)
-        class ThreadSpinLock
+        /// @class ThreadMutex
+        /// @brief Mutex lockable multiple times by the same thread
+        class ThreadMutex
         {
         public:
             /// @brief Create unlocked instance
-            SpinLock() : m_status(ATOMIC_FLAG_INIT) {}
+            ThreadMutex() {}
             /// @brief Move instance
             /// @param[in] other  Other instance to move
-            explicit SpinLock(SpinLock&& other) : m_status(other.m_status), m_lockThreadId(other.m_lockThreadId) {}
+            explicit ThreadMutex(ThreadMutex&& other) : m_status(other.m_status), m_lockThreadId(other.m_lockThreadId) {}
             // no copy allowed
-            SpinLock(const SpinLock& other) = delete;
-            
-            
-            // -- Utilities --
-            
-            /// @brief Compare 2 instances (equality)
-            /// @param[in] other  Other instance
-            /// @returns Equal (true) or not (false)
-            inline bool operator==(const SpinLock& other) const noexcept
-            {
-                return (m_status == other.m_status);
-            }
-            /// @brief Compare 2 instances (difference)
-            /// @param[in] other  Other instance
-            /// @returns Different (true) or not (false)
-            inline bool operator!=(const SpinLock& other) const noexcept
-            {
-                return (m_status != other.m_status);
-            }
+            ThreadMutex(const ThreadMutex& other) = delete;
             
             
             // -- Lock management --
@@ -65,10 +47,7 @@ namespace utils
                     return;
                 }
                 
-                while (m_status.test_and_set(std::memory_order_acquire))
-                {
-                    std::this_thread::yield();
-                }
+                m_status.lock();
                 m_lockThreadId = threadId;
             }
             /// @brief Wait until instance unlocked or timeout
@@ -82,15 +61,15 @@ namespace utils
                     return true;
                 }
                 
-                if (m_status.test_and_set(std::memory_order_acquire)) // if already locked
+                if (!m_status.try_lock()) // if already locked
                 {
                     // set timeout reference
-                    std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::system_clock::now();
-                    std::chrono::time_point<std::chrono::system_clock> timeoutTime = currentTime + std::chrono::milliseconds(timeout);
+                    std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
+                    std::chrono::time_point<std::chrono::steady_clock> timeoutTime = currentTime + std::chrono::milliseconds(timeout);
                     
-                    while (m_status.test_and_set(std::memory_order_acquire))
+                    while (!m_status.try_lock())
                     {
-                        currentTime = std::chrono::system_clock::now();
+                        currentTime = std::chrono::steady_clock::now();
                         if (currentTime > timeoutTime) // check for timeout
                             return false;
                         
@@ -111,7 +90,7 @@ namespace utils
                     return true;
                 }
                 
-                if (!m_status.test_and_set(std::memory_order_acquire)) // return opposite of previous value
+                if (m_status.try_lock()) 
                 {
                     m_lockThreadId = threadId;
                     return true;
@@ -134,7 +113,7 @@ namespace utils
                 if (m_lockCount == 0u)
                 {
                     m_lockThreadId = std::thread::id();
-                    m_status.clear(std::memory_order_release);
+                    m_status.unlock();
                 }
                 else
                 {
@@ -145,7 +124,7 @@ namespace utils
 
         private:
             std::thread::id m_lockThreadId; ///< Locking thread ID
-            std::atomic_flag m_status;      ///< Lock status (true = locked)
+            std::mutex m_status;            ///< Mutex
             uint32_t m_lockCount;           ///< Number of locks made by same thread (if multiple locks, multiple unlocks required)
         };
     }
