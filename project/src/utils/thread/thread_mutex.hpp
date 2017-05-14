@@ -17,9 +17,9 @@ Description : mutex lockable multiple times by the same thread (without deadlock
 /// General utilities
 namespace utils
 {
-    /// @namespace utils.memory
-    /// Memory management utilities
-    namespace memory
+    /// @namespace utils.thread
+    /// Thread management utilities
+    namespace thread
     {
         /// @class ThreadMutex
         /// @brief Mutex lockable multiple times by the same thread

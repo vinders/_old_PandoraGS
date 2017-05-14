@@ -16,9 +16,9 @@ Description : spin-lock (no multi-lock) : very fast mutex (if no wait -> only us
 /// General utilities
 namespace utils
 {
-    /// @namespace utils.memory
-    /// Memory management utilities
-    namespace memory
+    /// @namespace utils.thread
+    /// Thread management utilities
+    namespace thread
     {
         /// @class SpinLock
         /// @brief Spin-lock mutex
