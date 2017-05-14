@@ -9,7 +9,10 @@ Description : advanced file writer
 #include <cstddef>
 #include <cstdint>
 #include <string>
-#include "file_io.hpp"
+#include <iostream>
+#include <fstream>
+#include <ofstream>
+#include "file_io.h"
 #include "../memory/flag_set.hpp"
 
 /// @namespace utils
@@ -54,30 +57,46 @@ namespace utils
             
             
             /// @brief Create file writer instance (specialized)
-            FileWriter() noexcept;
-            /// @brief Copy file writer instance
-            /// @param[in] other  Other instance
-            FileWriter(const FileWriter& other) noexcept;
+            FileWriter() noexcept : FileIO(), m_floatDecimalPrecision(0u), m_formatFlags(0u) {}
             /// @brief Move file writer instance
             /// @param[in] other  Other instance
-            FileWriter(FileWriter&& other) noexcept;
+            FileWriter(FileWriter&& other) : 
+                FileIO(other), 
+                m_fileStream(std::move(other.m_fileStream)), 
+                m_floatDecimalPrecision(other.m_floatDecimalPrecision), 
+                m_formatFlags(other.m_formatFlags), 
+                m_errorBuffer(std::move(other.m_errorBuffer)) {}
+            // no copy allowed
+            FileWriter(const FileWriter& other) = delete;
             /// @brief Destroy file writer instance
             ~FileWriter()
             {
                 close();
             }
             
-            /// @brief Assign copy of file writer instance
-            /// @param[in] other  Other instance
-            /// @returns Copied instance
-            FileWriter& operator=(const FileWriter& other) noexcept;
             /// @brief Assign moved file writer instance
             /// @param[in] other  Other instance
             /// @returns Moved instance
-            FileWriter& operator=(FileWriter&& other) noexcept;
+            FileWriter& operator=(FileWriter&& other)
+            {
+                FileIO::operator=(other);
+                m_fileStream = std::move(other.m_fileStream); 
+                m_floatDecimalPrecision = other.m_floatDecimalPrecision;
+                m_formatFlags = other.m_formatFlags;
+                m_errorBuffer = std::move(other.m_errorBuffer);
+            }
+            // no copy allowed
+            FileWriter& operator=(const FileWriter& other) = delete;
             /// @brief Swap file writer instances
             /// @param[in] other  Other instance
-            void swap(FileWriter& other) noexcept;
+            void swap(FileWriter& other) noexcept
+            {
+                FileIO::swap(other);
+                m_fileStream.swap(other.m_fileStream); 
+                std::swap(m_floatDecimalPrecision, other.m_floatDecimalPrecision);
+                m_formatFlags.swap(other.m_formatFlags);
+                m_errorBuffer.swap(other.m_errorBuffer);
+            }
         
         
             // -- File management --
@@ -94,9 +113,12 @@ namespace utils
             /// @returns Current instance
             inline FileWriter& flush()
             {
-                m_fileLock.lock();
-                flush_noLock();
-                m_fileLock.unlock();
+                if (isOpen)
+                {
+                    m_fileLock.lock();
+                    flush_noLock();
+                    m_fileLock.unlock();
+                }
                 return *this;
             }
             
@@ -104,24 +126,28 @@ namespace utils
             /// @param[in] whence  Reference position to move from
             /// @param[in] offset  Offset, based on reference (bytes)
             /// @returns Current instance
+            /// @throws failure  Seek failure
             inline FileWriter& seek(const seek_reference_t whence, const int32_t offset)
             {
-                m_fileLock.lock();
-                seek_noLock(whence, offset);
-                m_fileLock.unlock();
+                if (isOpen)
+                {
+                    m_fileLock.lock();
+                    seek_noLock(whence, offset);
+                    m_fileLock.unlock();
+                }
                 return *this;
             }
             /// @brief Check if a file is open
             /// @returns File open (true) or not
             inline bool isOpen() const noexcept
             {
-                return (0); //...m_file ????
+                return m_fileStream.is_open();
             }
             /// @brief Check if current position is at the end of the file
             /// @returns End of file reached (true) or not
             inline bool isEof() const noexcept
             {
-                return (m_offset >= m_fileLength);
+                return ((isOpen() == false) || m_fileStream.eof());
             }
             
             /// @brief Get most recent error message (if any)
@@ -130,13 +156,6 @@ namespace utils
             {
                 return m_errorBuffer;
             }
-            
-            /// @brief Get system home directory
-            /// @returns Home directory path
-            static std::wstring getHomeDirectoryPath() noexcept;
-            /// @brief Get working directory
-            /// @returns Working directory path
-            static std::wstring getWorkingDirectoryPath() noexcept;
             
             
             // -- Output operations --
@@ -218,7 +237,7 @@ namespace utils
                 return m_floatDecimalPrecision;
             }
             /// @brief Set decimal precision for floating point numbers
-            /// @param[in] floatDecimalPrecision  Decimal precision
+            /// @param[in] floatDecimalPrecision  Decimal precision (0 for maximum precision)
             /// @returns Current instance
             inline FileWriter& setFloatDecimalPrecision(const uint32_t floatDecimalPrecision) noexcept
             {
@@ -230,42 +249,79 @@ namespace utils
         
             
         private:
+            template <FileIO::file_encoder_t Encoder>
             void encode(const char* stream, size_t size);
+            template <FileIO::file_encoder_t Encoder>
             void encode(const wchar_t* stream, size_t size);
             
             /// @brief Flush output buffer
             inline void flush_noLock()
             {
-                //...
+                m_fileStream.flush();
             }
-            /// @brief Change writer position in current file
+            
+             /// @brief Change writer position in current file
             /// @param[in] whence  Reference position to move from
             /// @param[in] offset  Offset, based on reference (bytes)
-            void seek_noLock(const seek_reference_t whence, const int32_t offset);
+            /// @throws failure  Seek failure
+            void seek_noLock(const seek_reference_t whence, const int32_t offset)
+            {
+                switch (whence)
+                {
+                    case FileIO::seek_reference_t::begin:
+                        m_fileStream.seekp(offset, ios_base::beg); 
+                        break;
+                    case FileIO::seek_reference_t::end:
+                        m_fileStream.seekp(offset, ios_base::end); 
+                        break;
+                    case FileIO::seek_reference_t::cur
+                        m_fileStream.seekp(offset, ios_base::cur); 
+                    default: 
+                        break;
+                }
+            }
             
             /// @brief Set formatting flags - no lock
             /// @param[in] formatFlags  Flag(s)
             inline void setFormatFlags_noLock(const flag_t formatFlags) noexcept
             {
                 m_formatFlags = utils::memory::flag_set<flag_t>(formatFlags);
+                //...
+                //m_fileStream.setf(std::ios::fixed, std::ios::floatfield);
+                //m_fileStream.unsetf(std::ios::floatfield);
+                //...
+                //...
+                //...
+                //...
+                //...
             }
             /// @brief Set decimal precision for floating point numbers - no lock
             /// @param[in] floatDecimalPrecision  Decimal precision
             inline void setFloatDecimalPrecision_noLock(const uint32_t floatDecimalPrecision) noexcept
             {
                 m_floatDecimalPrecision = floatDecimalPrecision;
+                if (isOpen())
+                {
+                    if (floatDecimalPrecision != 0u)
+                    {
+                        m_fileStream.precision(floatDecimalPrecision);
+                    }
+                    else
+                    {
+                        m_floatDecimalPrecision = m_defaultPrecision;
+                        m_fileStream.precision(m_defaultPrecision);
+                    }
+                }
             }
             
             
         private:
-            //handle??? m_file;
-            uint32_t m_offset;
-            uint32_t m_fileLength;
+            std::ofstream m_fileStream; ///< File output stream
+            std::string m_errorBuffer;  ///< Last opening error message
             
-            std::string m_errorBuffer;
-            
-            uint32_t m_floatDecimalPrecision;
-            utils::memory::flag_set<flag_t> m_formatFlags;
+            uint32_t m_floatDecimalPrecision;   ///< Decimal precision for floating-point numbers (0 to use maximum)
+            std::streamsize m_defaultPrecision; ///< Default decimal precision value
+            utils::memory::flag_set<flag_t> m_formatFlags; ///< Formatting flags (text mode) + flush flag
         };
     }
 }

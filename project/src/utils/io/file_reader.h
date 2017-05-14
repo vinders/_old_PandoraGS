@@ -9,7 +9,10 @@ Description : advanced file reader
 #include <cstddef>
 #include <cstdint>
 #include <string>
-#include "file_io.hpp"
+#include <iostream>
+#include <fstream>
+#include <ifstream>
+#include "file_io.h"
 #include "../memory/flag_set.hpp"
 
 /// @namespace utils
@@ -47,26 +50,23 @@ namespace utils
             
             /// @brief Create file reader instance (specialized)
             FileReader() noexcept;
-            /// @brief Copy file reader instance
-            /// @param[in] other  Other instance
-            FileReader(const FileReader& other) noexcept;
             /// @brief Move file reader instance
             /// @param[in] other  Other instance
             FileReader(FileReader&& other) noexcept;
+            // no copy allowed
+            FileReader(const FileReader& other) noexcept;
             /// @brief Destroy file reader instance
             ~FileReader()
             {
                 close();
             }
             
-            /// @brief Assign copy of file reader instance
-            /// @param[in] other  Other instance
-            /// @returns Copied instance
-            FileReader& operator=(const FileReader& other) noexcept;
             /// @brief Assign moved file reader instance
             /// @param[in] other  Other instance
             /// @returns Moved instance
             FileReader& operator=(FileReader&& other) noexcept;
+            // no copy allowed
+            FileReader& operator=(const FileReader& other) noexcept;
             /// @brief Swap file reader instances
             /// @param[in] other  Other instance
             void swap(FileReader& other) noexcept;
@@ -98,13 +98,13 @@ namespace utils
             /// @returns File open (true) or not
             inline bool isOpen() const noexcept
             {
-                return (0);//...m_file ????
+                return m_fileStream.is_open();
             }
             /// @brief Check if current position is at the end of the file
             /// @returns End of file reached (true) or not
             inline bool isEof() const noexcept
             {
-                return (m_offset >= m_fileLength);
+                return m_fileStream.eof();
             }
             
             /// @brief Get most recent error message (if any)
@@ -194,7 +194,9 @@ namespace utils
             
             
         private:
+            template <FileIO::file_encoder_t Encoder>
             void decode(char* stream, size_t size);
+            template <FileIO::file_encoder_t Encoder>
             void decode(wchar_t* stream, size_t size);
             
             /// @brief Change reader position in current file
@@ -211,13 +213,11 @@ namespace utils
             
             
         private:
-            //handle??? m_file;
-            uint32_t m_offset;
-            uint32_t m_fileLength;
+            std::ifstream m_fileStream; ///< File input stream
+            uint32_t m_fileLength;      ///< Total file length (bytes)
+            std::string m_errorBuffer;  ///< Last opening error message
             
-            std::string m_errorBuffer;
-            
-            utils::memory::flag_set<flag_t> m_formatFlags;
+            utils::memory::flag_set<flag_t> m_formatFlags; ///< Formatting flags (text mode)
         };
     }
 }

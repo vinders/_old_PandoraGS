@@ -20,10 +20,14 @@ bool FileWriter::open(const std::wstring filePath, const file_mode_t openMode, c
     m_fileLock.lock(LOCK_TIMEOUT);
     if (isOpen())
     {
-        close(); 
+        close(); // lock per thread -> no deadlock if close() locks it too
     }
     
     //...
+    
+    m_defaultPrecision = m_fileStream.precision();
+    if (m_floatDecimalPrecision != 0u)
+        m_fileStream.precision(m_floatDecimalPrecision);
     
     m_fileLock.unlock();
 }
@@ -39,8 +43,7 @@ void FileWriter::close()
     }
     
     flush_noLock();
-    
-    //...
+    m_fileStream.close();
     
     m_fileLock.unlock();
 }

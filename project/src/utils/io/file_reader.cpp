@@ -20,7 +20,7 @@ bool FileReader::open(const std::wstring filePath, const file_mode_t openMode, c
     m_fileLock.lock(LOCK_TIMEOUT);
     if (isOpen())
     {
-        close(); // lock per thread -> no deadlock if close locks too
+        close(); // lock per thread -> no deadlock if close() locks it too
     }
     
     //...
@@ -38,7 +38,7 @@ void FileReader::close()
         return;
     }
     
-    //...
+    m_fileStream.close();
     
     m_fileLock.unlock();
 }
