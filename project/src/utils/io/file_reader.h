@@ -26,7 +26,7 @@ namespace utils
         /// @class FileReader
         /// @brief Advanced file reader - with encoder specialization
         /// @see FileIO
-        template <FileIO::file_encoder_t Encoder>
+        template <FileIO::file_encoder_t Encoder, bool checkConcurrency = true>
         class FileReader : public FileIO
         {
         public:
@@ -89,9 +89,9 @@ namespace utils
             /// @returns Current instance
             inline FileReader& seek(const seek_reference_t whence, const int32_t offset)
             {
-                m_fileLock.lock();
+                lock<checkConcurrency>();
                 seek_noLock(whence, offset);
-                m_fileLock.unlock();
+                unlock<checkConcurrency>();
                 return *this;
             }
             /// @brief Check if a file is open
@@ -186,9 +186,9 @@ namespace utils
             /// @returns Current instance
             inline FileReader& setFormatFlags(const flag_t formatFlags) noexcept
             {
-                m_fileLock.lock();
+                lock<checkConcurrency>();
                 setFormatFlags_noLock(formatFlags);
-                m_fileLock.unlock();
+                unlock<checkConcurrency>();
                 return *this;
             }
             

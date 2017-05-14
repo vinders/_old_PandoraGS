@@ -4,6 +4,12 @@ License :     GPLv2
 ------------------------------------------------------------------------
 Description : advanced file writer
 *******************************************************************************/
+#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <ofstream>
 #include "file_writer.h"
 using namespace utils::io;
 
@@ -17,7 +23,7 @@ using namespace utils::io;
 /// @returns Success (use getLastErrorMessage() if false)
 bool FileWriter::open(const std::wstring filePath, const file_mode_t openMode, const flag_t formatFlags) noexcept
 {
-    m_fileLock.lock(LOCK_TIMEOUT);
+    lock<checkConcurrency>(LOCK_TIMEOUT);
     if (isOpen())
     {
         close(); // lock per thread -> no deadlock if close() locks it too
@@ -29,23 +35,23 @@ bool FileWriter::open(const std::wstring filePath, const file_mode_t openMode, c
     if (m_floatDecimalPrecision != 0u)
         m_fileStream.precision(m_floatDecimalPrecision);
     
-    m_fileLock.unlock();
+    unlock<checkConcurrency>();
 }
 
 /// @brief Close output file and flush buffer
 void FileWriter::close()
 {
-    m_fileLock.lock(LOCK_TIMEOUT);
+    lock<checkConcurrency>(LOCK_TIMEOUT);
     if (!isOpen())
     {
-        m_fileLock.unlock();
+        unlock<checkConcurrency>();
         return;
     }
     
     flush_noLock();
     m_fileStream.close();
     
-    m_fileLock.unlock();
+    unlock<checkConcurrency>();
 }
 
 //https://www.codeproject.com/Articles/38242/Reading-UTF-8-with-C-streams

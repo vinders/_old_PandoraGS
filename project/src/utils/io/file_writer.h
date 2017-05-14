@@ -26,7 +26,7 @@ namespace utils
         /// @class FileWriter
         /// @brief Advanced file writer - with encoder specialization
         /// @see FileIO
-        template <FileIO::file_encoder_t Encoder>
+        template <FileIO::file_encoder_t Encoder, bool checkConcurrency = true>
         class FileWriter : public FileIO
         {
         public:
@@ -115,9 +115,9 @@ namespace utils
             {
                 if (isOpen)
                 {
-                    m_fileLock.lock();
+                    lock<checkConcurrency>();
                     flush_noLock();
-                    m_fileLock.unlock();
+                    unlock<checkConcurrency>();
                 }
                 return *this;
             }
@@ -131,9 +131,9 @@ namespace utils
             {
                 if (isOpen)
                 {
-                    m_fileLock.lock();
+                    lock<checkConcurrency>();
                     seek_noLock(whence, offset);
-                    m_fileLock.unlock();
+                    unlock<checkConcurrency>();
                 }
                 return *this;
             }
@@ -224,9 +224,9 @@ namespace utils
             /// @returns Current instance
             inline FileWriter& setFormatFlags(const flag_t formatFlags) noexcept
             {
-                m_fileLock.lock();
+                lock<checkConcurrency>();
                 setFormatFlags_noLock(formatFlags);
-                m_fileLock.unlock();
+                unlock<checkConcurrency>();
                 return *this;
             }
             
@@ -241,9 +241,9 @@ namespace utils
             /// @returns Current instance
             inline FileWriter& setFloatDecimalPrecision(const uint32_t floatDecimalPrecision) noexcept
             {
-                m_fileLock.lock();
+                lock<checkConcurrency>();
                 setFloatDecimalPrecision_noLock(floatDecimalPrecision);
-                m_fileLock.unlock();
+                unlock<checkConcurrency>();
                 return *this;
             }
         

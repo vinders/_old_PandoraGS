@@ -81,9 +81,63 @@ namespace utils
                 m_fileLock = std::move(tmp);
             }
             
+            /// @brief Lock file access
+            template <bool checkConcurrency = true>
+            void lock();
+            /// @brief Try to lock file access - with timeout
+            template <bool checkConcurrency = true>
+            void lock(uint32_t timeout);
+            /// @brief Try to lock file access - no wait
+            template <bool checkConcurrency = true>
+            void tryLock();
+            /// @brief Unlock file access
+            template <bool checkConcurrency = true>
+            void unlock();
             
-        protected:
+            
+        private:
             utils::thread::ThreadMutex m_fileLock;  ///< Concurrency protection lock
         };
+        
+        
+        // -- Concurrency protection --
+        
+        /// @brief Lock file access
+        template <>
+        inline void FileIO::lock<true>()
+        {
+            m_fileLock.lock();
+        }
+        /// @brief Try to lock file access - with timeout (milliseconds)
+        template <>
+        inline void FileIO::lock<true>(uint32_t timeout)
+        {
+            m_fileLock.lock(timeout);
+        }
+        /// @brief Try to lock file access - no wait
+        template <>
+        inline void FileIO::tryLock<true>()
+        {
+            m_fileLock.tryLock();
+        }
+        /// @brief Unlock file access
+        template <>
+        inline void FileIO::unlock<true>()
+        {
+            m_fileLock.unlock();
+        }
+        
+        /// @brief Lock file access
+        template <>
+        inline void FileIO::lock<false>() { (void)0; }
+        /// @brief Try to lock file access - with timeout
+        template <>
+        inline void FileIO::lock<false>(uint32_t timeout) { (void)0; }
+        /// @brief Try to lock file access - no wait
+        template <>
+        inline void FileIO::tryLock<false>() { (void)0; }
+        /// @brief Unlock file access
+        template <>
+        inline void FileIO::unlock<false>() { (void)0; }
     }
 }
