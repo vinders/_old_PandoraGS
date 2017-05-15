@@ -28,12 +28,7 @@ Description : debug assertions (assert, verify, trace)
 #   endif
 #endif
 
-#include <string>
-#ifdef _WINDOWS
-#   include <Windows.h> // OutputDebugString
-#else
-#   include <cstdio>    // printf
-#endif
+#include <cstdio>
 
 // debug assertion / verification
 #define ASSERT(cond)       if(!(cond)){__debugbreak();}       // check condition value (completely removed in release mode)
