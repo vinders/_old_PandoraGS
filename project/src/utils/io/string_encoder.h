@@ -190,7 +190,7 @@ namespace utils
             /// @returns UTF-8 string
             static inline std::string ucs2ToUtf8(const wchar_t* ucs2)
             {
-                return utf16ToUtf8(ucs2ToUtf16(ucs2).c_str());
+                return utf16ToUtf8(ucs2);
             }
             
             /// @brief Convert UTF-16 string to UCS-2 string

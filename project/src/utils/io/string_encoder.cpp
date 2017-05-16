@@ -26,11 +26,15 @@ std::vector<char> StringEncoder::wideStringToLittleEndianBytes(const wchar_t* ws
     char bufferHigh, bufferLow;
     std::vector<char> byteStr;
     byteStr.reserve(256);
-    for (uint32_t i = 0; wstr[i] != L'\0'; ++i)
+    if (wstr != nullptr)
     {
-        wideCharToBytes(wstr[i], bufferHigh, bufferLow);
-        byteStr.push_back(bufferHigh);
-        byteStr.push_back(bufferLow);
+        while (*wstr != L'\0')
+        {
+            wideCharToBytes(*wstr, bufferHigh, bufferLow);
+            byteStr.push_back(bufferHigh);
+            byteStr.push_back(bufferLow);
+            ++wstr;
+        }
     }
     return byteStr;
 }
@@ -58,11 +62,15 @@ std::vector<char> StringEncoder::wideStringToBigEndianBytes(const wchar_t* wstr)
     char bufferHigh, bufferLow;
     std::vector<char> byteStr;
     byteStr.reserve(256);
-    for (uint32_t i = 0; wstr[i] != L'\0'; ++i)
+    if (wstr != nullptr)
     {
-        wideCharToBytes(wstr[i], bufferHigh, bufferLow);
-        byteStr.push_back(bufferLow);
-        byteStr.push_back(bufferHigh);
+        while (*wstr != L'\0')
+        {
+            wideCharToBytes(*wstr, bufferHigh, bufferLow);
+            byteStr.push_back(bufferLow);
+            byteStr.push_back(bufferHigh);
+            ++wstr;
+        }
     }
     return byteStr;
 }
@@ -91,7 +99,7 @@ std::wstring StringEncoder::bigEndianBytesToWideString(const std::vector<char> s
 /// @returns UTF-16 string
 std::wstring StringEncoder::codePageToUtf16(const char* str, const std::locale codePage)
 {
-    if (str == nullptr || str[0] == '\0')
+    if (str == nullptr || *str == '\0')
         return std::wstring("");
     
     // code page to unicode
@@ -129,28 +137,29 @@ std::wstring StringEncoder::codePageToUtf16(const char* str, const std::locale c
 /// @returns Code-page string
 std::string StringEncoder::utf16ToCodePage(const wchar_t* utf16, const std::locale codePage)
 {
-    if (utf16 == nullptr || utf16[0] == L'\0')
+    if (utf16 == nullptr || *utf16 == L'\0')
         return std::string("");
     
     // UTF-16 to unicode
     uint32_t tmpCode;
     std::vector<wchar_t> unicodeStr(256);
     unicodeStr.reserve(unicodeVec.size() << 1);
-    for (uint32_t i = 0; utf16[i] != L'\0'; ++i)
+    while (*utf16 != L'\0')
     {
-        tmpCode = static_cast<uint32_t>(utf16[i]);
+        tmpCode = static_cast<uint32_t>(*utf16);
         if (tmpCode < 0xD800u || (tmpCode > 0xDFFF && tmpCode <= 0xFFFF))
         {
-            unicodeStr.push_back(utf16[i]);
+            unicodeStr.push_back(*utf16);
         }
         else
         {
-            int32_t tmpCodeSigned = ((static_cast<int32_t>(utf16[i]) &~ 0xD800) << 10);
-            ++i
-            tmpCodeSigned += (static_cast<int32_t>(utf16[i]) &~ 0xDC00);
+            int32_t tmpCodeSigned = ((static_cast<int32_t>(*utf16) &~ 0xD800) << 10);
+            ++utf16;
+            tmpCodeSigned += (static_cast<int32_t>(*utf16) &~ 0xDC00);
             tmpCodeSigned += 0x010000;
             unicodeStr.push_back(tmpCode);
         }
+        ++utf16;
     }
     // unicode to code page
     std::vector<char> codePageVec(unicodeStr.size());
@@ -163,23 +172,24 @@ std::string StringEncoder::utf16ToCodePage(const wchar_t* utf16, const std::loca
 /// @returns UCS-2 string
 std::wstring StringEncoder::utf16ToUcs2(const wchar_t* utf16)
 {
-    if (utf16 == nullptr || utf16[0] == L'\0')
+    if (utf16 == nullptr || *utf16 == L'\0')
         return std::wstring("");
     
     uint32_t tmpCode;
     std::vector<wchar_t> ucs2Str;
     ucs2Str.reserve(256);
-    for (uint32_t i = 0; utf16[i] != L'\0'; ++i)
+    while (*utf16 != L'\0')
     {
-        tmpCode = static_cast<uint32_t>(utf16[i])
+        tmpCode = static_cast<uint32_t>(*utf16);
         if (tmpCode < 0xD800u || tmpCode > 0xDFFF) // valid
         {
-            ucs2Str.push_back(utf16[i]);
+            ucs2Str.push_back(*utf16);
+            ++utf16;
         }
         else // 2-code-point character -> no conversion
         {
             ucs2Str.push_back(0x003F); // '?'
-            ++i; // skip second code-point
+            utf16 += 2; // skip second code-point
         }
     }
     return std::wstring(ucs2Str.data(), ucs2Str.size());
