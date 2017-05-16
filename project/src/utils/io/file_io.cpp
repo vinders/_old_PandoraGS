@@ -25,6 +25,7 @@ Description : file input/output - base
 #   include <pwd.h>
 #endif
 #include "../assert.h"
+#include "string_encoder.h"
 #include "file_io.h"
 using namespace std::literals::string_literals;
 using namespace utils::io;
@@ -54,8 +55,7 @@ std::wstring FileIO::getHomeDirectoryPath() noexcept
             pathBuffer = getpwuid(getuid())->pw_dir;
         if (pathBuffer != nullptr)
         {
-            std::string pathStrBuffer(pathBuffer);
-            filePath = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(pathStrBuffer);
+            filePath = StringEncoder::utf8ToUtf16(pathBuffer);
         }
         else
         {
