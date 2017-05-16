@@ -10,6 +10,7 @@ Description : unit testing toolset - message notifier
 #include <cstdlib>
 #include <cstddef>
 #include <string>
+#include <vector>
 #include "../window/drawing/ansi_color_codes.h"
 
 
@@ -102,7 +103,7 @@ namespace utils
             /// @param[in] timeElapsed  Total time elapsed during unit testing
             static void printGlobalResult(const uint32_t testCases, uint32_t totalTests, uint32_t failedTests, uint32_t timeElapsed)
             {
-                printf("[---------] Global result: %u tests from %u test cases (%u ms)\n", totalTests, testCases, timeElapsed);
+                printf("[---------] Global results: %u tests from %u test cases (%u ms)\n", totalTests, testCases, timeElapsed);
                 
                 uint32_t succeededTests = totalTests - failedTests;
                 SET_ANSI_COLOR(ANSI_COLOR_GREEN);
@@ -116,6 +117,19 @@ namespace utils
                     printf("[ FAILURE ]");
                     SET_ANSI_COLOR(ANSI_COLOR_RESET);
                     printf(" %u tests failed.\n", failedTests);
+                }
+            }
+            
+            /// @brief Print list of failed tests
+            /// @param[in] failedTests  List of failed tests
+            static void printFailedList(const std::vector<std::string> failedTests)
+            {
+                for (auto it = failedTests.begin(); it != failedTests.end(); ++it)
+                {
+                    SET_ANSI_COLOR(ANSI_COLOR_RED);
+                    printf("[  FAILED ]");
+                    SET_ANSI_COLOR(ANSI_COLOR_RESET);
+                    printf(" %s\n", *it);
                 }
             }
             

@@ -116,6 +116,7 @@ namespace utils
                 else
                 {
                     UnitTestNotifier::printFailure(testCase.name, testData.name, outputError, testTime);
+                    s_failedTests.push_back(testCase.name + std::string(".") + testData.name);
                 }
                 
                 // post-test hook
@@ -129,6 +130,17 @@ namespace utils
                 }
                 return isSuccess;
             }
+            
+            /// @brief Get list of failed tests
+            /// @returns List of failed tests
+            static std::vector<std::string> getFailedTests()
+            {
+                return s_failedTests;
+            }
+            
+            
+        private:
+            static std::vector<std::string> s_failedTests;
         };
     }
 }

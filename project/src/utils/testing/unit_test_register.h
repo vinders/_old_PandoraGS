@@ -102,14 +102,17 @@ namespace utils
             
             /// @brief Run all tests
             /// @param[in] isConcurrency  Enable concurrency testing (multiple executions with multiple threads)
-            static void runTests(const bool useConcurrency);
+            /// @returns Success code (0 = success)
+            static int runTests(const bool useConcurrency);
             /// @brief Run all tests (with exception catched)
             /// @param[in] isConcurrency  Enable concurrency testing (multiple executions with multiple threads)
-            static void tryRunTests(const bool useConcurrency)
+            /// @returns Success code (0 = success)
+            static int tryRunTests(const bool useConcurrency)
             {
+                int resultCode = -1;
                 try
                 {
-                    runTests(useConcurrency);
+                    resultCode = runTests(useConcurrency);
                 }
                 catch (const std::exception& exc)
                 {
@@ -119,6 +122,7 @@ namespace utils
                 {
                     printf("Error - Unhandled object thrown");
                 }
+                return resultCode;
             }
             
         private:

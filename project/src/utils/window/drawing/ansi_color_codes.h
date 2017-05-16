@@ -9,8 +9,9 @@ Description : terminal color codes (for text display)
 #ifdef _WINDOWS
 
 #   include <Windows.h>
-#   define INIT_ANSI_COLOR_SUPPORT()  HANDLE _hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE)
-#   define SET_ANSI_COLOR(color)      SetConsoleTextAttribute(_hConsoleOutput, color)
+#   define DECLARE_ANSI_COLOR_SUPPORT()  HANDLE _hConsoleOutput
+#   define INIT_ANSI_COLOR_SUPPORT()     _hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE)
+#   define SET_ANSI_COLOR(color)         SetConsoleTextAttribute(_hConsoleOutput, color)
 
 #   define ANSI_COLOR_RESET   FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE|FOREGROUND_GREEN
 #   define ANSI_COLOR_RED     FOREGROUND_RED|FOREGROUND_INTENSITY 
@@ -22,6 +23,7 @@ Description : terminal color codes (for text display)
 
 #else
 
+#   define DECLARE_ANSI_COLOR_SUPPORT()
 #   define INIT_ANSI_COLOR_SUPPORT() 
 #   define SET_ANSI_COLOR(color)   printf(color);
     

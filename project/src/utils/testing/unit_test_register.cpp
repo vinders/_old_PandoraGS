@@ -23,18 +23,19 @@ std::unordered_map<std::string,TestCaseData> UnitTestRegister::s_registeredTestC
 
 /// @brief Run all tests
 /// @param[in] isConcurrency  Enable concurrency testing (multiple executions with multiple threads)
-void UnitTestRegister::runTests(const bool useConcurrency)
+/// @returns Success code (0 = success)
+int UnitTestRegister::runTests(const bool useConcurrency)
 {
     UnitTestNotifier::init();
     
     // run test cases, by order of declaration
-    uint32_t totalTests = 0;
-    uint32_t totalFailedTests = 0;
-    uint32_t totalTime = 0;
+    uint32_t totalTests = 0u;
+    uint32_t totalFailedTests = 0u;
+    uint32_t totalTime = 0u;
     for (auto it = s_registeredTestCaseNames.begin(); it != s_registeredTestCaseNames.end(); ++it)
     {
         TestCaseData& currentTestCase = s_registeredTestCases[*it];
-        uint32_t failedTests = 0;
+        uint32_t failedTests = 0u;
         UnitTestNotifier::printTestCaseName(currentTestCase.name, currentTestCase.unitTests.size(), useConcurrency);
         
         // init test case
@@ -62,6 +63,13 @@ void UnitTestRegister::runTests(const bool useConcurrency)
         if (currentTestCase.closeHook)
             currentTestCase.closeHook();
     }
+    
     // global results
     UnitTestNotifier::printGlobalResult(s_registeredTestCaseNames.size(), totalTests, totalFailedTests, totalTime);
+    if (totalFailedTests > 0u)
+    {
+        UnitTestNotifier::printFailedList(UnitTestRunner::getFailedTests());
+        return -1;
+    }
+    return 0;
 }
