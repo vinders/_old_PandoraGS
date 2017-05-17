@@ -45,6 +45,7 @@ namespace utils
                 {
                     testCase.preTestHook();
                 }
+                UnitTestNotifier::printTestTitle(testCase.name, testData.name);
                 auto startTime = std::chrono::system_clock::now();
                 
                 
@@ -109,6 +110,7 @@ namespace utils
                 // test results
                 auto endTime = std::chrono::system_clock::now();
                 auto testTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+                UnitTestNotifier::resetTitlePosition(testCase.name, testData.name);
                 if (isSuccess)
                 {
                     UnitTestNotifier::printSuccess(testCase.name, testData.name, testTime);

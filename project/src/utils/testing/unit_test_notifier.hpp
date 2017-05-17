@@ -33,6 +33,29 @@ namespace utils
                 INIT_ANSI_COLOR_SUPPORT();
             }
         
+        
+            /// @brief Print temporary unit test title
+            /// @param[in] testCase     Name of test case
+            /// @param[in] name         Name of test function
+            static void printTestTitle(const std::string& testCase, const std::string& name)
+            {
+                printf(" %s.%s...", testCase.c_str(), name.c_str());
+                fflush(stdin);
+            }
+            /// @brief Move output cursor back to the beginning of the line (to overwrite title)
+            /// @param[in] testCase     Name of test case
+            /// @param[in] name         Name of test function
+            static void resetTitlePosition(const std::string& testCase, const std::string& name)
+            {
+                size_t length = testCase.size() + name.size() + 5;
+                char eraser = new char[length + 1];
+                memset(eraser, '\b', length);
+                eraser[length] = '\0';
+                printf(eraser);
+                fflush(stdin);
+                delete [] eraser;
+            }
+            
             
             /// @brief Print unit test result - success
             /// @param[in] testCase     Name of test case
@@ -58,6 +81,7 @@ namespace utils
                 SET_ANSI_COLOR(ANSI_COLOR_RESET);
                 printf(" %s.%s (%u ms)\n %s\n", testCase.c_str(), name.c_str(), timeElapsed, msg.c_str());
             }
+            
             
             /// @brief Print test case headline
             /// @param[in] testCase        Name of test case
@@ -95,6 +119,7 @@ namespace utils
                 }
                 printf("\n");
             }
+            
             
             /// @brief Print global statistics (number of successes and failures)
             /// @param[in] testCases    Total number of test cases

@@ -125,7 +125,43 @@ namespace utils
                 return resultCode;
             }
             
+            /// @brief Run all tests from one test case
+            /// @param[in] testCaseName   Test case to run
+            /// @param[in] isConcurrency  Enable concurrency testing (multiple executions with multiple threads)
+            /// @returns Success code (0 = success)
+            static int runTestCase(const std::string testCaseName, const bool useConcurrency);
+            /// @brief Run all tests from one test case
+            /// @param[in] testCaseName   Test case to run
+            /// @param[in] isConcurrency  Enable concurrency testing (multiple executions with multiple threads)
+            /// @returns Success code (0 = success)
+            static int tryRunTestCase(const std::string testCaseName, const bool useConcurrency)
+            {
+                int resultCode = -1;
+                try
+                {
+                    resultCode = runTestCase(testCaseName, useConcurrency);
+                }
+                catch (const std::exception& exc)
+                {
+                    printf("Exception - %s", exc.what());
+                }
+                catch (...)
+                {
+                    printf("Error - Unhandled object thrown");
+                }
+                return resultCode;
+            }
+            
+            
         private:
+            /// @brief Run test case
+            /// @param[in] currentTestCase    Test case to run
+            /// @param[in] isConcurrency      Enable concurrency testing (multiple executions with multiple threads)
+            /// @param[out] totalTests        Total number of tests (updated)
+            /// @param[out] totalFailedTests  Total number of failed tests (updated)
+            /// @returns Time elapsed
+            uint32_t UnitTestRegister::runCase(TestCaseData& currentTestCase, const bool useConcurrency, uint32_t totalTests, uint32_t totalFailedTests);
+            
             static std::vector<std::string> s_registeredTestCaseNames;                 ///< List of registered test cases, by order of declaration
             static std::unordered_map<std::string,TestCaseData> s_registeredTestCases; ///< Map of registered test cases and their tests
         };

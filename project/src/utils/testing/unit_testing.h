@@ -20,7 +20,9 @@ Description : unit testing tool
 // ----------------
 /*
 // Define test case (group) with TEST_CASE in a source file (.cpp) :
-//      TEST_CASE(testCaseName,[initUniqueHook,closeUniqueHook,preTestHook,postTestHook]);
+//      TEST_CASE(testCaseName);
+//      TEST_CASE_HOOKS(testCaseName,initUniqueHook,closeUniqueHook);
+//      TEST_CASE_ALL_HOOKS(testCaseName,initUniqueHook,closeUniqueHook,preTestHook,postTestHook);
 //      - testCaseName :               test case name (without quotes, must start with a letter).
 //      - initUniqueHook (optional) :  special hook to execute once, before the whole test case.
 //      - closeUniqueHook (optional) : special hook to execute once, after the whole test case.
@@ -28,18 +30,26 @@ Description : unit testing tool
 //      - postTestHook (optional) :    special hook to execute after each unit test function.
 
 // Define unit test (function) with TEST_CASE in a source file (.cpp) :
-//      TEST_FCT(testCaseName,testName,[allowConcurrency,preTestHookOverride,postTestHookOverride]) { ... }
-//      - testCaseName :               test case name (without quotes, must start with a letter).
-//      - allowConcurrency (optional) : allow or disable concurrency (allowed by default) 
-                                        -> if global concurrency check is enabled, disabling it here will prevent it for this function.
-//      - preTestHook (optional) :     special hook to execute before the unit test function (if defined, will override the one defined in the test case).
-//      - postTestHook (optional) :    special hook to execute after the unit test function (if defined, will override the one defined in the test case).
+//      TEST_FCT(testCaseName,testName) { ... }
+//      TEST_FCT_NO_CONCURRENCY(testCaseName,testName) { ... }
+//      TEST_FCT_HOOKS(testCaseName,testName,allowConcurrency,preTestHookOverride,postTestHookOverride) { ... }
+//      - testCaseName :                    test case name (without quotes, must start with a letter).
+//      - allowConcurrency (optional) :     allow or disable concurrency (allowed by default) 
+//                                           -> if global concurrency check is enabled, setting it here to false will disable it for this function.
+//      - preTestHookOverride (optional) :  special hook to execute before the unit test function (if defined, will override the one defined in the test case definition).
+//      - postTestHookOverride (optional) : special hook to execute after the unit test function (if defined, will override the one defined in the test case definition).
 
 // Use lambdas ([](void){ ... }) or std::function<void()> to declare the hooks.
 
 // In the program entry point, you can execute all test cases at once, with RUN_ALL_TESTS(useConcurrency) :
         RUN_ALL_TESTS(false);  // simple execution, one test after another.
         RUN_ALL_TESTS(true);   // concurrency check : tests executed multiple times by multiple threads.
+        // The return value is 0 (success) or -1 (failure)
+        
+// In the program entry point, you can execute a single test case, with RUN_TEST_CASE(testCaseName,useConcurrency) :
+        RUN_TEST_CASE(testCaseName, false);  // simple execution.
+        RUN_TEST_CASE(testCaseName, true);   // concurrency check.
+        // The return value is 0 (success) or -1 (failure)
         
 // Inside the test functions, use asserts to check the validity of your unit. See list of asserts below, at the end of this file.
 
@@ -47,7 +57,7 @@ Description : unit testing tool
 // - simple example -
 // -----------------
 
-TEST_CASE(myTestCase1);              // required, before declaring any test
+TEST_CASE(myTestCase1);         // required, before declaring any test
 
 TEST_FCT(myTestCase1, MyTest1)  // example of test
 {
@@ -55,7 +65,7 @@ TEST_FCT(myTestCase1, MyTest1)  // example of test
     ASSERT_EQ(i, 2);
 }
 
-int main()    // program entry point
+int main()                      // program entry point
 {
     return RUN_ALL_TESTS(false);
 }
@@ -64,11 +74,11 @@ int main()    // program entry point
 // - advanced example -
 // --------------------
 
-TEST_CASE(myTestCase2,
-                 [](void) { printf("start"); },          // called once before whole test case
-                 [](void) { printf("end");   },          // called once after whole test case
-                 [](void) { printf("new test"); },       // called before each test
-                 [](void) { printf("end of test"); });   // called after each test
+TEST_CASE_ALL_HOOKS(myTestCase2,
+                    [](void) { printf("start"); },          // called once before whole test case
+                    [](void) { printf("end");   },          // called once after whole test case
+                    [](void) { printf("new test"); },       // called before each test
+                    [](void) { printf("end of test"); });   // called after each test
 
 TEST_FCT(myTestCase2, MySimpleTest)
 {
@@ -76,15 +86,15 @@ TEST_FCT(myTestCase2, MySimpleTest)
     ASSERT_EQ(i, 2);
 }
 
-TEST_FCT(myTestCase2, MyThreadUnsafeTest, false)  // force concurrency to be disabled for this test
+TEST_FCT_NO_CONCURRENCY(myTestCase2, MyThreadUnsafeTest)  // force concurrency to be disabled for this test
 {
     static bool isTrue = true;
     ASSERT_TRUE(isTrue);
 }
 
-TEST_FCT(myTestCase2, MyTestWithCustomHooks, true,
-                     [](void) { printf("overriden start"); },   // called only before this specific test
-                     [](void) { printf("overriden end !"); })   // called only after this specific test
+TEST_FCT_HOOKS(myTestCase2, MyTestWithCustomHooks, true,
+               [](void) { printf("overriden start"); },   // called only before this specific test
+               [](void) { printf("overriden end !"); })   // called only after this specific test
 {
     bool boolArray[] = { true, false };
     ASSERT_TRUE(boolArray[0]);
@@ -100,21 +110,19 @@ int main()
 
 // -- macros to declare tests --
 
-// run unit tests
-#define RUN_ALL_TESTS(useConcurrency)    UnitTestRegister::tryRunTests(useConcurrency)
+// run unit tests (returns 0 on success, -1 on failure)
+#define RUN_ALL_TESTS(useConcurrency)               UnitTestRegister::tryRunTests(useConcurrency)
+#define RUN_TEST_CASE(testCase,useConcurrency)      UnitTestRegister::tryRunTestCase(testCase,useConcurrency)
 
 // create test case
-#define TEST_CASE(testCaseName)                                                          _UT_CREATE_TEST_CASE(testCaseName,[](void){},[](void){},[](void){},[](void){})
-#define TEST_CASE(testCaseName,initUniqueHook)                                           _UT_CREATE_TEST_CASE(testCaseName,initUniqueHook,[](void){},[](void){},[](void){})
-#define TEST_CASE(testCaseName,initUniqueHook,closeUniqueHook)                           _UT_CREATE_TEST_CASE(testCaseName,initUniqueHook,closeUniqueHook,[](void){},[](void){})
-#define TEST_CASE(testCaseName,initUniqueHook,closeUniqueHook,preTestHook)               _UT_CREATE_TEST_CASE(testCaseName,initUniqueHook,closeUniqueHook,preTestHook,[](void){})
-#define TEST_CASE(testCaseName,initUniqueHook,closeUniqueHook,preTestHook,postTestHook)  _UT_CREATE_TEST_CASE(testCaseName,initUniqueHook,closeUniqueHook,preTestHook,postTestHook)
+#define TEST_CASE(testCaseName)                                                                     _UT_CREATE_TEST_CASE(testCaseName,[](void){},[](void){},[](void){},[](void){})
+#define TEST_CASE_HOOKS(testCaseName,initUniqueHook,closeUniqueHook)                                _UT_CREATE_TEST_CASE(testCaseName,initUniqueHook,closeUniqueHook,[](void){},[](void){})
+#define TEST_CASE_ALL_HOOKS(testCaseName,initUniqueHook,closeUniqueHook,preTestHook,postTestHook)   _UT_CREATE_TEST_CASE(testCaseName,initUniqueHook,closeUniqueHook,preTestHook,postTestHook)
 
 // create test function
-#define TEST_FCT(testCaseName,testName)                                                            _UT_CREATE_TEST_FUNCTION(testCaseName,testName,true,[](void){},[](void){})
-#define TEST_FCT(testCaseName,testName,allowConcurrency)                                           _UT_CREATE_TEST_FUNCTION(testCaseName,testName,allowConcurrency,[](void){},[](void){})
-#define TEST_FCT(testCaseName,testName,allowConcurrency,preTestHookOverride)                       _UT_CREATE_TEST_FUNCTION(testCaseName,testName,allowConcurrency,preTestHookOverride,[](void){})
-#define TEST_FCT(testCaseName,testName,allowConcurrency,preTestHookOverride,postTestHookOverride)  _UT_CREATE_TEST_FUNCTION(testCaseName,testName,allowConcurrency,preTestHookOverride,postTestHookOverride)
+#define TEST_FCT(testCaseName,testName)                                                                  _UT_CREATE_TEST_FUNCTION(testCaseName,testName,true,[](void){},[](void){})
+#define TEST_FCT_NO_CONCURRENCY(testCaseName,testName)                                                   _UT_CREATE_TEST_FUNCTION(testCaseName,testName,false,[](void){},[](void){})
+#define TEST_FCT_HOOKS(testCaseName,testName,allowConcurrency,preTestHookOverride,postTestHookOverride)  _UT_CREATE_TEST_FUNCTION(testCaseName,testName,allowConcurrency,preTestHookOverride,postTestHookOverride)
 
 
 // -- assertions to use in tests --
