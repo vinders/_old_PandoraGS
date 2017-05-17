@@ -10,6 +10,7 @@ Description : advanced file reader
 #include <iostream>
 #include <fstream>
 #include <ifstream>
+#include "string_encoder.h"
 #include "file_reader.h"
 using namespace utils::io;
 
@@ -77,5 +78,3 @@ void FileReader::close()
     m_fileLength = 0uLL;
     unlock<checkConcurrency>();
 }
-
-//https://www.codeproject.com/Articles/38242/Reading-UTF-8-with-C-streams

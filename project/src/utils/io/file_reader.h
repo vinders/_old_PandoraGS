@@ -147,6 +147,36 @@ namespace utils
             }
             
             
+            // -- Reader settings --
+            
+            /// @brief Get configured file encoding
+            /// @brief File encoding type
+            inline FileIO::file_encoder_t getEncoding() const noexcept
+            {
+                return Encoder;
+            }
+            
+            /// @brief Get formatting flags
+            /// @brief Flag set
+            inline flag_t getFormatFlags() const noexcept
+            {
+                return m_formatFlags.data();
+            }
+            /// @brief Set formatting flags
+            /// @param[in] formatFlags  Flag set
+            /// @returns Current instance
+            inline FileReader& setFormatFlags(const flag_t formatFlags) noexcept
+            {
+                if (isOpen())
+                {
+                    lock<checkConcurrency>();
+                    setFormatFlags_noLock(formatFlags);
+                    unlock<checkConcurrency>();
+                }
+                return *this;
+            }
+            
+            
             // -- Input operations --
             
             FileReader& get(bool val);
@@ -197,36 +227,7 @@ namespace utils
             FileReader& readLine(std::string& strVal);
             template <FileIO::wstring_encoder_t DestEncoder = FileIO::wstring_encoder_t::utf16>
             FileReader& readLine(std::wstring& strVal);
-            
-            
-            // -- Reader settings --
-            
-            /// @brief Get configured file encoding
-            /// @brief File encoding type
-            inline FileIO::file_encoder_t getEncoding() const noexcept
-            {
-                return Encoder;
-            }
-            
-            /// @brief Get formatting flags
-            /// @brief Flag set
-            inline flag_t getFormatFlags() const noexcept
-            {
-                return m_formatFlags.data();
-            }
-            /// @brief Set formatting flags
-            /// @param[in] formatFlags  Flag set
-            /// @returns Current instance
-            inline FileReader& setFormatFlags(const flag_t formatFlags) noexcept
-            {
-                if (isOpen())
-                {
-                    lock<checkConcurrency>();
-                    setFormatFlags_noLock(formatFlags);
-                    unlock<checkConcurrency>();
-                }
-                return *this;
-            }
+
             
             
         private:

@@ -13,6 +13,7 @@ Description : advanced file writer
 #include <fstream>
 #include <ofstream>
 #include "file_io.h"
+#include "string_encoder.h"
 #include "../memory/flag_set.hpp"
 
 /// @namespace utils
@@ -157,70 +158,6 @@ namespace utils
             }
             
             
-            // -- Output operations --
-            
-            FileWriter& put(const bool val);
-            FileWriter& operator<<(const bool val);
-            FileWriter& put(const char val);
-            FileWriter& operator<<(const char val);
-            FileWriter& put(const uint16_t val);
-            FileWriter& operator<<(const uint16_t val);
-            FileWriter& put(const int16_t val);
-            FileWriter& operator<<(const int16_t val);
-            FileWriter& put(const uint32_t val);
-            FileWriter& operator<<(const uint32_t val);
-            FileWriter& put(const int32_t val);
-            FileWriter& operator<<(const int32_t val);
-            FileWriter& put(const uint64_t val);
-            FileWriter& operator<<(const uint64_t val);
-            FileWriter& put(const int64_t val);
-            FileWriter& operator<<(const int64_t val);
-            FileWriter& put(const float val);
-            FileWriter& operator<<(const float val);
-            FileWriter& put(const double val);
-            FileWriter& operator<<(const double val);
-            FileWriter& put(const long double val);
-            FileWriter& operator<<(const long double val);
-            
-            FileWriter& writeStream(const uint8_t* stream, size_t size);
-            
-            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
-            FileWriter& write(const char* strVal);
-            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
-            FileWriter& write(const wchar_t* strVal);
-            
-            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
-            FileWriter& write(const std::string& strVal);
-            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
-            FileWriter& operator<<(const std::string& val);
-            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
-            FileWriter& write(std::string&& strVal);
-            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
-            FileWriter& operator<<(std::string&& val);
-            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
-            FileWriter& write(const std::wstring& strVal);
-            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
-            FileWriter& operator<<(const std::wstring& val);
-            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
-            FileWriter& write(std::wstring&& strVal);
-            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
-            FileWriter& operator<<(std::wstring&& val);
-            
-            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
-            FileWriter& writeLine(const char* strVal);
-            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
-            FileWriter& writeLine(const wchar_t* strVal);
-            
-            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
-            FileWriter& writeLine(const std::string& strVal);
-            template <FileIO::string_encoder_t SrcEncoder = FileIO::string_encoder_t::ansi>
-            FileWriter& writeLine(std::string&& strVal);
-            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
-            FileWriter& writeLine(const std::wstring& strVal);
-            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
-            FileWriter& writeLine(std::wstring&& strVal);
-            
-            
             // -- Writer settings --
             
             /// @brief Get configured file encoding
@@ -266,6 +203,144 @@ namespace utils
                 unlock<checkConcurrency>();
                 return *this;
             }
+            
+            
+            // -- Output operations - general --
+            
+            /// @brief Write stream as is (no encoding) - use in binary mode
+            /// @param[in] stream  Byte stream
+            /// @param[in] size    Size of the stream (bytes)
+            /// @returns Current object
+            FileWriter& writeStream(const char* stream, const size_t size)
+            {
+                m_fileStream.write(stream, size);
+                return *this;
+            }
+
+            
+            /// @brief Write encoded string value - use in text mode (ANSI/UTF-8)
+            /// @param[in] strVal  String value
+            /// @returns Current object
+            template <FileIO::string_encoder_t SrcEncoder>
+            FileWriter& write(const char* strVal);
+            /// @brief Write encoded wide-string value - use in text mode (UTF-16, UCS-2)
+            /// @param[in] strVal  String value
+            /// @returns Current object
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
+            FileWriter& write(const wchar_t* strVal);
+            
+            /// @brief Write encoded string value and append newline symbol - use in text mode
+            /// @param[in] strVal  String value
+            /// @returns Current object
+            template <FileIO::string_encoder_t SrcEncoder>
+            inline FileWriter& writeLine(const char* strVal)
+            {
+                return write<SrcEncoder>(strVal.c_str()).writeStream(FileIO::endl, 1u);
+            }
+            /// @brief Write encoded wide-string value and append newline symbol - use in text mode
+            /// @param[in] strVal  String value
+            /// @returns Current object
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
+            inline FileWriter& writeLine(const wchar_t* strVal);
+            {
+                return write<SrcEncoder>(strVal.c_str()).put(FileIO::endl);
+            }
+    
+            
+            
+            // -- Output operations - base types --
+            
+            /// @brief Write boolean value
+            FileWriter& put(const bool val);
+            /// @brief Write unsigned character
+            FileWriter& put(const unsigned char val)
+            {
+                put(reinterpret_cast<char>(val));
+            }
+            /// @brief Write single character
+            FileWriter& put(const char val);
+            /// @brief Write boolean value
+            inline FileWriter& operator<<(const bool val) { return put(val); }
+            /// @brief Write unsigned character
+            inline FileWriter& operator<<(const unsigned char val) { return put(val); }
+            /// @brief Write single character
+            inline FileWriter& operator<<(const char val) { return put(val); }
+            
+            /// @brief Write unsigned short integer value
+            FileWriter& put(const uint16_t val);
+            /// @brief Write short integer value
+            FileWriter& put(const int16_t val);
+            /// @brief Write unsigned integer value
+            FileWriter& put(const uint32_t val);
+            /// @brief Write integer value
+            FileWriter& put(const int32_t val);
+            /// @brief Write unsigned 64-bit integer value
+            FileWriter& put(const uint64_t val);
+            /// @brief Write s64-bit integer value
+            FileWriter& put(const int64_t val);
+            /// @brief Write unsigned short integer value
+            inline FileWriter& operator<<(const uint16_t val) { return put(val); }
+            /// @brief Write short integer value
+            inline FileWriter& operator<<(const int16_t val) { return put(val); }
+            /// @brief Write unsigned integer value
+            inline FileWriter& operator<<(const uint32_t val) { return put(val); }
+            /// @brief Write integer value
+            inline FileWriter& operator<<(const int32_t val) { return put(val); }
+            /// @brief Write unsigned 64-bit integer value
+            inline FileWriter& operator<<(const uint64_t val) { return put(val); }
+            /// @brief Write 64-bit integer value
+            inline FileWriter& operator<<(const int64_t val) { return put(val); }
+            
+            /// @brief Write floating-point value
+            FileWriter& put(const float val);
+            /// @brief Write double-precision floating-point value
+            FileWriter& put(const double val);
+            /// @brief Write long double-precision floating-point value
+            FileWriter& put(const long double val);
+            /// @brief Write floating-point value
+            inline FileWriter& operator<<(const float val) { return put(val); }
+            /// @brief Write double-precision floating-point value
+            inline FileWriter& operator<<(const double val) { return put(val); }
+            /// @brief Write long double-precision floating-point value
+            inline FileWriter& operator<<(const long double val) { return put(val); }
+            
+            
+            // -- Output operations - strings --
+            
+            /// @brief Write string value
+            template <FileIO::string_encoder_t SrcEncoder>
+            inline FileWriter& write(const std::string& strVal) { return write<SrcEncoder>(strVal.c_str()); }
+            /// @brief Write string value (move)
+            template <FileIO::string_encoder_t SrcEncoder>
+            inline FileWriter& write(std::string&& strVal) { return write<SrcEncoder>(strVal.c_str()); }
+            /// @brief Write wide-string value
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
+            inline FileWriter& write(const std::wstring& strVal) { return write<SrcEncoder>(strVal.c_str()); }
+            /// @brief Write wide-string value (move)
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
+            inline FileWriter& write(std::wstring&& strVal) { return write<SrcEncoder>(strVal.c_str()); }
+            /// @brief Write string value
+            inline FileWriter& operator<<(const std::string& strVal) { return write<FileIO_op_sys_string_encoder_t>(strVal.c_str()); }
+            /// @brief Write string value (move)
+            inline FileWriter& operator<<(std::string&& strVal) { return write<FileIO_op_sys_string_encoder_t>(strVal.c_str()); }
+            /// @brief Write wide-string value
+            inline FileWriter& operator<<(const std::wstring& strVal) { return write<FileIO::wstring_encoder_t::utf16>(strVal.c_str()); }
+            /// @brief Write wide-string value (move)
+            inline FileWriter& operator<<(std::wstring&& strVal) { return write<FileIO::wstring_encoder_t::utf16>(strVal.c_str()); }
+           
+            /// @brief Write string value and append newline symbol
+            template <FileIO::string_encoder_t SrcEncoder>
+            inline FileWriter& writeLine(const std::string& strVal) { return write<SrcEncoder>(strVal.c_str()); }
+            /// @brief Write string value and append newline symbol (move)
+            template <FileIO::string_encoder_t SrcEncoder>
+            inline FileWriter& writeLine(std::string&& strVal) { return write<SrcEncoder>(strVal.c_str()); }
+            /// @brief Write wide-string value and append newline symbol
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
+            inline FileWriter& writeLine(const std::wstring& strVal) { return write<SrcEncoder>(strVal.c_str()); }
+            /// @brief Write wide-string value and append newline symbol (move)
+            template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
+            inline FileWriter& writeLine(std::wstring&& strVal) { return write<SrcEncoder>(strVal.c_str()); }
+            
         
             
         private:
@@ -275,11 +350,30 @@ namespace utils
                 m_fileStream.flush();
             }
             
-             /// @brief Change writer position in current file
+            /// @brief Write wide-string text data
+            /// @param[in] val   Text data
+            /// @returns Current object
+            inline FileWriter& writeWideString(const wchar_t* val)
+            {
+                if (val == nullptr)
+                    return *this;
+                if (Encoder == FileIO::file_encoder_t::utf16_be)
+                {
+                    std::string data = StringEncoder::wideStringToBigEndianBytes(val);
+                    return writeStream(data.c_str(), data.size());
+                }
+                else
+                {
+                    std::string data = StringEncoder::wideStringToLittleEndianBytes(val);
+                    return writeStream(data.c_str(), data.size());
+                }
+            }
+            
+            /// @brief Change writer position in current file
             /// @param[in] whence  Reference position to move from
             /// @param[in] offset  Offset, based on reference (bytes)
             /// @throws failure  Seek failure
-            void seek_noLock(const FileIO::seek_reference_t whence, const int32_t offset)
+            inline void seek_noLock(const FileIO::seek_reference_t whence, const int32_t offset)
             {
                 switch (whence)
                 {

@@ -6,10 +6,12 @@ Description : advanced file writer
 *******************************************************************************/
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <ofstream>
+#include "string_encoder.h"
 #include "file_writer.h"
 using namespace utils::io;
 
@@ -54,6 +56,12 @@ bool FileWriter::open(const std::wstring filePath, const file_mode_t openMode, c
         m_defaultPrecision = m_fileStream.precision();
         if (m_floatDecimalPrecision != 0u)
             m_fileStream.precision(m_floatDecimalPrecision);
+        // byte-order-mark
+        if (Encoder == FileIO::file_encoder_t::utf8_bom && openMode == file_mode_t::truncate)
+        {
+            unsigned char bom[] = { 0xEF,0xBB,0xBF };
+            m_fileStream.write((char*)bom, sizeof(bom));
+        }
     }
     unlock<checkConcurrency>();
     return isSuccess;
@@ -75,6 +83,7 @@ void FileWriter::close()
 }
 
 
+
 //-- Writer settings --
 
 /// @brief Set formatting flags - no lock
@@ -82,6 +91,8 @@ void FileWriter::close()
 void FileWriter::setFormatFlags_noLock(const flag_t formatFlags) noexcept
 {
     m_formatFlags = utils::memory::flag_set<flag_t>(formatFlags);
+    if (formatFlags == 0)
+        return;
     
     // binary + text
     if (formatFlags.isAnyFlag(FileWriter_flushBufferOnWrite)) // auto-flush on each operation
@@ -115,7 +126,285 @@ void FileWriter::setFormatFlags_noLock(const flag_t formatFlags) noexcept
     }
 }
 
-//https://www.codeproject.com/Articles/38242/Reading-UTF-8-with-C-streams
+
+
+// -- Output operations - general --
+            
+/// @brief Write encoded string value - use in text mode
+/// @param[in] strVal  String value
+/// @returns Current object
+template <FileIO::string_encoder_t SrcEncoder>
+FileWriter& FileWriter::write(const char* strVal)
+{
+    std::string buffer;
+    if (SrcEncoder == FileIO::string_encoder_t::utf8)
+    {
+        switch (Encoder)
+        {
+            case FileIO::file_encoder_t::ansi :
+                buffer = StringEncoder::utf8ToAnsi1252(strVal); 
+                break;
+            case FileIO::file_encoder_t::utf8 :
+            case FileIO::file_encoder_t::utf8_bom : 
+                return writeStream(strVal, strlen(strVal)); 
+                break;
+            case FileIO::file_encoder_t::utf16_le :
+                buffer = StringEncoder::wideStringToBigEndianBytes(StringEncoder::utf8ToUtf16(strVal).c_str()); 
+                break;
+            case FileIO::file_encoder_t::utf16_be : 
+                buffer = StringEncoder::wideStringToLittleEndianBytes(StringEncoder::utf8ToUtf16(strVal).c_str()); 
+                break;
+            case FileIO::file_encoder_t::ucs2 : 
+                buffer = StringEncoder::wideStringToLittleEndianBytes(StringEncoder::utf8ToUcs2(strVal).c_str()); 
+                break;
+            default: 
+                return *this; break;
+        }
+    }
+    else // ansi
+    {
+        switch (Encoder)
+        {
+            case FileIO::file_encoder_t::ansi : 
+                return writeStream(strVal, strlen(strVal)); 
+                break;
+            case FileIO::file_encoder_t::utf8 :
+            case FileIO::file_encoder_t::utf8_bom : 
+                buffer = ansi1252ToUtf8(strVal); 
+                break;
+            case FileIO::file_encoder_t::utf16_le :
+                buffer = StringEncoder::wideStringToBigEndianBytes(StringEncoder::ansi1252ToUtf16(strVal).c_str()); 
+                break;
+            case FileIO::file_encoder_t::utf16_be : 
+                buffer = StringEncoder::wideStringToLittleEndianBytes(StringEncoder::ansi1252ToUtf16(strVal).c_str()); 
+                break;
+            case FileIO::file_encoder_t::ucs2 : 
+                buffer = StringEncoder::wideStringToLittleEndianBytes(StringEncoder::ansi1252ToUcs2(strVal).c_str()); 
+                break;
+            default: 
+                return *this; break;
+        }
+
+    }
+    return writeStream(buffer.c_str(), buffer.size()); 
+}
+
+/// @brief Write encoded wide-string value - use in text mode
+/// @param[in] strVal  String value
+/// @returns Current object
+template <FileIO::wstring_encoder_t SrcEncoder = FileIO::wstring_encoder_t::utf16>
+FileWriter& FileWriter::write(const wchar_t* strVal)
+{
+    std::string buffer;
+    if (SrcEncoder == FileIO::string_encoder_t::utf16)
+    {
+        switch (Encoder)
+        {
+            case FileIO::file_encoder_t::ansi :
+                buffer = StringEncoder::utf16ToAnsi1252(strVal); 
+                break;
+            case FileIO::file_encoder_t::utf8 :
+            case FileIO::file_encoder_t::utf8_bom : 
+                buffer = StringEncoder::utf16ToUtf8(strVal); 
+                break;
+            case FileIO::file_encoder_t::utf16_le :
+                buffer = StringEncoder::wideStringToBigEndianBytes(strval); 
+                break;
+            case FileIO::file_encoder_t::utf16_be : 
+                buffer = StringEncoder::wideStringToLittleEndianBytes(strval); 
+                break;
+            case FileIO::file_encoder_t::ucs2 : 
+                buffer = StringEncoder::wideStringToLittleEndianBytes(StringEncoder::utf16ToUcs2(strVal).c_str()); 
+                break;
+            default: 
+                return *this; break;
+        }
+    }
+    else // ucs2
+    {
+        switch (Encoder)
+        {
+            case FileIO::file_encoder_t::ansi :
+                buffer = StringEncoder::ucs2ToAnsi1252(strVal); 
+                break;
+            case FileIO::file_encoder_t::utf8 :
+            case FileIO::file_encoder_t::utf8_bom : 
+                buffer = StringEncoder::ucs2ToUtf8(strVal); 
+                break;
+            case FileIO::file_encoder_t::utf16_le :
+                buffer = StringEncoder::wideStringToBigEndianBytes(strval); 
+                break;
+            case FileIO::file_encoder_t::utf16_be : 
+                buffer = StringEncoder::wideStringToLittleEndianBytes(strval); 
+                break;
+            case FileIO::file_encoder_t::ucs2 : 
+                buffer = StringEncoder::wideStringToLittleEndianBytes(strVal); 
+                break;
+            default: 
+                return *this; break;
+        }
+
+    }
+    return writeStream(buffer.c_str(), buffer.size()); 
+}
+
+
+
+// -- Output operations - base types --
+
+/// @brief Write boolean value
+FileWriter& FileWriter::put(const bool val)
+{
+    if (Encoder == FileIO::file_encoder_t::binary) // binary mode
+    {
+        return writeStream(reinterpret_cast<char*>(&val), sizeof(val));
+    }
+    else // text mode
+    {
+        if (Encoder == FileIO::file_encoder_t::utf16_le || Encoder == FileIO::file_encoder_t::utf16_be || Encoder == FileIO::file_encoder_t::ucs2)
+        {
+            if (m_formatFlags.isAnyFlag(FileWriter_boolAsAlpha)) 
+            {
+                if ((m_formatFlags.isAnyFlag(FileWriter_stringToUppercase))
+                    return (val) ? writeWideString(L"TRUE") : writeWideString(L"FALSE");
+                else
+                    return (val) ? writeWideString(L"true") : writeWideString(L"false");
+            }
+            else
+            {
+                return (val) ? writeWideString(L"1") : writeWideString(L"0");
+            }
+        }
+        else
+        {
+            if (m_formatFlags.isAnyFlag(FileWriter_boolAsAlpha)) 
+            {
+                if ((m_formatFlags.isAnyFlag(FileWriter_stringToUppercase))
+                    return (val) ? writeStream("TRUE", 4u) : writeStream("FALSE", 5u);
+                else
+                    return (val) ? writeStream("true", 4u) : writeStream("false", 5u);
+            }
+            else
+            {
+                return (val) ? writeStream("1", 1u) : writeStream("0", 1u);
+            }
+        }
+    }
+}
+
+/// @brief Write single character
+FileWriter& FileWriter::put(const char val)
+{
+    if (Encoder == FileIO::file_encoder_t::binary) // binary mode
+    {
+        return writeStream(reinterpret_cast<char*>(&val), 1u);
+    }
+    else // text mode
+    {
+        if (val >= 0) // ascii
+        {
+            if (Encoder == FileIO::file_encoder_t::utf16_le || Encoder == FileIO::file_encoder_t::ucs2)
+            {
+                char buffer[3];
+                buffer[1] = val;
+                buffer[0] = buffer[2] = '\0';
+                return writeStream(buffer);
+            }
+            else if (Encoder == FileIO::file_encoder_t::utf16_be)
+            {
+                char buffer[3];
+                buffer[0] = val;
+                buffer[1] = buffer[2] = '\0';
+                return writeStream(buffer);
+            }
+            else
+            {
+                return writeStream(val, 1u);
+            }
+        }
+        else // extended
+        {
+            switch (Encoder)
+            {
+                case FileIO::file_encoder_t::ansi : 
+                    return writeStream(val, 2u); break;
+                case FileIO::file_encoder_t::utf8 :
+                case FileIO::file_encoder_t::utf8_bom : 
+                {
+                    std::string data = StringEncoder::ansi1252ToUtf8(val); 
+                    return writeStream(data.c_str(), data.size()); break;
+                }
+                case FileIO::file_encoder_t::utf16_le :
+                case FileIO::file_encoder_t::utf16_be : 
+                    return writeWideString(StringEncoder::ansi1252ToUtf16(val).c_str()); break;
+                case FileIO::file_encoder_t::ucs2 : 
+                    return writeWideString(StringEncoder::ansi1252ToUcs2(val).c_str()); break;
+                default: 
+                    return *this; break;
+            }
+        }
+    }
+}
+
+
+/// @brief Write unsigned short integer value
+FileWriter& FileWriter::put(const uint16_t val)
+{
+    return *this;
+}
+
+/// @brief Write short integer value
+FileWriter& FileWriter::put(const int16_t val)
+{
+    return *this;
+}
+
+/// @brief Write unsigned integer value
+FileWriter& FileWriter::put(const uint32_t val)
+{
+    return *this;
+}
+
+/// @brief Write integer value
+FileWriter& FileWriter::put(const int32_t val)
+{
+    return *this;
+}
+
+/// @brief Write unsigned 64-bit integer value
+FileWriter& FileWriter::put(const uint64_t val)
+{
+    return *this;
+}
+
+/// @brief Write s64-bit integer value
+FileWriter& FileWriter::put(const int64_t val)
+{
+    return *this;
+}
+
+
+/// @brief Write floating-point value
+FileWriter& FileWriter::put(const float val)
+{
+    return *this;
+}
+
+/// @brief Write double-precision floating-point value
+FileWriter& FileWriter::put(const double val)
+{
+    return *this;
+}
+
+/// @brief Write long double-precision floating-point value
+FileWriter& FileWriter::put(const long double val)
+{
+    return *this;
+}
+
+
+
+
 
 
 /*

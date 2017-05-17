@@ -47,7 +47,8 @@ namespace utils
                 utf8 = 2u,     ///< text mode - UTF-8 (standard)
                 utf8_bom = 3u, ///< text mode - UTF-8 with byte order mark
                 utf16_le = 4u, ///< text mode - UTF-16 little endian (standard)
-                utf16_be = 5u  ///< text mode - UTF-16 big endian
+                utf16_be = 5u, ///< text mode - UTF-16 big endian
+                ucs2 = 6u      ///< text mode - UCS-2 little endian
             };
             /// @enum string_encoder_t
             /// @brief String encoding types
@@ -63,6 +64,15 @@ namespace utils
                 utf16 = 4u,
                 ucs2 = 6u
             };
+            #ifdef _WINDOWS
+            #   define FileIO_op_sys_string_encoder_t FileIO::string_encoder_t::ansi
+            #else
+            #   define FileIO_op_sys_string_encoder_t FileIO::string_encoder_t::utf8
+            #endif
+            
+            /// @brief End of line symbol
+            static const char endl[];
+            
             
             /// @brief Get system home directory
             /// @returns Home directory path

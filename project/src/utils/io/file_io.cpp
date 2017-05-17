@@ -31,6 +31,10 @@ using namespace std::literals::string_literals;
 using namespace utils::io;
 
 
+/// @brief End of line symbol
+const char FileIO::endl[] = "\n";
+            
+
 /// @brief Get system home directory
 /// @returns Home directory path
 std::wstring FileIO::getHomeDirectoryPath() noexcept
