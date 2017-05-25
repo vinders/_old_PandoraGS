@@ -199,7 +199,7 @@ operator BigInteger::double() const noexcept
     }
 }
 
-/// @brief Cast as big usigned integer (destructive)
+/// @brief Cast as big unsigned integer (destructive)
 BigUInteger BigInteger::operator BigUInteger() const noexcept 
 { 
     if (m_upperBits & _INT64_SIGN_BIT_UMASK_)
@@ -213,7 +213,7 @@ BigUInteger BigInteger::operator BigUInteger() const noexcept
     }
 }
 
-/*
+
 // -- Arithmetic operators --
 
 /// @brief Add to instance
@@ -221,17 +221,7 @@ BigInteger& BigInteger::operator+=(const BigInteger& val) noexcept
 {
     if ((val.m_upperBits & _INT64_SIGN_BIT_UMASK_) == 0uLL)
     {
-        if ((m_upperBits & _INT64_SIGN_BIT_UMASK_) == 0uLL) // positive
-        {
-            m_upperBits += val.m_upperBits;
-        }
-        else // negative
-        {
-            if ((m_upperBits & _INT64_SIGN_STRIP_UMASK_) >= val.m_upperBits)
-                m_upperBits -= val.m_upperBits;
-            else
-                m_upperBits = val.m_upperBits - (m_upperBits & _INT64_SIGN_STRIP_UMASK_);
-        }
+        m_upperBits += val.m_upperBits;
         BigInteger::operator+=(val.m_lowerBits);
     }
     else
@@ -245,27 +235,9 @@ BigInteger& BigInteger::operator+=(const T& val) noexcept
 {
     if (val > 0)
     {
-        if ((m_upperBits & _INT64_SIGN_BIT_UMASK_) == 0uLL) // positive
-        {
-            m_upperBits += static_cast<uint64_t>((m_lowerBits + static_cast<uint64_t>(val)) < m_lowerBits);
-            m_lowerBits += static_cast<uint64_t>(val));
-        }
-        else
-        {
-            if ((m_lowerBits - static_cast<uint64_t>(val)) > m_lowerBits)
-            {
-                if (m_upperBits > _INT64_SIGN_BIT_UMASK_)
-                {
-                    --m_upperBits;
-                    m_lowerBits -= static_cast<uint64_t>(val));
-                }
-                else
-                {
-                    m_upperBits = 0uLL;
-                    m_lowerBits = static_cast<uint64_t>(val)) - m_lowerBits;
-                }
-            }
-        }
+        if (m_lowerBits + val < m_lowerBits)
+            ++m_upperBits;
+        m_lowerBits += val;
     }
     else if (val < 0)
     {
@@ -279,17 +251,7 @@ BigInteger& BigInteger::operator-=(const BigInteger& val) noexcept
 {
     if ((val.m_upperBits & _INT64_SIGN_BIT_UMASK_) == 0uLL)
     {
-        if ((m_upperBits & _INT64_SIGN_BIT_UMASK_) != 0uLL) // negative
-        {
-            m_upperBits += val.m_upperBits;
-        }
-        else // positive
-        {
-            if (m_upperBits >= val.m_upperBits)
-                m_upperBits -= val.m_upperBits;
-            else
-                m_upperBits = ((val.m_upperBits - m_upperBits) | _INT64_SIGN_STRIP_UMASK_);
-        }
+        m_upperBits -= val.m_upperBits;
         BigInteger::operator+=(val.m_lowerBits);
     }
     else
@@ -303,29 +265,9 @@ BigInteger& BigInteger::operator-=(const T& val) noexcept
 {
     if (val > 0)
     {
-        if ((m_upperBits & _INT64_SIGN_BIT_UMASK_) == 0uLL) // positive
-        {
-            if ((m_lowerBits - static_cast<uint64_t>(val)) > m_lowerBits)
-            {
-                if (m_upperBits > 0uLL)
-                {
-                    --m_upperBits;
-                    m_lowerBits -= static_cast<uint64_t>(val));
-                }
-                else
-                {
-                    m_upperBits = _INT64_SIGN_BIT_UMASK_;
-                    m_lowerBits = static_cast<uint64_t>(val)) - m_lowerBits;
-                }
-            }
-            m_upperBits -= static_cast<uint64_t>((m_lowerBits - static_cast<uint64_t>(val)) > m_lowerBits);
-            m_lowerBits -= static_cast<uint64_t>(val);
-        }
-        else
-        {
-            m_upperBits += static_cast<uint64_t>((m_lowerBits + static_cast<uint64_t>(val)) < m_lowerBits);
-            m_lowerBits += static_cast<uint64_t>(val);
-        }
+        if (m_lowerBits - val > m_lowerBits)
+            --m_upperBits;
+        m_lowerBits -= val;
     }
     else if (val < 0)
     {
@@ -333,7 +275,7 @@ BigInteger& BigInteger::operator-=(const T& val) noexcept
     }
     return *this;
 }
-
+/*
 /// @brief Multiply
 BigInteger BigInteger::operator*(const BigInteger& val) const noexcept
 {
