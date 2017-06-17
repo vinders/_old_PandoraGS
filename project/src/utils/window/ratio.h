@@ -23,21 +23,21 @@ namespace utils
         
         /// @enum ratio_type_t
         /// @brief Common ratio types
-        enum class ratio_type_t : float
+        enum class ratio_type_t : uint32_t
         {
-            ratio_1_1   = 1.0f,
-            ratio_6_5   = 1.2f,
-            ratio_5_4   = 1.25f,
-            ratio_4_3   = 1.333333f,
-            ratio_11_8  = 1.375f,
-            ratio_3_2   = 1.5f,
-            ratio_15_10 = 1.5f,
-            ratio_16_10 = 1.6f,
-            ratio_5_3   = 1.666667f,
-            ratio_16_9  = 1.777778f,
-            ratio_2_1   = 2.0f,
-            ratio_18_9  = 2.0f,
-            ratio_21_9  = 2.333333f
+            ratio_1_1   = 100,
+            ratio_6_5   = 120,
+            ratio_5_4   = 125,
+            ratio_4_3   = 133,
+            ratio_11_8  = 138,
+            ratio_3_2   = 150,
+            ratio_15_10 = 150,
+            ratio_16_10 = 160,
+            ratio_5_3   = 167,
+            ratio_16_9  = 178,
+            ratio_2_1   = 200,
+            ratio_18_9  = 200,
+            ratio_21_9  = 233
         };
         
         

@@ -23,18 +23,19 @@ namespace utils
         
         /// @enum rate_type_t
         /// @brief Common rate types
-        enum class rate_type_t : float
+        enum class rate_type_t : uint32_t
         {
-            cinema      = 24.0f,
-            cinema_ntsc = 23.97602f,
-            secam       = 25.0f,
-            pal_i       = 25.0f,
-            pal_p       = 50.0f,
-            pal_60_p    = 60.0f,
-            ntsc_i      = 29.97003f,
-            ntsc_drop_i = 30.0f,
-            ntsc_p      = 59.94006f,
-            ntsc_drop_p = 60.0f
+            24_p        = 24,
+            ntsc_24_p   = 23,
+            48_p        = 48,
+            ntsc_48_p   = 47,
+            pal_i       = 25,
+            pal_p       = 50,
+            pal_60_p    = 60,
+            ntsc_i      = 29,
+            ntsc_drop_i = 30,
+            ntsc_p      = 59,
+            ntsc_drop_p = 60
         };
         
         
@@ -52,12 +53,15 @@ namespace utils
             {
                 switch (type)
                 {
-                    case rate_type_t::cinema:
+                    case rate_type_t::24_p:
                         return Rate(24, 1); break;
-                    case rate_type_t::cinema_ntsc:
+                    case rate_type_t::ntsc_24_p:
                         return Rate(24000, 1001); break;
+                    case rate_type_t::48_p:
+                        return Rate(48, 1); break;
+                    case rate_type_t::ntsc_48_p:
+                        return Rate(48000, 1001); break;
                     
-                    case rate_type_t::secam:
                     case rate_type_t::pal_i:
                         return Rate(25, 1); break;
                     case rate_type_t::pal_p:
