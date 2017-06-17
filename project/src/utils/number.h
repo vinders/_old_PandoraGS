@@ -13,6 +13,10 @@ Description : number toolset + generic number type
 #include <cstddef>
 #include <cstring>
 #include <string>
+#include <limits>
+#include <stdexcept>
+#include "number_parser.h"
+#include "number_formatter.h"
 #include "assert.h"
 
 /// @namespace utils
@@ -26,11 +30,12 @@ namespace utils
     public:
         /// @enum base_t
         /// @brief Numeric bases
-        enum class base_t : int32_t
+        enum class base_t : uint32_t
         {
             binary = 2, // base 2 - binary
             oct = 8,    // base 8 - octal
             dec = 10,   // base 10 - decimal
+            dodec = 12, // base 12 - do-decimal
             hex = 16,   // base 16 - hexa-decimal
             hex = 32,   // base 32 - tria-conta-di-decimal
             hex = 64    // base 64 - hexa-conta-tetra-decimal
@@ -79,12 +84,12 @@ namespace utils
         /// @brief Calculate acceptable error margin for float typed values
         static inline float getFloatEpsilon(const float lhs, const float rhs) noexcept
         {
-            return (Number::abs(lhs) >= Number::abs(rhs)) ? Number::abs(lhs / 100000.0f) : Number::abs(rhs / 100000.0f);
+            return (Number::abs(lhs) >= Number::abs(rhs)) ? Number::abs(lhs / 1000000.0f) : Number::abs(rhs / 1000000.0f);
         }
         /// @brief Calculate acceptable error margin for double typed values
         static inline double getDoubleEpsilon(const double lhs, const double rhs) noexcept
         {
-            return (Number::abs(lhs) >= Number::abs(rhs)) ? Number::abs(lhs / 10000000000000.0) : Number::abs(rhs / 10000000000000.0);
+            return (Number::abs(lhs) >= Number::abs(rhs)) ? Number::abs(lhs / 100000000000000.0) : Number::abs(rhs / 100000000000000.0);
         }
         
         
@@ -164,7 +169,7 @@ namespace utils
             }
             return minVal;
         }
-        /// @brief Get maxnimum value of an array
+        /// @brief Get maximum value of an array
         template <typename T>
         static inline T max(const T* array, const size_t size)
         {
@@ -179,6 +184,17 @@ namespace utils
             }
             return maxVal;
         }
+        
+        
+        // -- Limits --
+        
+        /// @brief Get minimum possible value for specific type
+        template <typename T>
+        static inline constexpr T getMinLimit() { return std::numeric_limits<T>::min(); }
+        
+        /// @brief Get maximum possible value for specific type
+        template <typename T>
+        static inline constexpr T getMaxLimit() { return std::numeric_limits<T>::max(); }
         
         
         // -- Basic operations --
@@ -208,236 +224,110 @@ namespace utils
         
         // -- Number parser --
         
-        /// @brief Parse string with leading boolean value (only the first character is evaluated)
-        static inline bool parseBool(const char* val)
+        /// @brief Parse string with leading number
+        /// @returns Output value
+        template <typename T>
+        static inline T parse(const char* val) { return NumberParser::parse<T>(val); }
+        /// @brief Parse string with leading number - trimmed
+        /// @param[in] val   String to parse
+        /// @param[out] out  Output value
+        /// @returns Number of characters read
+        template <typename T>
+        static inline size_t parse(const char* val, T& out) { return NumberParser::parse<T>(val, out); }
+        /// @brief Parse sub-string with leading number - trimmed
+        /// @param[in] val   String to parse
+        /// @param[in] len   String length
+        /// @param[out] out  Output value
+        /// @returns Number of characters read
+        template <typename T>
+        static inline size_t parse(const char* val, const size_t len, T& out) { return NumberParser::parse<T>(val, len, out); }
+        
+        /// @brief Parse string with leading integer number, formatted with specific base type - trimmed
+        /// @returns Output value
+        template <typename T, base_t Base>
+        static inline T parseInt(const char* val) { return NumberParser::parseInt<T, static_cast<uint32_t>(Base)>(val); }
+        /// @brief Parse string with leading integer number, formatted with specific base type - trimmed
+        /// @param[in] val   String to parse
+        /// @param[out] out  Output value
+        /// @returns Number of characters read
+        template <typename T, base_t Base>
+        static inline size_t parseInt(const char* val, T& out) { return NumberParser::parseInt<T, static_cast<uint32_t>(Base)>(val, out); }
+        /// @brief Parse sub-string with leading integer number, formatted with specific base type - trimmed
+        /// @param[in] val   String to parse
+        /// @param[in] len   String length
+        /// @param[out] out  Output value
+        /// @returns Number of characters read
+        template <typename T, base_t Base>
+        static inline size_t parseInt(const char* val, const size_t len, T& out) { return NumberParser::parseInt<T, static_cast<uint32_t>(Base)>(val, len, out); }
+        
+        /// @brief Parse string with leading floating-point number - trimmed
+        /// @returns Output value
+        static inline float parseFloat(const char* val) { return NumberParser::parse<float>(val); }
+        /// @brief Parse string with leading floating-point number - trimmed
+        /// @param[in] val   String to parse
+        /// @param[out] out  Output value
+        /// @returns Number of characters read
+        static inline size_t parseFloat(const char* val, float& out) { return NumberParser::parse<float>(val, out); }
+        /// @brief Parse sub-string with floating-point number - trimmed
+        /// @param[in] val   String to parse
+        /// @param[in] len   String length
+        /// @param[out] out  Output value
+        /// @returns Number of characters read
+        static inline size_t parseFloat(const char* val, const size_t len, float& out) { return NumberParser::parse<float>(val, len, out); }
+        /// @brief Parse string with leading double-precision floating-point number - trimmed
+        /// @returns Output value
+        static inline double parseDouble(const char* val) { return NumberParser::parse<double>(val); }
+        /// @brief Parse string with leading double-precision floating-point number - trimmed
+        /// @param[in] val   String to parse
+        /// @param[out] out  Output value
+        /// @returns Number of characters read
+        static inline size_t parseDouble(const char* val, double& out) { return NumberParser::parse<double>(val, out); }
+        /// @brief Parse sub-string with leading double-precision floating-point number - trimmed
+        /// @param[in] val   String to parse
+        /// @param[in] len   String length
+        /// @param[out] out  Output value
+        /// @returns Number of characters read
+        static inline size_t parseDouble(const char* val, const size_t len, double& out) { return NumberParser::parse<double>(val, len, out); }
+        
+        /// @brief Parse string with leading boolean value (only the first character is evaluated) - trim before calling parser
+        /// @returns Output value
+        /// @throws std::invalid_argument  String does not start with boolean letter (f/t/F/T/0/1)
+        static inline bool parseBoolFirstChar(const char* val)
         {
-            if (val == nullptr || *val == '\0')
+            if (val == nullptr || val == '\0')
                 return false;
             switch (*val)
             {
                 case 'f':
                 case 'F':
                 case '0':
-                    return false;
-                    break;
+                    return false; break;
                 case 't':
                 case 'T':
                 case '1':
-                    return true;
-                    break;
-                default:
-                    throw std::invalid_argument("Number.parseBool: the string does not contain a valid boolean.");
-                    break;
+                    return true; break;
+                default: throw std::invalid_argument("Number.parseBool: string does not contain a valid boolean."); break;
             }
         }
-        /// @brief Parse string with leading boolean value (allowed values : true/false/TRUE/FALSE/0/1)
-        /// @param[in] value  String to parse
-        /// @param[out] out   Output value (false if empty or null string)
+        /// @brief Parse string with leading boolean (false/true/FALSE/TRUE/0/1/00...00/00..01) - trim before calling parser
+        /// @returns Output value
+        static inline bool parseBool(const char* val) { return NumberParser::parse<bool>(val); }
+        /// @brief Parse string with leading boolean (false/true/FALSE/TRUE/0/1/00...00/00..01) - trim before calling parser
+        /// @param[in] val   String to parse
+        /// @param[out] out  Output value
         /// @returns Number of characters read
-        static size_t parseBool(const char* val, bool& out)
-        {
-            if (val == nullptr || *val == '\0')
-            {
-                out = false;
-                return 0u;
-            }
-            switch (*val)
-            {
-                case 'f':
-                    if (*(++val) == 'a' && *(++val) == 'l' && *(++val) == 's' && *(++val) == 'e')
-                    {
-                        out = false;
-                        return 5u;
-                    }
-                    else
-                        throw std::invalid_argument("Number.parseBool: the string does not contain a valid boolean.");
-                    break;
-                case 'F':
-                    if (*(++val) == 'A' && *(++val) == 'L' && *(++val) == 'S' && *(++val) == 'E')
-                    {
-                        out = false;
-                        return 5u;
-                    }
-                    else
-                        throw std::invalid_argument("Number.parseBool: the string does not contain a valid boolean.");
-                    break;
-                case 't':
-                    if (*(++val) == 'r' && *(++val) == 'u' && *(++val) == 'e')
-                    {
-                        out = true;
-                        return 4u;
-                    }
-                    else
-                        throw std::invalid_argument("Number.parseBool: the string does not contain a valid boolean.");
-                    break;
-                case 'T':
-                    if (*(++val) == 'R' && *(++val) == 'U' && *(++val) == 'E')
-                    {
-                        out = true;
-                        return 4u;
-                    }
-                    else
-                        throw std::invalid_argument("Number.parseBool: the string does not contain a valid boolean.");
-                    break;
-                case '0':
-                    out = false;
-                    return 1u;
-                    break;
-                case '1':
-                    out = true;
-                    return 1u;
-                    break;
-                default:
-                    throw std::invalid_argument("Number.parseBool: the string does not contain a valid boolean.");
-                    break;
-            }
-        }
+        static inline size_t parseBool(const char* val, bool& out) { return NumberParser::parse<bool>(val, out); }
+
         
-        /// @brief Parse string with leading integer number
-        template <typename T = int64_t>
-        static inline T parseInt(const char* val)
-        {
-            if (val == nullptr || *val == '\0')
-                return 0;
-            
-            bool isNegative = (*val == '-');
-            if (isNegative)
-                ++val;
-            T out = parseUInt<T>(val, out);
-            return (isNegative) ? -out : out;
-        }
-        
-        /// @brief Parse string with leading integer number
-        /// @param[in] value  String to parse
-        /// @param[out] out   Output value (0 if empty or null string)
-        /// @returns Number of characters read
-        template <typename T = int64_t>
-        static inline size_t parseInt(const char* val, T& out)
-        {
-            if (val == nullptr)
-            {
-                out = 0;
-                return 0u;
-            }
-            
-            bool isNegative = (*val == '-');
-            if (isNegative)
-                ++val;
-            
-            uint32_t i = parseUInt<T>(val, out);
-            if (isNegative)
-            {
-                out = -out;
-                ++i;
-            }
-            return i;
-        }
-        
-        /// @brief Parse string with leading unsigned integer number
-        template <typename T = uint64_t>
-        static inline T parseUInt(const char* val)
-        {
-            if (val == nullptr || val != '\0')
-                return 0;
-            
-            const char* it = val;
-            T out;
-            for (out = 0; *it >= '0' && *it <= '9'; ++it)
-            {
-                out *= 10;
-                out += *it - '0';
-            }
-            if (it == val)
-                throw std::invalid_argument("Number.parseUInt: the string does not contain a valid number.");
-            return out;
-        }
-        /// @brief Parse string with leading unsigned integer number
-        /// @param[in] value  String to parse
-        /// @param[out] out   Output value (0 if empty or null string)
-        /// @returns Number of characters read
-        template <typename T = uint64_t>
-        static inline size_t parseUInt(const char* val, T& out)
-        {
-            if (val == nullptr)
-            {
-                out = 0;
-                return 0u;
-            }
-            
-            uint32_t i = 0u;
-            for (out = 0; *val >= '0' && *val <= '9'; ++val)
-            {
-                out *= 10;
-                out += *val - '0';
-                ++i;
-            }
-            if (i == 0u && *val != '\0')
-                throw std::invalid_argument("Number.parseUInt: the string does not contain a valid number.");
-            return i;
-        }
-        
-        /// @brief Parse string with leading floating-point number
-        static inline double parseDouble(const char* val)
-        {
-            double out;
-            parseDouble(val, out);
-            return out;
-        }
-        /// @brief Parse string with leading floating-point number
-        /// @param[in] value  String to parse
-        /// @param[out] out   Output value (0.0 if empty string)
-        /// @returns Number of characters read
-        static size_t parseDouble(const char* val, double& out)
-        {
-            if (val == nullptr)
-            {
-                out = 0.0;
-                return 0u;
-            }
-            
-            uint64_t intPart;
-            uint32_t i = parseUInt<uint64_t>(val, intPart);
-            out = static_cast<double>(intPart);
-            val += i;
-            
-            if (*val == '.' || *val == ',')
-            {
-                ++val;
-                uint32_t rows = parseUInt<uint64_t>(val, intPart);
-                uint64_t divider = 1;
-                for (uint32_t row = 0; row < rows; ++row)
-                    divider *= 10;
-                out += static_cast<double>(intPart) / static_cast<double>(divider);
-                i += rows;
-            }
-            return i;
-        }
-        //!!!!!!classes Parser ???
-        
-        
-        // -- String converter --
+        // -- String formatter --
         
         /// @brief Convert number to decimal string
         template <typename T>
         static inline std::string toString(const T val) { return std::to_string(val); }
-        
         /// @brief Convert number to binary string
-        template <typename T>
-        static inline std::string toBinaryString(const T val);
-        /// @brief Convert number to octal string
-        template <typename T>
-        static inline std::string toOctalString(const T val);
-        /// @brief Convert number to hexa-decimal string
-        template <typename T>
-        static inline std::string toHexString(const T val);
-        /// @brief Convert number to base32 string
-        template <typename T>
-        static inline std::string toBase32String(const T val);
-        /// @brief Convert number to base64 string
-        template <typename T>
-        static inline std::string toBase64String(const T val);
-        //!!!!!!classes Formatter ???
-        
+        template <typename T, base_t Base>
+        static inline std::string toString(const T val) { return NumberFormatter::format<T, static_cast<uint32_t>(Base)>(val); }
+
         
         
         
@@ -453,15 +343,15 @@ namespace utils
         Number(const T val) : m_isInteger(true), m_value(static_cast<int64_t>(val)) {}
         /// @brief Create initialized integer
         template<>
-        Number(const int64_t val) : m_isInteger(true), m_value(val) {}
+        explicit Number(const int64_t val) : m_isInteger(true), m_value(val) {}
         /// @brief Create initialized floating-point value
         template<>
-        Number(const float val) : m_isInteger(false), m_value(static_cast<double>(val)) {}
+        explicit Number(const float val) : m_isInteger(false), m_value(static_cast<double>(val)) {}
         /// @brief Create initialized floating-point value
         template<>
-        Number(const double val) : m_isInteger(false), m_value(val) {}
+        explicit Number(const double val) : m_isInteger(false), m_value(val) {}
         /// @brief Create copy of value
-        Number(const Number& val) : m_isInteger(val.m_isInteger) 
+        explicit Number(const Number& val) : m_isInteger(val.m_isInteger) 
         {
             m_value.intVal = val.m_value.intVal;
         }
@@ -517,9 +407,9 @@ namespace utils
         // -- Copy operators --
         
         /// @brief Assign copy of rational number
-        inline Number& operator=(const Number& rhs) noexcept { return setNumber(rhs); }
+        explicit inline Number& operator=(const Number& rhs) noexcept { return setNumber(rhs); }
         /// @brief Assign moved rational number
-        inline Number& operator=(Number&& rhs) noexcept { return setNumber(rhs); }
+        explicit inline Number& operator=(Number&& rhs) noexcept { return setNumber(rhs); }
         
         /// @brief Swap value with other instance
         void swap(Number& rhs)
@@ -535,53 +425,53 @@ namespace utils
         // -- Assignment with typecast --
         
         /// @brief Assign value with typecast
-        inline Number& operator=(const uint64_t rhs) noexcept { return setInteger(rhs); }
+        explicit inline Number& operator=(const uint64_t rhs) noexcept { return setInteger(rhs); }
         /// @brief Assign value with typecast
-        inline Number& operator=(const int64_t rhs) noexcept  { return setInteger(rhs); }
+        explicit inline Number& operator=(const int64_t rhs) noexcept  { return setInteger(rhs); }
         /// @brief Assign value with typecast
-        inline Number& operator=(const uint32_t rhs) noexcept { return setInteger(rhs); }
+        explicit inline Number& operator=(const uint32_t rhs) noexcept { return setInteger(rhs); }
         /// @brief Assign value with typecast
-        inline Number& operator=(const int32_t rhs) noexcept  { return setInteger(rhs); }
+        explicit inline Number& operator=(const int32_t rhs) noexcept  { return setInteger(rhs); }
         /// @brief Assign value with typecast
-        inline Number& operator=(const uint16_t rhs) noexcept { return setInteger(rhs); }
+        explicit inline Number& operator=(const uint16_t rhs) noexcept { return setInteger(rhs); }
         /// @brief Assign value with typecast
-        inline Number& operator=(const int16_t rhs) noexcept  { return setInteger(rhs); }
+        explicit inline Number& operator=(const int16_t rhs) noexcept  { return setInteger(rhs); }
         /// @brief Assign value with typecast
-        inline Number& operator=(const uint8_t rhs) noexcept  { return setInteger(rhs); }
+        explicit inline Number& operator=(const uint8_t rhs) noexcept  { return setInteger(rhs); }
         /// @brief Assign value with typecast
-        inline Number& operator=(const int8_t rhs) noexcept   { return setInteger(rhs); }
+        explicit inline Number& operator=(const int8_t rhs) noexcept   { return setInteger(rhs); }
         /// @brief Assign value with typecast
-        inline Number& operator=(const bool rhs) noexcept     { return setBoolean(rhs); }
+        explicit inline Number& operator=(const bool rhs) noexcept     { return setBoolean(rhs); }
         /// @brief Assign value with typecast
-        inline Number& operator=(const float rhs) noexcept    { return setDouble(rhs); }
+        explicit inline Number& operator=(const float rhs) noexcept    { return setDouble(rhs); }
         /// @brief Assign value with typecast
-        inline Number& operator=(const double rhs) noexcept   { return setDouble(rhs); }
+        explicit inline Number& operator=(const double rhs) noexcept   { return setDouble(rhs); }
         
         
         // -- Typecast operators --
         
         /// @brief Cast as 64-bit integer (destructive)
-        inline operator uint64_t() const noexcept { return (m_isInteger) ? static_cast<uint64_t>(getInteger()) : static_cast<uint64_t>(getDouble()); }
+        explicit inline operator uint64_t() const noexcept { return (m_isInteger) ? static_cast<uint64_t>(getInteger()) : static_cast<uint64_t>(getDouble()); }
         /// @brief Cast as 64-bit signed integer (destructive)
-        inline operator int64_t() const noexcept  { return static_cast<int64_t>(getInteger()); }
+        explicit inline operator int64_t() const noexcept  { return static_cast<int64_t>(getInteger()); }
         /// @brief Cast as 32-bit integer (destructive)
-        inline operator uint32_t() const noexcept { return static_cast<uint32_t>(getInteger()); }
+        explicit inline operator uint32_t() const noexcept { return static_cast<uint32_t>(getInteger()); }
         /// @brief Cast as 32-bit signed integer (destructive)
-        inline operator int32_t() const noexcept  { return static_cast<int32_t>(getInteger()); }
+        explicit inline operator int32_t() const noexcept  { return static_cast<int32_t>(getInteger()); }
         /// @brief Cast as 16-bit integer (destructive)
-        inline operator uint16_t() const noexcept { return static_cast<uint16_t>(getInteger()); }
+        explicit inline operator uint16_t() const noexcept { return static_cast<uint16_t>(getInteger()); }
         /// @brief Cast as 16-bit signed integer (destructive)
-        inline operator int16_t() const noexcept  { return static_cast<int16_t>(getInteger()); }
+        explicit inline operator int16_t() const noexcept  { return static_cast<int16_t>(getInteger()); }
         /// @brief Cast as 8-bit integer (destructive)
-        inline operator uint8_t() const noexcept  { return static_cast<uint8_t>(getInteger()); }
+        explicit inline operator uint8_t() const noexcept  { return static_cast<uint8_t>(getInteger()); }
         /// @brief Cast as 8-bit signed integer (destructive)
-        inline operator int8_t() const noexcept   { return static_cast<int8_t>(getInteger()); }
+        explicit inline operator int8_t() const noexcept   { return static_cast<int8_t>(getInteger()); }
         /// @brief Cast as boolean
-        inline operator bool() const noexcept     { return getBoolean(); }
+        explicit inline operator bool() const noexcept     { return getBoolean(); }
         /// @brief Cast as floating-point value (destructive)
-        inline operator float() const noexcept    { return static_cast<float>(getDouble()); }
+        explicit inline operator float() const noexcept    { return static_cast<float>(getDouble()); }
         /// @brief Cast as double-precision floating-point value
-        inline operator double() const noexcept   { return getDouble(); }
+        explicit inline operator double() const noexcept   { return getDouble(); }
         
         
         // -- Logical operators --
@@ -911,6 +801,11 @@ namespace utils
         } m_value;         ///< 64-bit value
     };
 }
+
+
+// -- Specialized template --
+
+template <> inline std::string Number::toString(const bool val) { return (val) ? std::to_string("true") : std::to_string("false"); }
 
 
 // -- Special operators --
