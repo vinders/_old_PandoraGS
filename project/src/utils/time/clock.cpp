@@ -52,7 +52,7 @@ void Clock::setFrequency(const uint32_t freqNumerator, const uint32_t freqDenomi
     {
         m_periodDuration = (static_cast<uint64_t>(freqDenominator) * 1000000000uLL) / static_cast<uint64_t>(freqNumerator);
         
-        double subDuration = ((static_cast<double>(freqDenominator) * (1000000000.0 / static_cast<double>(freqNumerator)))) - static_cast<double>(m_periodDuration);
+        double subDuration = ((static_cast<double>(freqDenominator) * 1000000000.0) / static_cast<double>(freqNumerator)) - static_cast<double>(m_periodDuration);
         m_periodSubDuration = (subDuration > 0.0 && subDuration < 1.0) ? static_cast<float>(subDuration) : 0.0f;
     }
     else

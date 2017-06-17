@@ -8,7 +8,7 @@ Description : high-resolution clock
 
 #include <cstdint>
 #include <cstddef>
-#include "time_point.hpp"
+#include "time_point.h"
 
 /// @namespace utils
 /// General utilities
