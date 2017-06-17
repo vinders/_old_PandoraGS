@@ -6,17 +6,19 @@ Description : rational number type (rational32_t, rational64_t, rational128_t)
 *******************************************************************************/
 #pragma once
 
+#undef min
+#undef max
+
 #include <cstdint>
 #include <cstddef>
 #include <string>
 #include <stdexcept>
 #include <iostream>
 #include "number.h"
-#include "algorithm/math.h"
 #include "assert.h"
 
-#define rational32_t   utils::Rational<int32_t>
-#define rational64_t   utils::Rational<int64_t>
+typedef utils::Rational<int32_t> rational32_t;
+typedef utils::Rational<int64_t> rational64_t;
 
 
 /// @namespace utils
@@ -41,23 +43,23 @@ namespace utils
         }
         /// @brief Create initialized rational number from integer (ordinal 1)
         /// @param[in] cardinal  Cardinal number (numerator)
-        Rational(const int32_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1) {}
+        explicit Rational(const int32_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1) {}
         /// @brief Create initialized rational number from integer (ordinal 1)
         /// @param[in] cardinal  Cardinal number (numerator)
-        Rational(const int64_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1) {}
+        explicit Rational(const int64_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1) {}
         /// @brief Create initialized rational number from integer (ordinal 1)
         /// @param[in] cardinal  Cardinal number (numerator)
-        Rational(const int16_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1) {}
+        explicit Rational(const int16_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1) {}
         /// @brief Create initialized rational number from integer (ordinal 1)
         /// @param[in] cardinal  Cardinal number (numerator)
-        Rational(const int8_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1) {}
+        explicit Rational(const int8_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1) {}
         
         /// @brief Copy rational number
         /// @param[in] val  Other instance
-        Rational(const Rational<T,U>& val) noexcept : m_cardinal(val.m_cardinal), m_ordinal(val.m_ordinal) {}
+        explicit Rational(const Rational<T,U>& val) noexcept : m_cardinal(val.m_cardinal), m_ordinal(val.m_ordinal) {}
         /// @brief Move rational number
         /// @param[in] val  Other instance
-        Rational(Rational<T,U>&& val) noexcept : m_cardinal(std::move(val.m_cardinal)), m_ordinal(std::move(val.m_ordinal)) {}
+        explicit Rational(Rational<T,U>&& val) noexcept : m_cardinal(std::move(val.m_cardinal)), m_ordinal(std::move(val.m_ordinal)) {}
         
         
         // -- Getters --
@@ -70,13 +72,31 @@ namespace utils
         inline U getOrdinal() const noexcept  { return m_ordinal; }
         
         /// @brief Get greatest common divider between cardinal and ordinal
-        inline T getGcd() const noexcept { T gcd = Math::gcd<T>(m_cardinal, m_ordinal); return (gcd >= 0) ? gcd : -gcd; }
+        inline T getGcd() const noexcept 
+        {
+            if (m_cardinal == 0) 
+                return m_ordinal;
+            if (m_ordinal == 0) 
+                return m_cardinal;
+            
+            T remainder;
+            T lhs = m_cardinal;
+            T rhs = m_ordinal;
+            while (rhs != 0)
+            {
+                remainder = lhs % rhs;
+                lhs = rhs;
+                rhs = remainder;
+            }
+        }
         
         /// @brief Convert rational number to double-precision floating-point value
         /// @returns Double-precision value
         inline double toDouble() const noexcept
         {
             ASSERT(m_ordinal != 0);
+            if (m_ordinal == 0)
+                return 0;
             return static_cast<double>(m_cardinal) / static_cast<double>(m_ordinal);
         }
         
@@ -85,6 +105,8 @@ namespace utils
         inline int32_t toPercent() const noexcept
         {
             ASSERT(m_ordinal != 0);
+            if (m_ordinal == 0)
+                return 0;
             T percent;
             if (std::abs(m_cardinal) < Number::getMaxValue<T>() / 100)
             {
@@ -180,7 +202,7 @@ namespace utils
         /// @brief Assign copy of rational number
         /// @param[in] rhs  Other instance
         /// @returns Current object
-        inline Rational<T,U>& operator=(const Rational<T,U>& rhs) noexcept 
+        explicit inline Rational<T,U>& operator=(const Rational<T,U>& rhs) noexcept 
         { 
             ASSERT(rhs.m_ordinal != 0);
             return set(rhs.m_cardinal, rhs.m_ordinal); 
@@ -188,7 +210,7 @@ namespace utils
         /// @brief Assign moved rational number
         /// @param[in] rhs  Other instance
         /// @returns Current object
-        inline Rational<T,U>& operator=(Rational<T,U>&& rhs) noexcept 
+        explicit inline Rational<T,U>& operator=(Rational<T,U>&& rhs) noexcept 
         { 
             ASSERT(rhs.m_ordinal != 0);
             m_cardinal = std::move(rhs.m_cardinal); 
@@ -213,51 +235,51 @@ namespace utils
         // -- Assignment with typecast --
         
         /// @brief Assign value with typecast
-        inline Rational<T,U>& operator=(const uint64_t rhs) noexcept { return set(static_cast<T>(rhs), 1); }
+        explicit inline Rational<T,U>& operator=(const uint64_t rhs) noexcept { return set(static_cast<T>(rhs), 1); }
         /// @brief Assign value with typecast
-        inline Rational<T,U>& operator=(const int64_t rhs) noexcept  { return set(static_cast<T>(rhs), 1); }
+        explicit inline Rational<T,U>& operator=(const int64_t rhs) noexcept  { return set(static_cast<T>(rhs), 1); }
         /// @brief Assign value with typecast
-        inline Rational<T,U>& operator=(const uint32_t rhs) noexcept { return set(static_cast<T>(rhs), 1); }
+        explicit inline Rational<T,U>& operator=(const uint32_t rhs) noexcept { return set(static_cast<T>(rhs), 1); }
         /// @brief Assign value with typecast
-        inline Rational<T,U>& operator=(const int32_t rhs) noexcept  { return set(static_cast<T>(rhs), 1); }
+        explicit inline Rational<T,U>& operator=(const int32_t rhs) noexcept  { return set(static_cast<T>(rhs), 1); }
         /// @brief Assign value with typecast
-        inline Rational<T,U>& operator=(const uint16_t rhs) noexcept { return set(static_cast<T>(rhs), 1); }
+        explicit inline Rational<T,U>& operator=(const uint16_t rhs) noexcept { return set(static_cast<T>(rhs), 1); }
         /// @brief Assign value with typecast
-        inline Rational<T,U>& operator=(const int16_t rhs) noexcept  { return set(static_cast<T>(rhs), 1); }
+        explicit inline Rational<T,U>& operator=(const int16_t rhs) noexcept  { return set(static_cast<T>(rhs), 1); }
         /// @brief Assign value with typecast
-        inline Rational<T,U>& operator=(const uint8_t rhs) noexcept  { return set(static_cast<T>(rhs), 1); }
+        explicit inline Rational<T,U>& operator=(const uint8_t rhs) noexcept  { return set(static_cast<T>(rhs), 1); }
         /// @brief Assign value with typecast
-        inline Rational<T,U>& operator=(const int8_t rhs) noexcept   { return set(static_cast<T>(rhs), 1); }
+        explicit inline Rational<T,U>& operator=(const int8_t rhs) noexcept   { return set(static_cast<T>(rhs), 1); }
         /// @brief Assign value with typecast
-        inline Rational<T,U>& operator=(const bool rhs) noexcept     { return set((rhs) ? 1 : 0, 1); }
+        explicit inline Rational<T,U>& operator=(const bool rhs) noexcept     { return set((rhs) ? 1 : 0, 1); }
         
         
         // -- Typecast operators --
         
         /// @brief Cast as 64-bit integer (destructive)
-        inline operator uint64_t() const noexcept { ASSERT(m_ordinal != 0); return static_cast<uint64_t>(m_cardinal / m_ordinal); }
+        explicit inline operator uint64_t() const noexcept { ASSERT(m_ordinal != 0); return static_cast<uint64_t>(m_cardinal / m_ordinal); }
         /// @brief Cast as 64-bit signed integer (destructive)
-        inline operator int64_t() const noexcept   { ASSERT(m_ordinal != 0); return static_cast<int64_t>(m_cardinal / m_ordinal); }
+        explicit inline operator int64_t() const noexcept   { ASSERT(m_ordinal != 0); return static_cast<int64_t>(m_cardinal / m_ordinal); }
         /// @brief Cast as 32-bit integer (destructive)
-        inline operator uint32_t() const noexcept { ASSERT(m_ordinal != 0); return static_cast<uint32_t>(m_cardinal / m_ordinal); }
+        explicit inline operator uint32_t() const noexcept { ASSERT(m_ordinal != 0); return static_cast<uint32_t>(m_cardinal / m_ordinal); }
         /// @brief Cast as 32-bit signed integer (destructive)
-        inline operator int32_t() const noexcept   { ASSERT(m_ordinal != 0); return static_cast<int32_t>(m_cardinal / m_ordinal); }
+        explicit inline operator int32_t() const noexcept   { ASSERT(m_ordinal != 0); return static_cast<int32_t>(m_cardinal / m_ordinal); }
         /// @brief Cast as 16-bit integer (destructive)
-        inline operator uint16_t() const noexcept { ASSERT(m_ordinal != 0); return static_cast<uint16_t>(m_cardinal / m_ordinal); }
+        explicit inline operator uint16_t() const noexcept { ASSERT(m_ordinal != 0); return static_cast<uint16_t>(m_cardinal / m_ordinal); }
         /// @brief Cast as 16-bit signed integer (destructive)
-        inline operator int16_t() const noexcept   { ASSERT(m_ordinal != 0); return static_cast<int16_t>(m_cardinal / m_ordinal); }
+        explicit inline operator int16_t() const noexcept   { ASSERT(m_ordinal != 0); return static_cast<int16_t>(m_cardinal / m_ordinal); }
         /// @brief Cast as 8-bit integer (destructive)
-        inline operator uint8_t() const noexcept   { ASSERT(m_ordinal != 0); return static_cast<uint8_t>(m_cardinal / m_ordinal); }
+        explicit inline operator uint8_t() const noexcept   { ASSERT(m_ordinal != 0); return static_cast<uint8_t>(m_cardinal / m_ordinal); }
         /// @brief Cast as 8-bit signed integer (destructive)
-        inline operator int8_t() const noexcept     { ASSERT(m_ordinal != 0); return static_cast<int8_t>(m_cardinal / m_ordinal); }
+        explicit inline operator int8_t() const noexcept     { ASSERT(m_ordinal != 0); return static_cast<int8_t>(m_cardinal / m_ordinal); }
         
         /// @brief Cast as boolean
-        inline operator bool() const noexcept { return (m_cardinal != 0); }
+        explicit inline operator bool() const noexcept { return (m_cardinal != 0); }
         
         /// @brief Cast as floating-point value (destructive)
-        inline operator float() const noexcept   { return static_cast<float>(toDouble()); }
+        explicit inline operator float() const noexcept   { return static_cast<float>(toDouble()); }
         /// @brief Cast as double-precision floating-point value
-        inline operator double() const noexcept { return toDouble(); }
+        explicit inline operator double() const noexcept { return toDouble(); }
         
         
         // -- Logical operators --
@@ -286,6 +308,8 @@ namespace utils
         {
             ASSERT(m_ordinal != 0); 
             ASSERT(rhs.m_ordinal != 0); 
+            if ((m_ordinal & rhs.m_ordinal) == 0)
+                return 0;
             T floorLhs = m_cardinal / static_cast<T>(m_ordinal);
             T floorRhs = static_cast<T>(rhs.m_cardinal / rhs.m_ordinal);
             if (floorLhs == floorRhs)
@@ -307,6 +331,8 @@ namespace utils
         inline int32_t compare(const V rhs) const noexcept
         {
             ASSERT(m_ordinal != 0); 
+            if (m_ordinal == 0)
+                return 0;
             T floor = m_cardinal / static_cast<T>(m_ordinal);
             if (floor == static_cast<T>(rhs))
             {
