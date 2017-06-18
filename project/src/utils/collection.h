@@ -8,12 +8,11 @@ Description : collection toolset
 
 #include <cstdint>
 #include <cstddef>
-#include <vector>
-#include <list>
 #include <set>
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
+#include <algorithm>
 #include "compare.h"
 #include "assert.h"
 
@@ -29,13 +28,13 @@ namespace utils
         // -- Size tools --
     
         /// @brief Check whether a collection is empty
-        /// @param[in] collection  Standard collection (vector/list/set/map/unordered_set/unordered_map)
+        /// @param[in] collection  Standard collection (vector/list/forward_list/array/deque/set/map/unordered_set/unordered_map)
         /// @returns Empty or not
         template <typename StlCont>
         static inline bool isEmpty(const StlCont& collection) { return collection.empty(); }
 
         /// @brief Get length of a collection
-        /// @param[in] collection  Standard collection (vector/list/set/map/unordered_set/unordered_map)
+        /// @param[in] collection  Standard collection (vector/list/forward_list/array/deque/set/map/unordered_set/unordered_map)
         /// @returns Length of collection
         template <typename StlCont>
         static inline uint32_t size(const StlCont& collection) { return collection.size(); }
@@ -44,12 +43,12 @@ namespace utils
         // -- Cleanup tools --
         
         /// @brief Remove all elements from a collection
-        /// @param[in] collection  Standard collection (vector/list/set/map/unordered_set/unordered_map) of elements (no pointers)
+        /// @param[in] collection  Standard collection (vector/list/forward_list/array/deque/set/map/unordered_set/unordered_map) of elements (no pointers)
         template <typename StlCont>
         static inline void clear(const StlCont& collection) { collection.clear(); }
         
         /// @brief Remove all elements from a collection of simple pointers, and destroy referenced objects
-        /// @param[in] collection  Standard collection (vector/list/set/map/unordered_set/unordered_map) of pointers (e.g.: std::vector<int*>)
+        /// @param[in] collection  Standard collection (vector/list/forward_list/array/deque/set/map/unordered_set/unordered_map) of pointers (e.g.: std::vector<int*>)
         template <typename StlCont>
         static inline void clearPtr(const StlCont& collection) 
         { 
@@ -59,7 +58,7 @@ namespace utils
             collection.clear(); 
         }
         /// @brief Remove all elements from a collection of array-pointers, and destroy referenced arrays
-        /// @param[in] collection  Standard collection (vector/list/set/map/unordered_set/unordered_map) of array-pointers (e.g.: std::vector<char[]>)
+        /// @param[in] collection  Standard collection (vector/list/forward_list/array/deque/set/map/unordered_set/unordered_map) of array-pointers (e.g.: std::vector<char[]>)
         template <typename StlCont>
         static inline void clearArrayPtr(const StlCont& collection) 
         { 
@@ -95,56 +94,50 @@ namespace utils
             }
             return isFound; 
         }
-        /// @brief Check whether a vector contains a value
-        /// @param[in] vec   Standard vector
-        /// @param[in] item  Searched value
-        /// @returns Found or not
-        template <typename T>
-        static inline bool contains(const std::vector<T>& vec, const T& item) { return (std::find(vec.begin(), vec.end(), item) != vec.end()); }
-        /// @brief Check whether a list contains a value
-        /// @param[in] vec   Standard vector
-        /// @param[in] item  Searched value
-        /// @returns Found or not
-        template <typename T>
-        static inline bool contains(const std::list<T>& lst, const T& item) { return (std::find(lst.begin(), lst.end(), item) != lst.end()); }
         /// @brief Check whether a set contains a key
-        /// @param[in] vec   Standard vector
+        /// @param[in] vec   Standard hash-set
         /// @param[in] key   Searched key
         /// @returns Found or not
         template <typename KeyType>
         static inline bool contains(const std::set<KeyType>& hashSet, const KeyType& key) { return (hashSet.find(key) != hashSet.end()); }
         /// @brief Check whether an unordered_set contains a key
-        /// @param[in] vec   Standard vector
+        /// @param[in] vec   Standard hash-set
         /// @param[in] key   Searched key
         /// @returns Found or not
         template <typename KeyType>
         static inline bool contains(const std::unordered_set<KeyType>& hashSet, const KeyType& key) { return (hashSet.find(key) != hashSet.end()); }
         /// @brief Check whether a map contains a key
-        /// @param[in] vec   Standard vector
+        /// @param[in] vec   Standard hash-map
         /// @param[in] key   Searched key
         /// @returns Found or not
         template <typename KeyType, typename T>
         static inline bool contains(const std::map<KeyType,T>& hashMap, const KeyType& key) { return (hashMap.find(key) != hashMap.end()); }
         /// @brief Check whether a map contains a key and a specific value for that key
-        /// @param[in] vec   Standard vector
+        /// @param[in] vec   Standard hash-map
         /// @param[in] key   Searched key
         /// @param[in] item  Searched value
         /// @returns Found or not
         template <typename KeyType, typename T>
         static inline bool contains(const std::map<KeyType,T>& hashMap, const KeyType& key, const T& item) { return (hashMap.find(key) != hashMap.end() && hashMap.at(key) == item); }
         /// @brief Check whether a unordered_map contains a key
-        /// @param[in] vec   Standard vector
+        /// @param[in] vec   Standard hash-map
         /// @param[in] key   Searched key
         /// @returns Found or not
         template <typename KeyType, typename T>
         static inline bool contains(const std::unordered_map<KeyType,T>& hashMap, const KeyType& key) { return (hashMap.find(key) != hashMap.end()); }
         /// @brief Check whether an unordered_map contains a key and a specific value for that key
-        /// @param[in] vec   Standard vector
+        /// @param[in] vec   Standard hash-map
         /// @param[in] key   Searched key
         /// @param[in] item  Searched value
         /// @returns Found or not
         template <typename KeyType, typename T>
         static inline bool contains(const std::unordered_map<KeyType,T>& hashMap, const KeyType& key, const T& item) { return (hashMap.find(key) != hashMap.end() && hashMap.at(key) == item); }
+        /// @brief Check whether a collection contains a value
+        /// @param[in] vec   Standard non-hashed collection (vector/list/forward_list/array/deque)
+        /// @param[in] item  Searched value
+        /// @returns Found or not
+        template <typename StlCont, typename T>
+        static inline bool contains(const StlCont& vec, const T& item) { return (std::find(vec.begin(), vec.end(), item) != vec.end()); }
         
         
         // -- Count occurrences --
@@ -155,7 +148,7 @@ namespace utils
         /// @param[in] value   Searched value
         /// @returns Total number of results
         /// @see compare_type_t
-        template <typename T, utils::compare_type_t Comparison = utils::compare_type_t::equal>
+        template <utils::compare_type_t Comparison, typename T>
         static inline uint32_t count(const T* pArray, const size_t size, const T& value)
         {
             ASSERT(pArray != nullptr);
@@ -172,12 +165,12 @@ namespace utils
             return total;
         }
         /// @brief Count occurrences of true comparisons in collection (count values equal to, count values different from, count values lower than, ...)
-        /// @param[in] collection  Standard collection (vector/list/set/map/unordered_set/unordered_map)
+        /// @param[in] collection  Standard collection (vector/list/forward_list/array/deque/set/map/unordered_set/unordered_map)
         /// @param[in] value       Searched value
         /// @returns Total number of results
         /// @see compare_type_t
-        template <typename T, typename StlCont<T>, utils::compare_type_t Comparison = utils::compare_type_t::equal>
-        static inline uint32_t count(const StlCont<T>& collection, const T& value) 
+        template <utils::compare_type_t Comparison, typename StlCont, typename T>
+        static inline uint32_t count(const StlCont& collection, const T& value) 
         { 
             uint32_t total = 0u;
             for (auto item : collection)
@@ -194,7 +187,7 @@ namespace utils
         /// @param[in] value   Searched value
         /// @returns Total number of results
         /// @see compare_type_t
-        template <typename T, utils::compare_type_t Comparison = utils::compare_type_t::equal>
+        template <utils::compare_type_t Comparison, typename T>
         static inline uint32_t countPtr(const T** pArray, const size_t size, const T& value)
         {
             ASSERT(pArray != nullptr);
@@ -215,8 +208,8 @@ namespace utils
         /// @param[in] value       Searched value
         /// @returns Total number of results
         /// @see compare_type_t
-        template <typename T, typename StlCont<T>, utils::compare_type_t Comparison = utils::compare_type_t::equal>
-        static inline uint32_t countPtr(const StlCont<T>& collection, const T& value) 
+        template <utils::compare_type_t Comparison, typename StlCont, typename T>
+        static inline uint32_t countPtr(const StlCont& collection, const T& value) 
         { 
             uint32_t total = 0u;
             for (auto item : collection)
@@ -256,10 +249,10 @@ namespace utils
             return total;
         }
         /// @brief Count distinct values in a collection
-        /// @param[in] collection  Standard collection (vector/list/set/map/unordered_set/unordered_map)
+        /// @param[in] collection  Standard collection (vector/list/forward_list/array/deque/set/map/unordered_set/unordered_map)
         /// @returns Number of distinct values
-        template <typename T, typename StlCont<T>>
-        static inline uint32_t countDistinct(const StlCont<T>& collection) 
+        template <typename StlCont, typename T>
+        static inline uint32_t countDistinct(const StlCont& collection) 
         { 
             uint32_t total = 0u;
             std::set<T> found;
@@ -301,10 +294,10 @@ namespace utils
             return total;
         }
         /// @brief Count distinct non-null values in a collection of pointers
-        /// @param[in] collection  Standard collection of pointers (vector/list/set/map/unordered_set/unordered_map)
+        /// @param[in] collection  Standard collection of pointers (vector/list/forward_list/array/deque/set/map/unordered_set/unordered_map)
         /// @returns Number of distinct values
-        template <typename T, typename StlCont<T>>
-        static inline uint32_t countDistinctPtr(const StlCont<T>& collection) 
+        template <typename StlCont, typename T>
+        static inline uint32_t countDistinctPtr(const StlCont& collection) 
         { 
             uint32_t total = 0u;
             std::set<T> found;

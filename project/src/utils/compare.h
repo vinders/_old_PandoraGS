@@ -36,7 +36,7 @@ namespace utils
     /// @param[in] lhs  First value
     /// @param[in] rhs  Second value
     /// @returns Result
-    template <typename T, compare_type_t Comparison>
+    template <compare_type_t Comparison, typename T>
     static inline bool compare(const T lhs, const T rhs)
     {
         switch (Comparison)
