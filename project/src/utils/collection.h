@@ -164,6 +164,13 @@ namespace utils
             }
             return total;
         }
+        /// @brief Count occurrences in array
+        /// @param[in] pArray  Array of elements
+        /// @param[in] length  Size of the array
+        /// @param[in] value   Searched value
+        /// @returns Total number of results
+        template <typename T>
+        static inline uint32_t count(const T* pArray, const size_t size, const T& value) { return count<utils::compare_type_t::equal, T>(pArray, size, value); }
         /// @brief Count occurrences of true comparisons in collection (count values equal to, count values different from, count values lower than, ...)
         /// @param[in] collection  Standard collection (vector/list/forward_list/array/deque/set/map/unordered_set/unordered_map)
         /// @param[in] value       Searched value
@@ -180,6 +187,15 @@ namespace utils
             }
             return total;
         }
+        /// @brief Count occurrences in collection
+        /// @param[in] collection  Standard collection (vector/list/forward_list/array/deque/set/map/unordered_set/unordered_map)
+        /// @param[in] value       Searched value
+        /// @returns Total number of results
+        template <typename StlCont, typename T>
+        static inline uint32_t count(const StlCont& collection, const T& value) { return count<utils::compare_type_t::equal, StlCont, T>(collection, value); }
+        
+        
+        // -- Count  dereferenced occurrences --
         
         /// @brief Count occurrences of true comparisons in array of pointers (count values equal to, count values different from, count values lower than, ...)
         /// @param[in] pArray  Array of pointers
@@ -203,6 +219,13 @@ namespace utils
             }
             return total;
         }
+        /// @brief Count occurrences in array of pointers
+        /// @param[in] pArray  Array of pointers
+        /// @param[in] length  Size of the array
+        /// @param[in] value   Searched value
+        /// @returns Total number of results
+        template <typename T>
+        static inline uint32_t countPtr(const T** pArray, const size_t size, const T& value) { return countPtr<utils::compare_type_t::equal, T>(pArray, size, value); }
         /// @brief Count occurrences of true comparisons in collection of pointers (count values equal to, count values different from, count values lower than, ...)
         /// @param[in] collection  Standard collection of pointers (vector/list/set/map/unordered_set/unordered_map)
         /// @param[in] value       Searched value
@@ -219,6 +242,12 @@ namespace utils
             }
             return total;
         }
+        /// @brief Count occurrences in collection of pointers
+        /// @param[in] collection  Standard collection of pointers (vector/list/forward_list/array/deque/set/map/unordered_set/unordered_map)
+        /// @param[in] value       Searched value
+        /// @returns Total number of results
+        template <typename StlCont, typename T>
+        static inline uint32_t countPtr(const StlCont& collection, const T& value) { return countPtr<utils::compare_type_t::equal, StlCont, T>(collection, value); }
         
         
         // -- Count distinct values in a collection --
@@ -251,7 +280,7 @@ namespace utils
         /// @brief Count distinct values in a collection
         /// @param[in] collection  Standard collection (vector/list/forward_list/array/deque/set/map/unordered_set/unordered_map)
         /// @returns Number of distinct values
-        template <typename StlCont, typename T>
+        template <typename T, typename StlCont>
         static inline uint32_t countDistinct(const StlCont& collection) 
         { 
             uint32_t total = 0u;
@@ -267,6 +296,9 @@ namespace utils
             }
             return total;
         }
+        
+        
+        // -- Count distinct dereferenced values in a collection --
         
         /// @brief Count distinct non-null values in an array of pointers
         /// @param[in] pArray  Array of pointers
