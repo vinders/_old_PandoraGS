@@ -76,9 +76,6 @@ namespace utils
         {
             if (m_cardinal == 0) 
                 return m_ordinal;
-            if (m_ordinal == 0) 
-                return m_cardinal;
-            
             T remainder;
             T lhs = m_cardinal;
             T rhs = m_ordinal;
@@ -88,6 +85,7 @@ namespace utils
                 lhs = rhs;
                 rhs = remainder;
             }
+            return lhs;
         }
         
         /// @brief Convert rational number to double-precision floating-point value
