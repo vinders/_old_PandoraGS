@@ -44,20 +44,20 @@ namespace utils
         /// @brief Parse string with leading integer number, formatted with specific base type
         /// @returns Output value
         template <typename T, uint32_t Base>
-        static inline T parseInt(const char* val);
+        static inline T parseInteger(const char* val);
         /// @brief Parse string with leading integer number, formatted with specific base type
         /// @param[in] val   String to parse
         /// @param[out] out  Output value
         /// @returns Number of characters read
         template <typename T, uint32_t Base>
-        static inline size_t parseInt(const char* val, T& out);
+        static inline size_t parseInteger(const char* val, T& out);
         /// @brief Parse sub-string with leading integer number, formatted with specific base type
         /// @param[in] val   String to parse
         /// @param[in] len   String length
         /// @param[out] out  Output value
         /// @returns Number of characters read
         template <typename T, uint32_t Base>
-        static inline size_t parseInt(const char* val, const size_t len, T& out);
+        static inline size_t parseInteger(const char* val, const size_t len, T& out);
         
 
         /// @brief Get error message (call this if parsed size is 0)
@@ -176,445 +176,445 @@ template <> inline size_t utils::NumberParser::parse<double>(const char* val, do
 template <> inline size_t utils::NumberParser::parse<double>(const char* val, size_t len, double& out);
 { return parseString<double>(val, len, out); }
 
-// -- Specialized template - parseInt --
+// -- Specialized template - parseInteger --
 
-template <> inline int64_t utils::NumberParser::parseInt<int64_t, 2>(const char* val);
+template <> inline int64_t utils::NumberParser::parseInteger<int64_t, 2>(const char* val);
 { int64_t parsed; parseString<int64_t, true, 2>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 2>(const char* val, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 2>(const char* val, int64& out);
 { return parseString<int64_t, true, 2>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 2>(const char* val, size_t len, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 2>(const char* val, size_t len, int64& out);
 { return parseString<int64_t, true, 2>(val, len, out); }
-template <> inline int32_t utils::NumberParser::parseInt<int32_t, 2>(const char* val);
+template <> inline int32_t utils::NumberParser::parseInteger<int32_t, 2>(const char* val);
 { int32_t parsed; parseString<int32_t, true, 2>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 2>(const char* val, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 2>(const char* val, int32_t& out);
 { return parseString<int32_t, true, 2>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 2>(const char* val, size_t len, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 2>(const char* val, size_t len, int32_t& out);
 { return parseString<int32_t, true, 2>(val, len, out); }
-template <> inline int16_t utils::NumberParser::parseInt<int16_t, 2>(const char* val);
+template <> inline int16_t utils::NumberParser::parseInteger<int16_t, 2>(const char* val);
 { int16_t parsed; parseString<int16_t, true, 2>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 2>(const char* val, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 2>(const char* val, int16_t& out);
 { return parseString<int16_t, true, 2>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 2>(const char* val, size_t len, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 2>(const char* val, size_t len, int16_t& out);
 { return parseString<int16_t, true, 2>(val, len, out); }
-template <> inline int8_t  utils::NumberParser::parseInt<int8_t,  2>(const char* val);
+template <> inline int8_t  utils::NumberParser::parseInteger<int8_t,  2>(const char* val);
 { int8_t parsed; parseString<int8_t, true, 2>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  2>(const char* val, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  2>(const char* val, int8_t& out);
 { return parseString<int8_t, true, 2>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  2>(const char* val, size_t len, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  2>(const char* val, size_t len, int8_t& out);
 { return parseString<int8_t, true, 2>(val, len, out); }
-template <> inline uint64_t utils::NumberParser::parseInt<uint64_t, 2>(const char* val);
+template <> inline uint64_t utils::NumberParser::parseInteger<uint64_t, 2>(const char* val);
 { uint64_t parsed; parseString<uint64_t, false, 2>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 2>(const char* val, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 2>(const char* val, int64& out);
 { return parseString<uint64_t, false, 2>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 2>(const char* val, size_t len, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 2>(const char* val, size_t len, int64& out);
 { return parseString<uint64_t, false, 2>(val, len, out); }
-template <> inline uint32_t utils::NumberParser::parseInt<uint32_t, 2>(const char* val);
+template <> inline uint32_t utils::NumberParser::parseInteger<uint32_t, 2>(const char* val);
 { uint32_t parsed; parseString<uint32_t, false, 2>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 2>(const char* val, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 2>(const char* val, int32_t& out);
 { return parseString<uint32_t, false, 2>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 2>(const char* val, size_t len, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 2>(const char* val, size_t len, int32_t& out);
 { return parseString<uint32_t, false, 2>(val, len, out); }
-template <> inline uint16_t utils::NumberParser::parseInt<uint16_t, 2>(const char* val);
+template <> inline uint16_t utils::NumberParser::parseInteger<uint16_t, 2>(const char* val);
 { uint16_t parsed; parseString<uint16_t, false, 2>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 2>(const char* val, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 2>(const char* val, int16_t& out);
 { return parseString<uint16_t, false, 2>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 2>(const char* val, size_t len, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 2>(const char* val, size_t len, int16_t& out);
 { return parseString<uint16_t, false, 2>(val, len, out); }
-template <> inline uint8_t  utils::NumberParser::parseInt<uint8_t,  2>(const char* val);
+template <> inline uint8_t  utils::NumberParser::parseInteger<uint8_t,  2>(const char* val);
 { uint8_t parsed; parseString<uint8_t, false, 2>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  2>(const char* val, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  2>(const char* val, int8_t& out);
 { return parseString<uint8_t, false, 2>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  2>(const char* val, size_t len, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  2>(const char* val, size_t len, int8_t& out);
 { return parseString<uint8_t, false, 2>(val, len, out); }
 
-template <> inline int64_t utils::NumberParser::parseInt<int64_t, 4>(const char* val);
+template <> inline int64_t utils::NumberParser::parseInteger<int64_t, 4>(const char* val);
 { int64_t parsed; parseString<int64_t, true, 4>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 4>(const char* val, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 4>(const char* val, int64& out);
 { return parseString<int64_t, true, 4>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 4>(const char* val, size_t len, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 4>(const char* val, size_t len, int64& out);
 { return parseString<int64_t, true, 4>(val, len, out); }
-template <> inline int32_t utils::NumberParser::parseInt<int32_t, 4>(const char* val);
+template <> inline int32_t utils::NumberParser::parseInteger<int32_t, 4>(const char* val);
 { int32_t parsed; parseString<int32_t, true, 4>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 4>(const char* val, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 4>(const char* val, int32_t& out);
 { return parseString<int32_t, true, 4>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 4>(const char* val, size_t len, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 4>(const char* val, size_t len, int32_t& out);
 { return parseString<int32_t, true, 4>(val, len, out); }
-template <> inline int16_t utils::NumberParser::parseInt<int16_t, 4>(const char* val);
+template <> inline int16_t utils::NumberParser::parseInteger<int16_t, 4>(const char* val);
 { int16_t parsed; parseString<int16_t, true, 4>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 4>(const char* val, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 4>(const char* val, int16_t& out);
 { return parseString<int16_t, true, 4>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 4>(const char* val, size_t len, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 4>(const char* val, size_t len, int16_t& out);
 { return parseString<int16_t, true, 4>(val, len, out); }
-template <> inline int8_t  utils::NumberParser::parseInt<int8_t,  4>(const char* val);
+template <> inline int8_t  utils::NumberParser::parseInteger<int8_t,  4>(const char* val);
 { int8_t parsed; parseString<int8_t, true, 4>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  4>(const char* val, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  4>(const char* val, int8_t& out);
 { return parseString<int8_t, true, 4>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  4>(const char* val, size_t len, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  4>(const char* val, size_t len, int8_t& out);
 { return parseString<int8_t, true, 4>(val, len, out); }
-template <> inline uint64_t utils::NumberParser::parseInt<uint64_t, 4>(const char* val);
+template <> inline uint64_t utils::NumberParser::parseInteger<uint64_t, 4>(const char* val);
 { uint64_t parsed; parseString<uint64_t, false, 4>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 4>(const char* val, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 4>(const char* val, int64& out);
 { return parseString<uint64_t, false, 4>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 4>(const char* val, size_t len, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 4>(const char* val, size_t len, int64& out);
 { return parseString<uint64_t, false, 4>(val, len, out); }
-template <> inline uint32_t utils::NumberParser::parseInt<uint32_t, 4>(const char* val);
+template <> inline uint32_t utils::NumberParser::parseInteger<uint32_t, 4>(const char* val);
 { uint32_t parsed; parseString<uint32_t, false, 4>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 4>(const char* val, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 4>(const char* val, int32_t& out);
 { return parseString<uint32_t, false, 4>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 4>(const char* val, size_t len, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 4>(const char* val, size_t len, int32_t& out);
 { return parseString<uint32_t, false, 4>(val, len, out); }
-template <> inline uint16_t utils::NumberParser::parseInt<uint16_t, 4>(const char* val);
+template <> inline uint16_t utils::NumberParser::parseInteger<uint16_t, 4>(const char* val);
 { uint16_t parsed; parseString<uint16_t, false, 4>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 4>(const char* val, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 4>(const char* val, int16_t& out);
 { return parseString<uint16_t, false, 4>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 4>(const char* val, size_t len, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 4>(const char* val, size_t len, int16_t& out);
 { return parseString<uint16_t, false, 4>(val, len, out); }
-template <> inline uint8_t  utils::NumberParser::parseInt<uint8_t,  4>(const char* val);
+template <> inline uint8_t  utils::NumberParser::parseInteger<uint8_t,  4>(const char* val);
 { uint8_t parsed; parseString<uint8_t, false, 4>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  4>(const char* val, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  4>(const char* val, int8_t& out);
 { return parseString<uint8_t, false, 4>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  4>(const char* val, size_t len, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  4>(const char* val, size_t len, int8_t& out);
 { return parseString<uint8_t, false, 4>(val, len, out); }
 
-template <> inline int64_t utils::NumberParser::parseInt<int64_t, 8>(const char* val);
+template <> inline int64_t utils::NumberParser::parseInteger<int64_t, 8>(const char* val);
 { int64_t parsed; parseString<int64_t, true, 8>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 8>(const char* val, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 8>(const char* val, int64& out);
 { return parseString<int64_t, true, 8>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 8>(const char* val, size_t len, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 8>(const char* val, size_t len, int64& out);
 { return parseString<int64_t, true, 8>(val, len, out); }
-template <> inline int32_t utils::NumberParser::parseInt<int32_t, 8>(const char* val);
+template <> inline int32_t utils::NumberParser::parseInteger<int32_t, 8>(const char* val);
 { int32_t parsed; parseString<int32_t, true, 8>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 8>(const char* val, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 8>(const char* val, int32_t& out);
 { return parseString<int32_t, true, 8>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 8>(const char* val, size_t len, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 8>(const char* val, size_t len, int32_t& out);
 { return parseString<int32_t, true, 8>(val, len, out); }
-template <> inline int16_t utils::NumberParser::parseInt<int16_t, 8>(const char* val);
+template <> inline int16_t utils::NumberParser::parseInteger<int16_t, 8>(const char* val);
 { int16_t parsed; parseString<int16_t, true, 8>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 8>(const char* val, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 8>(const char* val, int16_t& out);
 { return parseString<int16_t, true, 8>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 8>(const char* val, size_t len, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 8>(const char* val, size_t len, int16_t& out);
 { return parseString<int16_t, true, 8>(val, len, out); }
-template <> inline int8_t  utils::NumberParser::parseInt<int8_t,  8>(const char* val);
+template <> inline int8_t  utils::NumberParser::parseInteger<int8_t,  8>(const char* val);
 { int8_t parsed; parseString<int8_t, true, 8>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  8>(const char* val, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  8>(const char* val, int8_t& out);
 { return parseString<int8_t, true, 8>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  8>(const char* val, size_t len, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  8>(const char* val, size_t len, int8_t& out);
 { return parseString<int8_t, true, 8>(val, len, out); }
-template <> inline uint64_t utils::NumberParser::parseInt<uint64_t, 8>(const char* val);
+template <> inline uint64_t utils::NumberParser::parseInteger<uint64_t, 8>(const char* val);
 { uint64_t parsed; parseString<uint64_t, false, 8>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 8>(const char* val, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 8>(const char* val, int64& out);
 { return parseString<uint64_t, false, 8>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 8>(const char* val, size_t len, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 8>(const char* val, size_t len, int64& out);
 { return parseString<uint64_t, false, 8>(val, len, out); }
-template <> inline uint32_t utils::NumberParser::parseInt<uint32_t, 8>(const char* val);
+template <> inline uint32_t utils::NumberParser::parseInteger<uint32_t, 8>(const char* val);
 { uint32_t parsed; parseString<uint32_t, false, 8>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 8>(const char* val, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 8>(const char* val, int32_t& out);
 { return parseString<uint32_t, false, 8>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 8>(const char* val, size_t len, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 8>(const char* val, size_t len, int32_t& out);
 { return parseString<uint32_t, false, 8>(val, len, out); }
-template <> inline uint16_t utils::NumberParser::parseInt<uint16_t, 8>(const char* val);
+template <> inline uint16_t utils::NumberParser::parseInteger<uint16_t, 8>(const char* val);
 { uint16_t parsed; parseString<uint16_t, false, 8>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 8>(const char* val, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 8>(const char* val, int16_t& out);
 { return parseString<uint16_t, false, 8>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 8>(const char* val, size_t len, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 8>(const char* val, size_t len, int16_t& out);
 { return parseString<uint16_t, false, 8>(val, len, out); }
-template <> inline uint8_t  utils::NumberParser::parseInt<uint8_t,  8>(const char* val);
+template <> inline uint8_t  utils::NumberParser::parseInteger<uint8_t,  8>(const char* val);
 { uint8_t parsed; parseString<uint8_t, false, 8>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  8>(const char* val, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  8>(const char* val, int8_t& out);
 { return parseString<uint8_t, false, 8>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  8>(const char* val, size_t len, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  8>(const char* val, size_t len, int8_t& out);
 { return parseString<uint8_t, false, 8>(val, len, out); }
 
-template <> inline int64_t utils::NumberParser::parseInt<int64_t, 10>(const char* val);
+template <> inline int64_t utils::NumberParser::parseInteger<int64_t, 10>(const char* val);
 { int64_t parsed; parseString<int64_t, true, 10>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 10>(const char* val, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 10>(const char* val, int64& out);
 { return parseString<int64_t, true, 10>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 10>(const char* val, size_t len, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 10>(const char* val, size_t len, int64& out);
 { return parseString<int64_t, true, 10>(val, len, out); }
-template <> inline int32_t utils::NumberParser::parseInt<int32_t, 10>(const char* val);
+template <> inline int32_t utils::NumberParser::parseInteger<int32_t, 10>(const char* val);
 { int32_t parsed; parseString<int32_t, true, 10>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 10>(const char* val, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 10>(const char* val, int32_t& out);
 { return parseString<int32_t, true, 10>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 10>(const char* val, size_t len, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 10>(const char* val, size_t len, int32_t& out);
 { return parseString<int32_t, true, 10>(val, len, out); }
-template <> inline int16_t utils::NumberParser::parseInt<int16_t, 10>(const char* val);
+template <> inline int16_t utils::NumberParser::parseInteger<int16_t, 10>(const char* val);
 { int16_t parsed; parseString<int16_t, true, 10>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 10>(const char* val, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 10>(const char* val, int16_t& out);
 { return parseString<int16_t, true, 10>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 10>(const char* val, size_t len, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 10>(const char* val, size_t len, int16_t& out);
 { return parseString<int16_t, true, 10>(val, len, out); }
-template <> inline int8_t  utils::NumberParser::parseInt<int8_t,  10>(const char* val);
+template <> inline int8_t  utils::NumberParser::parseInteger<int8_t,  10>(const char* val);
 { int8_t parsed; parseString<int8_t, true, 10>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  10>(const char* val, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  10>(const char* val, int8_t& out);
 { return parseString<int8_t, true, 10>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  10>(const char* val, size_t len, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  10>(const char* val, size_t len, int8_t& out);
 { return parseString<int8_t, true, 10>(val, len, out); }
-template <> inline uint64_t utils::NumberParser::parseInt<uint64_t, 10>(const char* val);
+template <> inline uint64_t utils::NumberParser::parseInteger<uint64_t, 10>(const char* val);
 { uint64_t parsed; parseString<uint64_t, false, 10>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 10>(const char* val, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 10>(const char* val, int64& out);
 { return parseString<uint64_t, false, 10>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 10>(const char* val, size_t len, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 10>(const char* val, size_t len, int64& out);
 { return parseString<uint64_t, false, 10>(val, len, out); }
-template <> inline uint32_t utils::NumberParser::parseInt<uint32_t, 10>(const char* val);
+template <> inline uint32_t utils::NumberParser::parseInteger<uint32_t, 10>(const char* val);
 { uint32_t parsed; parseString<uint32_t, false, 10>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 10>(const char* val, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 10>(const char* val, int32_t& out);
 { return parseString<uint32_t, false, 10>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 10>(const char* val, size_t len, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 10>(const char* val, size_t len, int32_t& out);
 { return parseString<uint32_t, false, 10>(val, len, out); }
-template <> inline uint16_t utils::NumberParser::parseInt<uint16_t, 10>(const char* val);
+template <> inline uint16_t utils::NumberParser::parseInteger<uint16_t, 10>(const char* val);
 { uint16_t parsed; parseString<uint16_t, false, 10>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 10>(const char* val, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 10>(const char* val, int16_t& out);
 { return parseString<uint16_t, false, 10>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 10>(const char* val, size_t len, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 10>(const char* val, size_t len, int16_t& out);
 { return parseString<uint16_t, false, 10>(val, len, out); }
-template <> inline uint8_t  utils::NumberParser::parseInt<uint8_t,  10>(const char* val);
+template <> inline uint8_t  utils::NumberParser::parseInteger<uint8_t,  10>(const char* val);
 { uint8_t parsed; parseString<uint8_t, false, 10>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  10>(const char* val, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  10>(const char* val, int8_t& out);
 { return parseString<uint8_t, false, 10>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  10>(const char* val, size_t len, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  10>(const char* val, size_t len, int8_t& out);
 { return parseString<uint8_t, false, 10>(val, len, out); }
 
-template <> inline int64_t utils::NumberParser::parseInt<int64_t, 12>(const char* val);
+template <> inline int64_t utils::NumberParser::parseInteger<int64_t, 12>(const char* val);
 { int64_t parsed; parseString<int64_t, true, 12>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 12>(const char* val, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 12>(const char* val, int64& out);
 { return parseString<int64_t, true, 12>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 12>(const char* val, size_t len, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 12>(const char* val, size_t len, int64& out);
 { return parseString<int64_t, true, 12>(val, len, out); }
-template <> inline int32_t utils::NumberParser::parseInt<int32_t, 12>(const char* val);
+template <> inline int32_t utils::NumberParser::parseInteger<int32_t, 12>(const char* val);
 { int32_t parsed; parseString<int32_t, true, 12>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 12>(const char* val, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 12>(const char* val, int32_t& out);
 { return parseString<int32_t, true, 12>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 12>(const char* val, size_t len, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 12>(const char* val, size_t len, int32_t& out);
 { return parseString<int32_t, true, 12>(val, len, out); }
-template <> inline int16_t utils::NumberParser::parseInt<int16_t, 12>(const char* val);
+template <> inline int16_t utils::NumberParser::parseInteger<int16_t, 12>(const char* val);
 { int16_t parsed; parseString<int16_t, true, 12>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 12>(const char* val, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 12>(const char* val, int16_t& out);
 { return parseString<int16_t, true, 12>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 12>(const char* val, size_t len, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 12>(const char* val, size_t len, int16_t& out);
 { return parseString<int16_t, true, 12>(val, len, out); }
-template <> inline int8_t  utils::NumberParser::parseInt<int8_t,  12>(const char* val);
+template <> inline int8_t  utils::NumberParser::parseInteger<int8_t,  12>(const char* val);
 { int8_t parsed; parseString<int8_t, true, 12>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  12>(const char* val, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  12>(const char* val, int8_t& out);
 { return parseString<int8_t, true, 12>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  12>(const char* val, size_t len, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  12>(const char* val, size_t len, int8_t& out);
 { return parseString<int8_t, true, 12>(val, len, out); }
-template <> inline uint64_t utils::NumberParser::parseInt<uint64_t, 12>(const char* val);
+template <> inline uint64_t utils::NumberParser::parseInteger<uint64_t, 12>(const char* val);
 { uint64_t parsed; parseString<uint64_t, false, 12>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 12>(const char* val, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 12>(const char* val, int64& out);
 { return parseString<uint64_t, false, 12>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 12>(const char* val, size_t len, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 12>(const char* val, size_t len, int64& out);
 { return parseString<uint64_t, false, 12>(val, len, out); }
-template <> inline uint32_t utils::NumberParser::parseInt<uint32_t, 12>(const char* val);
+template <> inline uint32_t utils::NumberParser::parseInteger<uint32_t, 12>(const char* val);
 { uint32_t parsed; parseString<uint32_t, false, 12>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 12>(const char* val, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 12>(const char* val, int32_t& out);
 { return parseString<uint32_t, false, 12>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 12>(const char* val, size_t len, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 12>(const char* val, size_t len, int32_t& out);
 { return parseString<uint32_t, false, 12>(val, len, out); }
-template <> inline uint16_t utils::NumberParser::parseInt<uint16_t, 12>(const char* val);
+template <> inline uint16_t utils::NumberParser::parseInteger<uint16_t, 12>(const char* val);
 { uint16_t parsed; parseString<uint16_t, false, 12>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 12>(const char* val, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 12>(const char* val, int16_t& out);
 { return parseString<uint16_t, false, 12>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 12>(const char* val, size_t len, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 12>(const char* val, size_t len, int16_t& out);
 { return parseString<uint16_t, false, 12>(val, len, out); }
-template <> inline uint8_t  utils::NumberParser::parseInt<uint8_t,  12>(const char* val);
+template <> inline uint8_t  utils::NumberParser::parseInteger<uint8_t,  12>(const char* val);
 { uint8_t parsed; parseString<uint8_t, false, 12>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  12>(const char* val, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  12>(const char* val, int8_t& out);
 { return parseString<uint8_t, false, 12>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  12>(const char* val, size_t len, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  12>(const char* val, size_t len, int8_t& out);
 { return parseString<uint8_t, false, 12>(val, len, out); }
 
-template <> inline int64_t utils::NumberParser::parseInt<int64_t, 14>(const char* val);
+template <> inline int64_t utils::NumberParser::parseInteger<int64_t, 14>(const char* val);
 { int64_t parsed; parseString<int64_t, true, 14>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 14>(const char* val, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 14>(const char* val, int64& out);
 { return parseString<int64_t, true, 14>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 14>(const char* val, size_t len, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 14>(const char* val, size_t len, int64& out);
 { return parseString<int64_t, true, 14>(val, len, out); }
-template <> inline int32_t utils::NumberParser::parseInt<int32_t, 14>(const char* val);
+template <> inline int32_t utils::NumberParser::parseInteger<int32_t, 14>(const char* val);
 { int32_t parsed; parseString<int32_t, true, 14>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 14>(const char* val, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 14>(const char* val, int32_t& out);
 { return parseString<int32_t, true, 14>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 14>(const char* val, size_t len, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 14>(const char* val, size_t len, int32_t& out);
 { return parseString<int32_t, true, 14>(val, len, out); }
-template <> inline int16_t utils::NumberParser::parseInt<int16_t, 14>(const char* val);
+template <> inline int16_t utils::NumberParser::parseInteger<int16_t, 14>(const char* val);
 { int16_t parsed; parseString<int16_t, true, 14>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 14>(const char* val, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 14>(const char* val, int16_t& out);
 { return parseString<int16_t, true, 14>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 14>(const char* val, size_t len, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 14>(const char* val, size_t len, int16_t& out);
 { return parseString<int16_t, true, 14>(val, len, out); }
-template <> inline int8_t  utils::NumberParser::parseInt<int8_t,  14>(const char* val);
+template <> inline int8_t  utils::NumberParser::parseInteger<int8_t,  14>(const char* val);
 { int8_t parsed; parseString<int8_t, true, 14>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  14>(const char* val, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  14>(const char* val, int8_t& out);
 { return parseString<int8_t, true, 14>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  14>(const char* val, size_t len, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  14>(const char* val, size_t len, int8_t& out);
 { return parseString<int8_t, true, 14>(val, len, out); }
-template <> inline uint64_t utils::NumberParser::parseInt<uint64_t, 14>(const char* val);
+template <> inline uint64_t utils::NumberParser::parseInteger<uint64_t, 14>(const char* val);
 { uint64_t parsed; parseString<uint64_t, false, 14>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 14>(const char* val, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 14>(const char* val, int64& out);
 { return parseString<uint64_t, false, 14>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 14>(const char* val, size_t len, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 14>(const char* val, size_t len, int64& out);
 { return parseString<uint64_t, false, 14>(val, len, out); }
-template <> inline uint32_t utils::NumberParser::parseInt<uint32_t, 14>(const char* val);
+template <> inline uint32_t utils::NumberParser::parseInteger<uint32_t, 14>(const char* val);
 { uint32_t parsed; parseString<uint32_t, false, 14>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 14>(const char* val, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 14>(const char* val, int32_t& out);
 { return parseString<uint32_t, false, 14>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 14>(const char* val, size_t len, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 14>(const char* val, size_t len, int32_t& out);
 { return parseString<uint32_t, false, 14>(val, len, out); }
-template <> inline uint16_t utils::NumberParser::parseInt<uint16_t, 14>(const char* val);
+template <> inline uint16_t utils::NumberParser::parseInteger<uint16_t, 14>(const char* val);
 { uint16_t parsed; parseString<uint16_t, false, 14>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 14>(const char* val, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 14>(const char* val, int16_t& out);
 { return parseString<uint16_t, false, 14>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 14>(const char* val, size_t len, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 14>(const char* val, size_t len, int16_t& out);
 { return parseString<uint16_t, false, 14>(val, len, out); }
-template <> inline uint8_t  utils::NumberParser::parseInt<uint8_t,  14>(const char* val);
+template <> inline uint8_t  utils::NumberParser::parseInteger<uint8_t,  14>(const char* val);
 { uint8_t parsed; parseString<uint8_t, false, 14>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  14>(const char* val, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  14>(const char* val, int8_t& out);
 { return parseString<uint8_t, false, 14>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  14>(const char* val, size_t len, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  14>(const char* val, size_t len, int8_t& out);
 { return parseString<uint8_t, false, 14>(val, len, out); }
 
-template <> inline int64_t utils::NumberParser::parseInt<int64_t, 16>(const char* val);
+template <> inline int64_t utils::NumberParser::parseInteger<int64_t, 16>(const char* val);
 { int64_t parsed; parseString<int64_t, true, 16>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 16>(const char* val, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 16>(const char* val, int64& out);
 { return parseString<int64_t, true, 16>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 16>(const char* val, size_t len, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 16>(const char* val, size_t len, int64& out);
 { return parseString<int64_t, true, 16>(val, len, out); }
-template <> inline int32_t utils::NumberParser::parseInt<int32_t, 16>(const char* val);
+template <> inline int32_t utils::NumberParser::parseInteger<int32_t, 16>(const char* val);
 { int32_t parsed; parseString<int32_t, true, 16>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 16>(const char* val, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 16>(const char* val, int32_t& out);
 { return parseString<int32_t, true, 16>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 16>(const char* val, size_t len, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 16>(const char* val, size_t len, int32_t& out);
 { return parseString<int32_t, true, 16>(val, len, out); }
-template <> inline int16_t utils::NumberParser::parseInt<int16_t, 16>(const char* val);
+template <> inline int16_t utils::NumberParser::parseInteger<int16_t, 16>(const char* val);
 { int16_t parsed; parseString<int16_t, true, 16>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 16>(const char* val, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 16>(const char* val, int16_t& out);
 { return parseString<int16_t, true, 16>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 16>(const char* val, size_t len, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 16>(const char* val, size_t len, int16_t& out);
 { return parseString<int16_t, true, 16>(val, len, out); }
-template <> inline int8_t  utils::NumberParser::parseInt<int8_t,  16>(const char* val);
+template <> inline int8_t  utils::NumberParser::parseInteger<int8_t,  16>(const char* val);
 { int8_t parsed; parseString<int8_t, true, 16>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  16>(const char* val, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  16>(const char* val, int8_t& out);
 { return parseString<int8_t, true, 16>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  16>(const char* val, size_t len, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  16>(const char* val, size_t len, int8_t& out);
 { return parseString<int8_t, true, 16>(val, len, out); }
-template <> inline uint64_t utils::NumberParser::parseInt<uint64_t, 16>(const char* val);
+template <> inline uint64_t utils::NumberParser::parseInteger<uint64_t, 16>(const char* val);
 { uint64_t parsed; parseString<uint64_t, false, 16>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 16>(const char* val, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 16>(const char* val, int64& out);
 { return parseString<uint64_t, false, 16>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 16>(const char* val, size_t len, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 16>(const char* val, size_t len, int64& out);
 { return parseString<uint64_t, false, 16>(val, len, out); }
-template <> inline uint32_t utils::NumberParser::parseInt<uint32_t, 16>(const char* val);
+template <> inline uint32_t utils::NumberParser::parseInteger<uint32_t, 16>(const char* val);
 { uint32_t parsed; parseString<uint32_t, false, 16>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 16>(const char* val, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 16>(const char* val, int32_t& out);
 { return parseString<uint32_t, false, 16>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 16>(const char* val, size_t len, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 16>(const char* val, size_t len, int32_t& out);
 { return parseString<uint32_t, false, 16>(val, len, out); }
-template <> inline uint16_t utils::NumberParser::parseInt<uint16_t, 16>(const char* val);
+template <> inline uint16_t utils::NumberParser::parseInteger<uint16_t, 16>(const char* val);
 { uint16_t parsed; parseString<uint16_t, false, 16>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 16>(const char* val, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 16>(const char* val, int16_t& out);
 { return parseString<uint16_t, false, 16>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 16>(const char* val, size_t len, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 16>(const char* val, size_t len, int16_t& out);
 { return parseString<uint16_t, false, 16>(val, len, out); }
-template <> inline uint8_t  utils::NumberParser::parseInt<uint8_t,  16>(const char* val);
+template <> inline uint8_t  utils::NumberParser::parseInteger<uint8_t,  16>(const char* val);
 { uint8_t parsed; parseString<uint8_t, false, 16>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  16>(const char* val, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  16>(const char* val, int8_t& out);
 { return parseString<uint8_t, false, 16>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  16>(const char* val, size_t len, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  16>(const char* val, size_t len, int8_t& out);
 { return parseString<uint8_t, false, 16>(val, len, out); }
 
-template <> inline int64_t utils::NumberParser::parseInt<int64_t, 32>(const char* val);
+template <> inline int64_t utils::NumberParser::parseInteger<int64_t, 32>(const char* val);
 { int64_t parsed; parseString<int64_t, true, 32>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 32>(const char* val, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 32>(const char* val, int64& out);
 { return parseString<int64_t, true, 32>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 32>(const char* val, size_t len, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 32>(const char* val, size_t len, int64& out);
 { return parseString<int64_t, true, 32>(val, len, out); }
-template <> inline int32_t utils::NumberParser::parseInt<int32_t, 32>(const char* val);
+template <> inline int32_t utils::NumberParser::parseInteger<int32_t, 32>(const char* val);
 { int32_t parsed; parseString<int32_t, true, 32>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 32>(const char* val, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 32>(const char* val, int32_t& out);
 { return parseString<int32_t, true, 32>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 32>(const char* val, size_t len, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 32>(const char* val, size_t len, int32_t& out);
 { return parseString<int32_t, true, 32>(val, len, out); }
-template <> inline int16_t utils::NumberParser::parseInt<int16_t, 32>(const char* val);
+template <> inline int16_t utils::NumberParser::parseInteger<int16_t, 32>(const char* val);
 { int16_t parsed; parseString<int16_t, true, 32>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 32>(const char* val, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 32>(const char* val, int16_t& out);
 { return parseString<int16_t, true, 32>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 32>(const char* val, size_t len, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 32>(const char* val, size_t len, int16_t& out);
 { return parseString<int16_t, true, 32>(val, len, out); }
-template <> inline int8_t  utils::NumberParser::parseInt<int8_t,  32>(const char* val);
+template <> inline int8_t  utils::NumberParser::parseInteger<int8_t,  32>(const char* val);
 { int8_t parsed; parseString<int8_t, true, 32>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  32>(const char* val, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  32>(const char* val, int8_t& out);
 { return parseString<int8_t, true, 32>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  32>(const char* val, size_t len, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  32>(const char* val, size_t len, int8_t& out);
 { return parseString<int8_t, true, 32>(val, len, out); }
-template <> inline uint64_t utils::NumberParser::parseInt<uint64_t, 32>(const char* val);
+template <> inline uint64_t utils::NumberParser::parseInteger<uint64_t, 32>(const char* val);
 { uint64_t parsed; parseString<uint64_t, false, 32>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 32>(const char* val, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 32>(const char* val, int64& out);
 { return parseString<uint64_t, false, 32>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 32>(const char* val, size_t len, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 32>(const char* val, size_t len, int64& out);
 { return parseString<uint64_t, false, 32>(val, len, out); }
-template <> inline uint32_t utils::NumberParser::parseInt<uint32_t, 32>(const char* val);
+template <> inline uint32_t utils::NumberParser::parseInteger<uint32_t, 32>(const char* val);
 { uint32_t parsed; parseString<uint32_t, false, 32>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 32>(const char* val, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 32>(const char* val, int32_t& out);
 { return parseString<uint32_t, false, 32>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 32>(const char* val, size_t len, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 32>(const char* val, size_t len, int32_t& out);
 { return parseString<uint32_t, false, 32>(val, len, out); }
-template <> inline uint16_t utils::NumberParser::parseInt<uint16_t, 32>(const char* val);
+template <> inline uint16_t utils::NumberParser::parseInteger<uint16_t, 32>(const char* val);
 { uint16_t parsed; parseString<uint16_t, false, 32>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 32>(const char* val, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 32>(const char* val, int16_t& out);
 { return parseString<uint16_t, false, 32>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 32>(const char* val, size_t len, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 32>(const char* val, size_t len, int16_t& out);
 { return parseString<uint16_t, false, 32>(val, len, out); }
-template <> inline uint8_t  utils::NumberParser::parseInt<uint8_t,  32>(const char* val);
+template <> inline uint8_t  utils::NumberParser::parseInteger<uint8_t,  32>(const char* val);
 { uint8_t parsed; parseString<uint8_t, false, 32>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  32>(const char* val, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  32>(const char* val, int8_t& out);
 { return parseString<uint8_t, false, 32>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  32>(const char* val, size_t len, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  32>(const char* val, size_t len, int8_t& out);
 { return parseString<uint8_t, false, 32>(val, len, out); }
 
-template <> inline int64_t utils::NumberParser::parseInt<int64_t, 64>(const char* val);
+template <> inline int64_t utils::NumberParser::parseInteger<int64_t, 64>(const char* val);
 { int64_t parsed; parseString<int64_t, true, 64>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 64>(const char* val, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 64>(const char* val, int64& out);
 { return parseString<int64_t, true, 64>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int64_t, 64>(const char* val, size_t len, int64& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int64_t, 64>(const char* val, size_t len, int64& out);
 { return parseString<int64_t, true, 64>(val, len, out); }
-template <> inline int32_t utils::NumberParser::parseInt<int32_t, 64>(const char* val);
+template <> inline int32_t utils::NumberParser::parseInteger<int32_t, 64>(const char* val);
 { int32_t parsed; parseString<int32_t, true, 64>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 64>(const char* val, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 64>(const char* val, int32_t& out);
 { return parseString<int32_t, true, 64>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int32_t, 64>(const char* val, size_t len, int32_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int32_t, 64>(const char* val, size_t len, int32_t& out);
 { return parseString<int32_t, true, 64>(val, len, out); }
-template <> inline int16_t utils::NumberParser::parseInt<int16_t, 64>(const char* val);
+template <> inline int16_t utils::NumberParser::parseInteger<int16_t, 64>(const char* val);
 { int16_t parsed; parseString<int16_t, true, 64>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 64>(const char* val, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 64>(const char* val, int16_t& out);
 { return parseString<int16_t, true, 64>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int16_t, 64>(const char* val, size_t len, int16_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int16_t, 64>(const char* val, size_t len, int16_t& out);
 { return parseString<int16_t, true, 64>(val, len, out); }
-template <> inline int8_t  utils::NumberParser::parseInt<int8_t,  64>(const char* val);
+template <> inline int8_t  utils::NumberParser::parseInteger<int8_t,  64>(const char* val);
 { int8_t parsed; parseString<int8_t, true, 64>(val, parsed); return parsed; }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  64>(const char* val, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  64>(const char* val, int8_t& out);
 { return parseString<int8_t, true, 64>(val, out); }
-template <> inline size_t  utils::NumberParser::parseInt<int8_t,  64>(const char* val, size_t len, int8_t& out);
+template <> inline size_t  utils::NumberParser::parseInteger<int8_t,  64>(const char* val, size_t len, int8_t& out);
 { return parseString<int8_t, true, 64>(val, len, out); }
-template <> inline uint64_t utils::NumberParser::parseInt<uint64_t, 64>(const char* val);
+template <> inline uint64_t utils::NumberParser::parseInteger<uint64_t, 64>(const char* val);
 { uint64_t parsed; parseString<uint64_t, false, 64>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 64>(const char* val, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 64>(const char* val, int64& out);
 { return parseString<uint64_t, false, 64>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint64_t, 64>(const char* val, size_t len, int64& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint64_t, 64>(const char* val, size_t len, int64& out);
 { return parseString<uint64_t, false, 64>(val, len, out); }
-template <> inline uint32_t utils::NumberParser::parseInt<uint32_t, 64>(const char* val);
+template <> inline uint32_t utils::NumberParser::parseInteger<uint32_t, 64>(const char* val);
 { uint32_t parsed; parseString<uint32_t, false, 64>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 64>(const char* val, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 64>(const char* val, int32_t& out);
 { return parseString<uint32_t, false, 64>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint32_t, 64>(const char* val, size_t len, int32_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint32_t, 64>(const char* val, size_t len, int32_t& out);
 { return parseString<uint32_t, false, 64>(val, len, out); }
-template <> inline uint16_t utils::NumberParser::parseInt<uint16_t, 64>(const char* val);
+template <> inline uint16_t utils::NumberParser::parseInteger<uint16_t, 64>(const char* val);
 { uint16_t parsed; parseString<uint16_t, false, 64>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 64>(const char* val, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 64>(const char* val, int16_t& out);
 { return parseString<uint16_t, false, 64>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint16_t, 64>(const char* val, size_t len, int16_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint16_t, 64>(const char* val, size_t len, int16_t& out);
 { return parseString<uint16_t, false, 64>(val, len, out); }
-template <> inline uint8_t  utils::NumberParser::parseInt<uint8_t,  64>(const char* val);
+template <> inline uint8_t  utils::NumberParser::parseInteger<uint8_t,  64>(const char* val);
 { uint8_t parsed; parseString<uint8_t, false, 64>(val, parsed); return parsed; }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  64>(const char* val, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  64>(const char* val, int8_t& out);
 { return parseString<uint8_t, false, 64>(val, out); }
-template <> inline size_t   utils::NumberParser::parseInt<uint8_t,  64>(const char* val, size_t len, int8_t& out);
+template <> inline size_t   utils::NumberParser::parseInteger<uint8_t,  64>(const char* val, size_t len, int8_t& out);
 { return parseString<uint8_t, false, 64>(val, len, out); }

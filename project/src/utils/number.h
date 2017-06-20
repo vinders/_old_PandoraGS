@@ -15,6 +15,7 @@ Description : number toolset + generic number type
 #include <string>
 #include <limits>
 #include <stdexcept>
+#include <type_traits>
 #include "number_parser.h"
 #include "number_formatter.h"
 #include "assert.h"
@@ -48,9 +49,9 @@ namespace utils
     
         // -- Comparisons --
     
-        /// @brief Check equality after conversion
-        template <typename T, typename U>
-        static inline bool equals(const T lhs, const U rhs) { return (lhs == rhs); }
+        /// @brief Check equality
+        template <typename T>
+        static inline bool equals(const T lhs, const T rhs) { return (lhs == rhs); }
         /// @brief Check near-equality with an error margin
         template <typename T>
         static inline bool nearlyEquals(const T lhs, const T rhs, const T errorMargin) 
@@ -205,17 +206,21 @@ namespace utils
         
         /// @brief Check if an integer number is a power of 2
         template <typename T>
-        static inline bool isPow2(const T val) { return ((base & (base - 1)) == 0); }
+        static inline bool isPow2(const T val) 
+        { 
+            static_assert(std::is_integral<T>::value, "Integer template parameter required"); 
+            return ((val & (val - 1)) == 0); 
+        }
         /// @brief Check if a floating-point number is a power of 2
         template <>
-        static inline bool isPow2(const double val) 
+        explicit static inline bool isPow2(const double val) 
         { 
             int64_t floor = static_cast<int64_t>(val);
             return (doubleEquals(val - static_cast<double>(floor), 0.0) && isPow2(floor));
         }
         /// @brief Check if a floating-point number is a power of 2
         template <>
-        static inline bool isPow2(const float val)
+        explicit static inline bool isPow2(const float val)
         { 
             int64_t floor = static_cast<int64_t>(val);
             return (floatEquals(val - static_cast<float>(floor), 0.0f) && isPow2(floor));
@@ -245,20 +250,20 @@ namespace utils
         /// @brief Parse string with leading integer number, formatted with specific base type - trimmed
         /// @returns Output value
         template <typename T, base_t Base>
-        static inline T parseInt(const char* val) { return NumberParser::parseInt<T, static_cast<uint32_t>(Base)>(val); }
+        static inline T parseInteger(const char* val) { return NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val); }
         /// @brief Parse string with leading integer number, formatted with specific base type - trimmed
         /// @param[in] val   String to parse
         /// @param[out] out  Output value
         /// @returns Number of characters read
         template <typename T, base_t Base>
-        static inline size_t parseInt(const char* val, T& out) { return NumberParser::parseInt<T, static_cast<uint32_t>(Base)>(val, out); }
+        static inline size_t parseInteger(const char* val, T& out) { return NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val, out); }
         /// @brief Parse sub-string with leading integer number, formatted with specific base type - trimmed
         /// @param[in] val   String to parse
         /// @param[in] len   String length
         /// @param[out] out  Output value
         /// @returns Number of characters read
         template <typename T, base_t Base>
-        static inline size_t parseInt(const char* val, const size_t len, T& out) { return NumberParser::parseInt<T, static_cast<uint32_t>(Base)>(val, len, out); }
+        static inline size_t parseInteger(const char* val, const size_t len, T& out) { return NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val, len, out); }
         
         /// @brief Parse string with leading floating-point number - trimmed
         /// @returns Output value
@@ -340,7 +345,7 @@ namespace utils
         Number() : m_isInteger(true) {}
         /// @brief Create initialized value
         template <typename T>
-        Number(const T val) : m_isInteger(true), m_value(static_cast<int64_t>(val)) {}
+        Number(const T val) : m_isInteger(true), m_value(static_cast<int64_t>(val)) { static_assert(std::is_integral<T>::value, "Integer template parameter required"); }
         /// @brief Create initialized integer
         template<>
         explicit Number(const int64_t val) : m_isInteger(true), m_value(val) {}
@@ -396,7 +401,13 @@ namespace utils
         
         /// @brief Set any value
         template <typename T>
-        inline Number& set(const T val) noexcept { m_isInteger = true; m_value.intVal = static_cast<int64_t>(val); return *this; }
+        inline Number& set(const T val) noexcept 
+        { 
+            static_assert(std::is_integral<T>::value, "Integer template parameter required"); 
+            m_isInteger = true; 
+            m_value.intVal = static_cast<int64_t>(val); 
+            return *this; 
+        }
         /// @brief Set any value - floating-point value
         template <>
         inline Number& set(const float val) noexcept { m_isInteger = false; m_value.floatVal = static_cast<double>(val); return *this; }
