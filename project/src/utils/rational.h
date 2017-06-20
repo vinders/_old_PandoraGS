@@ -14,6 +14,7 @@ Description : rational number type (rational32_t, rational64_t, rational128_t)
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <type_traits>
 #include "number.h"
 #include "assert.h"
 
@@ -32,34 +33,56 @@ namespace utils
     {
     public:
         /// @brief Create rational number
-        Rational() noexcept : m_cardinal(0), m_ordinal(1) {}
+        Rational() noexcept : m_cardinal(0), m_ordinal(1) 
+        { 
+            static_assert(std::is_integral<T>::value && std::is_integral<U>::value, "Integer template parameters required"); 
+        }
         /// @brief Create initialized rational number
         /// @param[in] cardinal  Cardinal number (numerator)
         /// @param[in] ordinal   Ordinal number (denominator)
         Rational(const T cardinal, const U ordinal) noexcept : m_cardinal(cardinal), m_ordinal(ordinal) 
         {
+            static_assert(std::is_integral<T>::value && std::is_integral<U>::value, "Integer template parameters required"); 
             if (ordinal <= 0)
                 m_ordinal = 1;
         }
         /// @brief Create initialized rational number from integer (ordinal 1)
         /// @param[in] cardinal  Cardinal number (numerator)
-        explicit Rational(const int32_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1) {}
+        explicit Rational(const int32_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1)
+        { 
+            static_assert(std::is_integral<T>::value && std::is_integral<U>::value, "Integer template parameters required"); 
+        }
         /// @brief Create initialized rational number from integer (ordinal 1)
         /// @param[in] cardinal  Cardinal number (numerator)
-        explicit Rational(const int64_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1) {}
+        explicit Rational(const int64_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1)
+        { 
+            static_assert(std::is_integral<T>::value && std::is_integral<U>::value, "Integer template parameters required"); 
+        }
         /// @brief Create initialized rational number from integer (ordinal 1)
         /// @param[in] cardinal  Cardinal number (numerator)
-        explicit Rational(const int16_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1) {}
+        explicit Rational(const int16_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1)
+        { 
+            static_assert(std::is_integral<T>::value && std::is_integral<U>::value, "Integer template parameters required"); 
+        }
         /// @brief Create initialized rational number from integer (ordinal 1)
         /// @param[in] cardinal  Cardinal number (numerator)
-        explicit Rational(const int8_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1) {}
+        explicit Rational(const int8_t cardinal) noexcept : m_cardinal(static_cast<T>(cardinal)), m_ordinal(1)
+        { 
+            static_assert(std::is_integral<T>::value && std::is_integral<U>::value, "Integer template parameters required"); 
+        }
         
         /// @brief Copy rational number
         /// @param[in] val  Other instance
-        explicit Rational(const Rational<T,U>& val) noexcept : m_cardinal(val.m_cardinal), m_ordinal(val.m_ordinal) {}
+        explicit Rational(const Rational<T,U>& val) noexcept : m_cardinal(val.m_cardinal), m_ordinal(val.m_ordinal)
+        { 
+            static_assert(std::is_integral<T>::value && std::is_integral<U>::value, "Integer template parameters required"); 
+        }
         /// @brief Move rational number
         /// @param[in] val  Other instance
-        explicit Rational(Rational<T,U>&& val) noexcept : m_cardinal(std::move(val.m_cardinal)), m_ordinal(std::move(val.m_ordinal)) {}
+        explicit Rational(Rational<T,U>&& val) noexcept : m_cardinal(std::move(val.m_cardinal)), m_ordinal(std::move(val.m_ordinal))
+        { 
+            static_assert(std::is_integral<T>::value && std::is_integral<U>::value, "Integer template parameters required"); 
+        }
         
         
         // -- Getters --
