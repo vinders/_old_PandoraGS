@@ -8,7 +8,9 @@ Description : object toolset
 
 #include <cstdio>
 #include <cstddef>
+#include <string>
 #include <type_traits>
+#include <typeinfo>
 
 /// @namespace utils
 /// General utilities
@@ -24,13 +26,17 @@ namespace utils
         /// @returns Null or not
         template <typename T>
         static inline bool isNull(const T* pObject) { return (pObject == nullptr); }
-
         /// @brief Get size of an object (bytes)
         /// @param[in] obj  Object reference
         /// @returns Size (bytes)
         template <typename T>
         static inline size_t getSize(const T& obj) { return sizeof(obj); }
         
+        /// @brief Get type name of an object
+        /// @param[in] pObject  Object pointer
+        /// @returns Type name
+        template <typename T>
+        static inline std::string getType(const T* pObject) { return (pObject != nullptr) ? std::string(typeid(*pObject).name()) : std::string("null"); }
         /// @brief Check whether an object is an instance of a specific child class
         /// @param[in] pObject  Object pointer
         /// @returns Instance or not
