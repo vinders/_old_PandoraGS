@@ -19,7 +19,7 @@ namespace utils
     namespace window
     {
         /// @brief Screen ratio
-        typedef rational32_t Ratio;
+        using Ratio = rational32_t;
         
         /// @enum ratio_type_t
         /// @brief Common ratio types
