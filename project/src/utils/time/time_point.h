@@ -2,15 +2,13 @@
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : high-resolution time reference point
+Description : high-resolution time reference point (absolute)
 *******************************************************************************/
 #pragma once
 
 #include <cstdint>
 #include <cstddef>
-#ifdef _WINDOWS
-#   include <windef.h>
-#endif
+#include "duration.h"
 
 /// @namespace utils
 /// General utilities
@@ -20,15 +18,6 @@ namespace utils
     /// Time management utilities
     namespace time
     {
-        #ifdef _WINDOWS
-        /// @brief Time point ticks
-        typedef LONGLONG ticks_t;
-        #else
-        /// @brief Time point ticks
-        typedef uint64_t ticks_t;
-        #endif
-        
-        
         /// @class TimePoint
         /// @brief High-resolution time reference point
         class TimePoint
@@ -37,33 +26,44 @@ namespace utils
             /// @brief Create time point set to zero
             TimePoint() noexcept : m_nanoseconds(0u) {}
             /// @brief Create time point
+            /// @param[in] duration  Time duration
+            explicit TimePoint(const Duration& duration) noexcept { setTotalDuration(duration); }
+            /// @brief Create time point
             /// @param[in] nanoseconds  Time reference (nanoseconds)
             TimePoint(const uint64_t nanoseconds) noexcept : m_nanoseconds(nanoseconds) {}
             /// @brief Copy time point 
             /// @param[in] other  Other instance
-            TimePoint(const TimePoint& other) noexcept : m_nanoseconds(other.nanoseconds) {}
+            TimePoint(const TimePoint& other) noexcept : m_nanoseconds(other.m_nanoseconds) {}
             /// @brief Move time point
             /// @param[in] other  Other instance
-            TimePoint(TimePoint&& other) noexcept : m_nanoseconds(other.nanoseconds) {}
+            TimePoint(TimePoint&& other) noexcept : m_nanoseconds(other.m_nanoseconds) {}
             
             
             // -- Builders --
             
-            /// @brief Build time point from total number of days
-            /// @param[in] ticks  Number of days
-            static TimePoint fromDays(const uint64_t days) noexcept       { return TimePoint(days * (24uLL * 3600uLL * 1000000000uLL)); }
-            /// @brief Build time point from total number of hours
-            /// @param[in] ticks  Number of hours
-            static TimePoint fromHours(const uint64_t hours) noexcept     { return TimePoint(hours * (3600uLL * 1000000000uLL)); }
-            /// @brief Build time point from total number of minutes
-            /// @param[in] ticks  Number of minutes
-            static TimePoint fromMinutes(const uint64_t minutes) noexcept { return TimePoint(minutes * (60uLL * 1000000000uLL)); }
-            /// @brief Build time point from total number of seconds
-            /// @param[in] ticks  Number of seconds
-            static TimePoint fromSeconds(const uint64_t seconds) noexcept { return TimePoint(seconds * 1000000000uLL); }
+            /// @brief Build time point from days/time components
+            /// @param[in] days         Number of days
+            /// @param[in] hours        Number of hours
+            /// @param[in] minutes      Number of minutes
+            /// @param[in] seconds      Number of seconds
+            /// @param[in] nanoseconds  Number of nanoseconds
+            static TimePoint fromTime(const uint64_t days, const uint16_t hours, const uint16_t minutes, const uint16_t seconds, const uint32_t nanoseconds) noexcept
+            { 
+                return TimePoint(days * (24uLL * 3600uLL * 1000000000uLL) 
+                               + static_cast<uint64_t>(hours) * (3600uLL * 1000000000uLL)
+                               + static_cast<uint64_t>(minutes) * (60uLL * 1000000000uLL) 
+                               + static_cast<uint64_t>(seconds) * 1000000000uLL 
+                               + static_cast<uint64_t>(nanoseconds)); 
+            }
+            
+            /// @brief Build time point from duration (absolute value)
+            /// @param[in] duration  Duration value (absolute value)
+            static TimePoint fromDuration(const Duration& duration) noexcept { return TimePoint(duration); }
+            
             /// @brief Build time point from total number of milliseconds
-            /// @param[in] ticks  Number of milliseconds
+            /// @param[in] milliseconds  Number of milliseconds
             static TimePoint fromMilliseconds(const uint64_t milliseconds) noexcept { return TimePoint(milliseconds * 1000000uLL); }
+            
             /// @brief Build time point from a number of ticks to convert
             /// @param[in] ticks  Number of ticks
             /// @param[in] rate   Tick rate (ticks per second) to use for conversion (if 0, defaults to 1000 ticks/sec)
@@ -157,6 +157,12 @@ namespace utils
             
             // -- Setters --
             
+            /// @brief Set time point value, based on total duration (absolute value)
+            /// @param[in] duration  Time duration (absolute value)
+            inline void setTotalDuration(const Duration& duration) noexcept
+            {
+                m_nanoseconds = (duration.totalNanoseconds() >= 0) ? static_cast<uint64_t>(duration.totalNanoseconds()) : 0u;
+            }
             /// @brief Set time point value, based on total nanoseconds
             /// @param[in] nanoseconds  Number of nanoseconds
             inline void setTotalNanoseconds(const uint64_t nanoseconds) noexcept
@@ -170,26 +176,58 @@ namespace utils
             inline TimePoint& operator=(const uint64_t nanoseconds) noexcept { m_nanoseconds = nanoseconds; return *this; }
             
             /// @brief Pre-increment time reference
-            inline uint64_t operator++() noexcept    { return ++m_nanoseconds; }
+            inline TimePoint& operator++() noexcept    { ++m_nanoseconds; return *this; }
             /// @brief Post-increment time reference
-            inline uint64_t operator++(int) noexcept { uint64_t copy = m_nanoseconds; ++m_nanoseconds; return copy; }
+            inline TimePoint operator++(int) noexcept { TimePoint copy(m_nanoseconds); ++m_nanoseconds; return copy; }
             /// @brief Pre-decrement time reference
-            inline uint64_t operator--() noexcept    { return --m_nanoseconds; }
+            inline TimePoint& operator--() noexcept 
+            { 
+                if (m_nanoseconds > 0uLL) 
+                    --m_nanoseconds; 
+                return *this;
+            }
             /// @brief Post-decrement time reference
-            inline uint64_t operator--(int) noexcept { uint64_t copy = m_nanoseconds; --m_nanoseconds; return copy; }
+            inline TimePoint operator--(int) noexcept 
+            { 
+                TimePoint copy(m_nanoseconds); 
+                if (m_nanoseconds > 0uLL)
+                    --m_nanoseconds; 
+                return copy; 
+            }
             
-            /// @brief Add time reference to current time reference
-            inline uint64_t operator+(const TimePoint& other) noexcept     { return m_nanoseconds + other.m_nanoseconds; }
             /// @brief Add nanoseconds to current time reference
-            inline uint64_t operator+(const uint64_t nanoseconds) noexcept { return m_nanoseconds + nanoseconds; }
+            inline TimePoint operator+(const uint64_t nanoseconds) noexcept { return TimePoint(m_nanoseconds + nanoseconds); }
+            /// @brief Add time reference to current time reference
+            inline TimePoint operator+(const TimePoint& other) noexcept     { return TimePoint(m_nanoseconds + other.m_nanoseconds); }
+            /// @brief Add duration to current time reference
+            inline TimePoint operator+(const Duration& duration) noexcept   { TimePoint tp(m_nanoseconds); tp += duration; return tp; }
+            /// @brief Add and store nanoseconds to current time reference
+            inline void operator+=(const uint64_t nanoseconds) noexcept     { m_nanoseconds += nanoseconds; }
             /// @brief Add and store time reference to current time reference
-            inline void operator+=(const TimePoint& other) noexcept        { m_nanoseconds += other.m_nanoseconds; }
-            /// @brief Add and store time nanoseconds to current time reference
-            inline void operator+=(const uint64_t nanoseconds) noexcept    { m_nanoseconds += nanoseconds; }
-            /// @brief Substract time reference from current time reference
-            inline int64_t operator-(const TimePoint& other) noexcept      { return static_cast<int64_t>(m_nanoseconds) - static_cast<int64_t>(other.m_nanoseconds); }
+            inline void operator+=(const TimePoint& other) noexcept         { m_nanoseconds += other.m_nanoseconds; }
+            /// @brief Add and store duration to current time reference
+            inline void operator+=(const Duration& duration) noexcept
+            { 
+                if (duration.totalNanoseconds() >= 0 || std::abs(duration.totalNanoseconds()) <= m_nanoseconds)
+                    m_nanoseconds += duration.totalNanoseconds(); 
+                else
+                    m_nanoseconds = 0u;
+            }
+            
             /// @brief Substract nanoseconds from current time reference
-            inline int64_t operator-(const uint64_t nanoseconds) noexcept  { return static_cast<int64_t>(m_nanoseconds) - static_cast<int64_t>(nanoseconds); }
+            inline TimePoint operator-(const uint64_t nanoseconds) noexcept { TimePoint tp(m_nanoseconds); tp -= nanoseconds; return tp; }
+            /// @brief Substract time reference from current time reference
+            inline TimePoint operator-(const TimePoint& other) noexcept     { TimePoint tp(m_nanoseconds); tp -= other; return tp; }
+            /// @brief Substract duration from current time reference
+            inline TimePoint operator-(const Duration& duration) noexcept   { TimePoint tp(m_nanoseconds); tp -= duration; return tp; }
+            /// @brief Substract and store nanoseconds from current time reference
+            inline void operator-=(const uint64_t nanoseconds) noexcept    
+            {
+                if (nanoseconds <= m_nanoseconds)
+                    m_nanoseconds -= nanoseconds;
+                else
+                    m_nanoseconds = 0u;
+            }
             /// @brief Substract and store time reference from current time reference
             inline void operator-=(const TimePoint& other) noexcept        
             {
@@ -198,11 +236,11 @@ namespace utils
                 else
                     m_nanoseconds = 0u;
             }
-            /// @brief Substract and store nanoseconds from current time reference
-            inline void operator-=(const uint64_t nanoseconds) noexcept    
+            /// @brief Substract and store duration from current time reference
+            inline void operator-=(const Duration& duration) noexcept    
             {
-                if (nanoseconds <= m_nanoseconds)
-                    m_nanoseconds -= nanoseconds;
+                if (duration.totalNanoseconds() <= 0 || static_cast<uint64_t>(duration.totalNanoseconds()) <= m_nanoseconds)
+                    m_nanoseconds -= duration.totalNanoseconds();
                 else
                     m_nanoseconds = 0u;
             }
