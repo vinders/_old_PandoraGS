@@ -12,11 +12,6 @@ Description : CPU/memory registers
 
 #pragma pack(push, 1)
 
-typedef Register<uint8_t>  register8_t;
-typedef Register<uint16_t> register16_t;
-typedef Register<uint32_t> register32_t;
-typedef Register<uint64_t> register64_t;
-
 /// @namespace utils
 /// General utilities
 namespace utils
@@ -25,6 +20,11 @@ namespace utils
     /// Memory management utilities
     namespace memory
     {
+        using register8_t  = Register<uint8_t>;
+        using register16_t = Register<uint16_t>;
+        using register32_t = Register<uint32_t>;
+        using register64_t = Register<uint64_t>;
+        
         /// @class Register
         /// @brief CPU/memory register
         template <typename T>

@@ -19,23 +19,23 @@ namespace utils
     namespace time
     {
         /// @brief Clock rate (hertz)
-        typedef rational32_t Rate;
+        using Rate = rational32_t;
         
         /// @enum rate_type_t
         /// @brief Common rate types
         enum class rate_type_t : uint32_t
         {
-            24_p        = 24,
-            ntsc_24_p   = 23,
-            48_p        = 48,
-            ntsc_48_p   = 47,
-            pal_i       = 25,
-            pal_p       = 50,
-            pal_60_p    = 60,
-            ntsc_i      = 29,
-            ntsc_drop_i = 30,
-            ntsc_p      = 59,
-            ntsc_drop_p = 60
+            24_p      = 24,
+            ntsc_24_p = 23,
+            48_p      = 48,
+            ntsc_48_p = 47,
+            pal_i     = 25,
+            pal_p     = 50,
+            pal_60_p  = 60,
+            ntsc_i    = 29,
+            atfs_i    = 30,
+            ntsc_p    = 59,
+            atfs_p    = 60
         };
         
         
@@ -71,11 +71,11 @@ namespace utils
                     
                     case rate_type_t::ntsc_i:
                         return Rate(30000, 1001); break;
-                    case rate_type_t::ntsc_drop_i:
+                    case rate_type_t::atfs_i:
                         return Rate(30, 1); break;
                     case rate_type_t::ntsc_p:
                         return Rate(60000, 1001); break;
-                    case rate_type_t::ntsc_drop_p:
+                    case rate_type_t::atfs_p:
                         return Rate(60, 1); break;
                 }
                 return Rate(1, 1);
