@@ -7,6 +7,7 @@ Description : virtual raw-memory image + iterator
 #include <cstdlib>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <stdexcept>
 #include "virtual_memory.h"
 using namespace utils::memory;
@@ -18,7 +19,8 @@ VirtualMemory::VirtualMemory(const VirtualMemory& other) :
     m_pRawMemoryImage(nullptr), m_memorySize(0u), m_offsetSize(0u), m_pBegin(nullptr), m_pEnd(nullptr)
 {
     init(other.m_memorySize, other.m_offsetSize);
-    memcpy(m_pBegin, 0x0, other.m_offsetSize);
+    if (m_memorySize > 0u)
+        memcpy(m_pBegin, other.m_pBegin, other.m_offsetSize);
 }
 
 /// @brief Move virtual memory
@@ -79,7 +81,8 @@ void VirtualMemory::init(const size_t memorySize, const size_t offsetSize)
 VirtualMemory& VirtualMemory::operator=(const VirtualMemory& other)
 {
     init(other.m_memorySize, other.m_offsetSize);
-    memcpy(m_pBegin, 0x0, other.m_offsetSize);
+    if (m_memorySize > 0u)
+        memcpy(m_pBegin, other.m_pBegin, other.m_offsetSize);
     return *this;
 }
 

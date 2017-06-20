@@ -9,6 +9,7 @@ Description : virtual raw-memory image + iterator
 #include <cstdlib>
 #include <cstdint>
 #include <cstddef>
+#include <cstring>
 
 /// @namespace utils
 /// General utilities
