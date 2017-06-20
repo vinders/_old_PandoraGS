@@ -17,8 +17,8 @@ Description : rational number type (rational32_t, rational64_t, rational128_t)
 #include "number.h"
 #include "assert.h"
 
-typedef utils::Rational<int32_t> rational32_t;
-typedef utils::Rational<int64_t> rational64_t;
+using rational32_t = utils::Rational<int32_t>;
+using rational64_t = utils::Rational<int64_t>;
 
 
 /// @namespace utils
