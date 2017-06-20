@@ -2,7 +2,7 @@
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : spin-lock with multi-lock per thread : very fast mutex (if no wait -> only use if rare concurrency)
+Description : recursive spin-lock (multi-lock allowed per thread) : very fast mutex (to use if almost no wait -> only use if rare concurrency)
 *******************************************************************************/
 #pragma once
 
@@ -21,18 +21,18 @@ namespace utils
     /// Thread management utilities
     namespace thread
     {
-        /// @class ThreadSpinLock
+        /// @class RecursiveSpinLock
         /// @brief Spin-lock mutex (locked once per thread)
-        class ThreadSpinLock
+        class RecursiveSpinLock
         {
         public:
             /// @brief Create unlocked instance
-            SpinLock() : m_status(ATOMIC_FLAG_INIT) {}
+            RecursiveSpinLock() : m_status(ATOMIC_FLAG_INIT) {}
             /// @brief Move instance
             /// @param[in] other  Other instance to move
-            explicit SpinLock(SpinLock&& other) : m_status(other.m_status), m_lockThreadId(other.m_lockThreadId) {}
+            explicit RecursiveSpinLock(RecursiveSpinLock&& other) : m_status(other.m_status), m_lockThreadId(other.m_lockThreadId) {}
             // no copy allowed
-            SpinLock(const SpinLock& other) = delete;
+            RecursiveSpinLock(const RecursiveSpinLock& other) = delete;
             
             
             // -- Utilities --
@@ -40,14 +40,14 @@ namespace utils
             /// @brief Compare 2 instances (equality)
             /// @param[in] other  Other instance
             /// @returns Equal (true) or not (false)
-            inline bool operator==(const SpinLock& other) const noexcept
+            inline bool operator==(const RecursiveSpinLock& other) const noexcept
             {
                 return (m_status == other.m_status);
             }
             /// @brief Compare 2 instances (difference)
             /// @param[in] other  Other instance
             /// @returns Different (true) or not (false)
-            inline bool operator!=(const SpinLock& other) const noexcept
+            inline bool operator!=(const RecursiveSpinLock& other) const noexcept
             {
                 return (m_status != other.m_status);
             }

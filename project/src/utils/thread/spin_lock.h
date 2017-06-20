@@ -2,7 +2,7 @@
 Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
-Description : spin-lock (no multi-lock) : very fast mutex (if no wait -> only use if rare concurrency)
+Description : spin-lock (single lock) : very fast mutex (if no wait -> only use if rare concurrency)
 *******************************************************************************/
 #pragma once
 
