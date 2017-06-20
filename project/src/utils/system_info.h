@@ -12,17 +12,22 @@ Description : system/CPU architecture
 #define _OS_APPLE_      2
 #define _OS_LINUX_      3
 #define _OS_UNIX_       4
+#define _OS_SONY_       5
+#define _OS_NINTENDO_   6
 #define _OS_UNKNOWN_    0
 
 #define _OS_MICROSOFT_WINDOWS_DESKTOP_  1
 #define _OS_MICROSOFT_WINDOWS_MOBILE_   2
-#define _OS_APPLE_MACOS_DESKTOP_        3
-#define _OS_APPLE_MACOS_LEGACY_         4
-#define _OS_APPLE_IOS_MOBILE_           5
-#define _OS_GNULINUX_DESKTOP_           6
-#define _OS_UNIX_DESKTOP_               7
-#define _OS_UNIX_LEGACY_                8
-#define _OS_ANDROID_MOBILE_             9
+#define _OS_MICROSOFT_XBOX_ONE_         3
+#define _OS_APPLE_MACOS_DESKTOP_        4
+#define _OS_APPLE_MACOS_LEGACY_         5
+#define _OS_APPLE_IOS_MOBILE_           6
+#define _OS_GNULINUX_DESKTOP_           7
+#define _OS_ANDROID_MOBILE_             8
+#define _OS_UNIX_DESKTOP_               9
+#define _OS_UNIX_LEGACY_                10
+#define _OS_SONY_PLAYSTATION4_          11
+#define _OS_NINTENDO_SWITCH_            12
 
 #define __OPERATING_SYSTEM_FAMILY__ _OS_UNKNOWN_
 #define __OPERATING_SYSTEM__ _OS_UNKNOWN_
@@ -34,6 +39,9 @@ Description : system/CPU architecture
 #       ifndef __WINDOWS__
 #           define __WINDOWS__
 #       endif
+#       undef __APPLE__
+#       undef __ANDROID__
+#       undef __LINUX__
 
 #       if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP)
 #           define __OPERATING_SYSTEM__ _OS_MICROSOFT_WINDOWS_DESKTOP_
@@ -41,13 +49,15 @@ Description : system/CPU architecture
 #           define __OPERATING_SYSTEM__ _OS_MICROSOFT_WINDOWS_MOBILE_
 #       endif
 #   endif
-#endif
-
-#ifndef _WINDOWS
+#else
+#   undef __WINDOWS__
+    
 // Apple
 #   ifdef __APPLE__
 #       define __OPERATING_SYSTEM_FAMILY__ _OS_APPLE_
 #       include "TargetConditionals.h"
+#       undef __ANDROID__
+#       undef __LINUX__
 
 #       ifdef TARGET_IPHONE_SIMULATOR
 #           define __OPERATING_SYSTEM__ _OS_APPLE_IOS_MOBILE_
@@ -64,6 +74,8 @@ Description : system/CPU architecture
 #   ifdef __ANDROID__
 #       define __OPERATING_SYSTEM_FAMILY__ _OS_LINUX_
 #       define __OPERATING_SYSTEM__ _OS_ANDROID_MOBILE_
+#       undef __UNIX__
+#       undef __APPLE__
 #   endif
 
 // Linux
@@ -72,6 +84,9 @@ Description : system/CPU architecture
 #       ifndef __LINUX__
 #           define __LINUX__
 #       endif
+#       undef __UNIX__
+#       undef __APPLE__
+
 #       define __OPERATING_SYSTEM__ _OS_GNULINUX_DESKTOP_
 
 // UNIX
@@ -80,6 +95,9 @@ Description : system/CPU architecture
 #       ifndef __UNIX__
 #           define __UNIX__
 #       endif
+#       undef __LINUX__
+#       undef __ANDROID__
+
 #       define __OPERATING_SYSTEM__ _OS_UNIX_DESKTOP_
 
 #   elif defined(_POSIX_VERSION)
@@ -87,6 +105,9 @@ Description : system/CPU architecture
 #       ifndef __UNIX__
 #           define __UNIX__
 #       endif
+#       undef __LINUX__
+#       undef __ANDROID__
+
 #       define __OPERATING_SYSTEM__ _OS_UNIX_LEGACY_
 #   endif
 #endif
