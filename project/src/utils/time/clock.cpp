@@ -28,15 +28,15 @@ void Clock::setTimeMode(const Clock::time_mode_t preferedMode) noexcept
 {
     #ifdef _WINDOWS
     LARGE_INTEGER cpuFreq;
-    if (preferedMode == Clock::time_mode_t::highResolutionClock && QueryPerformanceFrequency(&cpuFreq))
+    if (preferedMode == Clock::time_mode_t::high_resolution && QueryPerformanceFrequency(&cpuFreq))
     {
         m_tickRate = reinterpret_cast<uint64_t>(cpuFreq.QuadPart);
-        m_timeMode = Clock::time_mode_t::highResolutionClock;
+        m_timeMode = Clock::time_mode_t::high_resolution;
     }
     else
     {
         m_tickRate = 1000uLL;
-        m_timeMode = Clock::time_mode_t::steadyClock;
+        m_timeMode = Clock::time_mode_t::steady;
     }
     #else
     m_timeMode = preferedMode;
@@ -44,15 +44,14 @@ void Clock::setTimeMode(const Clock::time_mode_t preferedMode) noexcept
 }
 
 /// @brief Set clock frequency
-/// @param[in] freqNumerator     Clock frequency (desired periods per second) - numerator (e.g.: 60000)
-/// @param[in] freqDenominator   Clock frequency (desired periods per second) - denominator (e.g.: 1001)
-void Clock::setFrequency(const uint32_t freqNumerator, const uint32_t freqDenominator) noexcept
+/// @param[in] frequency  Clock frequency (desired periods per second) - rate (e.g.: 60000/1001)
+void Clock::setFrequency(const Rate& frequency) noexcept
 {
-    if (freqNumerator > 0u)
+    if (frequency.getCardinal() > 0u)
     {
-        m_periodDuration = (static_cast<uint64_t>(freqDenominator) * 1000000000uLL) / static_cast<uint64_t>(freqNumerator);
+        m_periodDuration = (static_cast<uint64_t>(frequency.getOrdinal()) * 1000000000uLL) / static_cast<uint64_t>(frequency.getCardinal());
         
-        double subDuration = ((static_cast<double>(freqDenominator) * 1000000000.0) / static_cast<double>(freqNumerator)) - static_cast<double>(m_periodDuration);
+        double subDuration = ((static_cast<double>(frequency.getOrdinal()) * 1000000000.0) / static_cast<double>(frequency.getCardinal())) - static_cast<double>(m_periodDuration);
         m_periodSubDuration = (subDuration > 0.0 && subDuration < 1.0) ? static_cast<float>(subDuration) : 0.0f;
     }
     else
@@ -72,7 +71,7 @@ void Clock::setFrequency(const uint32_t freqNumerator, const uint32_t freqDenomi
 TimePoint Clock::now() const noexcept
 {
     #ifdef _WINDOWS
-    if (m_timeMode == Clock::time_mode_t::highResolutionClock)
+    if (m_timeMode == Clock::time_mode_t::high_resolution)
     {
         LARGE_INTEGER currentTime;
         QueryPerformanceCounter(&currentTime);
@@ -83,7 +82,7 @@ TimePoint Clock::now() const noexcept
         return TimePoint::fromMilliseconds(static_cast<uint64_t>(timeGetTime()));
     }
     #else
-    auto time = (m_timeMode == Clock::time_mode_t::highResolutionClock) ? std::chrono::high_resolution_clock::now() : std::chrono::steady_clock::now();
+    auto time = (m_timeMode == Clock::time_mode_t::high_resolution) ? std::chrono::high_resolution_clock::now() : std::chrono::steady_clock::now();
     return TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(time).count());
     #endif
 }
@@ -94,7 +93,7 @@ TimePoint Clock::now() const noexcept
 void Clock::now(TimePoint& timeRef, TimePoint& timeRefAux) const noexcept
 {
     #ifdef _WINDOWS
-    if (m_timeMode == Clock::time_mode_t::highResolutionClock)
+    if (m_timeMode == Clock::time_mode_t::high_resolution)
     {
         LARGE_INTEGER currentTime;
         QueryPerformanceCounter(&currentTime);
@@ -112,7 +111,7 @@ void Clock::now(TimePoint& timeRef, TimePoint& timeRefAux) const noexcept
         timeRefAux = TimePoint(std::chrono::duration_cast<std::chrono::nanoseconds>(currentTimeAux).count());
     }
     #else // Linux / UNIX
-    if (m_timeMode == Clock::time_mode_t::highResolutionClock)
+    if (m_timeMode == Clock::time_mode_t::high_resolution)
     {
         auto currentTime = std::chrono::high_resolution_clock::now();
         auto currentTimeAux = std::chrono::steady_clock::now();
@@ -160,12 +159,12 @@ uint64_t Clock::wait() noexcept
     do
     {
         Clock::now(currentReference, currentAuxReference);
-        elapsedTime = currentReference - m_timeReference;
+        elapsedTime = static_cast<int64_t>(currentReference.totalNanoseconds()) - static_cast<int64_t>(m_timeReference.totalNanoseconds());
         
         // invalid time : negative difference or huge number -> use low-res timer instead
         if (elapsedTime <= 0LL || elapsedTime > 500000000LL)
         {
-            elapsedTime = currentAuxReference - m_auxTimeReference;
+            elapsedTime = static_cast<int64_t>(currentAuxReference.totalNanoseconds()) - static_cast<int64_t>(m_auxTimeReference.totalNanoseconds());
             if (elapsedTime < 0LL) // both negative -> max integer value reached
                 elapsedTime = m_runtimeDuration; // break
         }
@@ -208,7 +207,7 @@ uint64_t Clock::wait() noexcept
 }
 
 
-/// @brief Calculate real number of periods per second
+/// @brief Calculate actual number of periods per second
 float Clock::checkFrequency() noexcept
 {
     TimePoint currentReference, currentAuxReference;
@@ -216,11 +215,11 @@ float Clock::checkFrequency() noexcept
     
     // read current time
     Clock::now(currentReference, currentAuxReference);
-    elapsedTime = currentReference - m_freqCalcReference;
+    elapsedTime = static_cast<int64_t>(currentReference.totalNanoseconds()) - static_cast<int64_t>(m_freqCalcReference.totalNanoseconds());
     
     if (elapsedTime <= 0LL || elapsedTime > 500000000LL) // invalid time -> use low-res timer instead
     {
-        elapsedTime = currentAuxReference - m_auxFreqCalcReference;
+        elapsedTime = static_cast<int64_t>(currentAuxReference.totalNanoseconds()) - static_cast<int64_t>(m_auxFreqCalcReference.totalNanoseconds());
         if (elapsedTime <= 0LL) // both negative (max integer value reached) or zero (avoid division by zero)
         {
             elapsedTime = (elapsedTime == 0LL) 1LL : m_periodDuration;

@@ -8,6 +8,8 @@ Description : high-resolution clock
 
 #include <cstdint>
 #include <cstddef>
+#include "rate.h"
+#include "duration.h"
 #include "time_point.h"
 
 /// @namespace utils
@@ -27,22 +29,21 @@ namespace utils
             /// @brief Timing modes
             enum class time_mode_t : uint32_t
             {
-                steadyClock = 0u,         ///< Low-resolution, steady
-                highResolutionClock = 1u  ///< High-resolution, unstable
+                steady = 0u,         ///< Low-resolution, steady
+                high_resolution = 1u ///< High-resolution, less stable
             };
             
             
             /// @brief Create default clock
             Clock() noexcept : 
-                m_timeMode(Clock::time_mode_t::steadyClock), m_periodDuration(20000000uLL), m_runtimeDuration(20000000uLL), m_periodSubDuration(0.0f), m_droppedSubDurations(0.0f), m_periodCount(1) {}
+                m_timeMode(Clock::time_mode_t::steady), m_periodDuration(20000000uLL), m_runtimeDuration(20000000uLL), m_periodSubDuration(0.0f), m_droppedSubDurations(0.0f), m_periodCount(1) {}
             /// @brief Create initialized clock
-            /// @param[in] freqNumerator     Clock frequency (desired periods per second) - numerator (e.g.: 60000)
-            /// @param[in] freqDenominator   Clock frequency (desired periods per second) - denominator (e.g.: 1001)
+            /// @param[in] frequency     Clock frequency (desired periods per second) - rate (e.g.: 60000/1001)
             /// @param[in] preferedMode  Prefered time mode (if available)
-            Clock(const uint32_t freqNumerator, const uint32_t freqDenominator, const Clock::time_mode_t preferedMode) noexcept : m_periodCount(1)
+            Clock(const Rate& frequency, const Clock::time_mode_t preferedMode) noexcept : m_periodCount(1)
             {
                 setTimeMode(preferedMode);
-                setFrequency(freqNumerator, freqDenominator);
+                setFrequency(frequency);
                 reset();
             }
             /// @brief Copy initialized clock
@@ -64,7 +65,7 @@ namespace utils
             /// @returns Number of nanoseconds that occured too late (after desired time reference)
             uint64_t wait() noexcept;
             
-            /// @brief Calculate real number of periods per second
+            /// @brief Calculate actual number of periods per second
             float calculateFrequency() noexcept;
             
             
@@ -74,9 +75,8 @@ namespace utils
             /// @param[in] preferedMode  Prefered time mode (if available)
             void setTimeMode(const Clock::time_mode_t preferedMode) noexcept;
             /// @brief Set clock frequency
-            /// @param[in] freqNumerator     Clock frequency (desired periods per second) - numerator (e.g.: 60000)
-            /// @param[in] freqDenominator   Clock frequency (desired periods per second) - denominator (e.g.: 1001)
-            void setFrequency(const uint32_t freqNumerator, const uint32_t freqDenominator) noexcept;
+            /// @param[in] frequency  Clock frequency (desired periods per second) - rate (e.g.: 60000/1001)
+            void setFrequency(const Rate& frequency) noexcept;
             
             /// @brief Extend current period duration
             /// @param[in] nanoseconds  Number of nanoseconds to add to duration
@@ -86,27 +86,27 @@ namespace utils
             }
             /// @brief Get period duration
             /// @returns Period duration (nanoseconds)
-            inline uint64_t getPeriodDuration() const noexcept
+            inline const Duration& getPeriodDuration() const noexcept
             {
-                return m_periodDuration;
+                return Duration(static_cast<int64_t>(m_periodDuration));
             }
             
             
-        private:
             // -- Time reference creation --
         
             /// @brief Create new time reference
             /// @returns Time reference (current time)
-            static TimePoint now() const noexcept;
+            TimePoint now() const noexcept;
+        private:
             /// @brief Create new time reference
             /// @param[out] timeRef     Time reference (current time)
             /// @param[out] timeRefAux  Auxiliary time reference (current time)
-            static void now(TimePoint& timeRef, TimePoint& timeRefAux) const noexcept;
+            void now(TimePoint& timeRef, TimePoint& timeRefAux) const noexcept;
             
             
         private:
             // clock settings
-            Clock::time_mode_t m_timeMode;  ///< Timing mode
+            Clock::time_mode_t m_timeMode; ///< Timing mode
             uint64_t m_periodDuration;     ///< Duration between two checks (nanoseconds)
             float m_periodSubDuration;     ///< Sub-duration (less than 1 nanosecond) to add to duration
             #ifdef _WINDOWS
