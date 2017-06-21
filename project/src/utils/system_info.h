@@ -3,6 +3,10 @@ Author  :     Romain Vinders
 License :     GPLv2
 ------------------------------------------------------------------------
 Description : system/CPU architecture
+Constants : __OPERATING_SYSTEM_FAMILY__
+            __OPERATING_SYSTEM__
+            __CPU_ARCHITECTURE_FAMILY__
+            __CPU_ARCHITECTURE_BITS__
 *******************************************************************************/
 #pragma once
 
