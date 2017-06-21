@@ -52,7 +52,7 @@ namespace utils
         template <typename StlCont>
         static inline void clearPtr(const StlCont& collection) 
         { 
-            for (auto item : collection)
+            for (const auto& item : collection)
                 if (item != nullptr)
                     delete item;
             collection.clear(); 
@@ -62,7 +62,7 @@ namespace utils
         template <typename StlCont>
         static inline void clearArrayPtr(const StlCont& collection) 
         { 
-            for (auto item : collection)
+            for (const auto& item : collection)
                 if (item != nullptr)
                     delete [] item;
             collection.clear(); 
@@ -180,7 +180,7 @@ namespace utils
         static inline uint32_t count(const StlCont& collection, const T& value) 
         { 
             uint32_t total = 0u;
-            for (auto item : collection)
+            for (const auto& item : collection)
             {
                 if (utils::compare<T, Comparison>(item, value))
                     ++total;
@@ -235,7 +235,7 @@ namespace utils
         static inline uint32_t countPtr(const StlCont& collection, const T& value) 
         { 
             uint32_t total = 0u;
-            for (auto item : collection)
+            for (const auto& item : collection)
             {
                 if (item != nullptr && utils::compare<T, Comparison>(*item, value))
                     ++total;
@@ -286,7 +286,7 @@ namespace utils
             uint32_t total = 0u;
             std::set<T> found;
             found.reserve(collection.size());
-            for (auto item : collection)
+            for (const auto& item : collection)
             {
                 if (!contains(found, item))
                 {
@@ -334,7 +334,7 @@ namespace utils
             uint32_t total = 0u;
             std::set<T> found;
             found.reserve(collection.size());
-            for (auto item : collection)
+            for (const auto& item : collection)
             {
                 if (item != nullptr && !contains(found, *item))
                 {
