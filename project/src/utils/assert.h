@@ -7,18 +7,19 @@ Description : debug assertions (assert, verify, trace)
 #pragma once
 
 #include <cstddef>
+#include "system_info.h"
 
 #if defined(_DEBUG) || !defined(NDEBUG)
 // -- DEBUG MODE --
 
 // portable __debugbreak
-#ifdef _MSC_VER
+#ifdef __WINDOWS__
 #   include <intrin.h>
 #   ifndef __debugbreak
 #       define __debugbreak() __asm{int 0x03}
 #   endif
 #else
-#   if defined(__arm__) || defined(_M_ARM) || defined(__arm) || defined(_ARM) || defined(_M_ARMT) || defined(__thumb__)
+#   if __CPU_ARCHITECTURE__ == _CPU_ARCH_ARM_ or __CPU_ARCHITECTURE__ == _CPU_ARCH_ARM_64_
 #       include <armintrin.h>
 #   else
 #       include <x86intrin.h>
@@ -33,8 +34,8 @@ Description : debug assertions (assert, verify, trace)
 // debug assertion / verification
 #define ASSERT(cond)       if(!(cond)){__debugbreak();}       // check condition value (completely removed in release mode)
 #define VERIFY(cmd)        if(!(cmd)){__debugbreak();}        // check condition command (command kept in release mode)
-#define VERIFY_EQ(val,cmd) if((cmd)==(val)){__debugbreak();}  // check command equality (command kept in release mode)
-#define VERIFY_NE(val,cmd) if((cmd)!=(val)){__debugbreak();}  // check command difference (command kept in release mode)
+#define VERIFY_EQ(cmd,val) if((cmd)==(val)){__debugbreak();}  // check command equality (command kept in release mode)
+#define VERIFY_NE(cmd,val) if((cmd)!=(val)){__debugbreak();}  // check command difference (command kept in release mode)
    
 // debug tracer
 #define TRACE(format,...) fprintf(stderr, "%s(%d): " format "\n", __FILE__, __LINE__, __VA_ARGS__)
