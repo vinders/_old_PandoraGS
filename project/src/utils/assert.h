@@ -7,25 +7,30 @@ Description : debug assertions (assert, verify, trace)
 #pragma once
 
 #include <cstddef>
-#include "system_info.h"
+#include "system/system_info.h"
 
 #if defined(_DEBUG) || !defined(NDEBUG)
 // -- DEBUG MODE --
 
 // portable __debugbreak
-#ifdef __WINDOWS__
+#ifdef __OPERATING_SYSTEM_FAMILY__ == _OS_MICROSOFT_
 #   include <intrin.h>
 #   ifndef __debugbreak
 #       define __debugbreak() __asm{int 0x03}
 #   endif
 #else
-#   if __CPU_ARCHITECTURE__ == _CPU_ARCH_ARM_ or __CPU_ARCHITECTURE__ == _CPU_ARCH_ARM_64_
+#   if __CPU_ARCHITECTURE_FAMILY__ == _CPU_ARCH_ARM_
 #       include <armintrin.h>
-#   else
+#   elif __CPU_ARCHITECTURE_FAMILY__ == _CPU_ARCH_X86_
 #       include <x86intrin.h>
 #   endif
 #   ifndef __debugbreak
-#       define __debugbreak() __builtin_trap()
+#       ifdef __builtin_trap
+#           define __debugbreak() __builtin_trap()
+#       else
+#           include <cstdlib>
+#           define __debugbreak() abort(3)
+#       endif
 #   endif
 #endif
 
