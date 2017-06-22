@@ -14,9 +14,9 @@ Description : screen ratio
 /// General utilities
 namespace utils
 {
-    /// @namespace utils.window
-    /// Window management utilities
-    namespace window
+    /// @namespace utils.system
+    /// System management utilities
+    namespace system
     {
         /// @brief Screen ratio
         using Ratio = rational32_t;
