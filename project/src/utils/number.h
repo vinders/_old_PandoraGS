@@ -16,8 +16,8 @@ Description : number toolset + generic number type
 #include <limits>
 #include <stdexcept>
 #include <type_traits>
-#include "number_parser.h"
-#include "number_formatter.h"
+#include "encoding/number_parser.h"
+#include "encoding/number_formatter.h"
 #include "assert.h"
 
 /// @namespace utils
@@ -232,67 +232,67 @@ namespace utils
         /// @brief Parse string with leading number
         /// @returns Output value
         template <typename T>
-        static inline T parse(const char* val) { return NumberParser::parse<T>(val); }
+        static inline T parse(const char* val) { return utils::encoding::NumberParser::parse<T>(val); }
         /// @brief Parse string with leading number - trimmed
         /// @param[in] val   String to parse
         /// @param[out] out  Output value
         /// @returns Number of characters read
         template <typename T>
-        static inline size_t parse(const char* val, T& out) { return NumberParser::parse<T>(val, out); }
+        static inline size_t parse(const char* val, T& out) { return utils::encoding::NumberParser::parse<T>(val, out); }
         /// @brief Parse sub-string with leading number - trimmed
         /// @param[in] val   String to parse
         /// @param[in] len   String length
         /// @param[out] out  Output value
         /// @returns Number of characters read
         template <typename T>
-        static inline size_t parse(const char* val, const size_t len, T& out) { return NumberParser::parse<T>(val, len, out); }
+        static inline size_t parse(const char* val, const size_t len, T& out) { return utils::encoding::NumberParser::parse<T>(val, len, out); }
         
         /// @brief Parse string with leading integer number, formatted with specific base type - trimmed
         /// @returns Output value
         template <typename T, base_t Base>
-        static inline T parseInteger(const char* val) { return NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val); }
+        static inline T parseInteger(const char* val) { return utils::encoding::NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val); }
         /// @brief Parse string with leading integer number, formatted with specific base type - trimmed
         /// @param[in] val   String to parse
         /// @param[out] out  Output value
         /// @returns Number of characters read
         template <typename T, base_t Base>
-        static inline size_t parseInteger(const char* val, T& out) { return NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val, out); }
+        static inline size_t parseInteger(const char* val, T& out) { return utils::encoding::NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val, out); }
         /// @brief Parse sub-string with leading integer number, formatted with specific base type - trimmed
         /// @param[in] val   String to parse
         /// @param[in] len   String length
         /// @param[out] out  Output value
         /// @returns Number of characters read
         template <typename T, base_t Base>
-        static inline size_t parseInteger(const char* val, const size_t len, T& out) { return NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val, len, out); }
+        static inline size_t parseInteger(const char* val, const size_t len, T& out) { return utils::encoding::NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val, len, out); }
         
         /// @brief Parse string with leading floating-point number - trimmed
         /// @returns Output value
-        static inline float parseFloat(const char* val) { return NumberParser::parse<float>(val); }
+        static inline float parseFloat(const char* val) { return utils::encoding::NumberParser::parse<float>(val); }
         /// @brief Parse string with leading floating-point number - trimmed
         /// @param[in] val   String to parse
         /// @param[out] out  Output value
         /// @returns Number of characters read
-        static inline size_t parseFloat(const char* val, float& out) { return NumberParser::parse<float>(val, out); }
+        static inline size_t parseFloat(const char* val, float& out) { return utils::encoding::NumberParser::parse<float>(val, out); }
         /// @brief Parse sub-string with floating-point number - trimmed
         /// @param[in] val   String to parse
         /// @param[in] len   String length
         /// @param[out] out  Output value
         /// @returns Number of characters read
-        static inline size_t parseFloat(const char* val, const size_t len, float& out) { return NumberParser::parse<float>(val, len, out); }
+        static inline size_t parseFloat(const char* val, const size_t len, float& out) { return utils::encoding::NumberParser::parse<float>(val, len, out); }
         /// @brief Parse string with leading double-precision floating-point number - trimmed
         /// @returns Output value
-        static inline double parseDouble(const char* val) { return NumberParser::parse<double>(val); }
+        static inline double parseDouble(const char* val) { return utils::encoding::NumberParser::parse<double>(val); }
         /// @brief Parse string with leading double-precision floating-point number - trimmed
         /// @param[in] val   String to parse
         /// @param[out] out  Output value
         /// @returns Number of characters read
-        static inline size_t parseDouble(const char* val, double& out) { return NumberParser::parse<double>(val, out); }
+        static inline size_t parseDouble(const char* val, double& out) { return utils::encoding::NumberParser::parse<double>(val, out); }
         /// @brief Parse sub-string with leading double-precision floating-point number - trimmed
         /// @param[in] val   String to parse
         /// @param[in] len   String length
         /// @param[out] out  Output value
         /// @returns Number of characters read
-        static inline size_t parseDouble(const char* val, const size_t len, double& out) { return NumberParser::parse<double>(val, len, out); }
+        static inline size_t parseDouble(const char* val, const size_t len, double& out) { return utils::encoding::NumberParser::parse<double>(val, len, out); }
         
         /// @brief Parse string with leading boolean value (only the first character is evaluated) - trim before calling parser
         /// @returns Output value
@@ -316,12 +316,12 @@ namespace utils
         }
         /// @brief Parse string with leading boolean (false/true/FALSE/TRUE/0/1/00...00/00..01) - trim before calling parser
         /// @returns Output value
-        static inline bool parseBool(const char* val) { return NumberParser::parse<bool>(val); }
+        static inline bool parseBool(const char* val) { return utils::encoding::NumberParser::parse<bool>(val); }
         /// @brief Parse string with leading boolean (false/true/FALSE/TRUE/0/1/00...00/00..01) - trim before calling parser
         /// @param[in] val   String to parse
         /// @param[out] out  Output value
         /// @returns Number of characters read
-        static inline size_t parseBool(const char* val, bool& out) { return NumberParser::parse<bool>(val, out); }
+        static inline size_t parseBool(const char* val, bool& out) { return utils::encoding::NumberParser::parse<bool>(val, out); }
 
         
         // -- String formatter --
@@ -331,7 +331,7 @@ namespace utils
         static inline std::string toString(const T val) { return std::to_string(val); }
         /// @brief Convert number to binary string
         template <typename T, base_t Base>
-        static inline std::string toString(const T val) { return NumberFormatter::format<T, static_cast<uint32_t>(Base)>(val); }
+        static inline std::string toString(const T val) { return utils::encoding::NumberFormatter::format<T, static_cast<uint32_t>(Base)>(val); }
 
         
         

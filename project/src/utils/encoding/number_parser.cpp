@@ -10,7 +10,7 @@ Description : number parser
 #include <string>
 #include "number_parser.h"
 
-using namespace utils;
+using namespace utils::encoding;
 
 // -- Base N character to base 10 integer
 

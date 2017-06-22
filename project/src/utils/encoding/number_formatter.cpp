@@ -12,7 +12,7 @@ Description : number formatter
 #include <cmath>
 #include "number_formatter.h"
 
-using namespace utils;
+using namespace utils::encoding;
 
 
 /// @brief Convert number to binary string
