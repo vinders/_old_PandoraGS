@@ -54,11 +54,11 @@ namespace utils
             // -- Execution --
             
             /// @brief Execute functions of delegate with specified arguments
-            inline void operator()(Params&... args) const { return run(args...); }
+            inline void operator()(Params&... args) const { run(args...); }
             /// @brief Execute functions of delegate with specified arguments
             inline void run(Params&... args) const
             {
-                for (auto it : other)
+                for (auto& it : other)
                     it(args...);
             }
             
