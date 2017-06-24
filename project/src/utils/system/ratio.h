@@ -19,7 +19,7 @@ namespace utils
     namespace system
     {
         /// @brief Screen ratio
-        using Ratio = rational32_t;
+        using Ratio = utils::rational32_t;
         
         /// @enum ratio_type_t
         /// @brief Common ratio types

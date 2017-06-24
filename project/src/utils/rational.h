@@ -18,14 +18,13 @@ Description : rational number type (rational32_t, rational64_t, rational128_t)
 #include "number.h"
 #include "assert.h"
 
-using rational32_t = utils::Rational<int32_t>;
-using rational64_t = utils::Rational<int64_t>;
-
-
 /// @namespace utils
 /// General utilities
 namespace utils
 {
+    using rational32_t = utils::Rational<int32_t>;
+    using rational64_t = utils::Rational<int64_t>;
+    
     /// @class Rational
     /// @brief rational number (fraction)
     template <typename T, typename U = T>

@@ -19,7 +19,7 @@ namespace utils
     namespace time
     {
         /// @brief Clock rate (hertz)
-        using Rate = rational32_t;
+        using Rate = utils::rational32_t;
         
         /// @enum rate_type_t
         /// @brief Common rate types
