@@ -70,7 +70,7 @@ namespace utils
 #           ifdef _WINDOWS
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), static_cast<uint16_t>(ForeColor) | (static_cast<uint16_t>(BackColor) << 4));
 #           else // -- linux/UNIX/POSIX --
-            char buffer[] = "\x1B[30;97";
+            char buffer[] = "\x1B[30;97m";
             buffer[2] = (BackColor / 10) + '1';
             buffer[3] = (BackColor % 10) + '0';
             buffer[5] = (ForeColor / 10) + '1';
