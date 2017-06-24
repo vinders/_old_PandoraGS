@@ -13,7 +13,7 @@ Description : debug assertions (assert, verify, trace)
 // -- DEBUG MODE --
 
 // portable __debugbreak
-#ifdef __OPERATING_SYSTEM_FAMILY__ == _OS_MICROSOFT_
+#ifdef _WINDOWS
 #   include <intrin.h>
 #   ifndef __debugbreak
 #       define __debugbreak() __asm{int 0x03}

@@ -37,21 +37,22 @@ Constants : __OPERATING_SYSTEM_FAMILY__
 #define __OPERATING_SYSTEM__ _OS_UNKNOWN_
 
 // Windows
-#ifndef _WINDOWS
-#   if defined(_WIN32) or defined(_WIN64) or defined(_WINNT) or defined(_MSC_VER)
-#       define __OPERATING_SYSTEM_FAMILY__ _OS_MICROSOFT_
-#       ifndef __WINDOWS__
-#           define __WINDOWS__
-#       endif
-#       undef __APPLE__
-#       undef __ANDROID__
-#       undef __LINUX__
+#if defined(_WINDOWS) or defined(_WIN32) or defined(_WIN64) or defined(_WINNT)
+#   define __OPERATING_SYSTEM_FAMILY__ _OS_MICROSOFT_
+#   ifndef __WINDOWS__
+#       define __WINDOWS__
+#   endif
+#   ifndef _WINDOWS
+#       define _WINDOWS
+#   endif
+#   undef __APPLE__
+#   undef __ANDROID__
+#   undef __LINUX__
 
-#       if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP)
-#           define __OPERATING_SYSTEM__ _OS_MICROSOFT_WINDOWS_DESKTOP_
-#       else
-#           define __OPERATING_SYSTEM__ _OS_MICROSOFT_WINDOWS_MOBILE_
-#       endif
+#   if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP)
+#       define __OPERATING_SYSTEM__ _OS_MICROSOFT_WINDOWS_DESKTOP_
+#   else
+#       define __OPERATING_SYSTEM__ _OS_MICROSOFT_WINDOWS_MOBILE_
 #   endif
 #else
 #   undef __WINDOWS__
