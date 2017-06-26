@@ -6,6 +6,7 @@ Description : advanced enumeration with external tools
 *******************************************************************************/
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include "preprocessor.h"
 
@@ -21,6 +22,11 @@ namespace utils
     /// @returns Max value (last if uninitialized, biggest if initialized)
     template <typename T>
     T enum_max();
+    /// @brief Convert enum value to base type
+    /// @param[in] val  Enum value
+    /// @returns Base value
+    template <typename T, typename U = uint32_t>
+    U enum_to_value(const T val);
     
     /// @brief Serialize/deserialize enum (for which ENUM_SERIALIZER is defined)
     template <typename T>
@@ -62,9 +68,16 @@ TYPED_ENUM(my_enum_t, uint32_t, BigValue,
         { \
             __VA_ARGS__ \
         }; \
-        template <> \
-        inline const size_t ::utils::enum_length<enumName>() noexcept { return _COUNT_VA_ARGS(__VA_ARGS__); } \
-        inline enumName ::utils::enum_max<enumName>() noexcept { return enumName##::##maxValue; }
+        template <> inline const size_t ::utils::enum_length<##enumName##>() noexcept { return _COUNT_VA_ARGS(__VA_ARGS__); } \
+        template <> inline enumName ::utils::enum_max<##enumName##>() noexcept { return enumName##::##maxValue; } \
+        \
+        template <> inline uint32_t ::utils::enum_to_value<##enumName##,uint32_t>(const enumName val) noexcept { return (uint32_t)static_cast<##dataType##>(val); } \
+        template <> inline int32_t ::utils::enum_to_value<##enumName##,int32_t>(const enumName val) noexcept { return (int32_t)static_cast<##dataType##>(val); } \
+        template <> inline uint16_t ::utils::enum_to_value<##enumName##,uint16_t>(const enumName val) noexcept { return (uint16_t)static_cast<##dataType##>(val); } \
+        template <> inline int16_t ::utils::enum_to_value<##enumName##,int16_t>(const enumName val) noexcept { return (int16_t)static_cast<##dataType##>(val); } \
+        template <> inline uint8_t ::utils::enum_to_value<##enumName##,uint8_t>(const enumName val) noexcept { return (uint8_t)static_cast<##dataType##>(val); } \
+        template <> inline int8_t ::utils::enum_to_value<##enumName##,int8_t>(const enumName val) noexcept { return (int8_t)static_cast<##dataType##>(val); } \
+        template <> inline bool ::utils::enum_to_value<##enumName##,bool>(const enumName val) noexcept { return (static_cast<##dataType##>(val) != 0); }
 
 
 // -- enumeration value serializer - enum to string - string to enum --
