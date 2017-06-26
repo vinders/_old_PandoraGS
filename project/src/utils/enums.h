@@ -92,12 +92,12 @@ TYPED_ENUM(my_enum_t, uint32_t, BigValue,
         template <> inline int8_t ::utils::enums::toValue<##enumName##,int8_t>(const enumName val) noexcept { return (int8_t)static_cast<##dataType##>(val); } \
         template <> inline bool ::utils::enums::toValue<##enumName##,bool>(const enumName val) noexcept { return (static_cast<##dataType##>(val) != 0); } \
         \
-        template <> inline bool ::utils::enums::toEnumUnsafe<##enumName##,uint32_t>(const uint32_t val, enumName##& out) noexcept { out = static_cast<##enumName##>(val); return (val <= ::utils::enums::max<##enumName##>()); } \
-        template <> inline bool ::utils::enums::toEnumUnsafe<##enumName##,int32_t>(const int32_t val, enumName##& out) noexcept   { out = static_cast<##enumName##>(val); return (val <= ::utils::enums::max<##enumName##>()); } \
-        template <> inline bool ::utils::enums::toEnumUnsafe<##enumName##,uint16_t>(const uint16_t val, enumName##& out) noexcept { out = static_cast<##enumName##>(val); return (val <= ::utils::enums::max<##enumName##>()); } \
-        template <> inline bool ::utils::enums::toEnumUnsafe<##enumName##,int16_t>(const int16_t val, enumName##& out) noexcept   { out = static_cast<##enumName##>(val); return (val <= ::utils::enums::max<##enumName##>()); } \
-        template <> inline bool ::utils::enums::toEnumUnsafe<##enumName##,uint8_t>(const uint8_t val, enumName##& out) noexcept   { out = static_cast<##enumName##>(val); return (val <= ::utils::enums::max<##enumName##>()); } \
-        template <> inline bool ::utils::enums::toEnumUnsafe<##enumName##,int8_t>(const int8_t val, enumName##& out) noexcept     { out = static_cast<##enumName##>(val); return (val <= ::utils::enums::max<##enumName##>()); }
+        template <> inline bool ::utils::enums::toEnumUnsafe<##enumName##,uint32_t>(const uint32_t val, enumName##& out) noexcept { if (static_cast<int64_t>(val) <= static_cast<int64_t>(::utils::enums::max<##enumName##>())) { out = static_cast<##enumName##>(val); return true; } return false; } \
+        template <> inline bool ::utils::enums::toEnumUnsafe<##enumName##,int32_t>(const int32_t val, enumName##& out) noexcept   { if (static_cast<int64_t>(val) <= static_cast<int64_t>(::utils::enums::max<##enumName##>())) { out = static_cast<##enumName##>(val); return true; } return false; } \
+        template <> inline bool ::utils::enums::toEnumUnsafe<##enumName##,uint16_t>(const uint16_t val, enumName##& out) noexcept { if (static_cast<int64_t>(val) <= static_cast<int64_t>(::utils::enums::max<##enumName##>())) { out = static_cast<##enumName##>(val); return true; } return false; } \
+        template <> inline bool ::utils::enums::toEnumUnsafe<##enumName##,int16_t>(const int16_t val, enumName##& out) noexcept   { if (static_cast<int64_t>(val) <= static_cast<int64_t>(::utils::enums::max<##enumName##>())) { out = static_cast<##enumName##>(val); return true; } return false; } \
+        template <> inline bool ::utils::enums::toEnumUnsafe<##enumName##,uint8_t>(const uint8_t val, enumName##& out) noexcept   { if (static_cast<int64_t>(val) <= static_cast<int64_t>(::utils::enums::max<##enumName##>())) { out = static_cast<##enumName##>(val); return true; } return false; } \
+        template <> inline bool ::utils::enums::toEnumUnsafe<##enumName##,int8_t>(const int8_t val, enumName##& out) noexcept     { if (static_cast<int64_t>(val) <= static_cast<int64_t>(::utils::enums::max<##enumName##>())) { out = static_cast<##enumName##>(val); return true; } return false; }
 
 
 // -- enumeration value serializer - enum to string - string to enum --
@@ -137,7 +137,7 @@ ENUM_SERIALIZER(my_enum_t, NoValue,TinyValue,SmallValue,MediumValue,BigValue);
         template <> inline bool ::utils::enums::toEnum<##enumName##,uint16_t>(const uint16_t val, enumName##& out) noexcept { if(false){} PP_FOREACH_WITH_PARAM(__UTILS_ENUM_SERIALIZER_CONVERTER,enumName,(__VA_ARGS__)); return false; } \
         template <> inline bool ::utils::enums::toEnum<##enumName##,int16_t>(const int16_t val, enumName##& out) noexcept   { if(false){} PP_FOREACH_WITH_PARAM(__UTILS_ENUM_SERIALIZER_CONVERTER,enumName,(__VA_ARGS__)); return false; } \
         template <> inline bool ::utils::enums::toEnum<##enumName##,uint8_t>(const uint8_t val, enumName##& out) noexcept   { if(false){} PP_FOREACH_WITH_PARAM(__UTILS_ENUM_SERIALIZER_CONVERTER,enumName,(__VA_ARGS__)); return false; } \
-        template <> inline bool ::utils::enums::toEnum<##enumName##,int8_t>(const int8_t val, enumName##& out) noexcept     { if(false){} PP_FOREACH_WITH_PARAM(__UTILS_ENUM_SERIALIZER_CONVERTER,enumName,(__VA_ARGS__)); return false; } \
+        template <> inline bool ::utils::enums::toEnum<##enumName##,int8_t>(const int8_t val, enumName##& out) noexcept     { if(false){} PP_FOREACH_WITH_PARAM(__UTILS_ENUM_SERIALIZER_CONVERTER,enumName,(__VA_ARGS__)); return false; }
 
 #define __UTILS_ENUM_SERIALIZER_SERIALIZER(enumName,enumVal)  template<> static inline std::string toString<##enumName##::##enumVal##>() { return #enumVal; }
 #define __UTILS_ENUM_SERIALIZER_CONVERTER(enumName,enumVal)   else if (static_cast<int64_t>(val) == static_cast<int64_t>(##enumName##::##enumVal##)) { out = enumName##::##enumVal##; return true; }
