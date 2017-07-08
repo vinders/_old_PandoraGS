@@ -169,19 +169,15 @@ namespace utils
             /// @returns Equal or not
             inline bool operator==(const Delegate<ReturnType, Params...>& other) const noexcept 
             { 
-                if (size() != other.size())
-                    return false;
-                for (auto it : other)
-                {
-                    if (!isSet(it))
-                        return false;
-                }
-                return true;
+                return (m_functions == other.m_functions);
             }
             /// @brief Compare with other delegate
             /// @param[in] pFunc  Function pointer
             /// @returns Equal or not
-            inline bool operator!=(const Delegate<ReturnType, Params...>& other) const noexcept { return !operator==(other); }
+            inline bool operator!=(const Delegate<ReturnType, Params...>& other) const noexcept
+            {
+                return (m_functions != other.m_functions);
+            }
             
             
         private:
