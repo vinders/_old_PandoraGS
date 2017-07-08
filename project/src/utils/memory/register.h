@@ -16,15 +16,15 @@ Description : CPU/memory registers
 /// General utilities
 namespace utils
 {
+    using register8_t  = utils::memory::Register<uint8_t>;
+    using register16_t = utils::memory::Register<uint16_t>;
+    using register32_t = utils::memory::Register<uint32_t>;
+    using register64_t = utils::memory::Register<uint64_t>;
+        
     /// @namespace utils.memory
     /// Memory management utilities
     namespace memory
     {
-        using register8_t  = Register<uint8_t>;
-        using register16_t = Register<uint16_t>;
-        using register32_t = Register<uint32_t>;
-        using register64_t = Register<uint64_t>;
-        
         /// @class Register
         /// @brief CPU/memory register
         template <typename T>
@@ -32,16 +32,16 @@ namespace utils
         {
         public:
             /// @brief Create empty register
-            Register() : m_bits(0) {}
+            Register() : m_bits(0) { static_assert(std::is_integral<T>::value, "Integer template parameter required"); }
             /// @brief Create initialized register (value)
             /// @param[in] value  Register value
-            Register(T value) : m_bits(value) {}
+            Register(T value) : m_bits(value) { static_assert(std::is_integral<T>::value, "Integer template parameter required"); }
             /// @brief Copy register
             /// @param[in] other  Other instance to copy
-            explicit Register(const Register<T>& other) : m_bits(other.data()) {}
+            explicit Register(const Register<T>& other) : m_bits(other.data()) { static_assert(std::is_integral<T>::value, "Integer template parameter required"); }
             /// @brief Move register
             /// @param[in] other  Other instance to move
-            explicit Register(Register<T>&& other) : m_bits(other.data()) {}
+            explicit Register(Register<T>&& other) : m_bits(other.data()) { static_assert(std::is_integral<T>::value, "Integer template parameter required"); }
             
             
             // -- Utilities --
