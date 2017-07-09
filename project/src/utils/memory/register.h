@@ -10,8 +10,6 @@ Description : CPU/memory registers
 #include <cstdint>
 #include "../assert.h"
 
-#pragma pack(push, 1)
-
 /// @namespace utils
 /// General utilities
 namespace utils
@@ -187,5 +185,3 @@ namespace utils
         };
     }
 }
-
-#pragma pack(pop)
