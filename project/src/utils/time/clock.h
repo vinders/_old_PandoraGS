@@ -86,9 +86,9 @@ namespace utils
             }
             /// @brief Get period duration
             /// @returns Period duration (nanoseconds)
-            inline const Duration& getPeriodDuration() const noexcept
+            inline const utils::time::Duration& getPeriodDuration() const noexcept
             {
-                return Duration(static_cast<int64_t>(m_periodDuration));
+                return utils::time::Duration(static_cast<int64_t>(m_periodDuration));
             }
             
             

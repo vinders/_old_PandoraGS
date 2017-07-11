@@ -27,7 +27,7 @@ namespace utils
             TimePoint() noexcept : m_nanoseconds(0u) {}
             /// @brief Create time point
             /// @param[in] duration  Time duration
-            explicit TimePoint(const Duration& duration) noexcept { setTotalDuration(duration); }
+            explicit TimePoint(const utils::time::Duration& duration) noexcept { setTotalDuration(duration); }
             /// @brief Create time point
             /// @param[in] nanoseconds  Time reference (nanoseconds)
             TimePoint(const uint64_t nanoseconds) noexcept : m_nanoseconds(nanoseconds) {}
@@ -58,7 +58,7 @@ namespace utils
             
             /// @brief Build time point from duration (absolute value)
             /// @param[in] duration  Duration value (absolute value)
-            static TimePoint fromDuration(const Duration& duration) noexcept { return TimePoint(duration); }
+            static TimePoint fromDuration(const utils::time::Duration& duration) noexcept { return TimePoint(duration); }
             
             /// @brief Build time point from total number of milliseconds
             /// @param[in] milliseconds  Number of milliseconds
@@ -159,7 +159,7 @@ namespace utils
             
             /// @brief Set time point value, based on total duration (absolute value)
             /// @param[in] duration  Time duration (absolute value)
-            inline void setTotalDuration(const Duration& duration) noexcept
+            inline void setTotalDuration(const utils::time::Duration& duration) noexcept
             {
                 m_nanoseconds = (duration.totalNanoseconds() >= 0) ? static_cast<uint64_t>(duration.totalNanoseconds()) : 0u;
             }
@@ -206,7 +206,7 @@ namespace utils
             /// @brief Add and store time reference to current time reference
             inline void operator+=(const TimePoint& other) noexcept         { m_nanoseconds += other.m_nanoseconds; }
             /// @brief Add and store duration to current time reference
-            inline void operator+=(const Duration& duration) noexcept
+            inline void operator+=(const utils::time::Duration& duration) noexcept
             { 
                 if (duration.totalNanoseconds() >= 0 || std::abs(duration.totalNanoseconds()) <= m_nanoseconds)
                     m_nanoseconds += duration.totalNanoseconds(); 
@@ -219,7 +219,7 @@ namespace utils
             /// @brief Substract time reference from current time reference
             inline TimePoint operator-(const TimePoint& other) noexcept     { TimePoint tp(m_nanoseconds); tp -= other; return tp; }
             /// @brief Substract duration from current time reference
-            inline TimePoint operator-(const Duration& duration) noexcept   { TimePoint tp(m_nanoseconds); tp -= duration; return tp; }
+            inline TimePoint operator-(const utils::time::Duration& duration) noexcept   { TimePoint tp(m_nanoseconds); tp -= duration; return tp; }
             /// @brief Substract and store nanoseconds from current time reference
             inline void operator-=(const uint64_t nanoseconds) noexcept    
             {
@@ -237,7 +237,7 @@ namespace utils
                     m_nanoseconds = 0u;
             }
             /// @brief Substract and store duration from current time reference
-            inline void operator-=(const Duration& duration) noexcept    
+            inline void operator-=(const utils::time::Duration& duration) noexcept    
             {
                 if (duration.totalNanoseconds() <= 0 || static_cast<uint64_t>(duration.totalNanoseconds()) <= m_nanoseconds)
                     m_nanoseconds -= duration.totalNanoseconds();

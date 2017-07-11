@@ -95,11 +95,11 @@ namespace utils
             
             /// @brief Get elapsed time (duration)
             /// @returns Time duration (nanoseconds)
-            inline Duration getElapsedTime() const
+            inline utils::time::Duration getElapsedTime() const
             {
                 if (m_isRunning)
                     countElapsedTime();
-                return Duration(static_cast<int64_t>(m_prevElapsedNanoseconds + m_curElapsedNanoseconds));
+                return utils::time::Duration(static_cast<int64_t>(m_prevElapsedNanoseconds + m_curElapsedNanoseconds));
             }
             /// @brief Get elapsed time (milliseconds)
             /// @returns Time (milliseconds)
