@@ -491,7 +491,7 @@ namespace utils
             
             // -- Operations --
             
-            /// @brief Pre-increment time reference
+            /// @brief Pre-increment time code
             inline TimeCode& operator++() noexcept
             {
                 ++m_samples;
@@ -516,7 +516,7 @@ namespace utils
                 }
                 return *this;
             }
-            /// @brief Post-increment time reference
+            /// @brief Post-increment time code
             inline TimeCode operator++(int) noexcept 
             { 
                 TimeCode copy(*this); 
@@ -524,7 +524,7 @@ namespace utils
                 return copy; 
             }
             
-            /// @brief Pre-decrement time reference
+            /// @brief Pre-decrement time code
             inline TimeCode& operator--() noexcept 
             { 
                 bool isLast;
@@ -559,12 +559,62 @@ namespace utils
                 }
                 return *this;
             }
-            /// @brief Post-decrement time reference
+            /// @brief Post-decrement time code
             inline TimeCode operator--(int) noexcept 
             { 
                 TimeCode copy(*this); 
                 operator--();
                 return copy; 
+            }
+            
+            
+            /// @brief Add to time code
+            inline TimeCode operator+(const TimeCode& rhs) noexcept 
+            { 
+                TimeCode copy(*this); 
+                copy += rhs;
+                return copy; 
+            }
+            /// @brief Add to time code
+            inline TimeCode& operator+=(const TimeCode& rhs) noexcept 
+            { 
+                addHours(rhs.hours());
+                addMinutes(rhs.minutes());
+                addSeconds(rhs.seconds());
+                if (m_roundedRate == rhs.m_roundedRate && m_droppedFrames == rhs.droppedFrames)
+                {
+                    addSamples(rhs.samples());
+                }
+                else
+                {
+                    double samples = static_cast<double>(rhs.samples()) * getRate() / rhs.getRate();
+                    addSamples(static_cast<uint32_t>(samples));
+                }
+                return *this; 
+            }
+            /// @brief Substract from time code
+            inline TimeCode operator-(const TimeCode& rhs) noexcept 
+            { 
+                TimeCode copy(*this); 
+                copy -= rhs;
+                return copy; 
+            }
+            /// @brief Substract from time code
+            inline TimeCode& operator-=(const TimeCode& rhs) noexcept 
+            { 
+                substractHours(rhs.hours());
+                substractMinutes(rhs.minutes());
+                substractSeconds(rhs.seconds());
+                if (m_roundedRate == rhs.m_roundedRate && m_droppedFrames == rhs.droppedFrames)
+                {
+                    substractSamples(rhs.samples());
+                }
+                else
+                {
+                    double samples = static_cast<double>(rhs.samples()) * getRate() / rhs.getRate();
+                    substractSamples(static_cast<uint32_t>(samples));
+                }
+                return *this; 
             }
             
             
