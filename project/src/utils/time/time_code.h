@@ -71,33 +71,33 @@ namespace utils
                 else 
                 {
                     uint32_t droppedFrames;
-                    int64_t seconds;
+                    uint64_t seconds;
                     if ((roundedRate % 30) == 0)
                     {
-                        seconds = (samples * 3000LL) / (2997LL * roundedRate);
-                        samples -= (seconds * roundedRate * 2997LL) / 3000LL;
-                        droppedFrames = roundedRate / 15;
-                        std::lldiv_t timeParts = std::lldiv(seconds, 60LL);
-                        if (timeParts.rem == 0 && isDropMinute<30>(timeParts.quot))
+                        seconds = (samples * 3000uLL) / (2997uLL * roundedRate);
+                        samples -= (seconds * roundedRate * 2997uLL) / 3000uLL;
+                        droppedFrames = roundedRate / 15u;
+                        std::lldiv_t timeParts = std::lldiv(seconds, 60uLL);
+                        if (timeParts.rem == 0 && isDropMinute<30u>(timeParts.quot))
                             samples += droppedFrames;
                     }
-                    else if ((roundedRate % 24) == 0)
+                    else if (roundedRate == 24u || roundedRate == 48u)
                     {
-                        seconds = (samples * 24000LL) / (23976LL * roundedRate);
-                        samples -= (seconds * roundedRate * 23976LL) / 24000LL;
-                        droppedFrames = roundedRate / 12;
-                        std::lldiv_t timeParts = std::lldiv(seconds, 60LL);
-                        if (timeParts.rem == 0 && isDropMinute<24>(timeParts.quot))
+                        seconds = (samples * 24000uLL) / (23976uLL * roundedRate);
+                        samples -= (seconds * roundedRate * 23976uLL) / 24000uLL;
+                        droppedFrames = roundedRate / 12u;
+                        std::lldiv_t timeParts = std::lldiv(seconds, 60uLL);
+                        if (timeParts.rem == 0 && isDropMinute<24u>(timeParts.quot))
                             samples += droppedFrames;
                     }
                     else
-                        throw std::invalid_argument("TimeCode: invalid rate value : drop-frame system requires a multiple of 30 or of 24");
+                        throw std::invalid_argument("TimeCode: invalid rate value : drop-frame system requires 24, 48, or a multiple of 30 samples/sec.");
                     
                     if (samples >= roundedRate)
                     {
                         samples -= roundedRate;
                         ++(timeParts.rem);
-                        if (timeParts.rem >= 60)
+                        if (timeParts.rem >= 60uLL)
                         {
                             timeParts.rem = 0;
                             ++(timeParts.quot);
@@ -105,7 +105,7 @@ namespace utils
                     }
                     
                     seconds = timeParts.rem;
-                    timeParts = (timeParts.quot, 60LL);
+                    timeParts = std::lldiv(timeParts.quot, 60uLL);
                     return TimeCode(roundedRate, droppedFrames, timeParts.quot, timeParts.rem, seconds, samples);
                 }
             }
@@ -131,7 +131,7 @@ namespace utils
                 else
                 {
                     samples /= 1001000000uLL;
-                    samples %= static_cast<int64_t>(roundedRate);
+                    samples %= static_cast<uint64_t>(roundedRate);
                     minutes = duration.minutes();
                     seconds = duration.seconds();
                     
@@ -181,7 +181,7 @@ namespace utils
                         }
                     }
                 }
-                return TimeCode(roundedRate, droppedFrames, samplesParts.quot/(24LL * 60LL), minutes, seconds, samplesParts.rem); 
+                return TimeCode(roundedRate, droppedFrames, samplesParts.quot/(24uLL * 60uLL), minutes, seconds, samplesParts.rem); 
             }
             
             /// @brief Build time code from serialized string
@@ -198,26 +198,35 @@ namespace utils
                         parts[curPart] *= 10;
                         parts[curPart] += (*it) - '0';
                     }
-                    else if (*it == ':')
-                    {
-                        if (++curPart > 3)
-                            throw std::invalid_argument("TimeCode: invalid time code string format : 'HH:MM:SS:FF@rate' or 'HH:MM:SS;FF@rate' required");
-                    }
-                    else if (*it == ';')
-                    {
-                        isDrop = true;
-                        if (++curPart != 3)
-                            throw std::invalid_argument("TimeCode: invalid time code string format : 'HH:MM:SS:FF@rate' or 'HH:MM:SS;FF@rate' required");
-                    }
-                    else if (*it == '@')
-                    {
-                        if (++curPart != 4)
-                            throw std::invalid_argument("TimeCode: invalid time code string format : 'HH:MM:SS:FF@rate' or 'HH:MM:SS;FF@rate' required");
-                    }
                     else
-                        throw std::invalid_argument("TimeCode: invalid time code string format : 'HH:MM:SS:FF@rate' or 'HH:MM:SS;FF@rate' required");
+                    {
+                        switch (*it)
+                        {
+                            case ':':
+                                if (++curPart > 3)
+                                    throw std::invalid_argument("TimeCode: invalid time code string format : 'HH:MM:SS:FF@rate' or 'HH:MM:SS;FF@rate' required");
+                                break;
+                            case ';':
+                                isDrop = true;
+                                if (++curPart != 3)
+                                    throw std::invalid_argument("TimeCode: invalid time code string format : 'HH:MM:SS:FF@rate' or 'HH:MM:SS;FF@rate' required");
+                                break;
+                            case '@':
+                                if (++curPart != 4)
+                                    throw std::invalid_argument("TimeCode: invalid time code string format : 'HH:MM:SS:FF@rate' or 'HH:MM:SS;FF@rate' required");
+                                break;
+                            case 'i': 
+                                if (curPart == 4 && *(++it) == '\0')
+                                    break;
+                            case '.': 
+                                if (++curPart == 4 && *(++it) == '@')
+                                    break;
+                            default: 
+                                throw std::invalid_argument("TimeCode: invalid time code string format : 'HH:MM:SS:FF@rate' or 'HH:MM:SS;FF@rate' required");
+                                break;
+                        }
+                    }
                 }
-                
                 if (curPart < 4)
                     throw std::invalid_argument("TimeCode: invalid time code string format : 'HH:MM:SS:FF@rate' or 'HH:MM:SS;FF@rate' required");
                 return TimeCode(parts[4], isDrop, parts[0], parts[1], parts[2], parts[3]);
@@ -280,14 +289,17 @@ namespace utils
                 return milliseconds;
             }
             
-            /// @brief Convert time code to serialized string representation, with the rate info ('HH:MM:SS:FF@rate' or 'HH:MM:SS;FF@rate', e.g.: '12:05:22:14@25' or '05:20:36;02@30')
-            inline std::string toSerializedString() const noexcept
+            /// @brief Convert time code to serialized string representation, with the rate info ('HH:MM:SS:FF@rate' or 'HH:MM:SS;FF@rate', e.g.: '12:05:22:14@25' or '05:20:36;02@30' or '21:12:45:00@60i')
+            inline std::string toSerializedString(const bool isInterlaced = false) const noexcept
             {
-                return ((toString() + "@") + std::to_string(m_roundedRate));
+                std::string ser = (toString(isInterlaced) + "@") + std::to_string(m_roundedRate);
+                if (isInterlaced)
+                    ser += "i";
+                return ser;
             }
             
             /// @brief Convert time code to short string representation for display, without the rate info ('HH:MM:SS:FF' or 'HH:MM:SS;FF', e.g.: '12:05:22:14' or '05:20:36;02')
-            inline std::string toString() const noexcept
+            inline std::string toString(const bool isInterlaced = false) const noexcept
             {
                 std::string ser;
                 ser.reserve(16);
@@ -302,73 +314,23 @@ namespace utils
                     ser += "0";
                 ser += std::to_string(m_seconds);
                 ser += (m_droppedFrames == 0u) ? ":" : ";";
-                if (m_samples < 10)
-                    ser += "0";
-                ser += std::to_string(m_samples);
-
-                return ser;
-            }
-            
-            
-            // -- Drop-frame system --
-            
-            /// @brief Calculate number of dropped frames, based on rate
-            /// @param[in] roundedRate  Time code rate (rounded, if NTSC)
-            /// @param[in] isDropFrame  Use drop-frame (if NTSC)
-            static inline uint32_t countDroppedFrames(const uint32_t roundedRate, const bool isDropFrame)
-            {
-                uint32_t droppedFrames;
                 
-                if (roundedRate == 0)
-                    throw std::invalid_argument("TimeCode: invalid rate value (must be greater than 0)");
-                if (isDropFrame == false)
+                if (isInterlaced == false)
                 {
-                    droppedFrames = 0u;
+                    if (samples < 10)
+                        ser += "0";
+                    ser += std::to_string(samples);
                 }
                 else
                 {
-                    if ((roundedRate % 30) == 0)
-                        droppedFrames = roundedRate / 15u;
-                    else if ((roundedRate % 24) == 0)
-                        droppedFrames = roundedRate / 12u;
-                    else
-                        throw std::invalid_argument("TimeCode: invalid rate value : drop-frame system requires multiple of 30 or of 24 samples/sec.");
+                    uint32_t samples = (m_samples >> 1);
+                    if (samples < 10)
+                        ser += "0";
+                    ser += std::to_string(samples);
+                    if (m_samples & 0x1)
+                        ser += ".";
                 }
-                return droppedFrames;
-            }
-            
-            /// @brief Check if specified minute drops frames
-            /// @param[in] minutes  Number of minutes
-            /// @returns Drop (true) or not
-            /// @warning Will not check if current rate uses drop-frame system
-            template <uint32_t RndRate = 30u>
-            static inline bool isDropMinute(const uint32_t minutes) const noexcept
-            {
-                // 30 fps -> drop 18 frames out of 300 (10 min)
-                // 9 min / 10 : drop 2 frames
-                //=(9*((60*30)-2) + 60*30)/600  =  29.97
-                if (RndRate % 30u == 0u)
-                    return ((minutes % 10u) != 0u);
-                // 24 fps -> drop 14.4 frames out of 240 (10 min) -> 14 frames out of 240 + 2 frames every 50 min
-                // 7 min / 10 : drop 2 frames + 2 per 50 min
-                //=(5*(7*((60*24)-2) + 3*60*24) - 2)/3000  =  29.976
-                if (RndRate % 24u == 0u)
-                    return (((minutes % 10u) < 7u || ((minutes + 1u) % 50u) == 0u));  
-                // for multiples of 24 or 30, drop multiples of 2
-                return false;
-            }
-            /// @brief Check if specified minute drops frames
-            /// @param[in] roundedRate  Rounded rate value
-            /// @param[in] minutes      Number of minutes
-            /// @returns Drop (true) or not
-            /// @warning Will not check if current rate uses drop-frame system
-            static inline bool isDropMinute(const uint32_t roundedRate, const uint32_t minutes) const noexcept
-            {
-                if ((roundedRate % 30u) == 0u)
-                    return isDropMinute<30u>(minutes);
-                if ((roundedRate % 24u) == 0u)
-                    return isDropMinute<30u>(minutes);
-                return false;
+                return ser;
             }
             
             
@@ -390,9 +352,9 @@ namespace utils
             /// @brief Get total number of hours
             inline uint32_t totalHours() const noexcept   { return m_hours; }
             /// @brief Get total number of minutes (including hours)
-            inline uint64_t totalMinutes() const noexcept { return static_cast<int64_t>(m_minutes) + (static_cast<int64_t>(m_hours) * 60LL); }
+            inline uint64_t totalMinutes() const noexcept { return static_cast<uint64_t>(m_minutes) + (static_cast<uint64_t>(m_hours) * 60uLL); }
             /// @brief Get total number of seconds (including hours/minutes)
-            inline uint64_t totalSeconds() const noexcept { return static_cast<int64_t>(m_seconds) + (totalMinutes() * 60LL); }
+            inline uint64_t totalSeconds() const noexcept { return static_cast<uint64_t>(m_seconds) + (totalMinutes() * 60uLL); }
             /// @brief Get total number of samples (including hours/minutes/seconds)
             inline uint64_t totalSamples() const noexcept 
             { 
@@ -599,7 +561,7 @@ namespace utils
             */
             
             
-        private:
+        protected:
             /// @brief Create time code with predefined values (for builders only)
             /// @param[in] roundedRate    Time code rate (rounded, if NTSC)
             /// @param[in] droppedFrames  Number of frames dropped (if NTSC)
@@ -609,6 +571,68 @@ namespace utils
             /// @param[in] samples        Samples elapsed in current second
             explicit TimeCode(const uint32_t roundedRate, const uint32_t droppedFrames, const uint32_t hours, const uint32_t minutes, const uint32_t seconds, const uint32_t samples) noexcept
                 : m_roundedRate(roundedRate), m_droppedFrames(droppedFrames), m_hours(hours), m_minutes(minutes), m_seconds(seconds), m_samples(samples) {}
+            
+            
+            // -- Drop-frame system --
+            
+            /// @brief Calculate number of dropped frames, based on rate
+            /// @param[in] roundedRate  Time code rate (rounded, if NTSC)
+            /// @param[in] isDropFrame  Use drop-frame (if NTSC)
+            static inline uint32_t countDroppedFrames(const uint32_t roundedRate, const bool isDropFrame)
+            {
+                uint32_t droppedFrames;
+                
+                if (roundedRate == 0)
+                    throw std::invalid_argument("TimeCode: invalid rate value (must be greater than 0)");
+                if (isDropFrame == false)
+                {
+                    droppedFrames = 0u;
+                }
+                else
+                {
+                    if ((roundedRate % 30u) == 0u)
+                        droppedFrames = roundedRate / 15u;
+                    else if (roundedRate == 24u || roundedRate == 48u)
+                        droppedFrames = roundedRate / 12u;
+                    else
+                        throw std::invalid_argument("TimeCode: invalid rate value : drop-frame system requires 24, 48, or multiple of 30 samples/sec.");
+                }
+                return droppedFrames;
+            }
+            
+            /// @brief Check if specified minute drops frames
+            /// @param[in] minutes  Number of minutes
+            /// @returns Drop (true) or not
+            /// @warning Will not check if current rate uses drop-frame system
+            template <uint32_t RndRate = 30u>
+            static inline bool isDropMinute(const uint32_t minutes) const noexcept
+            {
+                // 30 fps -> drop 18 frames out of 300 (10 min)
+                // 9 min / 10 : drop 2 frames
+                //=(9*((60*30)-2) + 60*30)/600  =  29.97
+                if ((RndRate % 30u) == 0u)
+                    return ((minutes % 10u) != 0u);
+                // 24 fps -> drop 14.4 frames out of 240 (10 min) -> 14 frames out of 240 + 2 frames every 50 min
+                // 7 min / 10 : drop 2 frames + 2 per 50 min
+                //=(5*(7*((60*24)-2) + 3*60*24) - 2)/3000  =  29.976
+                if (RndRate == 24u || RndRate == 48u)
+                    return (((minutes % 10u) < 7u || ((minutes + 1u) % 50u) == 0u));  
+                // for multiples of 24 or 30, drop multiples of 2
+                return false;
+            }
+            /// @brief Check if specified minute drops frames
+            /// @param[in] roundedRate  Rounded rate value
+            /// @param[in] minutes      Number of minutes
+            /// @returns Drop (true) or not
+            /// @warning Will not check if current rate uses drop-frame system
+            static inline bool isDropMinute(const uint32_t roundedRate, const uint32_t minutes) const noexcept
+            {
+                if ((roundedRate % 30u) == 0u)
+                    return isDropMinute<30u>(minutes);
+                if (roundedRate == 24u || roundedRate == 48u)
+                    return isDropMinute<30u>(minutes);
+                return false;
+            }
             
         private:
             uint32_t m_hours;   ///< Hours elapsed (0 - infinity)
