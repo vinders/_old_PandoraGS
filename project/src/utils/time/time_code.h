@@ -517,7 +517,7 @@ namespace utils
                 return *this;
             }
             /// @brief Post-increment time code
-            inline TimeCode operator++(int) noexcept 
+            inline TimeCode operator++(int) 
             { 
                 TimeCode copy(*this); 
                 operator++();
@@ -560,7 +560,7 @@ namespace utils
                 return *this;
             }
             /// @brief Post-decrement time code
-            inline TimeCode operator--(int) noexcept 
+            inline TimeCode operator--(int) 
             { 
                 TimeCode copy(*this); 
                 operator--();
@@ -569,7 +569,7 @@ namespace utils
             
             
             /// @brief Add to time code
-            inline TimeCode operator+(const TimeCode& rhs) noexcept 
+            inline TimeCode operator+(const TimeCode& rhs) 
             { 
                 TimeCode copy(*this); 
                 copy += rhs;
@@ -593,7 +593,7 @@ namespace utils
                 return *this; 
             }
             /// @brief Substract from time code
-            inline TimeCode operator-(const TimeCode& rhs) noexcept 
+            inline TimeCode operator-(const TimeCode& rhs) 
             { 
                 TimeCode copy(*this); 
                 copy -= rhs;
