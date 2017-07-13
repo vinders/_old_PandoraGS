@@ -14,4 +14,7 @@ Description : windows type definitions specific includes
 
     // windows type definitions
 #   include <windef.h>
+
+#   undef min
+#   undef max
 #endif
