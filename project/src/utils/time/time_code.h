@@ -251,7 +251,7 @@ namespace utils
                 }
                 else
                 {
-                    if (m_seconds != 0u || !isDropMinute(m_roundedRate, m_minute))
+                    if (m_seconds != 0u || !isDropMinute(m_roundedRate, m_minutes))
                         nanoseconds += (static_cast<uint64_t>(m_samples) * 1001000000uLL) / static_cast<uint64_t>(m_roundedRate);
                     else
                     {
@@ -278,7 +278,7 @@ namespace utils
                 }
                 else
                 {
-                    if (m_seconds != 0u || !isDropMinute(m_roundedRate, m_minute))
+                    if (m_seconds != 0u || !isDropMinute(m_roundedRate, m_minutes))
                         milliseconds += (static_cast<uint64_t>(m_samples) * 1001uLL) / static_cast<uint64_t>(m_roundedRate);
                     else
                     {
@@ -488,77 +488,255 @@ namespace utils
             /// @brief Copy assignment
             inline TimeCode& operator=(const TimeCode& other) = default;
             
-            /*
+            
+            // -- Operations --
+            
             /// @brief Pre-increment time reference
-            inline TimePoint& operator++() noexcept    { ++m_nanoseconds; return *this; }
-            /// @brief Post-increment time reference
-            inline TimePoint operator++(int) noexcept { TimePoint copy(m_nanoseconds); ++m_nanoseconds; return copy; }
-            /// @brief Pre-decrement time reference
-            inline TimePoint& operator--() noexcept 
-            { 
-                if (m_nanoseconds > 0uLL) 
-                    --m_nanoseconds; 
+            inline TimeCode& operator++() noexcept
+            {
+                ++m_samples;
+                if (m_samples >= m_roundedRate)
+                {
+                    if (m_droppedFrames == 0u || !isDropMinute(m_minutes))
+                        m_samples = 0u;
+                    else
+                        m_samples = m_droppedFrames;
+                    
+                    ++m_seconds;
+                    if (m_seconds >= 60u)
+                    {
+                        m_seconds = 0u;
+                        ++m_minutes;
+                        if (m_minutes >= 60u)
+                        {
+                            m_minutes = 0u;
+                            ++m_hours;
+                        }
+                    }
+                }
                 return *this;
             }
-            /// @brief Post-decrement time reference
-            inline TimePoint operator--(int) noexcept 
+            /// @brief Post-increment time reference
+            inline TimeCode operator++(int) noexcept 
             { 
-                TimePoint copy(m_nanoseconds); 
-                if (m_nanoseconds > 0uLL)
-                    --m_nanoseconds; 
+                TimeCode copy(*this); 
+                operator++();
                 return copy; 
             }
             
-            /// @brief Add nanoseconds to current time reference
-            inline TimePoint operator+(const uint64_t nanoseconds) noexcept { return TimePoint(m_nanoseconds + nanoseconds); }
-            /// @brief Add time reference to current time reference
-            inline TimePoint operator+(const TimePoint& other) noexcept     { return TimePoint(m_nanoseconds + other.m_nanoseconds); }
-            /// @brief Add duration to current time reference
-            inline TimePoint operator+(const Duration& duration) noexcept   { TimePoint tp(m_nanoseconds); tp += duration; return tp; }
-            /// @brief Add and store nanoseconds to current time reference
-            inline void operator+=(const uint64_t nanoseconds) noexcept     { m_nanoseconds += nanoseconds; }
-            /// @brief Add and store time reference to current time reference
-            inline void operator+=(const TimePoint& other) noexcept         { m_nanoseconds += other.m_nanoseconds; }
-            /// @brief Add and store duration to current time reference
-            inline void operator+=(const Duration& duration) noexcept
+            /// @brief Pre-decrement time reference
+            inline TimeCode& operator--() noexcept 
             { 
-                if (duration.totalNanoseconds() >= 0 || std::abs(duration.totalNanoseconds()) <= m_nanoseconds)
-                    m_nanoseconds += duration.totalNanoseconds(); 
+                bool isLast;
+                if (m_droppedFrames == 0u || m_seconds != 0u || !isDropMinute(m_minutes))
+                    isLast = (m_samples == 0u);
                 else
-                    m_nanoseconds = 0u;
+                    isLast = (m_samples <= m_droppedFrames);
+                
+                if (isLast == false)
+                    --m_samples;
+                else
+                {
+                    m_samples = m_roundedRate - 1u;
+                    if (m_seconds > 0u)
+                        --m_seconds;
+                    else
+                    {
+                        m_seconds = 59u;
+                        if (m_minutes > 0u)
+                            --m_minutes;
+                        else
+                        {
+                            m_minutes = 59u;
+                            if (m_hours > 0u)
+                                --m_hours;
+                            else
+                            {
+                                m_minutes = m_seconds = m_samples = 0u;
+                            }
+                        }
+                    }
+                }
+                return *this;
+            }
+            /// @brief Post-decrement time reference
+            inline TimeCode operator--(int) noexcept 
+            { 
+                TimeCode copy(*this); 
+                operator--();
+                return copy; 
             }
             
-            /// @brief Substract nanoseconds from current time reference
-            inline TimePoint operator-(const uint64_t nanoseconds) noexcept { TimePoint tp(m_nanoseconds); tp -= nanoseconds; return tp; }
-            /// @brief Substract time reference from current time reference
-            inline TimePoint operator-(const TimePoint& other) noexcept     { TimePoint tp(m_nanoseconds); tp -= other; return tp; }
-            /// @brief Substract duration from current time reference
-            inline TimePoint operator-(const Duration& duration) noexcept   { TimePoint tp(m_nanoseconds); tp -= duration; return tp; }
-            /// @brief Substract and store nanoseconds from current time reference
-            inline void operator-=(const uint64_t nanoseconds) noexcept    
+            
+            /// @brief Add hours to current time code
+            inline TimeCode& addHours(uint32_t hours) noexcept 
             {
-                if (nanoseconds <= m_nanoseconds)
-                    m_nanoseconds -= nanoseconds;
-                else
-                    m_nanoseconds = 0u;
+                m_hours += hours;
             }
-            /// @brief Substract and store time reference from current time reference
-            inline void operator-=(const TimePoint& other) noexcept        
+            /// @brief Substract hours from current time code
+            inline TimeCode& substractHours(uint32_t hours) noexcept 
             {
-                if (other.m_nanoseconds <= m_nanoseconds)
-                    m_nanoseconds -= other.m_nanoseconds;
+                if (m_hours >= hours)
+                    m_hours -= hours;
                 else
-                    m_nanoseconds = 0u;
+                {
+                    m_hours = m_minutes = m_seconds = m_samples = 0u;
+                }
             }
-            /// @brief Substract and store duration from current time reference
-            inline void operator-=(const Duration& duration) noexcept    
+            
+            /// @brief Add minutes to current time code
+            inline TimeCode& addMinutes(uint32_t minutes) noexcept 
             {
-                if (duration.totalNanoseconds() <= 0 || static_cast<uint64_t>(duration.totalNanoseconds()) <= m_nanoseconds)
-                    m_nanoseconds -= duration.totalNanoseconds();
-                else
-                    m_nanoseconds = 0u;
+                m_minutes += minutes;
+                if (m_minutes >= 60u)
+                {
+                    addHours(m_minutes / 60u);
+                    m_minutes %= 60u;
+                }
             }
-            */
+            /// @brief Substract minutes from current time code
+            inline TimeCode& substractMinutes(uint32_t minutes) noexcept 
+            {
+                if (m_minutes >= minutes)
+                    m_minutes -= minutes;
+                else
+                {
+                    minutes -= m_minutes;
+                    std::div_t hm = div(minutes, 60u);
+                    m_minutes = 60u - hm.rem;
+                    substractHours(hm.quot + 1u);
+                }
+            }
+            
+            /// @brief Add seconds to current time code
+            inline TimeCode& addSeconds(uint32_t seconds) noexcept 
+            {
+                m_seconds += seconds;
+                if (m_seconds >= 60u)
+                {
+                    addMinutes(m_seconds / 60u);
+                    m_seconds %= 60u;
+                }
+            }
+            /// @brief Substract seconds from current time code
+            inline TimeCode& substractSeconds(uint32_t seconds) noexcept 
+            {
+                if (m_seconds >= seconds)
+                    m_seconds -= seconds;
+                else
+                {
+                    seconds -= m_seconds;
+                    std::div_t ms = div(seconds, 60u);
+                    m_seconds = 60u - ms.rem;
+                    substractMinutes(ms.quot + 1);
+                }
+            }
+            
+            /// @brief Add samples to current time code
+            TimeCode& addSamples(uint32_t samples) noexcept 
+            {
+                if (m_samples + samples < m_roundedRate)
+                {
+                    m_samples += samples;
+                }
+                else
+                {
+                    if (m_droppedFrames == 0u) 
+                    {
+                        m_samples += samples;
+                        addSeconds(m_samples / 60u);
+                        m_samples %= m_roundedRate;
+                    }
+                    else if (samples <= m_roundedRate)
+                    {
+                        m_samples += samples;
+                        addSeconds(m_samples / 60u);
+                        m_samples %= m_roundedRate;
+                        if (m_seconds == 0u && isDropMinute(m_minutes))
+                        {
+                            m_samples += m_droppedFrames
+                            if (m_samples >= m_roundedRate)
+                            {
+                                m_samples -= m_roundedRate;
+                                addSeconds(1u);
+                            }
+                        }
+                    }
+                    else 
+                    {
+                        uint64_t seconds;
+                        if ((m_roundedRate % 30) == 0)
+                        {
+                            seconds = (samples * 3000uLL) / (2997uLL * m_roundedRate);
+                            samples -= (seconds * m_roundedRate * 2997uLL) / 3000uLL;
+                        }
+                        else
+                        {
+                            seconds = (samples * 24000uLL) / (23976uLL * m_roundedRate);
+                            samples -= (seconds * m_roundedRate * 23976uLL) / 24000uLL;
+                        }
+                        
+                        m_samples += samples;
+                        if (m_samples < m_roundedRate)
+                            addSeconds(seconds);
+                        else
+                        {
+                            addSeconds(seconds + 1);
+                            m_samples -= m_roundedRate;
+                            if (m_seconds == 0u && isDropMinute(m_minutes))
+                                m_samples += m_droppedFrames;
+                        }
+                    }
+                }
+            }
+            /// @brief Substract samples from current time code
+            TimeCode& substractSamples(uint32_t samples) noexcept 
+            {
+                bool isDrop = (m_droppedFrames > 0u && m_seconds == 0u && isDropMinute(m_minutes));
+                if (m_samples >= samples || (isDrop && m_samples >= samples + m_droppedFrames))
+                    m_samples -= samples;
+                else
+                {
+                    if (m_droppedFrames == 0u) 
+                    {
+                        samples -= m_samples;
+                        std::div_t ssp = div(samples, m_roundedRate);
+                        m_samples = m_roundedRate - ssp.rem;
+                        substractSeconds(ssp.quot + 1);
+                    }
+                    else 
+                    {
+                        uint64_t seconds;
+                        if ((m_roundedRate % 30) == 0)
+                        {
+                            seconds = (samples * 3000uLL) / (2997uLL * m_roundedRate);
+                            samples -= (seconds * m_roundedRate * 2997uLL) / 3000uLL;
+                        }
+                        else
+                        {
+                            seconds = (samples * 24000uLL) / (23976uLL * m_roundedRate);
+                            samples -= (seconds * m_roundedRate * 23976uLL) / 24000uLL;
+                        }
+                        
+                        if (m_samples >= samples)
+                        {
+                            m_samples -= samples;
+                            substractSeconds(seconds);
+                        }
+                        else
+                        {
+                            m_samples = samples - m_samples;
+                            if (!isDrop || m_samples >= m_droppedFrames)
+                                substractSeconds(seconds + 1);
+                            else
+                            {
+                                m_samples = m_roundedRate - (m_droppedFrames - m_samples);
+                                substractSeconds(seconds + 2);
+                            }
+                        }
+                    }
+                }
+            }
             
             
         protected:
@@ -630,7 +808,7 @@ namespace utils
                 if ((roundedRate % 30u) == 0u)
                     return isDropMinute<30u>(minutes);
                 if (roundedRate == 24u || roundedRate == 48u)
-                    return isDropMinute<30u>(minutes);
+                    return isDropMinute<24u>(minutes);
                 return false;
             }
             
