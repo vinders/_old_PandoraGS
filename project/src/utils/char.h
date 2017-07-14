@@ -7,18 +7,18 @@ Description : character management toolset
 #pragma once
 
 #include <cstdint>
-#include <unordered_map>
 #include <type_traits>
 
 #define _STATIC_ASSERT_IS_CHARACTER_TYPE(val) \
-        static_assert((std::is_same<decltype(val),char>::value     || std::is_same<decltype(val),wchar_t>::value        || std::is_same<decltype(val),char16_t>::value \
-                    || std::is_same<decltype(val),char32_t>::value || std::is_same<decltype(val),unicode_char_t>::value || std::is_same<decltype(val),unsigned int>::value \
-                    || std::is_same<decltype(val),uint32_t>::value || std::is_same<decltype(val),uint16_t>::value       || std::is_same<decltype(val),uint8_t>::value>::value), \
+        static_assert((std::is_same<decltype(val),char>::value         || std::is_same<decltype(val),wchar_t>::value        || std::is_same<decltype(val),char16_t>::value \
+                    || std::is_same<decltype(val),char32_t>::value     || std::is_same<decltype(val),utils::unicode_char_t>::value \
+                    || std::is_same<decltype(val),unsigned int>::value || std::is_same<decltype(val),int>::value \
+                    || std::is_same<decltype(val),uint32_t>::value || std::is_same<decltype(val),uint16_t>::value           || std::is_same<decltype(val),uint8_t>::value>::value), \
                     "utils.Char: character type required : char, wchar_t, char16_t, char32_t, unicode_char_t, uin8_t, uint16_t, uint32_t")
 #define _STATIC_ASSERT_IS_WIDE_CHARACTER_TYPE(val) \
-        static_assert((std::is_same<decltype(val),wchar_t>::value        || std::is_same<decltype(val),char16_t>::value || std::is_same<decltype(val),char32_t>::value \
-                    || std::is_same<decltype(val),unicode_char_t>::value || std::is_same<decltype(val),uint32_t>::value \
-                    || std::is_same<decltype(val),uint16_t>::value       || std::is_same<decltype(val),unsigned int>::value), \
+        static_assert((std::is_same<decltype(val),wchar_t>::value               || std::is_same<decltype(val),char16_t>::value     || std::is_same<decltype(val),char32_t>::value \
+                    || std::is_same<decltype(val),utils::unicode_char_t>::value || std::is_same<decltype(val),uint32_t>::value \
+                    || std::is_same<decltype(val),uint16_t>::value              || std::is_same<decltype(val),unsigned int>::value || std::is_same<decltype(val),int>::value), \
                     "utils.Char: wide character type required : wchar_t, char16_t, char32_t, unicode_char_t, uint16_t, uint32_t")
 
 /// @namespace utils
@@ -57,152 +57,53 @@ namespace utils
         /// @param[in] ucode  Unicode character code
         /// @returns Character traits for specified unicode character
         /// @source  en.wikipedia.org/wiki/List_of_Unicode_characters
-        static utils::Char::char_traits_t getCharTraits(const utils::unicode_char_t ucode) noexcept 
-        { 
-            if (ucode <= 0x00FFu)
-            {
-                // Latin basic (ASCII)
-                if (ucode <= 0x007Au && ucode >= 0x0041u)
-                {
-                    if (ucode <= 0x005Au) // upper-case
-                        return char_traits_t { char_family_t::latin, true, ucode + 0x0020u }; 
-                    else if (ucode >= 0x0061u) // lower-case
-                        return char_traits_t { char_family_t::latin, false, ucode - 0x0020u }; 
-                    else if (ucode >= 0x00A2u) // special alphabetic characters
-                    {
-                        if (ucode <= 0x00A5u || ucode == 0x00A9u || ucode == 0x00AE || ucode == 0x00B5)
-                            return char_traits_t { char_family_t::latin, false, ucode }; 
-                    }
-                }
-                
-                // Latin-1 supplement
-                else if (ucode >= 0x00C0u)
-                {
-                    if (ucode <= 0x00DEu)
-                    {
-                        if (ucode != 0x00D7u)
-                            return char_traits_t { char_family_t::latin, true, ucode + 0x0020u }; 
-                    }
-                    else
-                    {
-                        if (ucode == 0x00DFu)
-                            return char_traits_t { char_family_t::latin, false, ucode }; 
-                        else if (ucode == 0x00FFu)
-                            return char_traits_t { char_family_t::latin, false, 0x0178u }; 
-                        else if (ucode != 0x00F7u)
-                            return char_traits_t { char_family_t::latin, false, ucode - 0x0020u }; 
-                    }
-                }
-            }
-            else if (ucode <= 0x024Fu)
-            {
-                // Latin extended-A
-                if (ucode <= 0x017Fu && ucode >= 0x0100u)
-                {
-                    if (ucode <= 0x0177u && (ucode <= 0x0137u || ucode >= 0x014Au))
-                    {
-                        return ((ucode & 0x0001u) == 0u) ? char_traits_t { char_family_t::latin, true, ucode + 0x0001u }
-                                                         : char_traits_t { char_family_t::latin, false, ucode - 0x0001u }; 
-                    }
-                    else if (ucode >= 0x0179u || (ucode <= 0x0148u && ucode >= 0x0139u))
-                    {
-                        return ((ucode & 0x0001u) != 0u) ? char_traits_t { char_family_t::latin, true, ucode + 0x0001u }
-                                                         : char_traits_t { char_family_t::latin, false, ucode - 0x0001u }; 
-                    }
-                    else if (ucode == 0x0178u)
-                        return char_traits_t { char_family_t::latin, true, 0x00FFu };
-                    else
-                        return char_traits_t { char_family_t::latin, false, ucode };
-                }
-                
-                // Latin extended-B
-                else if (ucode >= 0x01CDu && ucode <= 0x0233u)
-                {
-                    if (ucode <= 0x01DCu)
-                    {
-                        return ((ucode & 0x0001u) != 0u) ? char_traits_t { char_family_t::latin, true, ucode + 0x0001u }
-                                                         : char_traits_t { char_family_t::latin, false, ucode - 0x0001u }; 
-                    }
-                    else if (ucode <= 0x01EFu || ucode >= 0x01F4u)
-                    {
-                        if (ucode != 0x01DDu)
-                        {
-                            return ((ucode & 0x0001u) == 0u) ? char_traits_t { char_family_t::latin, true, ucode + 0x0001u }
-                                                             : char_traits_t { char_family_t::latin, false, ucode - 0x0001u }; 
-                        }
-                        else
-                            return char_traits_t { char_family_t::latin, false, ucode };
-                    }
-                    else if (ucode == 0x01F0u)
-                        return char_traits_t { char_family_t::latin, false, ucode };
-                    else
-                        return char_traits_t { char_family_t::latin, true, ucode };
-                }
-                else if (ucode >= 0x0246u)
-                {
-                    return ((ucode & 0x0001u) == 0u) ? char_traits_t { char_family_t::latin, true, ucode + 0x0001u }
-                                                             : char_traits_t { char_family_t::latin, false, ucode - 0x0001u }; 
-                }
-                else if (ucode <= 0x01BFu || ucode >= 0x00C4u)
-                    return char_traits_t { char_family_t::latin, true, ucode };
-            }
-            // Latin extended additional
-            else if (ucode <= 0x1EFF)
-            {
-                if (ucode <= 0x1E95u)
-                {
-                    if (ucode >= 0x1E00u)
-                        return ((ucode & 0x0001u) == 0u) ? char_traits_t { char_family_t::latin, true, ucode + 0x0001u }
-                                                             : char_traits_t { char_family_t::latin, false, ucode - 0x0001u }; 
-                }
-                else if (ucode >= 0x1E9Eu)
-                {
-                    return ((ucode & 0x0001u) == 0u) ? char_traits_t { char_family_t::latin, true, ucode + 0x0001u }
-                                                             : char_traits_t { char_family_t::latin, false, ucode - 0x0001u }; 
-                }
-                else
-                    return char_traits_t { char_family_t::latin, false, ucode };
-            }
-
-            // Greek
-            else if ()
-            {
-            }
-            // Cyrillic
-            else if ()
-            {
-            }
-            return char_traits_t { char_family_t::not_alpha, false, Ucode }; 
-        }
+        template <typename T>
+        static utils::Char::char_traits_t getCharTraits(const T ucode) noexcept;
+        /// @brief Get unicode character alphabetic family
+        /// @param[in] ucode  Unicode character code
+        /// @returns Alphabetic character family
+        /// @source  en.wikipedia.org/wiki/List_of_Unicode_characters
+        template <typename T>
+        static utils::Char::char_family_t getCharFamily(const T ucode) noexcept;
+        
         
         
         // -- Character traits - special characters --
         
+        /// @brief Check if character is a white space character (' ', '\n', '\t', '\r', ...)
+        /// @param[in] code  Character code
+        /// @returns White space character (true) or not
         template <typename T>
         static inline bool isWhiteSpace(const T code) noexcept
         {
             _STATIC_ASSERT_IS_CHARACTER_TYPE(code);
             return (code == 0x20u || (code <= 0x0Du && code >= 0x08u));
         }
-        
+        /// @brief Check if character is a control character
+        /// @param[in] code  Character code
+        /// @returns Control character (true) or not
         template <typename T>
         static inline bool isControlChar(const T code) noexcept
         {
             _STATIC_ASSERT_IS_CHARACTER_TYPE(code);
-            return (code <= 0x1Fu);
-        }
-        template <> static inline bool isControlChar<char>(const char code) noexcept
-        {
-            return (code <= 0x1F && code >= 0);
+            if (std::is_signed<T>::value)
+                return (code <= 0x1F && code >= 0);
+            else
+                return (code <= 0x1Fu);
         }
         
+        /// @brief Check if character is a simple number (0 to 9)
+        /// @param[in] code  Character code
+        /// @returns Number character (true) or not
         template <typename T>
         static inline bool isNumber(const T code) noexcept
         {
             _STATIC_ASSERT_IS_CHARACTER_TYPE(code);
             return (code <= 0x39u && code >= 0x30u);
         }
-        
+        /// @brief Check if character is an extended number (0 to 9, ², ³, ½, ...)
+        /// @param[in] code  Character code
+        /// @returns Extended number character (true) or not
         template <typename T>
         static inline bool isNumberExtended(const T code) noexcept
         {
@@ -226,12 +127,18 @@ namespace utils
         
         // -- Character traits - alphabetic --
         
+        /// @brief Check if character is an ASCII alphabetic character (A to Z, a to z)
+        /// @param[in] code  Character code
+        /// @returns ASCII alphabetic character (true) or not
         template <typename T>
         static inline bool isAlphaAscii(const T code) noexcept
         {
             _STATIC_ASSERT_IS_CHARACTER_TYPE(code);
             return (code <= 0x7Au && code >= 0x41u && (code <= 0x5Au || code >= 0x61u));
         }
+        /// @brief Check if character an ASCII alphabetic character or a simple number (A to Z, a to z, 0 to 9)
+        /// @param[in] code  Character code
+        /// @returns ASCII alphabetic character or number (true) or other character (false)
         template <typename T>
         static inline bool isAlphaNumAscii(const T code) noexcept
         {
@@ -239,30 +146,42 @@ namespace utils
             return (code <= 0x7Au && code >= 0x30u && (code >= 0x61u || code <= 0x39u || (code <= 0x5Au && code >= 0x41u)));
         }
         
+        /// @brief Check if character is a latin alphabetic character
+        /// @param[in] ucode  Unicode character code (UCS)
+        /// @returns Latin alphabetic character (true) or not
         template <typename T>
         static inline bool isAlphaLatin(const T ucode) noexcept
         {
             _STATIC_ASSERT_IS_WIDE_CHARACTER_TYPE(ucode);
-            return (getCharTraits(ucode).family == utils::Char::char_family_t::latin);
+            return (getCharFamily(ucode) == utils::Char::char_family_t::latin);
         }
+        /// @brief Check if character a latin alphabetic character or an extended number
+        /// @param[in] ucode  Unicode character code (UCS)
+        /// @returns Latin alphabetic character or extended number (true) or other character (false)
         template <typename T>
         static inline bool isAlphaNumLatin(const T ucode) noexcept
         {
             _STATIC_ASSERT_IS_WIDE_CHARACTER_TYPE(ucode);
-            return (getCharTraits(ucode).family == utils::Char::char_family_t::latin || isNumberExtended(ucode));
+            return (getCharFamily(ucode) == utils::Char::char_family_t::latin || isNumberExtended(ucode));
         }
         
+        /// @brief Check if character is a unicode alphabetic character (latin / greek / cyrillic)
+        /// @param[in] ucode  Unicode character code (UCS)
+        /// @returns Alphabetic character (true) or not
         template <typename T>
         static inline bool isAlphaUnicode(const T ucode) noexcept
         {
             _STATIC_ASSERT_IS_WIDE_CHARACTER_TYPE(ucode);
-            return (getCharTraits(ucode).family != utils::Char::char_family_t::not_alpha);
+            return (getCharFamily(ucode) != utils::Char::char_family_t::not_alpha);
         }
+        /// @brief Check if character a unicode alphabetic character (latin / greek / cyrillic) or an extended number
+        /// @param[in] ucode  Unicode character code (UCS)
+        /// @returns Alphabetic character or extended number (true) or other character (false)
         template <typename T>
         static inline bool isAlphaNumUnicode(const T ucode) noexcept
         {
             _STATIC_ASSERT_IS_WIDE_CHARACTER_TYPE(ucode);
-            return (getCharTraits(ucode).family != utils::Char::char_family_t::not_alpha || isNumberExtended(ucode));
+            return (getCharFamily(ucode) != utils::Char::char_family_t::not_alpha || isNumberExtended(ucode));
         }
 
         
@@ -342,7 +261,8 @@ namespace utils
         }
         
         
-        // -- Comparisons --
+        
+        // -- Compare --
         
         template <typename T>
         static inline bool equals(const T lhs, const T rhs) noexcept
@@ -398,3 +318,25 @@ namespace utils
         }
     };
 }
+
+// -- Specialized templates --
+
+template <> static utils::Char::char_traits_t utils::Char::getCharTraits<wchar_t>(const wchar_t ucode)
+template <> static utils::Char::char_traits_t utils::Char::getCharTraits<char16_t>(const char16_t ucode)
+template <> static utils::Char::char_traits_t utils::Char::getCharTraits<char32_t>(const char32_t ucode)
+template <> static utils::Char::char_traits_t utils::Char::getCharTraits<utils::unicode_char_t>(const utils::unicode_char_t ucode)
+template <> static utils::Char::char_traits_t utils::Char::getCharTraits<int>(const int ucode)
+template <> static utils::Char::char_traits_t utils::Char::getCharTraits<unsigned int>(const unsigned int ucode)
+template <> static utils::Char::char_traits_t utils::Char::getCharTraits<uint16_t>(const uint16_t ucode)
+template <> static utils::Char::char_traits_t utils::Char::getCharTraits<uint32_t>(const uint32_t ucode)
+template <> static utils::Char::char_traits_t utils::Char::getCharTraits<int32_t>(const int32_t ucode)
+
+template <> static utils::Char::char_family_t utils::Char::getCharFamily<wchar_t>(const wchar_t ucode)
+template <> static utils::Char::char_family_t utils::Char::getCharFamily<char16_t>(const char16_t ucode)
+template <> static utils::Char::char_family_t utils::Char::getCharFamily<char32_t>(const char32_t ucode)
+template <> static utils::Char::char_family_t utils::Char::getCharFamily<utils::unicode_char_t>(const utils::unicode_char_t ucode)
+template <> static utils::Char::char_family_t utils::Char::getCharFamily<int>(const int ucode)
+template <> static utils::Char::char_family_t utils::Char::getCharFamily<unsigned int>(const unsigned int ucode)
+template <> static utils::Char::char_family_t utils::Char::getCharFamily<uint16_t>(const uint16_t ucode)
+template <> static utils::Char::char_family_t utils::Char::getCharFamily<uint32_t>(const uint32_t ucode)
+template <> static utils::Char::char_family_t utils::Char::getCharFamily<int32_t>(const int32_t ucode)
