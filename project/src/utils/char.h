@@ -187,12 +187,18 @@ namespace utils
         
         // -- Character traits - upper/lower-case --
         
+        /// @brief Check if ASCII character is alphabetic and lower-case
+        /// @param[in] code  Character code
+        /// @returns Lower-case ASCII alphabetic character (true) or not
         template <typename T>
         static inline bool isLowerAscii(const T code) noexcept
         {
             _STATIC_ASSERT_IS_CHARACTER_TYPE(code);
             return (code <= 0x7Au && code >= 0x61u);
         }
+        /// @brief Check if ASCII character is alphabetic and upper-case
+        /// @param[in] code  Character code
+        /// @returns Upper-case ASCII alphabetic character (true) or not
         template <typename T>
         static inline bool isUpperAscii(const T code) noexcept
         {
@@ -200,6 +206,9 @@ namespace utils
             return (code <= 0x5Au && code >= 0x41u);
         }
         
+        /// @brief Check if latin unicode character is alphabetic and lower-case
+        /// @param[in] ucode  Unicode character code (UCS)
+        /// @returns Lower-case latin alphabetic character (true) or not
         template <typename T>
         static inline bool isLowerLatin(const T ucode) noexcept
         {
@@ -207,6 +216,9 @@ namespace utils
             utils::Char::char_traits_t info = getCharTraits(ucode);
             return (info.isUpper == false && info.family == utils::Char::char_family_t::latin);
         }
+        /// @brief Check if latin unicode character is alphabetic and upper-case
+        /// @param[in] ucode  Unicode character code (UCS)
+        /// @returns Upper-case latin alphabetic character (true) or not
         template <typename T>
         static inline bool isUpperLatin(const T ucode) noexcept
         {
@@ -215,6 +227,9 @@ namespace utils
             return (info.isUpper && info.family == utils::Char::char_family_t::latin);
         }
         
+        /// @brief Check if unicode character is alphabetic and lower-case
+        /// @param[in] ucode  Unicode character code (UCS)
+        /// @returns Lower-case unicode alphabetic character (true) or not
         template <typename T>
         static inline bool isLowerUnicode(const T ucode) noexcept
         {
@@ -222,6 +237,9 @@ namespace utils
             utils::Char::char_traits_t info = getCharTraits(ucode);
             return (info.isUpper == false && info.family != utils::Char::char_family_t::not_alpha);
         }
+        /// @brief Check if unicode character is alphabetic and upper-case
+        /// @param[in] ucode  Unicode character code (UCS)
+        /// @returns Upper-case unicode alphabetic character (true) or not
         template <typename T>
         static inline bool isUpperUnicode(const T ucode) noexcept
         {
@@ -232,12 +250,18 @@ namespace utils
         
         // -- Character traits - upper/lower-case converters --
         
+        /// @brief Convert a character to lower-case
+        /// @param[in] code  Character code
+        /// @returns Lower-case value (if alphabetic, otherwise same value)
         template <typename T>
         static inline T toLowerAscii(const T val) noexcept
         {
             _STATIC_ASSERT_IS_CHARACTER_TYPE(code);
             return (isUpperAscii(code)) ? (code + 0x20u) : code;
         }
+        /// @brief Convert a character to upper-case
+        /// @param[in] code  Character code
+        /// @returns Upper-case value (if alphabetic, otherwise same value)
         template <typename T>
         static inline T toUpperAscii(const T code) noexcept
         {
@@ -245,6 +269,9 @@ namespace utils
             return (isLowerAscii(code)) ? (code - 0x20u) : code;
         }
         
+        /// @brief Convert a unicode character to lower-case
+        /// @param[in] ucode  Unicode character code (UCS)
+        /// @returns Lower-case value (if alphabetic, otherwise same value)
         template <typename T>
         static inline T toLowerUnicode(const T ucode) noexcept
         {
@@ -252,6 +279,9 @@ namespace utils
             utils::Char::char_traits_t info = getCharTraits(ucode);
             return (info.isUpper) ? info.equiv : ucode;
         }
+        /// @brief Convert a unicode character to upper-case
+        /// @param[in] ucode  Unicode character code (UCS)
+        /// @returns Upper-case value (if alphabetic, otherwise same value)
         template <typename T>
         static inline T toUpperUnicode(const T ucode) noexcept
         {
@@ -264,12 +294,21 @@ namespace utils
         
         // -- Compare --
         
+        /// @brief Compare two characters (equality)
+        /// @param[in] lhs  First character code
+        /// @param[in] rhs  Second character code
+        /// @returns Equal (true) or not
         template <typename T>
         static inline bool equals(const T lhs, const T rhs) noexcept
         {
             _STATIC_ASSERT_IS_CHARACTER_TYPE(lhs);
             return (lhs == rhs);
         }
+        
+        /// @brief Compare two ASCII characters (case insensitive equality)
+        /// @param[in] lhs  First character code
+        /// @param[in] rhs  Second character code
+        /// @returns Case insensitive equality (true) or not
         template <typename T>
         static inline bool iequalsAscii(const T lhs, const T rhs) noexcept
         {
@@ -278,6 +317,10 @@ namespace utils
                 return true;
             return (lhs > 0x005Au) ? (lhs - 0x20u == rhs) : (lhs + 0x20u == rhs);
         }
+        /// @brief Compare two unicode characters (case insensitive equality)
+        /// @param[in] lhs  First unicode character code (UCS)
+        /// @param[in] rhs  Second unicode character code (UCS)
+        /// @returns Case insensitive equality (true) or not
         template <typename T>
         static inline bool iequalsUnicode(const T lhs, const T rhs) noexcept
         {
@@ -291,30 +334,115 @@ namespace utils
         
         // -- Utilities --
         
-        static inline bool isEscaped(const char* val, const uint32_t pos, const char escapeChar = '\\')
+        /// @brief Check whether a character from a string is escaped or not
+        /// @param[in] data        Entire string containing the character
+        /// @param[in] pos         Position of the character inside the string
+        /// @param[in] escapeChar  Escape indication character (default: backslash)
+        /// @returns Escaped (true) or not
+        template <typename T>
+        static inline bool isEscaped(const std::basic_string<T> data, uint32_t pos, const T escapeChar = T { 0x5C })
         {
-            
+            return (pos < data.size() && isEscaped(data.c_str(), pos, escapeChar));
         }
-        static inline bool isEscapedBetweenMarkers(const char* val, const uint32_t pos, const char escapeChar = '\\', const char marker = '"')
+        /// @brief Check whether a character from a string is escaped or not
+        /// @param[in] data        Entire string containing the character
+        /// @param[in] len         Length of the string 'data'
+        /// @param[in] pos         Position of the character inside the string
+        /// @param[in] escapeChar  Escape indication character (default: backslash)
+        /// @returns Escaped (true) or not
+        template <typename T>
+        static inline bool isEscaped(const T* data, const size_t len, uint32_t pos, const T escapeChar = T { 0x5C })
         {
-            
+            return (pos < len && isEscaped(data, pos, escapeChar));
         }
-        static inline bool isBetweenMarkers(const char* val, const uint32_t pos, const char marker = '"')
+        /// @brief Check whether a character from a string is escaped or not
+        /// @param[in] data        Entire string containing the character
+        /// @param[in] pos         Position of the character inside the string
+        /// @param[in] escapeChar  Escape indication character (default: backslash)
+        /// @returns Escaped (true) or not
+        /// @warning Does not check if the position is out of range
+        template <typename T>
+        static inline bool isEscaped(const T* data, uint32_t pos, const T escapeChar = T { 0x5C })
         {
-            
+            bool isEsc = false;
+            if (data != nullptr)
+            {
+                for (const T* it = &data[pos]; pos > 0 && *(--it) == escapeChar; --pos)
+                    isEsc = !isEsc;
+            }
+            return isEsc;
         }
         
-        static inline bool isEscaped(const char* val, const size_t len, const uint32_t pos, const char esc = '\\')
+        
+        /// @brief Check whether a character from a string is located after an non-escaped mark
+        /// @param[in] data        Entire string containing the character
+        /// @param[in] pos         Position of the character inside the string
+        /// @param[in] mark        Mark indication character (default: quotation mark ('"'))
+        /// @param[in] escapeChar  Escape indication character (default: backslash)
+        /// @returns Escaped after mark (true) or not
+        template <typename T>
+        static inline bool isAfterMark(const std::basic_string<T> data, const uint32_t pos, const char mark = T { 0x22 }, const T escapeChar = T { 0x5C })
         {
-            
+            return (pos < data.size() && isAfterMark(data.c_str(), pos, mark, escapeChar));
         }
-        static inline bool isEscapedBetweenMarkers(const char* val, const size_t len, const uint32_t pos, const char esc = '\\', const char marker = '"')
+        /// @brief Check whether a character from a string is located after an non-escaped mark
+        /// @param[in] data        Entire string containing the character
+        /// @param[in] len         Length of the string 'data'
+        /// @param[in] pos         Position of the character inside the string
+        /// @param[in] mark        Mark indication character (default: double quotation mark ('"'))
+        /// @param[in] escapeChar  Escape indication character (default: backslash)
+        /// @returns Escaped after mark (true) or not
+        template <typename T>
+        static inline bool isAfterMark(const T* data, const size_t len, const uint32_t pos, const T mark = T { 0x22 }, const T escapeChar = T { 0x5C })
         {
-            
+            return (pos < len && isAfterMark(data, pos, mark, escapeChar));
         }
-        static inline bool isBetweenMarkers(const char* val, const size_t len, const uint32_t pos, const char marker = '"')
+        /// @brief Check whether a character from a string is located after an non-escaped mark
+        /// @param[in] data        Entire string containing the character
+        /// @param[in] pos         Position of the character inside the string
+        /// @param[in] mark        Mark indication character (default: quotation mark ('"'))
+        /// @param[in] escapeChar  Escape indication character (default: backslash)
+        /// @returns Escaped after mark (true) or not
+        /// @warning Does not check if the position is out of range
+        template <typename T>
+        static bool isAfterMark(const T* data, const uint32_t pos, const T mark = T { 0x22 }, const T escapeChar = T { 0x5C });
+        
+        
+        /// @brief Check whether a character from a string is located between non-escaped marks
+        /// @param[in] data        Entire string containing the character
+        /// @param[in] pos         Position of the character inside the string
+        /// @param[in] mark        Mark indication character (default: quotation mark ('"'))
+        /// @param[in] escapeChar  Escape indication character (default: backslash)
+        /// @returns Escaped between marks (true) or not
+        template <typename T>
+        static inline bool isBetweenMarks(const std::basic_string<T> data, const uint32_t pos, const char mark = T { 0x22 }, const T escapeChar = T { 0x5C })
         {
-            
+            return isBetweenMarks(data.c_str(), data.size(), pos, mark, escapeChar);
+        }
+        /// @brief Check whether a character from a string is located between non-escaped marks
+        /// @param[in] data        Entire string containing the character
+        /// @param[in] len         Length of the string 'data'
+        /// @param[in] pos         Position of the character inside the string
+        /// @param[in] mark        Mark indication character (default: double quotation mark ('"'))
+        /// @param[in] escapeChar  Escape indication character (default: backslash)
+        /// @returns Escaped between marks (true) or not
+        template <typename T>
+        static bool isBetweenMarks(const T* data, const size_t len, const uint32_t pos, const T mark = T { 0x22 }, const T escapeChar = T { 0x5C })
+        {
+            bool isInsideMarks = false;
+            if (data != nullptr && pos + 1 < len && isAfterMark(data, pos, mark, escapeChar))
+            {
+                ++pos;
+                const T* it = &data[pos];
+                while (pos < len)
+                {
+                    if (*it == mark && !isEscaped(it, pos, escapeChar))
+                        isInsideMarks = !isInsideMarks;
+                    ++pos;
+                    ++it;
+                }
+            }
+            return isInsideMarks;
         }
     };
 }

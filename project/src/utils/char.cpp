@@ -9,6 +9,46 @@ Description : character management toolset
 using namespace utils;
 
 
+/// @brief Check whether a character from a string is located after an non-escaped mark
+/// @param[in] data        Entire string containing the character
+/// @param[in] pos         Position of the character inside the string
+/// @param[in] mark        Mark indication character (default: quotation mark ('"'))
+/// @param[in] escapeChar  Escape indication character (default: backslash)
+/// @returns Escaped after mark (true) or not
+/// @warning Does not check if the position is out of range
+template <typename T>
+static bool utils::Char::isAfterMark(const T* data, const uint32_t pos, const T mark, const T escapeChar)
+{
+    if (pos == 0u || data == nullptr)
+        return false;
+    --pos;
+    
+    // count non-escaped marks before position
+    bool isOpenMark = false, isFound, isEsc;
+    const T* it = &data[pos];
+    while (pos >= 0)
+    {
+        isFound = (*it == mark);
+        --pos;
+        --it;
+        
+        if (isFound)
+        {
+            isEsc = false;
+            while (pos >= 0 && *it == escapeChar)
+            {
+                isEsc = !isEsc;
+                --pos;
+                --it;
+            }
+            if (!isEsc)
+                isOpenMark = !isOpenMark;
+        }
+    }
+    return isOpenMark;
+}
+
+
 /// @brief Get unicode character traits
 /// @param[in] ucode  Unicode character code
 /// @returns Character traits for specified unicode character
