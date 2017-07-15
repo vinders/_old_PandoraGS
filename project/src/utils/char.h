@@ -340,7 +340,7 @@ namespace utils
         /// @param[in] escapeChar  Escape indication character (default: backslash)
         /// @returns Escaped (true) or not
         template <typename T>
-        static inline bool isEscaped(const std::basic_string<T> data, uint32_t pos, const T escapeChar = T { 0x5C })
+        static inline bool isEscaped(const std::basic_string<T>& data, uint32_t pos, const T escapeChar = T { 0x5C })
         {
             return (pos < data.size() && isEscaped(data.c_str(), pos, escapeChar));
         }
@@ -381,7 +381,7 @@ namespace utils
         /// @param[in] escapeChar  Escape indication character (default: backslash)
         /// @returns Escaped after mark (true) or not
         template <typename T>
-        static inline bool isAfterMark(const std::basic_string<T> data, const uint32_t pos, const char mark = T { 0x22 }, const T escapeChar = T { 0x5C })
+        static inline bool isAfterMark(const std::basic_string<T>& data, const uint32_t pos, const char mark = T { 0x22 }, const T escapeChar = T { 0x5C })
         {
             return (pos < data.size() && isAfterMark(data.c_str(), pos, mark, escapeChar));
         }
@@ -415,7 +415,7 @@ namespace utils
         /// @param[in] escapeChar  Escape indication character (default: backslash)
         /// @returns Escaped between marks (true) or not
         template <typename T>
-        static inline bool isBetweenMarks(const std::basic_string<T> data, const uint32_t pos, const char mark = T { 0x22 }, const T escapeChar = T { 0x5C })
+        static inline bool isBetweenMarks(const std::basic_string<T>& data, const uint32_t pos, const char mark = T { 0x22 }, const T escapeChar = T { 0x5C })
         {
             return isBetweenMarks(data.c_str(), data.size(), pos, mark, escapeChar);
         }
