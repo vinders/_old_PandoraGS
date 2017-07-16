@@ -9,6 +9,7 @@ Description : string management toolset
 #include <cstddef>
 #include <cstring>
 #include <string>
+#include <vector>
 #include "char.h"
 
 /// @namespace utils
@@ -194,12 +195,24 @@ namespace utils
             }
         }
         template <typename T>
+        static void toUpperAscii(const T* data, T* out) 
+        { 
+            if (data != nullptr)
+            {
+                while (*data != 0)
+                {
+                    *out = utils::Char::toUpperAscii(*data);
+                    ++data;
+                    ++out;
+                }
+                *out = 0;
+            }
+        }
+        template <typename T>
         static inline void toUpperAscii(std::basic_string<T>& data) 
         { 
-            for (const T* it = data.c_str(); *it != 0; ++it)
-            {
-                //...
-            }
+            for (int32_t i = data.size() - 1; i >= 0; --i)
+                data[i] = utils::Char::toUpperAscii(data[i]);
         }
         
         template <typename T>
@@ -215,12 +228,24 @@ namespace utils
             }
         }
         template <typename T>
+        static void toUpperUnicode(const T* data, T* out) 
+        { 
+            if (data != nullptr)
+            {
+                while (*data != 0)
+                {
+                    *out = utils::Char::toUpperUnicode(*data);
+                    ++data;
+                    ++out;
+                }
+                *out = 0;
+            }
+        }
+        template <typename T>
         static inline void toUpperUnicode(std::basic_string<T>& data) 
         { 
-            for (const T* it = data.c_str(); *it != 0; ++it)
-            {
-                //...
-            }
+            for (int32_t i = data.size() - 1; i >= 0; --i)
+                data[i] = utils::Char::toUpperUnicode(data[i]);
         }
         
         
@@ -237,12 +262,24 @@ namespace utils
             }
         }
         template <typename T>
+        static void toLowerAscii(const T* data, T* out) 
+        { 
+            if (data != nullptr)
+            {
+                while (*data != 0)
+                {
+                    *out = utils::Char::toLowerAscii(*data);
+                    ++data;
+                    ++out;
+                }
+                *out = 0;
+            }
+        }
+        template <typename T>
         static inline void toLowerAscii(std::basic_string<T>& data) 
         { 
-            for (const T* it = data.c_str(); *it != 0; ++it)
-            {
-                //...
-            }
+            for (int32_t i = data.size() - 1; i >= 0; --i)
+                data[i] = utils::Char::toLowerAscii(data[i]);
         }
         
         template <typename T>
@@ -258,63 +295,248 @@ namespace utils
             }
         }
         template <typename T>
-        static inline void toLowerUnicode(std::basic_string<T>& data) 
+        static void toLowerUnicode(const T* data, T* out) 
         { 
-            for (const T* it = data.c_str(); *it != 0; ++it)
+            if (data != nullptr)
             {
-                //...
+                while (*data != 0)
+                {
+                    *out = utils::Char::toLowerUnicode(*data);
+                    ++data;
+                    ++out;
+                }
+                *out = 0;
             }
         }
-        
-
-        
-        // -- Find --
-        
-        // find
-        // findLast
-        // findAll
-        // count
-        
         template <typename T>
-        static bool contains(const T* data, const T needleChar)
-        {
-            //...
-        }
-        template <typename T>
-        static bool contains(const std::basic_string<T> data, const T needleChar)
-        {
-            //...
-        }
-        
-        template <typename T>
-        static bool contains(const T* data, const T* pattern)
-        {
-            //...
-        }
-        template <typename T>
-        static bool contains(const std::basic_string<T> data, const std::basic_string<T> pattern) { return (data.find(pattern) != std::basic_string<T>::npos); }
-        
-        
-        template <typename T>
-        static bool startsWith(const T* data, const T* pattern)
-        {
-            //...
-        }
-        template <typename T>
-        static bool startsWith(const std::basic_string<T> data, const std::basic_string<T> pattern) { return (data.find(pattern) == 0u); }
-        
-
-        template <typename T>
-        static bool endsWith(const T* data, const T* pattern) 
-        {
-            //...
-        }
-        template <typename T>
-        static bool endsWith(const std::basic_string<T> data, const std::basic_string<T> pattern) 
+        static inline void toLowerUnicode(std::basic_string<T>& data) 
         { 
-            size_t pos = data.find(pattern); 
-            return (pos != std::basic_string<T>::npos && pos + pattern.size() == data.size()); 
+            for (int32_t i = data.size() - 1; i >= 0; --i)
+                data[i] = utils::Char::toLowerUnicode(data[i]);
         }
+        
+
+        
+        // -- Find first --
+        
+        static constexpr size_t notFound = std::string::npos;
+        
+        template <typename T>
+        static size_t find(const T* data, const T needleChar)
+        {
+            size_t needlePos = utils::String::notFound;
+            size_t curPos = 0u;
+            if (data != nullptr)
+            {
+                for (const T* it = data; *it != 0; ++it)
+                {
+                    if (*it == needleChar)
+                    {
+                        needlePos = curPos;
+                        break;
+                    }
+                    ++curPos;
+                }
+            }
+            return needlePos;
+        }
+        template <typename T>
+        static inline size_t find(const std::basic_string<T> data, const T needleChar)
+        {
+            return data.find(needleChar);
+        }
+        
+        template <typename T>
+        static size_t find(const T* data, const T* pattern)
+        {
+            size_t needlePos = utils::String::notFound;
+            size_t curPos = 0u;
+            const T* needleDataIt;
+            const T* needlePatternIt;
+            if (data != nullptr)
+            {
+                for (const T* it = data; *it != 0; ++it)
+                {
+                    if (*it == *pattern)
+                    {
+                        needleDataIt = it + 1;
+                        needlePatternIt = pattern + 1;
+                        while (*needleDataIt != 0 && *needleDataIt == *needlePatternIt);
+                        if (*needlePatternIt == 0)
+                        { 
+                            needlePos = curPos;
+                            break;
+                        }
+                    }
+                    ++curPos;
+                }
+            }
+            return needlePos;
+        }
+        template <typename T>
+        static inline size_t find(const std::basic_string<T> data, const std::basic_string<T> pattern)
+        {
+            return data.find(pattern);
+        }
+        
+        
+        // -- Find last --
+        
+        template <typename T>
+        static size_t rfind(const T* data, const T needleChar)
+        {
+            size_t needlePos = utils::String::notFound;
+            size_t curPos = 0u;
+            if (data != nullptr)
+            {
+                for (const T* it = data; *it != 0; ++it)
+                {
+                    if (*it == needleChar)
+                        needlePos = curPos;
+                    ++curPos;
+                }
+            }
+            return needlePos;
+        }
+        template <typename T>
+        static size_t rfind(const T* data, const size_t len, const T needleChar)
+        {
+            size_t needlePos = utils::String::notFound;
+            size_t curPos = len;
+            if (data != nullptr)
+            {
+                for (const T* it = data[len - 1]; curPos > 0; --it)
+                {
+                    if (*it == needleChar)
+                    {
+                        needlePos = curPos - 1u;
+                        break;
+                    }
+                    --curPos;
+                }
+            }
+            return needlePos;
+        }
+        template <typename T>
+        static size_t rfind(const std::basic_string<T> data, const T needleChar)
+        {
+            return data.rfind(needleChar);
+        }
+        
+        template <typename T>
+        static size_t rfind(const T* data, const T* pattern)
+        {
+            size_t needlePos = utils::String::notFound;
+            size_t curPos = 0u;
+            const T* needleDataIt;
+            const T* needlePatternIt;
+            if (data != nullptr)
+            {
+                for (const T* it = data; *it != 0; ++it)
+                {
+                    if (*it == *pattern)
+                    {
+                        needleDataIt = it + 1;
+                        needlePatternIt = pattern + 1;
+                        while (*needleDataIt != 0 && *needleDataIt == *needlePatternIt);
+                        if (*needlePatternIt == 0)
+                            needlePos = curPos;
+                    }
+                    ++curPos;
+                }
+            }
+            return needlePos;
+        }
+        template <typename T>
+        static size_t rfind(const T* data, const size_t len, const T* pattern)
+        {
+            size_t needlePos = utils::String::notFound;
+            size_t curPos = len;
+            const T* needleDataIt;
+            const T* needlePatternIt;
+            if (data != nullptr)
+            {
+                for (const T* it = data[len - 1]; curPos > 0; --it)
+                {
+                    if (*it == *pattern)
+                    {
+                        needleDataIt = it + 1;
+                        needlePatternIt = pattern + 1;
+                        while (*needleDataIt != 0 && *needleDataIt == *needlePatternIt);
+                        if (*needlePatternIt == 0)
+                        { 
+                            needlePos = curPos - 1u;
+                            break;
+                        }
+                    }
+                    --curPos;
+                }
+            }
+            return needlePos;
+        }
+        template <typename T>
+        static size_t rfind(const std::basic_string<T> data, const std::basic_string<T> pattern)
+        {
+            return data.rfind(pattern);
+        }
+        
+        
+        // -- Find all --
+        
+        template <typename T>
+        static size_t findAll(const T* data, const T needleChar)
+        {
+            //...
+        }
+        template <typename T>
+        static inline size_t findAll(const std::basic_string<T> data, const T needleChar)
+        {
+            //...
+        }
+        
+        template <typename T>
+        static size_t findAll(const T* data, const T* pattern)
+        {
+            //...
+        }
+        template <typename T>
+        static inline size_t findAll(const std::basic_string<T> data, const std::basic_string<T> pattern)
+        {
+            //...
+        }
+        
+        
+        // -- Finding utilities --
+        
+        // countOccurrences
+        //...
+        
+        template <typename T>
+        static inline bool contains(const T* data, const T needleChar) { return (find(data, needleChar) != utils::String::notFound); }
+        template <typename T>
+        static inline bool contains(const std::basic_string<T> data, const T needleChar) { return (data.find(needleChar) != std::basic_string<T>::npos); }
+        template <typename T>
+        static inline bool contains(const T* data, const T* pattern) { return (find(data, pattern) != utils::String::notFound); }
+        template <typename T>
+        static inline bool contains(const std::basic_string<T> data, const std::basic_string<T> pattern) { return (data.find(pattern) != std::basic_string<T>::npos); }
+        
+        template <typename T>
+        static inline bool startsWith(const T* data, const T needleChar) { return (find(data, needleChar) == 0u); }
+        template <typename T>
+        static inline bool startsWith(const std::basic_string<T> data, const T needleChar) { return (data.find(needleChar) == 0u); }
+        template <typename T>
+        static inline bool startsWith(const T* data, const T* pattern) { return (find(data, pattern) == 0u); }
+        template <typename T>
+        static inline bool startsWith(const std::basic_string<T> data, const std::basic_string<T> pattern) { return (data.find(pattern) == 0u); }
+        
+        template <typename T>
+        static inline bool endsWith(const T* data, const len, const T needleChar) { return (rfind(data, len, needleChar) == len - 1u); }
+        template <typename T>
+        static inline bool endsWith(const std::basic_string<T> data, const T needleChar) { return (data.rfind(needleChar) == data.size() - 1u); }
+        template <typename T>
+        static inline bool endsWith(const T* data, const len, const T* pattern) { return (rfind(data, len, pattern) == len - getLength(pattern)); }
+        template <typename T>
+        static inline bool endsWith(const std::basic_string<T> data, const std::basic_string<T> pattern) { return (data.rfind(pattern) == data.size() - pattern.size()); }
         
         
         
@@ -372,6 +594,11 @@ namespace utils
                     parts.push_back(std::basic_string<T>{});
                 }
             }
+            // last part
+            if (partSize > 0u) // not empty -> extract
+                parts.push_back(std::basic_string<T>(partBeginning, partSize));
+            else if (isKeepingEmptyParts) // empty part
+                parts.push_back(std::basic_string<T>{});
             return parts;
         }
         
@@ -433,6 +660,11 @@ namespace utils
                     }
                 }
             }
+            // last part
+            if (partSize > 0u) // not empty -> extract
+                parts.push_back(std::basic_string<T>(partBeginning, partSize));
+            else if (isKeepingEmptyParts) // empty part
+                parts.push_back(std::basic_string<T>{});
             return parts;
         }
         
