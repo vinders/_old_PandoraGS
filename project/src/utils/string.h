@@ -484,32 +484,178 @@ namespace utils
         // -- Find all --
         
         template <typename T>
-        static size_t findAll(const T* data, const T needleChar)
+        static std::vector<size_t> findAll(const T* data, const T needleChar)
         {
-            //...
+            std::vector<size_t> posArray;
+            posArray.reserve(8);
+            size_t curPos = 0u;
+            if (data != nullptr)
+            {
+                for (const T* it = data; *it != 0; ++it)
+                {
+                    if (*it == needleChar)
+                        posArray.push_back(curPos);
+                    ++curPos;
+                }
+            }
+            return posArray;
         }
         template <typename T>
-        static inline size_t findAll(const std::basic_string<T> data, const T needleChar)
+        static inline std::vector<size_t> findAll(const std::basic_string<T> data, const T needleChar)
         {
-            //...
+            std::vector<size_t> posArray;
+            posArray.reserve(8);
+            size_t curPos = 0u;
+            if (data.empty() == false)
+            {
+                for (const T* it = data.c_str(); *it != 0; ++it)
+                {
+                    if (*it == needleChar)
+                        posArray.push_back(curPos);
+                    ++curPos;
+                }
+            }
+            return posArray;
         }
         
         template <typename T>
-        static size_t findAll(const T* data, const T* pattern)
+        static std::vector<size_t> findAll(const T* data, const T* pattern)
         {
-            //...
+            std::vector<size_t> posArray;
+            posArray.reserve(8);
+            size_t curPos = 0u;
+            const T* needleDataIt;
+            const T* needlePatternIt;
+            if (data != nullptr)
+            {
+                for (const T* it = data; *it != 0; ++it)
+                {
+                    if (*it == *pattern)
+                    {
+                        needleDataIt = it + 1;
+                        needlePatternIt = pattern + 1;
+                        while (*needleDataIt != 0 && *needleDataIt == *needlePatternIt);
+                        if (*needlePatternIt == 0)
+                            posArray.push_back(curPos);
+                    }
+                    ++curPos;
+                }
+            }
+            return posArray;
         }
         template <typename T>
-        static inline size_t findAll(const std::basic_string<T> data, const std::basic_string<T> pattern)
+        static inline std::vector<size_t> findAll(const std::basic_string<T> data, const std::basic_string<T> pattern)
         {
-            //...
+            std::vector<size_t> posArray;
+            posArray.reserve(8);
+            size_t curPos = 0u;
+            const T* needleDataIt;
+            const T* needlePatternIt;
+            if (data.empty() == false)
+            {
+                for (const T* it = data.c_str(); *it != 0; ++it)
+                {
+                    if (*it == *pattern)
+                    {
+                        needleDataIt = it + 1;
+                        needlePatternIt = pattern.c_str() + 1;
+                        while (*needleDataIt != 0 && *needleDataIt == *needlePatternIt);
+                        if (*needlePatternIt == 0)
+                            posArray.push_back(curPos);
+                    }
+                    ++curPos;
+                }
+            }
+            return posArray;
         }
         
         
-        // -- Finding utilities --
+        // -- Count all --
+
+        template <typename T>
+        static uint32_t countOccurrences(const T* data, const T needleChar)
+        {
+            uint32_t count = 0u;
+            size_t curPos = 0u;
+            if (data != nullptr)
+            {
+                for (const T* it = data; *it != 0; ++it)
+                {
+                    if (*it == needleChar)
+                        ++count;
+                    ++curPos;
+                }
+            }
+            return count;
+        }
+        template <typename T>
+        static inline uint32_t countOccurrences(const std::basic_string<T> data, const T needleChar)
+        {
+            uint32_t count = 0u;
+            size_t curPos = 0u;
+            if (data.empty() == false)
+            {
+                for (const T* it = data.c_str(); *it != 0; ++it)
+                {
+                    if (*it == needleChar)
+                        ++count;
+                    ++curPos;
+                }
+            }
+            return count;
+        }
         
-        // countOccurrences
-        //...
+        template <typename T>
+        static uint32_t countOccurrences(const T* data, const T* pattern)
+        {
+            uint32_t count = 0u;
+            size_t curPos = 0u;
+            const T* needleDataIt;
+            const T* needlePatternIt;
+            if (data != nullptr)
+            {
+                for (const T* it = data; *it != 0; ++it)
+                {
+                    if (*it == *pattern)
+                    {
+                        needleDataIt = it + 1;
+                        needlePatternIt = pattern + 1;
+                        while (*needleDataIt != 0 && *needleDataIt == *needlePatternIt);
+                        if (*needlePatternIt == 0)
+                            ++count;
+                    }
+                    ++curPos;
+                }
+            }
+            return count;
+        }
+        template <typename T>
+        static inline uint32_t countOccurrences(const std::basic_string<T> data, const std::basic_string<T> pattern)
+        {
+            uint32_t count = 0u;
+            size_t curPos = 0u;
+            const T* needleDataIt;
+            const T* needlePatternIt;
+            if (data.empty() == false)
+            {
+                for (const T* it = data.c_str(); *it != 0; ++it)
+                {
+                    if (*it == *pattern)
+                    {
+                        needleDataIt = it + 1;
+                        needlePatternIt = pattern.c_str() + 1;
+                        while (*needleDataIt != 0 && *needleDataIt == *needlePatternIt);
+                        if (*needlePatternIt == 0)
+                            ++count;
+                    }
+                    ++curPos;
+                }
+            }
+            return count;
+        }
+        
+        
+        // -- Other finding utilities --
         
         template <typename T>
         static inline bool contains(const T* data, const T needleChar) { return (find(data, needleChar) != utils::String::notFound); }
