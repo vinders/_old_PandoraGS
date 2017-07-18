@@ -24,11 +24,10 @@ Description : number toolset + generic number type
 /// General utilities
 namespace utils
 {
-    /// @class Number
+    /// @class numbers
     /// @brief Number toolset
-    class Number
+    namespace numbers
     {
-    public:
         /// @enum base_t
         /// @brief Numeric bases
         enum class base_t : uint32_t
@@ -42,40 +41,36 @@ namespace utils
             hex = 64    // base 64 - hexa-conta-tetra-decimal
         }
     
-    
-        // ----------------------
-        // -- Number utilities --
-        // ----------------------
-    
+
         // -- Comparisons --
     
         /// @brief Check equality
         template <typename T>
-        static inline bool equals(const T lhs, const T rhs) { return (lhs == rhs); }
+        inline bool equals(const T lhs, const T rhs) { return (lhs == rhs); }
         /// @brief Check near-equality with an error margin
         template <typename T>
-        static inline bool nearlyEquals(const T lhs, const T rhs, const T errorMargin) 
+        inline bool nearlyEquals(const T lhs, const T rhs, const T errorMargin) 
         { 
             ASSERT(errorMargin >= static_cast<T>(0));
             return ((lhs >= rhs) ? (lhs - rhs < errorMargin) : (rhs - lhs < errorMargin)); 
         }
         /// @brief Check equality of floating-point values (with float type error margin)
-        static inline bool floatEquals(const float lhs, const float rhs) noexcept { return (Number::abs(lhs - rhs) < getFloatEpsilon(lhs, rhs)); }
+        inline bool floatEquals(const float lhs, const float rhs) noexcept { return (Number::abs(lhs - rhs) < getFloatEpsilon(lhs, rhs)); }
         /// @brief Check equality of floating-point values (with double type error margin)
-        static inline bool doubleEquals(const double lhs, const double rhs) noexcept { return (Number::abs(lhs - rhs) < getDoubleEpsilon(lhs, rhs)); }
+        inline bool doubleEquals(const double lhs, const double rhs) noexcept { return (Number::abs(lhs - rhs) < getDoubleEpsilon(lhs, rhs)); }
         
         /// @brief Compare after conversion
         template <typename T, typename U>
-        static inline int compare(const T lhs, const U rhs) { return ((lhs >= rhs) ? static_cast<int>(lhs > rhs) : -1); }
+        inline int compare(const T lhs, const U rhs) { return ((lhs >= rhs) ? static_cast<int>(lhs > rhs) : -1); }
         /// @brief Compare floating-point values
-        static inline int floatCompare(const float lhs, const float rhs) noexcept
+        inline int floatCompare(const float lhs, const float rhs) noexcept
         { 
             if (floatEquals(lhs, rhs))
                 return 0;
             return ((lhs > rhs) ? 1 : -1); 
         }
         /// @brief Compare floating-point values
-        static inline int doubleCompare(const float lhs, const float rhs) noexcept
+        inline int doubleCompare(const float lhs, const float rhs) noexcept
         { 
             if (doubleEquals(lhs, rhs))
                 return 0;
@@ -83,12 +78,12 @@ namespace utils
         }
         
         /// @brief Calculate acceptable error margin for float typed values
-        static inline float getFloatEpsilon(const float lhs, const float rhs) noexcept
+        inline float getFloatEpsilon(const float lhs, const float rhs) noexcept
         {
             return (Number::abs(lhs) >= Number::abs(rhs)) ? Number::abs(lhs / 1000000.0f) : Number::abs(rhs / 1000000.0f);
         }
         /// @brief Calculate acceptable error margin for double typed values
-        static inline double getDoubleEpsilon(const double lhs, const double rhs) noexcept
+        inline double getDoubleEpsilon(const double lhs, const double rhs) noexcept
         {
             return (Number::abs(lhs) >= Number::abs(rhs)) ? Number::abs(lhs / 100000000000000.0) : Number::abs(rhs / 100000000000000.0);
         }
@@ -98,14 +93,14 @@ namespace utils
         
         /// @brief Get minimum value
         template <typename T>
-        static inline T min(const T val1, const T val2) { return (val1 <= val2) ? val1 : val2; }
+        inline T min(const T val1, const T val2) { return (val1 <= val2) ? val1 : val2; }
         /// @brief Get maximum value
         template <typename T>
-        static inline T max(const T val1, const T val2) { return (val1 >= val2) ? val1 : val2; }
+        inline T max(const T val1, const T val2) { return (val1 >= val2) ? val1 : val2; }
         
         /// @brief Get minimum value out of 3 values
         template <typename T>
-        static inline T min(const T val1, const T val2, const T val3)
+        inline T min(const T val1, const T val2, const T val3)
         {
             if (val1 <= val2)
                 return (val1 <= val3) ? val1 : val3;
@@ -114,7 +109,7 @@ namespace utils
         }
         /// @brief Get maximum value out of 3 values
         template <typename T>
-        static inline T max(const T val1, const T val2, const T val3)
+        inline T max(const T val1, const T val2, const T val3)
         {
             if (val1 >= val2)
                 return (val1 >= val3) ? val1 : val3;
@@ -124,7 +119,7 @@ namespace utils
         
         /// @brief Get minimum value out of 4 values
         template <typename T>
-        static inline T min(const T val1, const T val2, const T val3, const T val4)
+        inline T min(const T val1, const T val2, const T val3, const T val4)
         {
             if (val1 <= val2)
             {
@@ -140,7 +135,7 @@ namespace utils
         }
         /// @brief Get maximum value out of 4 values
         template <typename T>
-        static inline T max(const T val1, const T val2, const T val3, const T val4)
+        inline T max(const T val1, const T val2, const T val3, const T val4)
         {
             if (val1 >= val2)
             {
@@ -157,7 +152,7 @@ namespace utils
         
         /// @brief Get minimum value of an array
         template <typename T>
-        static inline T min(const T* array, const size_t size)
+        inline T min(const T* array, const size_t size)
         {
             if (size == 0u || array == nullptr)
                 return static_cast<T>(0);
@@ -172,7 +167,7 @@ namespace utils
         }
         /// @brief Get maximum value of an array
         template <typename T>
-        static inline T max(const T* array, const size_t size)
+        inline T max(const T* array, const size_t size)
         {
             if (size == 0u || array == nullptr)
                 return static_cast<T>(0);
@@ -191,36 +186,36 @@ namespace utils
         
         /// @brief Get minimum possible value for specific type
         template <typename T>
-        static inline constexpr T getMinLimit() { return std::numeric_limits<T>::min(); }
+        inline constexpr T getMinLimit() { return std::numeric_limits<T>::min(); }
         
         /// @brief Get maximum possible value for specific type
         template <typename T>
-        static inline constexpr T getMaxLimit() { return std::numeric_limits<T>::max(); }
+        inline constexpr T getMaxLimit() { return std::numeric_limits<T>::max(); }
         
         
         // -- Basic operations --
         
         /// @brief Get absolute value
         template <typename T>
-        static inline T abs(const T val) { return (val >= static_cast<T>(0)) ? val : -val; }
+        inline T abs(const T val) { return (val >= static_cast<T>(0)) ? val : -val; }
         
         /// @brief Check if an integer number is a power of 2
         template <typename T>
-        static inline bool isPow2(const T val) 
+        inline bool isPow2(const T val) 
         { 
             static_assert(std::is_integral<T>::value, "Integer template parameter required"); 
             return ((val & (val - 1)) == 0); 
         }
         /// @brief Check if a floating-point number is a power of 2
         template <>
-        explicit static inline bool isPow2(const double val) 
+        explicit inline bool isPow2(const double val) 
         { 
             int64_t floor = static_cast<int64_t>(val);
             return (doubleEquals(val - static_cast<double>(floor), 0.0) && isPow2(floor));
         }
         /// @brief Check if a floating-point number is a power of 2
         template <>
-        explicit static inline bool isPow2(const float val)
+        explicit inline bool isPow2(const float val)
         { 
             int64_t floor = static_cast<int64_t>(val);
             return (floatEquals(val - static_cast<float>(floor), 0.0f) && isPow2(floor));
@@ -232,72 +227,72 @@ namespace utils
         /// @brief Parse string with leading number
         /// @returns Output value
         template <typename T>
-        static inline T parse(const char* val) { return utils::encoding::NumberParser::parse<T>(val); }
+        inline T parse(const char* val) { return utils::encoding::NumberParser::parse<T>(val); }
         /// @brief Parse string with leading number - trimmed
         /// @param[in] val   String to parse
         /// @param[out] out  Output value
         /// @returns Number of characters read
         template <typename T>
-        static inline size_t parse(const char* val, T& out) { return utils::encoding::NumberParser::parse<T>(val, out); }
+        inline size_t parse(const char* val, T& out) { return utils::encoding::NumberParser::parse<T>(val, out); }
         /// @brief Parse sub-string with leading number - trimmed
         /// @param[in] val   String to parse
         /// @param[in] len   String length
         /// @param[out] out  Output value
         /// @returns Number of characters read
         template <typename T>
-        static inline size_t parse(const char* val, const size_t len, T& out) { return utils::encoding::NumberParser::parse<T>(val, len, out); }
+        inline size_t parse(const char* val, const size_t len, T& out) { return utils::encoding::NumberParser::parse<T>(val, len, out); }
         
         /// @brief Parse string with leading integer number, formatted with specific base type - trimmed
         /// @returns Output value
-        template <typename T, base_t Base>
-        static inline T parseInteger(const char* val) { return utils::encoding::NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val); }
+        template <typename T, utils::numbers::base_t Base>
+        inline T parseInteger(const char* val) { return utils::encoding::NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val); }
         /// @brief Parse string with leading integer number, formatted with specific base type - trimmed
         /// @param[in] val   String to parse
         /// @param[out] out  Output value
         /// @returns Number of characters read
-        template <typename T, base_t Base>
-        static inline size_t parseInteger(const char* val, T& out) { return utils::encoding::NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val, out); }
+        template <typename T, utils::numbers::base_t Base>
+        inline size_t parseInteger(const char* val, T& out) { return utils::encoding::NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val, out); }
         /// @brief Parse sub-string with leading integer number, formatted with specific base type - trimmed
         /// @param[in] val   String to parse
         /// @param[in] len   String length
         /// @param[out] out  Output value
         /// @returns Number of characters read
-        template <typename T, base_t Base>
-        static inline size_t parseInteger(const char* val, const size_t len, T& out) { return utils::encoding::NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val, len, out); }
+        template <typename T, utils::numbers::base_t Base>
+        inline size_t parseInteger(const char* val, const size_t len, T& out) { return utils::encoding::NumberParser::parseInteger<T, static_cast<uint32_t>(Base)>(val, len, out); }
         
         /// @brief Parse string with leading floating-point number - trimmed
         /// @returns Output value
-        static inline float parseFloat(const char* val) { return utils::encoding::NumberParser::parse<float>(val); }
+        inline float parseFloat(const char* val) { return utils::encoding::NumberParser::parse<float>(val); }
         /// @brief Parse string with leading floating-point number - trimmed
         /// @param[in] val   String to parse
         /// @param[out] out  Output value
         /// @returns Number of characters read
-        static inline size_t parseFloat(const char* val, float& out) { return utils::encoding::NumberParser::parse<float>(val, out); }
+        inline size_t parseFloat(const char* val, float& out) { return utils::encoding::NumberParser::parse<float>(val, out); }
         /// @brief Parse sub-string with floating-point number - trimmed
         /// @param[in] val   String to parse
         /// @param[in] len   String length
         /// @param[out] out  Output value
         /// @returns Number of characters read
-        static inline size_t parseFloat(const char* val, const size_t len, float& out) { return utils::encoding::NumberParser::parse<float>(val, len, out); }
+        inline size_t parseFloat(const char* val, const size_t len, float& out) { return utils::encoding::NumberParser::parse<float>(val, len, out); }
         /// @brief Parse string with leading double-precision floating-point number - trimmed
         /// @returns Output value
-        static inline double parseDouble(const char* val) { return utils::encoding::NumberParser::parse<double>(val); }
+        inline double parseDouble(const char* val) { return utils::encoding::NumberParser::parse<double>(val); }
         /// @brief Parse string with leading double-precision floating-point number - trimmed
         /// @param[in] val   String to parse
         /// @param[out] out  Output value
         /// @returns Number of characters read
-        static inline size_t parseDouble(const char* val, double& out) { return utils::encoding::NumberParser::parse<double>(val, out); }
+        inline size_t parseDouble(const char* val, double& out) { return utils::encoding::NumberParser::parse<double>(val, out); }
         /// @brief Parse sub-string with leading double-precision floating-point number - trimmed
         /// @param[in] val   String to parse
         /// @param[in] len   String length
         /// @param[out] out  Output value
         /// @returns Number of characters read
-        static inline size_t parseDouble(const char* val, const size_t len, double& out) { return utils::encoding::NumberParser::parse<double>(val, len, out); }
+        inline size_t parseDouble(const char* val, const size_t len, double& out) { return utils::encoding::NumberParser::parse<double>(val, len, out); }
         
         /// @brief Parse string with leading boolean value (only the first character is evaluated) - trim before calling parser
         /// @returns Output value
         /// @throws std::invalid_argument  String does not start with boolean letter (f/t/F/T/0/1)
-        static inline bool parseBoolFirstChar(const char* val)
+        inline bool parseBoolFirstChar(const char* val)
         {
             if (val == nullptr || val == '\0')
                 return false;
@@ -316,31 +311,31 @@ namespace utils
         }
         /// @brief Parse string with leading boolean (false/true/FALSE/TRUE/0/1/00...00/00..01) - trim before calling parser
         /// @returns Output value
-        static inline bool parseBool(const char* val) { return utils::encoding::NumberParser::parse<bool>(val); }
+        inline bool parseBool(const char* val) { return utils::encoding::NumberParser::parse<bool>(val); }
         /// @brief Parse string with leading boolean (false/true/FALSE/TRUE/0/1/00...00/00..01) - trim before calling parser
         /// @param[in] val   String to parse
         /// @param[out] out  Output value
         /// @returns Number of characters read
-        static inline size_t parseBool(const char* val, bool& out) { return utils::encoding::NumberParser::parse<bool>(val, out); }
+        inline size_t parseBool(const char* val, bool& out) { return utils::encoding::NumberParser::parse<bool>(val, out); }
 
         
         // -- String formatter --
         
         /// @brief Convert number to decimal string
         template <typename T>
-        static inline std::string toString(const T val) { return std::to_string(val); }
+        inline std::string toString(const T val) { return std::to_string(val); }
         /// @brief Convert number to binary string
-        template <typename T, base_t Base>
-        static inline std::string toString(const T val) { return utils::encoding::NumberFormatter::format<T, static_cast<uint32_t>(Base)>(val); }
+        template <typename T, utils::numbers::base_t Base>
+        inline std::string toString(const T val) { return utils::encoding::NumberFormatter::format<T, static_cast<uint32_t>(Base)>(val); }
+    }
 
         
         
-        
+    /// @class Number
+    /// @brief Generic number object
+    class Number
+    {
     public:
-        // ---------------------------
-        // -- Generic number object --
-        // ---------------------------
-        
         /// @brief Create empty integer
         Number() : m_isInteger(true) {}
         /// @brief Create initialized value
@@ -360,6 +355,11 @@ namespace utils
         {
             m_value.intVal = val.m_value.intVal;
         }
+        
+        /// @brief Create copy of current instance
+        /// @returns Generic number (copy)
+        inline Number clone() { return Number(*this); }
+        
         
         // -- Getters --
         
@@ -543,33 +543,33 @@ namespace utils
         inline bool operator==(const Number& rhs) const noexcept { return equals(rhs); }
         /// @brief Compare instances - equality
         template <typename T>
-        inline bool operator==(const T rhs) const noexcept { return (compare(rhs) == 0); }
+        inline bool operator==(const T rhs) const noexcept { return (utils::compare::compare(rhs) == 0); }
         /// @brief Compare instances - difference
         inline bool operator!=(const Number& rhs) const noexcept { return !equals(rhs); }
         /// @brief Compare instances - difference
         template <typename T>
-        inline bool operator!=(const T rhs) const noexcept { return (compare(rhs) != 0); }
+        inline bool operator!=(const T rhs) const noexcept { return (utils::compare::compare(rhs) != 0); }
 
         /// @brief Compare instances - lower
-        bool operator<(const Number& rhs) const noexcept { return (compare(rhs) < 0); }
+        bool operator<(const Number& rhs) const noexcept { return (utils::compare::compare(rhs) < 0); }
         /// @brief Compare instances - lower
         template <typename T>
-        bool operator<(const T rhs) const noexcept { return (compare(rhs) < 0); }
+        bool operator<(const T rhs) const noexcept { return (utils::compare::compare(rhs) < 0); }
         /// @brief Compare instances - lower or equal
-        bool operator<=(const Number& rhs) const noexcept { return (compare(rhs) <= 0); }
+        bool operator<=(const Number& rhs) const noexcept { return (utils::compare::compare(rhs) <= 0); }
         /// @brief Compare instances - lower or equal
         template <typename T>
-        bool operator<=(const T rhs) const noexcept { return (compare(rhs) <= 0); }
+        bool operator<=(const T rhs) const noexcept { return (utils::compare::compare(rhs) <= 0); }
         /// @brief Compare instances - greater
-        bool operator>(const Number& rhs) const noexcept { return (compare(rhs) > 0); }
+        bool operator>(const Number& rhs) const noexcept { return (utils::compare::compare(rhs) > 0); }
         /// @brief Compare instances - greater
         template <typename T>
-        bool operator>(const T rhs) const noexcept { return (compare(rhs) > 0); }
+        bool operator>(const T rhs) const noexcept { return (utils::compare::compare(rhs) > 0); }
         /// @brief Compare instances - greater or equal
-        bool operator>=(const Number& rhs) const noexcept { return (compare(rhs) >= 0); }
+        bool operator>=(const Number& rhs) const noexcept { return (utils::compare::compare(rhs) >= 0); }
         /// @brief Compare instances - greater or equal
         template <typename T>
-        bool operator>=(const T rhs) const noexcept { return (compare(rhs) >= 0); }
+        bool operator>=(const T rhs) const noexcept { return (utils::compare::compare(rhs) >= 0); }
        
         
         // -- Arithmetic operators --
