@@ -52,6 +52,10 @@ namespace utils
             /// @param[in] other  Other instance
             TimeCode(const TimeCode& other) = default;
             
+            /// @brief Create copy of current instance
+            /// @returns Time code (copy)
+            inline TimeCode clone() { return TimeCode(*this); }
+            
             
             // -- Builders --
             

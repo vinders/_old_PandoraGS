@@ -38,6 +38,10 @@ namespace utils
             /// @param[in] other  Other instance
             TimePoint(TimePoint&& other) noexcept : m_nanoseconds(other.m_nanoseconds) {}
             
+            /// @brief Create copy of current instance
+            /// @returns Time point (copy)
+            inline TimePoint clone() { return TimePoint(m_nanoseconds); }
+            
             
             // -- Builders --
             

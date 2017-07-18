@@ -33,6 +33,10 @@ namespace utils
                 : m_isRunning(other.m_isRunning), m_timeReference(other.m_timeReference), 
                   m_prevElapsedNanoseconds(other.m_prevElapsedNanoseconds), m_curElapsedNanoseconds(other.m_curElapsedNanoseconds) {}
                   
+            /// @brief Create copy of current instance
+            /// @returns Stopwatch (copy)
+            inline Stopwatch clone() { return Stopwatch(*this); }
+                  
             /// @brief Copy assignment
             inline Stopwatch& operator=(const Stopwatch& other) noexcept 
             { 

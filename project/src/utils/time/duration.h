@@ -45,6 +45,10 @@ namespace utils
             /// @param[in] other  Other instance
             Duration(Duration&& other) noexcept : m_nanoseconds(other.m_nanoseconds) {}
             
+            /// @brief Create copy of current instance
+            /// @returns Duration (copy)
+            inline Duration clone() { return Duration(m_nanoseconds); }
+            
             
             // -- Builders --
             
