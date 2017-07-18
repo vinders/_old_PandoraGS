@@ -46,6 +46,10 @@ namespace utils
             {
                 init(0u, 0u);
             }
+            
+            /// @brief Create copy of current instance
+            /// @returns Virtual raw-memory image (copy)
+            inline VirtualMemory clone() { return VirtualMemory((const VirtualMemory&)*this); }
 
             
             // -- Getters --

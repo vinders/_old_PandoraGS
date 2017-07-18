@@ -41,6 +41,10 @@ namespace utils
             /// @param[in] other  Other instance to move
             explicit Register(Register<T>&& other) : m_bits(other.data()) { static_assert(std::is_integral<T>::value, "Integer template parameter required"); }
             
+            /// @brief Create copy of current instance
+            /// @returns CPU/memory register (copy)
+            inline Register<T> clone() { return Register<T>(data()); }
+            
             
             // -- Utilities --
             

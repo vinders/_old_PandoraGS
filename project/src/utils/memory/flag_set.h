@@ -45,6 +45,10 @@ namespace utils
                 }
             }
             
+            /// @brief Create copy of current instance
+            /// @returns Multi-flag register (copy)
+            inline FlagSet clone() { return FlagSet(m_flags); }
+            
             
             // -- Utilities --
             

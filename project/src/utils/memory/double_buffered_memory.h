@@ -47,6 +47,10 @@ namespace utils
                 other.m_pBeginSecondBuffer = nullptr;
             }
             
+            /// @brief Create copy of current instance
+            /// @returns Double-buffered virtual raw-memory image (copy)
+            inline DoubleBufferedMemory clone() { return DoubleBufferedMemory((const DoubleBufferedMemory&)*this); }
+            
             
             // -- Getters --
             
