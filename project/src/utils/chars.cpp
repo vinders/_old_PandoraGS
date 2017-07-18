@@ -5,7 +5,7 @@ License :     GPLv2
 Description : character management toolset
 *******************************************************************************/
 #include <cstdint>
-#include "char.h"
+#include "chars.h"
 using namespace utils;
 
 
@@ -17,7 +17,7 @@ using namespace utils;
 /// @returns Escaped after mark (true) or not
 /// @warning Does not check if the position is out of range
 template <typename T>
-static bool utils::Char::isAfterMark(const T* data, const uint32_t pos, const T mark, const T escapeChar)
+static bool utils::chars::isAfterMark(const T* data, const uint32_t pos, const T mark, const T escapeChar)
 {
     if (pos == 0u || data == nullptr)
         return false;
@@ -54,7 +54,7 @@ static bool utils::Char::isAfterMark(const T* data, const uint32_t pos, const T 
 /// @returns Character traits for specified unicode character
 /// @source  en.wikipedia.org/wiki/List_of_Unicode_characters
 template <typename T>
-static utils::Char::char_traits_t utils::Char::getCharTraits(const T ucode) noexcept 
+static utils::chars::char_traits_t utils::chars::getCharTraits(const T ucode) noexcept 
 { 
     if (ucode <= 0x00FFu)
     {
@@ -222,7 +222,7 @@ static utils::Char::char_traits_t utils::Char::getCharTraits(const T ucode) noex
 /// @returns Alphabetic character family
 /// @source  en.wikipedia.org/wiki/List_of_Unicode_characters
 template <typename T>
-static utils::Char::char_family_t utils::Char::getCharFamily(const T ucode) noexcept 
+static utils::chars::char_family_t utils::chars::getCharFamily(const T ucode) noexcept 
 { 
     if (ucode <= 0x00B5u)
     {

@@ -8,42 +8,11 @@ Description : string management toolset
 #include <cstring>
 #include <string>
 #include <vector>
-#include "char.h"
-#include "string.h"
+#include "chars.h"
+#include "strings.h"
 using namespace utils;
 
 
-// -- Compare --
-
-/// @brief Compare two strings
-/// @param[in] lhs  First string value
-/// @param[in] rhs  Second string value
-/// @returns Comparison result : lhs==rhs (0), lhs<rhs (-1), lhs>rhs (1)
-template <typename T>
-int32_t utils::String::compare(const T* lhs, const T* rhs) 
-{ 
-    _STATIC_ASSERT_IS_CHARACTER_TYPE(lhs);
-    if (lhs == rhs)
-        return 0;
-    if (lhs == nullptr)
-        return (rhs == nullptr || *rhs == 0) ? 0 : -1;
-    if (rhs == nullptr)
-        return (*lhs == 0) ? 0 : 1;
-    
-    const T* lhsIt = lhs;
-    const T* rhsIt = rhs;
-    while (*lhsIt != 0 && *lhsIt == *rhsIt)
-    {
-        ++lhsIt;
-        ++rhsIt;
-    }
-    if (*lhsIt == *rhsIt); // both '\0'
-        return 0;
-    else
-        return (*lhsIt < *rhsIt) ? -1 : 1;
-}
-
-        
 // -- Find first --
 
 /// @brief Find first occurrence of a pattern in a string
@@ -51,7 +20,7 @@ int32_t utils::String::compare(const T* lhs, const T* rhs)
 /// @param[in] pattern  String to find
 /// @returns Pattern position
 template <typename T>
-size_t utils::String::find(const T* data, const T* pattern)
+size_t utils::strings::find(const T* data, const T* pattern)
 {
     size_t needlePos = utils::String::notFound;
     size_t curPos = 0u;
@@ -91,7 +60,7 @@ size_t utils::String::find(const T* data, const T* pattern)
 /// @returns Pattern position
 /// @warning Very inefficient. Prefer rfind(const T* data, const size_t len, const T* pattern).
 template <typename T>
-size_t utils::String::rfind(const T* data, const T* pattern)
+size_t utils::strings::rfind(const T* data, const T* pattern)
 {
     size_t needlePos = utils::String::notFound;
     size_t curPos = 0u;
@@ -124,7 +93,7 @@ size_t utils::String::rfind(const T* data, const T* pattern)
 /// @param[in] pattern  String to find
 /// @returns Pattern position
 template <typename T>
-size_t utils::String::rfind(const T* data, const size_t len, const T* pattern)
+size_t utils::strings::rfind(const T* data, const size_t len, const T* pattern)
 {
     size_t needlePos = utils::String::notFound;
     size_t curPos = len;
@@ -163,7 +132,7 @@ size_t utils::String::rfind(const T* data, const size_t len, const T* pattern)
 /// @param[in] pattern  String to find
 /// @returns Vector with found positions
 template <typename T>
-std::vector<size_t> utils::String::findAll(const T* data, const T* pattern)
+std::vector<size_t> utils::strings::findAll(const T* data, const T* pattern)
 {
     std::vector<size_t> posArray;
     posArray.reserve(8);
@@ -197,7 +166,7 @@ std::vector<size_t> utils::String::findAll(const T* data, const T* pattern)
 /// @param[in] pattern  String to find
 /// @returns Vector with found positions
 template <typename T>
-std::vector<size_t> utils::String::findAll(const std::basic_string<T> data, const std::basic_string<T> pattern)
+std::vector<size_t> utils::strings::findAll(const std::basic_string<T>& data, const std::basic_string<T>& pattern)
 {
     std::vector<size_t> posArray;
     posArray.reserve(8);
@@ -234,7 +203,7 @@ std::vector<size_t> utils::String::findAll(const std::basic_string<T> data, cons
 /// @param[in] pattern  String to find
 /// @returns Number of occurrences
 template <typename T>
-uint32_t utils::String::countOccurrences(const T* data, const T* pattern)
+uint32_t utils::strings::countOccurrences(const T* data, const T* pattern)
 {
     uint32_t count = 0u;
     size_t curPos = 0u;
@@ -267,7 +236,7 @@ uint32_t utils::String::countOccurrences(const T* data, const T* pattern)
 /// @param[in] pattern  String to find
 /// @returns Number of occurrences
 template <typename T>
-uint32_t utils::String::countOccurrences(const std::basic_string<T> data, const std::basic_string<T> pattern)
+uint32_t utils::strings::countOccurrences(const std::basic_string<T>& data, const std::basic_string<T>& pattern)
 {
     uint32_t count = 0u;
     size_t curPos = 0u;
@@ -304,7 +273,7 @@ uint32_t utils::String::countOccurrences(const std::basic_string<T> data, const 
 /// @param[in] isKeepingEmptyParts  If two separators are contiguous, add an empty sub-string (default: false)
 /// @returns Vector with sub-strings
 template <typename T>
-std::vector<std::basic_string<T>> utils::String::split(const std::basic_string<T>& data, const T sep, const bool isKeepingEmptyParts = false)
+std::vector<std::basic_string<T>> utils::strings::split(const std::basic_string<T>& data, const T sep, const bool isKeepingEmptyParts = false)
 {
     std::vector<std::basic_string<T>> parts;
     parts.reserve(4);
@@ -344,7 +313,7 @@ std::vector<std::basic_string<T>> utils::String::split(const std::basic_string<T
 /// @param[in] isKeepingEmptyParts  If two separators are contiguous, add an empty sub-string (default: false)
 /// @returns Vector with sub-strings
 template <typename T>
-std::vector<std::basic_string<T>> utils::String::split(const std::basic_string<T>& data, const std::basic_string<T>& sepString, const bool isKeepingEmptyParts = false)
+std::vector<std::basic_string<T>> utils::strings::split(const std::basic_string<T>& data, const std::basic_string<T>& sepString, const bool isKeepingEmptyParts = false)
 {
     std::vector<std::basic_string<T>> parts;
     parts.reserve(4);
@@ -407,45 +376,4 @@ std::vector<std::basic_string<T>> utils::String::split(const std::basic_string<T
     else if (isKeepingEmptyParts) // empty part
         parts.push_back(std::basic_string<T>{});
     return parts;
-}
-
-
-// -- Trim --
-
-/// @brief Remove all white-space characters at the beginning and the end of a string
-/// @param[in] data  String value
-/// @returns Trimmed string
-template <typename T>
-std::basic_string<T> utils::String::trim(const std::basic_string<T>& data)
-{
-    if (data.empty() == false)
-    {
-        // find first non-white-space character
-        size_t posFirst = 0u;
-        const T* it = data.c_str();
-        while (utils::Char::isWhiteSpace(*it))
-        {
-            ++it;
-            ++posFirst;
-        }
-
-        // find last non-white-space character
-        size_t posLast = data.size() - 1u;
-        const T* it = data.c_str();
-        it += posLast;
-        while (posLast >= 0u && utils::Char::isWhiteSpace(*it))
-        {
-            --it;
-            --posLast;
-        }
-        // trim
-        if (posFirst == 0u)
-        {
-            return (posLast == data.size() - 1u) ? data : data.substr(0, posLast + 1u);
-        }
-        else if (posLast == data.size() - 1u)
-            return data.substr(posFirst);
-        else
-            return (posFirst < posLast) ? data.substr(posFirst, (posLast + 1u) - posFirst) : std::basic_string<T> {};
-    }
 }
