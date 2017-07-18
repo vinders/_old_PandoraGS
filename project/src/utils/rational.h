@@ -83,6 +83,10 @@ namespace utils
             static_assert(std::is_integral<T>::value && std::is_integral<U>::value, "Integer template parameters required"); 
         }
         
+        /// @brief Create copy of current instance
+        /// @returns Rational number (copy)
+        inline Rational<T,U> clone() { return Rational<T,U>(m_cardinal, m_ordinal); }
+        
         
         // -- Getters --
         
