@@ -43,24 +43,33 @@ namespace utils
         
         /// @brief Create immutable object by copying another immutable object
         /// @param[in] other  Object to copy
-        Immutable(const Immutable& other) : m_pValue(nullptr) { m_pValue = std::make_shared<T>(*(std::atomic_load(other.m_pValue))); }
+        Immutable(const Immutable<T>& other) : m_pValue(nullptr) { m_pValue = std::make_shared<T>(*(std::atomic_load(other.m_pValue))); }
         /// @brief Create immutable object by moving another immutable object
         /// @param[in] other  Object to move
-        Immutable(Immutable&& other) : m_pValue(std::atomic_load(other.m_pValue)) { std::atomic_store(&other.m_pValue, nullptr); }
+        Immutable(Immutable<T>&& other) : m_pValue(std::atomic_load(other.m_pValue)) { std::atomic_store(&other.m_pValue, nullptr); }
                 
 
         /// @brief Assign immutable object by copying another immutable object
         /// @param[in] other  Object to copy
-        inline Immutable& operator=(const Immutable& other) 
+        inline const Immutable<T> const& operator=(const Immutable<T>& other) 
         {
             std::atomic_store(&m_pValue, std::make_shared<T>(*(std::atomic_load(other.m_pValue))));
+            return *this;
         }
         /// @brief Assign immutable object by moving another immutable object
         /// @param[in] other  Object to move
-        inline Immutable& operator=(Immutable&& other)
+        inline const Immutable<T> const& operator=(Immutable<T>&& other)
         {
             std::atomic_store(&m_pValue, std::atomic_load(other.m_pValue));
             std::atomic_store(&other.m_pValue, nullptr);
+            return *this;
+        }
+        
+        /// @brief Create copy of immutable object
+        /// @returns Cloned object
+        inline Immutable<T> clone() const
+        {
+            return Immutable<T>(*this);
         }
         
         
@@ -81,11 +90,11 @@ namespace utils
         /// @brief Get inner object value (by reference)
         /// @returns Reference to object
         /// @throws std::logic_error  If inner value is not set (if the instance has been moved or if an assignment failed)
-        inline const T const& operator() const noexcept { return data(); }
+        inline const T const& operator() const { return data(); }
         
         /// @brief Check if inner object is defined
         /// @returns Valid object (true) or nullptr (false)
-        inline const bool isSet() { return (m_pValue != nullptr); }
+        inline const bool isSet() const noexcept { return (m_pValue != nullptr); }
         
         
         // -- Compare --
