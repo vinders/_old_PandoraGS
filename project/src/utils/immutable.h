@@ -39,7 +39,7 @@ namespace utils
         explicit Immutable(const T& value) : m_pValue(nullptr) { m_pValue = std::make_shared<T>(value); }
         /// @brief Create immutable object by moving a non-immutable object value
         /// @param[in] value  Object to move
-        explicit Immutable(const T&& value) : m_pValue(nullptr) { m_pValue = std::make_shared<T>(std::move(value)); }
+        explicit Immutable(T&& value) : m_pValue(nullptr) { m_pValue = std::make_shared<T>(std::move(value)); }
         
         /// @brief Create immutable object by copying another immutable object
         /// @param[in] other  Object to copy
