@@ -10,9 +10,8 @@ Description : immutable object wrapper
 #include <memory>
 #include <atomic>
 #include <stdexcept>
+#include "preprocessor.h"
 #include "assert.h"
-
-#define PP_STRINGIFY_ARG(X) #X
 
 /// @namespace utils
 /// General utilities
