@@ -240,11 +240,16 @@ static utils::chars::char_traits_t utils::chars::getCharTraits(const T ucode) no
             {
                 return char_traits_t { char_family_t::greek, false, ucode - 0x0020u };
             }
-            else // 03AC - 03B0
+            else 
             {
-                //...
-                return char_traits_t { char_family_t::greek, false, ucode };
-                //...
+                switch (ucode)
+                {
+                    case 0x03ACu: return char_traits_t { char_family_t::greek, false, 0x0386u }; break;
+                    case 0x03ADu: return char_traits_t { char_family_t::greek, false, 0x0388u }; break;
+                    case 0x03AEu: return char_traits_t { char_family_t::greek, false, 0x0389u }; break;
+                    case 0x03AFu: return char_traits_t { char_family_t::greek, false, 0x038Au }; break;
+                    case 0x03B0u: return char_traits_t { char_family_t::greek, false, ucode }; break;
+                }
             }
         }
         else if (ucode >= 0x0370u)
@@ -255,34 +260,59 @@ static utils::chars::char_traits_t utils::chars::getCharTraits(const T ucode) no
                     return ((ucode & 0x0001u) == 0u) ? char_traits_t { char_family_t::greek, true, ucode + 0x0001u }
                                                      : char_traits_t { char_family_t::greek, false, ucode - 0x0001u }; 
             }
-            else if (ucode >= 0x0388u)
+            else if (ucode >= 0x03CCu)
             {
                 if (ucode >= 0x03D8u && ucode <= 0x03EFu)
                 {
                     return ((ucode & 0x0001u) == 0u) ? char_traits_t { char_family_t::greek, true, ucode + 0x0001u }
                                                      : char_traits_t { char_family_t::greek, false, ucode - 0x0001u }; 
                 }
-                else if (ucode <= 0x0390u) // 0388 - 0390
+                else if (ucode >= 0x03FDu))
                 {
-                    //...
-                    return char_traits_t { char_family_t::greek, false, ucode };
-                    //...
+                    return char_traits_t { char_family_t::greek, true, ucode - 0x0082u };
                 }
-                else // 03CC - 03D7, 03F0 - 03FF
+                else // 03CC - 03D7, 03F0 - 03FC
                 {
-                    //...
-                    return char_traits_t { char_family_t::greek, false, ucode };
-                    //...
+                    switch (ucode)
+                    {
+                        case 0x03CCu: return char_traits_t { char_family_t::greek, false, 0x038Cu }; break;
+                        case 0x03CDu: return char_traits_t { char_family_t::greek, false, 0x038Eu }; break;
+                        case 0x03CEu: return char_traits_t { char_family_t::greek, false, 0x038Fu }; break;
+                        case 0x03CFu: return char_traits_t { char_family_t::greek, true, 0x03D7u }; break;
+                        case 0x03D1u: return char_traits_t { char_family_t::greek, false, 0x03F4u }; break;
+                        case 0x03D7u: return char_traits_t { char_family_t::greek, true, 0x03CFu }; break;
+                        case 0x03F2u: return char_traits_t { char_family_t::greek, false, 0x03F9u }; break;
+                        case 0x03F3u: return char_traits_t { char_family_t::greek, false, 0x037Fu }; break;
+                        case 0x03F4u: return char_traits_t { char_family_t::greek, true, 0x03D1u }; break;
+                        case 0x03F7u: return char_traits_t { char_family_t::greek, true, 0x03F8u }; break;
+                        case 0x03F8u: return char_traits_t { char_family_t::greek, false, 0x03F7u }; break;
+                        case 0x03F9u: return char_traits_t { char_family_t::greek, true, 0x03F2u }; break;
+                        case 0x03FAu: return char_traits_t { char_family_t::greek, true, 0x03FBu }; break;
+                        case 0x03FBu: return char_traits_t { char_family_t::greek, false, 0x03FAu }; break;
+                        default:      return char_traits_t { char_family_t::greek, false, ucode }; break;
+                    }
                 }
-            }
-            else if (ucode == 0x037Fu)
-            {
-                return char_traits_t { char_family_t::greek, true, 0x03F3u };
             }
             else if (ucode <= 0x037Du && ucode >= 0x037Bu))
             {
-                return char_traits_t { char_family_t::greek, true, ucode };
+                return char_traits_t { char_family_t::greek, false, ucode + 0x0082u };
             }
+            else 
+            {
+                switch (ucode)
+                {
+                    case 0x037Fu: return char_traits_t { char_family_t::greek, true, 0x03F3u }; break;
+                    case 0x0386u: return char_traits_t { char_family_t::greek, true, 0x03ACu }; break;
+                    case 0x0388u: return char_traits_t { char_family_t::greek, true, 0x03ADu }; break;
+                    case 0x0389u: return char_traits_t { char_family_t::greek, true, 0x03AEu }; break;
+                    case 0x038Au: return char_traits_t { char_family_t::greek, true, 0x03AFu }; break;
+                    case 0x038Cu: return char_traits_t { char_family_t::greek, true, 0x03CCu }; break;
+                    case 0x038Eu: return char_traits_t { char_family_t::greek, true, 0x03CDu }; break;
+                    case 0x038Fu: return char_traits_t { char_family_t::greek, true, 0x03CEu }; break;
+                    case 0x0390u: return char_traits_t { char_family_t::greek, false, ucode }; break;
+                }
+            }
+            
         }
     }
     
@@ -291,7 +321,6 @@ static utils::chars::char_traits_t utils::chars::getCharTraits(const T ucode) no
     {
         //...
         return char_traits_t { char_family_t::cyrillic, false, ucode };
-        //...
     }
     
     else if (ucode >= 0x1C80u)
@@ -328,18 +357,71 @@ static utils::chars::char_traits_t utils::chars::getCharTraits(const T ucode) no
                                 return char_traits_t { char_family_t::greek, true, ucode - 0x0008u };
                         }
                     }
-                    else // 1F70 - 1F7F
+                    else
                     {
-                        //...
-                        return char_traits_t { char_family_t::greek, false, ucode };
-                        //...
+                        switch (ucode)
+                        {
+                            case 0x1F70u: return char_traits_t { char_family_t::greek, false, 0x1FBAu }; break;
+                            case 0x1F71u: return char_traits_t { char_family_t::greek, false, 0x1FBBu }; break;
+                            case 0x1F72u: return char_traits_t { char_family_t::greek, false, 0x1FC8u }; break;
+                            case 0x1F73u: return char_traits_t { char_family_t::greek, false, 0x1FC9u }; break;
+                            case 0x1F74u: return char_traits_t { char_family_t::greek, false, 0x1FCAu }; break;
+                            case 0x1F75u: return char_traits_t { char_family_t::greek, false, 0x1FCBu }; break;
+                            case 0x1F76u: return char_traits_t { char_family_t::greek, false, 0x1FDAu }; break;
+                            case 0x1F77u: return char_traits_t { char_family_t::greek, false, 0x1FDBu }; break;
+                            case 0x1F78u: return char_traits_t { char_family_t::greek, false, 0x1FF8u }; break;
+                            case 0x1F79u: return char_traits_t { char_family_t::greek, false, 0x1FF9u }; break;
+                            case 0x1F7Au: return char_traits_t { char_family_t::greek, false, 0x1FEAu }; break;
+                            case 0x1F7Bu: return char_traits_t { char_family_t::greek, false, 0x1FEBu }; break;
+                            case 0x1F7Cu: return char_traits_t { char_family_t::greek, false, 0x1FFAu }; break;
+                            case 0x1F7Du: return char_traits_t { char_family_t::greek, false, 0x1FFBu }; break;
+                        }
                     }
                 }
                 else // 1FB0 - 1FFF
                 {
-                    //...
-                    return char_traits_t { char_family_t::greek, false, ucode };
-                    //...
+                    switch (ucode)
+                    {
+                        case 0x1FB0u: return char_traits_t { char_family_t::greek, false, 0x1FB8u }; break;
+                        case 0x1FB1u: return char_traits_t { char_family_t::greek, false, 0x1FB9u }; break;
+                        case 0x1FB3u: return char_traits_t { char_family_t::greek, false, 0x1FBCu }; break;
+                        case 0x1FB8u: return char_traits_t { char_family_t::greek, true, 0x1FB0u }; break;
+                        case 0x1FB9u: return char_traits_t { char_family_t::greek, true, 0x1FB1u }; break;
+                        case 0x1FBCu: return char_traits_t { char_family_t::greek, true, 0x1FB3u }; break;
+                        case 0x1FD0u: return char_traits_t { char_family_t::greek, false, 0x1FD8u }; break;
+                        case 0x1FD1u: return char_traits_t { char_family_t::greek, false, 0x1FD9u }; break;
+                        case 0x1FD8u: return char_traits_t { char_family_t::greek, true, 0x1FD0u }; break;
+                        case 0x1FD9u: return char_traits_t { char_family_t::greek, true, 0x1FD1u }; break;
+                        case 0x1FE0u: return char_traits_t { char_family_t::greek, false, 0x1FE8u }; break;
+                        case 0x1FE1u: return char_traits_t { char_family_t::greek, false, 0x1FE9u }; break;
+                        case 0x1FE8u: return char_traits_t { char_family_t::greek, true, 0x1FE0u }; break;
+                        case 0x1FE9u: return char_traits_t { char_family_t::greek, true, 0x1FE1u }; break;
+                        case 0x1FF3u: return char_traits_t { char_family_t::greek, false, 0x1FFCu }; break;
+                        case 0x1FFCu: return char_traits_t { char_family_t::greek, true, 0x1FF3u }; break;
+                        case 0x1FE5u: return char_traits_t { char_family_t::greek, false, 0x1FECu }; break;
+                        case 0x1FECu: return char_traits_t { char_family_t::greek, true, 0x1FE5u }; break;
+                        
+                        case 0x1FBAu: return char_traits_t { char_family_t::greek, true, 0x1F70u }; break;
+                        case 0x1FBBu: return char_traits_t { char_family_t::greek, true, 0x1F71u }; break;
+                        case 0x1FC8u: return char_traits_t { char_family_t::greek, true, 0x1F72u }; break;
+                        case 0x1FC9u: return char_traits_t { char_family_t::greek, true, 0x1F73u }; break;
+                        case 0x1FCAu: return char_traits_t { char_family_t::greek, true, 0x1F74u }; break;
+                        case 0x1FCBu: return char_traits_t { char_family_t::greek, true, 0x1F75u }; break;
+                        case 0x1FDAu: return char_traits_t { char_family_t::greek, true, 0x1F76u }; break;
+                        case 0x1FDBu: return char_traits_t { char_family_t::greek, true, 0x1F77u }; break;
+                        case 0x1FF8u: return char_traits_t { char_family_t::greek, true, 0x1F78u }; break;
+                        case 0x1FF9u: return char_traits_t { char_family_t::greek, true, 0x1F79u }; break;
+                        case 0x1FEAu: return char_traits_t { char_family_t::greek, true, 0x1F7Au }; break;
+                        case 0x1FEBu: return char_traits_t { char_family_t::greek, true, 0x1F7Bu }; break;
+                        case 0x1FFAu: return char_traits_t { char_family_t::greek, true, 0x1F7Cu }; break;
+                        case 0x1FFBu: return char_traits_t { char_family_t::greek, true, 0x1F7Du }; break;
+                        default:
+                        {
+                            T row = (ucode & 0x000Fu);
+                            if (row <= 0x000Bu && row >= 0x0002u && row != 0x0005u && ucode != 0x1FD4)
+                                return char_traits_t { char_family_t::greek, (row > 7u), ucode }; break;
+                        }
+                    }
                 }
             }
             
@@ -350,7 +432,6 @@ static utils::chars::char_traits_t utils::chars::getCharTraits(const T ucode) no
                 {
                     //...
                     return char_traits_t { char_family_t::cyrillic, false, ucode };
-                    //...
                 }
             }
             // Cyrillic extended-B
@@ -358,7 +439,6 @@ static utils::chars::char_traits_t utils::chars::getCharTraits(const T ucode) no
             {
                 //...
                 return char_traits_t { char_family_t::cyrillic, false, ucode };
-                //...
             }
         }
         // Cyrillic extended-C
@@ -366,7 +446,6 @@ static utils::chars::char_traits_t utils::chars::getCharTraits(const T ucode) no
         {
             //...
             return char_traits_t { char_family_t::cyrillic, false, ucode };
-            //...
         }
     }
     return char_traits_t { char_family_t::not_alpha, false, Ucode }; 
@@ -416,13 +495,29 @@ static utils::chars::char_family_t utils::chars::getCharFamily(const T ucode) no
     {
         if (ucode >= 0x1E00u) 
         {
-            if (ucode <= 0x1EFFu)
+            if (ucode <= 0x1EFFu) // Latin extended additional
             {
-                return char_family_t::latin; // Latin extended additional
+                return char_family_t::latin; 
             }
-            else if (ucode <= 0x1FFFu)
+            else if (ucode <= 0x1FFFu) // Greek extended
             {
-                return char_family_t::greek; // Greek extended
+                T line = (ucode & 0xFFF0u);
+                T row = (ucode & 0x000Fu);
+                if (line <= 0x1F60u)
+                {
+                    if ((line != 0x1F10u && line != 0x1F40u) || (row != 0x0006u && row != 0x0007u && row != 0x000Eu && row != 0x000Fu))
+                        return char_family_t::greek; 
+                }
+                else if (line <= 0x1FA0u)
+                {
+                    if (line != 0x1F70u || row <= 0x000Du)
+                        return char_family_t::greek; 
+                }
+                else if (row <= 0x000Cu && (line == 0x1FE0u || row != 0x0005u))
+                {
+                    if ((line != 0x1FD0u || (ucode != 0x1FD4u && ucode != 0x1FDCu) && (line != 0x1FF0u || (ucode >= 0x1FF2u && ucode != 0x1FF5u))
+                        return char_family_t::greek; 
+                }
             }
             else if (ucode <= 0x2DFFu)
             {
