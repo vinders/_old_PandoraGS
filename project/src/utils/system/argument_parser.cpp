@@ -14,7 +14,7 @@ Description : parser for process command-line arguments
 #include "../chars.h"
 #include "argument_parser.h"
 
-using namespace utils::process;
+using namespace utils::system;
 
 
 /// @brief Parse argument received in the "main" entry point
@@ -22,9 +22,9 @@ using namespace utils::process;
 /// @param[in] argv  Argument values (array of strings)
 /// @returns Map with found commands : key = command name, value = pointer to first value (or nullptr if no value)
 /// @throws std::invalid_argument  Unknown command found, repeated command found or missing argument values
-std::unordered_map<std::string,utils::process::command_data_t> ArgumentParser::parse(int argc, char** argv) const
+std::unordered_map<std::string,utils::system::process_arg_data_t> ArgumentParser::parse(int argc, char** argv) const
 {
-    std::unordered_map<std::string,utils::process::command_data_t> results;
+    std::unordered_map<std::string,utils::system::process_arg_data_t> results;
     ASSERT(argv != nullptr && *argv != nullptr);
     
     // parse all arguments except the first one (application name)
@@ -80,17 +80,17 @@ std::unordered_map<std::string,utils::process::command_data_t> ArgumentParser::p
 /// @param[in] type   Expected data type
 /// @param[in] value  Argument value
 /// @throws std::invalid_argument  Invalid data type
-void ArgumentParser::checkDataType(const utils::process::argument_value_type_t type, char* value) const
+void ArgumentParser::checkDataType(const utils::system::process_arg_data_type_t type, char* value) const
 {
     switch (type)
     {
-        case argument_value_type_t::boolean: 
+        case process_arg_data_type_t::boolean: 
             if (strcmp(value,"true") != 0 && strcmp(value,"false") != 0 && (*(value + 1) != '\0' || (*value != '0' && *value != '1') ))
                 throw std::invalid_argument(std::string(__FILE__ ":" PP_STRINGIFY_ARG(__LINE__) ":" __func__ ": "
                                                 "boolean value for the command-line argument '") + curArgument + "' is invalid (value = '" + value + "').");
             break;
             
-        case argument_value_type_t::uinteger: 
+        case process_arg_data_type_t::uinteger: 
             for (*value != '\0')
             {
                 if (!utils::chars::isNumber(*value))
@@ -99,7 +99,7 @@ void ArgumentParser::checkDataType(const utils::process::argument_value_type_t t
                 ++value;
             }
             break;
-        case argument_value_type_t::integer: 
+        case process_arg_data_type_t::integer: 
         {
             if (*value == '-')
                 ++value;
@@ -113,7 +113,7 @@ void ArgumentParser::checkDataType(const utils::process::argument_value_type_t t
             break;
         }
         
-        case argument_value_type_t::unumber: 
+        case process_arg_data_type_t::unumber: 
             while (*value != '\0')
             {
                 if (!utils::chars::isNumber(*value) && *value != '.' && *value != ',')
@@ -122,7 +122,7 @@ void ArgumentParser::checkDataType(const utils::process::argument_value_type_t t
                 ++value
             }
             break;
-        case argument_value_type_t::number: 
+        case process_arg_data_type_t::number: 
         {
             if (*value == '-')
                 ++value;
@@ -136,7 +136,7 @@ void ArgumentParser::checkDataType(const utils::process::argument_value_type_t t
             break;
         }
             
-        case argument_value_type_t::string: 
+        case process_arg_data_type_t::string: 
         default: break;
     }
 }

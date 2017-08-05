@@ -17,13 +17,13 @@ Description : parser for process command-line arguments
 /// General utilities
 namespace utils
 {
-    /// @namespace utils.thread
-    /// Process management utilities
-    namespace process
+    /// @namespace utils.system
+    /// System management utilities
+    namespace system
     {
-        /// @enum argument_value_type_t
-        /// @brief Type of argument value
-        enum class argument_value_type_t
+        /// @enum process_arg_data_type_t
+        /// @brief Type of argument values
+        enum class process_arg_data_type_t
         {
             boolean,  ///< Boolean typed value : "true", "false", "1", "0"
             uinteger, ///< Unsigned integer type value
@@ -33,16 +33,16 @@ namespace utils
             string    ///< Any string value
         };
         
-        /// @struct command_arg_spec_t
+        /// @struct process_arg_spec_t
         /// @brief Command argument specification
-        struct command_arg_spec_t
+        struct process_arg_spec_t
         {
             std::string commandName; ///< Complete command name (e.g.: "-h", "--help", "async", "on", ...)
-            std::vector<utils::process::argument_value_type_t> typedValues; ///< Expected values after command
+            std::vector<utils::system::process_arg_data_type_t> typedValues; ///< Expected values after command
         };
-        /// @struct command_arg_spec_t
+        /// @struct process_arg_spec_t
         /// @brief Command argument specification
-        struct command_data_t
+        struct process_arg_data_t
         {
             char** values;       ///< Array of string values
             size_t valuesNumber; ///< Number of values
@@ -56,7 +56,7 @@ namespace utils
         public:
             /// @brief Create process argument parser
             /// @param[in] commands  Allowed commands specification
-            ArgumentParser(const std::vector<utils::process::command_arg_spec_t>& commands)
+            ArgumentParser(const std::vector<utils::system::process_arg_spec_t>& commands)
             {
                 for (const auto& it : commands)
                 {
@@ -91,7 +91,7 @@ namespace utils
             
             /// @brief Add command argument specification
             /// @param[in] command  Allowed command to add
-            inline void addCommand(const utils::process::command_arg_spec_t& command)
+            inline void addCommand(const utils::system::process_arg_spec_t& command)
             {
                 ASSERT(!command.commandName.empty());
                 m_allowedCommands[command.commandName] = command.typedValues;
@@ -112,18 +112,18 @@ namespace utils
             /// @param[in] argv  Argument values (array of strings)
             /// @returns Map with found commands : key = command name, value = pointer to first value (or nullptr if no value)
             /// @throws std::invalid_argument  Unknown command found, repeated command found or missing/invalid argument values
-            std::unordered_map<std::string,utils::process::command_data_t> parse(int argc, char** argv) const;
+            std::unordered_map<std::string,utils::system::process_arg_data_t> parse(int argc, char** argv) const;
             
         protected:
             /// @brief Check argument data validity
             /// @param[in] type   Expected data type
             /// @param[in] value  Argument value
             /// @throws std::invalid_argument  Invalid data type
-            void checkDataType(const utils::process::argument_value_type_t type, char* value) const;
+            void checkDataType(const utils::system::process_arg_data_type_t type, char* value) const;
 
             
         private:
-            std::unordered_map<std::string,std::vector<utils::process::argument_value_type_t>> m_allowedCommands
+            std::unordered_map<std::string,std::vector<utils::system::process_arg_data_type_t>> m_allowedCommands
         };
     }
 }
