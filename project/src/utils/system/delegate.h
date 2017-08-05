@@ -14,8 +14,6 @@ Description : screen ratio
 /// General utilities
 namespace utils
 {
-    using delegate = utils::system::Delegate; ///< utils::delegate = Delegate alias
-    
     /// @namespace utils.system
     /// System management utilities
     namespace system
