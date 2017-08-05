@@ -29,11 +29,16 @@ namespace utils
             Semaphore() : m_count(0u) {}
             /// @brief Create instance with initial count value
             Semaphore(uint32_t count) : m_count(count) {}
-            /// @brief Move instance
+            /// @brief Move instance (only the count value is moved !)
             /// @param[in] other  Other instance to move
             explicit Semaphore(Semaphore&& other) : m_count(other.m_count) {}
             // no copy allowed
             Semaphore(const Semaphore& other) = delete;
+            
+            // no move assignment allowed
+            OrderedSemaphore& operator=(OrderedSemaphore&& other) = delete;
+            // no copy assignment allowed
+            OrderedSemaphore& operator=(const OrderedSemaphore& other) = delete;
             
             
             // -- Lock management --

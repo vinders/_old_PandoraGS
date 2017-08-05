@@ -33,9 +33,20 @@ namespace utils
             OrderedSemaphore(uint32_t count) : m_count(count) {}
             /// @brief Move instance
             /// @param[in] other  Other instance to move
-            explicit OrderedSemaphore(OrderedSemaphore&& other) : m_count(other.m_count) {}
+            explicit OrderedSemaphore(OrderedSemaphore&& other) : m_count(other.m_count), m_pendingTickets(std::move(other.m_pendingTickets)), m_notifiedTickets(std::move(other.m_notifiedTickets)) {}
             // no copy allowed
             OrderedSemaphore(const OrderedSemaphore& other) = delete;
+            
+            /// @brief Assign moved instance
+            /// @param[in] other  Other instance to move
+            OrderedSemaphore& operator=(OrderedSemaphore&& other) 
+            { 
+                m_count = other.m_count; 
+                m_pendingTickets = std::move(other.m_pendingTickets); 
+                m_notifiedTickets = std::move(other.m_notifiedTickets); 
+            }
+            // no copy assignment allowed
+            OrderedSemaphore& operator=(const OrderedSemaphore& other) = delete;
             
             
             // -- Lock management --
