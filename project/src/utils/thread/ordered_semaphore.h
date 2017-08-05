@@ -44,6 +44,7 @@ namespace utils
                 m_count = other.m_count; 
                 m_pendingTickets = std::move(other.m_pendingTickets); 
                 m_notifiedTickets = std::move(other.m_notifiedTickets); 
+                return *this;
             }
             // no copy assignment allowed
             OrderedSemaphore& operator=(const OrderedSemaphore& other) = delete;
