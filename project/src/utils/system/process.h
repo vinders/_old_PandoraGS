@@ -8,6 +8,7 @@ Description : process creation and management
 
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 
 /// @namespace utils
 /// General utilities
@@ -22,9 +23,6 @@ namespace utils
         class Process
         {
         public:
-            /// @brief Create a child process by launching a specific executable
-            /// @param[in] filePath  Path to the executable file
-            Process(const std::string& filePath);
             /// @brief Move an instance
             /// @param[in] other  Other instance
             Process(Process&& other);
@@ -35,7 +33,7 @@ namespace utils
             /// @warning It is recommended to aither call interrupt() (to kill it softly in a manageable way) or detach() before the destructor is called
             ~Process()
             {
-                if (m_isDetached == false)
+                if (m_isDetached == false && isChildProcess(*this))
                     destroy();
             }
             
@@ -64,12 +62,17 @@ namespace utils
             
             // -- Main/parent process info --
             
+            /// @brief Check if a process has been created by the current main process or not (if forked, it may not have been)
+            /// @param[in] process  Process instance
+            /// @return Child process (true) or not
+            static bool isChildProcess(const Process& process);
+            
             /// @brief Get main process priority
             /// @returns Process priority value
-            uint32_t getMainProcessPriority();
+            static uint32_t getMainProcessPriority();
             /// @brief Change main process priority
             /// @param[in] priority  Process priority value
-            void setMainProcessPriority(const uint32_t& priority);
+            static void setMainProcessPriority(const uint32_t& priority);
             
             
             // -- Child process operations --
@@ -88,9 +91,29 @@ namespace utils
             
             // -- Main/parent process operations --
             
-            /// @brief Clone main process and its context - a child process will run from the same position as the parent
+            /// @brief Create a child process by launching a specific executable
+            /// @param[in] filePath  Path to the executable file
             /// @returns Management object for child process
-            static Process fork();
+            /// @throws std::invalid_argument  The file path is invalid or is not an executable file
+            /// @throws std::runtime_error     The process could not be created
+            static inline std::unique_ptr<Process> create(const std::string& filePath)
+            {
+                return utils::system::Process::create(filePath, "");
+            }
+            /// @brief Create a child process by launching a specific executable with command-line arguments
+            /// @param[in] filePath   Path to the executable file
+            /// @param[in] arguments  Arguments string
+            /// @returns Management object for child process
+            /// @throws std::invalid_argument  The file path is invalid or is not an executable file
+            /// @throws std::runtime_error     The process could not be created
+            static std::unique_ptr<Process> create(const std::string& filePath, const std::string& arguments);
+            /// @brief Clone main process and its context - a child process will run from the same position as the parent
+            /// @returns If parent, management object for child process (if child, returns nullptr)
+            /// @throws std::runtime_error  The process could not be created
+            static std::unique_ptr<Process> fork();
+            
+            
+            // -- Synchronize/release process --
             
             /// @brief Wait for a specific child process to exit and/or remove zombie-process from process table
             /// @warning If the process has already been removed from the process table, this function will do nothing
@@ -112,14 +135,16 @@ namespace utils
             
             
         protected:
-            /// @brief Create empty instance with no execution (used by operations such as fork)
+            /// @brief Create empty instance with no execution (used by main process operations)
             /// @warning Member m_isDetached should be set to false if a child process is created
             Process() : m_isDetached(true), m_isWaitingDone(false) {}
+            
             
         private:
             bool m_isDetached;
             bool m_isWaitingDone;
-            //...
+            //...processID
+            //...parentID
         };
     }
 }
