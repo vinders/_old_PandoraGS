@@ -17,13 +17,17 @@ PandoraGS is a GPU driver plugin for PlayStation emulators (PSEmu compatible).
                    256MB+ VRAM
 
                    
-### Current work (2017):
-* heavy refactoring
-* creation of a reusable framework with all the necessary utilities + algorithms
-* new unit testing system + win32/win64/linux32/linux64 builds
-* test tools for upscaling, filters, shaders, forms, ...
-* C++11/C++14 usage + advanced optimization + intrinsics
-
+### Development paused:
+I'm currently busy renovating the house I've just bought, so I won't commit for a few weeks (months ?).
+Development will continue asap (probably in march or april).
+Next steps :
+* heavy refactoring : regroup functionalities in re-usable and easily maintainable libs (see project "pandora_framework")
+* test-driven development : well defined  and well documented class interfaces, unit tests written BEFORE, integration tests written after.
+* portability : make sure every lib compiles and runs fine on win32/win64/ubuntu/fedora + use continuous integration (appveyor/codecov).
+* C++11/C++14 usage and optimization.
+* assembly intrinsics usage for heavy algorithms.
+* creation of generic and efficient rendering pipeline (OpenGL 4, maybe DirectX and Vulkan someday).
+* image processing algorithms (filtering, upscaling, color management, special effects, ...).
 
 ### Done:
 * driver init/open/close/shutdown, low-level commands, read/write access
