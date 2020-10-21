@@ -1,9 +1,0 @@
-[submodule "_libs/gtest"]
-	path = _libs/gtest
-	url = https://github.com/google/googletest
-[submodule "_libs/glew"]
-	path = _libs/glew
-	url = https://github.com/Perlmint/glew-cmake
-[submodule "_libs/glm"]
-	path = _libs/glm
-	url = https://github.com/g-truc/glm

@@ -1,0 +1,43 @@
+ignore:
+  - "bin/"
+  - "_bin/"
+  - "build/"
+  - "_build/"
+  - "_cmake/"
+  - "_coverage/"
+  - "addons/"
+  - "_addons/"
+  - "_scripts/"
+  - "_libs/"
+  - ".gitignore"
+  - "LICENSE"
+  - "*.yml"
+  - "*.md"
+  - "*.sh"
+  - "*.bat"
+  - "*/bin/"
+  - "*/_bin/"
+  - "*/build/"
+  - "*/_build/"
+  - "*/cmake/"
+  - "*/*.md"
+  - "*/*.sh"
+  - "*/*.bat"
+  
+coverage:
+  round: down
+  status:
+    project:
+      default:
+        enabled: yes
+        target: 70%
+        threshold: 10%
+        base: auto
+        flags:
+          - unit
+        branches: 
+          - develop
+    
+    patch:
+      default:
+        enabled: false
