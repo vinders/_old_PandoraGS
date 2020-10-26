@@ -35,14 +35,14 @@ elseif(ANDROID)
         include_directories("${ANDROID_STANDALONE_TOOLCHAIN}/usr/include")
     endif()
     
-    set(opengl_libs__LINKED android EGL GLESv2)
+    set(opengl_libs__LINKED android EGL GLESv3)
     
 else()
     find_package(OpenGL REQUIRED)
     if(WIN32 OR WIN64 OR _WIN32 OR _WIN64)
-        set(opengl_libs__LINKED opengl32)
+        set(opengl_libs__LINKED ${OPENGL_LIBRARIES})
     else()
-        set(opengl_libs__LINKED GL X11)
+        set(opengl_libs__LINKED X11 ${OPENGL_LIBRARIES})
     endif()
 endif()
 

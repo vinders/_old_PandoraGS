@@ -36,7 +36,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4103 /wd4505 /W4")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4505 /W4")
     set(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /Zi /Ob0 /Od /RTC1 /DDEBUG")    
     set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG /O2 /Ob2 /Zi /DRELEASE")
     
@@ -79,6 +79,9 @@ endif()
 # └──────────────────────────────────────────────────────────────────┘
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if(CWORK_WINDOWS_SUPPORT)
+    add_definitions(-D_MIN_WINDOWS_VERSION=${CWORK_WINDOWS_SUPPORT})
+endif()
 if(MSVC)
     if(WIN32 OR WIN64 OR _WIN32 OR _WIN64 OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
         if(${CWORK_SYSTEM_ARCH_BITS} EQUAL 64)
@@ -107,7 +110,7 @@ endif()
 # └──────────────────────────────────────────────────────────────────┘
 if(CWORK_CPP_REVISION AND ${CWORK_CPP_REVISION} STREQUAL "14")
     if(MSVC)
-        add_compile_options(/std:c++14)
+        add_compile_options(/std:c++14 /wd4127)
     elseif(CMAKE_COMPILER_IS_GNUCXX)
         add_compile_options(-std=c++14)
     endif()

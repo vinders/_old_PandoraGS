@@ -54,6 +54,9 @@ for:
 
 install:
   - call _scripts/ci/install_dependencies.bat
+  - set "PATH=C:\\Python38-x64;C:\\Python38-x64\\Scripts;%PATH%"
+  # if [%COMPILER%]==[MSVC19] call _scripts/ci/install_vulkan.bat
+  # if [%COMPILER%]==[MinGW-w64] call _scripts/ci/install_vulkan.bat
   # MinGW
   - if [%COMPILER%]==[MinGW-w64] choco upgrade chocolatey
   - if [%COMPILER%]==[MinGW-w64] if not exist "C:\mingw.7z" appveyor-retry appveyor DownloadFile "http://downloads.sourceforge.net/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z" -FileName "C:\mingw.7z"
@@ -73,7 +76,7 @@ build_script:
   - cd ..
   # build project
   - if [%COMPILER%]==[MSVC19] cmake -G "Visual Studio 16 2019" -A %PLATFORM% -S . -B ./_build/%BUILD_DIR%
-  - if [%COMPILER%]==[MSVC17] cmake -G "Visual Studio 15 2017" -A %PLATFORM% -S . -B ./_build/%BUILD_DIR% -DBUILD_CPP_REVISION="14"
+  - if [%COMPILER%]==[MSVC17] cmake -G "Visual Studio 15 2017" -A %PLATFORM% -S . -B ./_build/%BUILD_DIR% -DCWORK_CPP_REVISION="14"
   - if [%COMPILER%]==[LLVM/Clang] cmake -G "Ninja" -S . -B ./_build/%BUILD_DIR% -DCMAKE_C_COMPILER=clang.exe -DCMAKE_CXX_COMPILER=clang++.exe -DCMAKE_LINKER=lld-link.exe -DCMAKE_MAKE_PROGRAM=ninja.exe -DCMAKE_CXX_FLAGS="-target x86_64-w64-mingw32" -DCMAKE_C_FLAGS="-target x86_64-w64-mingw32"
   - if [%COMPILER%]==[MinGW-w64] cmake -G "MinGW Makefiles" -S . -B ./_build/%BUILD_DIR% -DCMAKE_C_COMPILER=gcc.exe -DCMAKE_CXX_COMPILER=g++.exe -DCMAKE_MAKE_PROGRAM=mingw32-make.exe
   # compile
