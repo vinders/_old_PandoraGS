@@ -6,7 +6,7 @@ License :     MIT
 
 #include <cstddef>
 #include <cstdint>
-#if !defined(_WINDOWS) && !defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__) || defined(__GNUG__))
+#if !defined(_WINDOWS) && !defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__) || defined(__GNUG__) || defined(__linux__))
 # include <cstdio>
 # include <string>
 # include <sys/types.h>
@@ -173,7 +173,7 @@ namespace pandora {
 
       // -- CPU info files (Linux) --
       
-#     if !defined(_WINDOWS) && !defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__) || defined(__GNUG__))
+#     if !defined(_WINDOWS) && !defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__) || defined(__GNUG__) || defined(__linux__))
         /// @brief Read value in CPU info file (Linux)
         static std::string readCpuInfoFile(const std::string& prop) noexcept {
           std::string result;
@@ -203,10 +203,10 @@ namespace pandora {
 
         /// @brief Read value in aux vectors file (Linux)
         static bool readAuxVectorsFile(uint32_t auxVecType, uint32_t bits) noexcept {
+          bool result = false;
+          
           auto auxvFile = open("/proc/self/auxv", O_RDONLY);
           if (auxvFile > -1) {
-            bool result = false;
-
             Elf32_auxv_t auxvTuple;
             while (read(auxvFile, &auxvTuple, sizeof(auxvTuple)) == sizeof(auxvTuple)) {
               if (auxvTuple.a_type == auxVecType) {
@@ -215,9 +215,8 @@ namespace pandora {
               }
             }
             close(auxvFile);
-            return result;
           }
-          return false;
+          return result;
         }
 #     endif
     };

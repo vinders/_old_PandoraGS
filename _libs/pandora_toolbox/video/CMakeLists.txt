@@ -30,11 +30,10 @@ if(CWORK_VIDEO_VULKAN) # vulkan 1.2+
 endif()
 if(CWORK_VIDEO_OPENGL4 OR CWORK_VIDEO_VULKAN) # common
     set(_EXTERN_LIBS ${_EXTERN_LIBS} glm)
-    cwork_tests_set_external_libs(glfw3)
 endif()
 
 if(_EXTERN_LIBS)
-    cwork_set_external_libs("private" ${_EXTERN_LIBS})
+    cwork_set_external_libs("public" ${_EXTERN_LIBS})
 endif()
 cwork_set_internal_libs(system thread hardware)
 
@@ -53,31 +52,16 @@ if(CWORK_VIDEO_OPENGL4)
     set(_INCLUDE_FILES ${_INCLUDE_FILES} 
         ${CMAKE_CURRENT_SOURCE_DIR}/${_INCLUDE_DIR}/video/api/opengl.h
     )
-    set(_SOURCE_FILES ${_SOURCE_FILES} 
-        ${CMAKE_CURRENT_SOURCE_DIR}/${_SOURCE_DIR}/test_opengl.cpp
-    )
 endif()
 if(CWORK_VIDEO_VULKAN)
     set(_INCLUDE_FILES ${_INCLUDE_FILES} 
         ${CMAKE_CURRENT_SOURCE_DIR}/${_INCLUDE_DIR}/video/api/vulkan.h
     )
-    set(_SOURCE_FILES ${_SOURCE_FILES} 
-        ${CMAKE_CURRENT_SOURCE_DIR}/${_SOURCE_DIR}/test_vulkan.cpp
-    )
-endif()
-if(CWORK_VIDEO_OPENGL4 OR CWORK_VIDEO_VULKAN)
-    set(_SHADER_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/${_INCLUDE_DIR}/video/shaders/opengl/test.vert
-        ${CMAKE_CURRENT_SOURCE_DIR}/${_INCLUDE_DIR}/video/shaders/opengl/test/test1.vert
-    )
 endif()
 
 cwork_set_include_files(${_INCLUDE_FILES})
-cwork_set_source_files(${_SOURCE_FILES})
+#cwork_set_source_files(${_SOURCE_FILES})
 cwork_set_test_files(${_TEST_FILES})
-if(_SHADER_FILES)
-    cwork_set_custom_files(${_SHADER_FILES})
-endif()
 
 cwork_create_project("static" "${CWORK_SOLUTION_PATH}/_cmake" "${CWORK_SOLUTION_PATH}/_cmake/modules"
                      ${_INCLUDE_DIR} ${_SOURCE_DIR} ${_TEST_DIR})

@@ -38,11 +38,11 @@ using namespace pandora::hardware;
   }
   // Read brand name in CPUID register  and convert raw value to brand string
   static inline std::string _readCpuBrandString(int32_t maxExtendedRegisterId) noexcept {
+    char brand[3*4*sizeof(uint32_t) + 1];
+    memset(brand, 0, sizeof(brand));
+      
     if (maxExtendedRegisterId >= static_cast<int32_t>(cpuid_x86::RegisterId::brand3)) {
       CpuRegister128 buffer{ 0 };
-      char brand[3*4*sizeof(uint32_t) + 1];
-      memset(brand, 0, sizeof(brand));
-
       CpuidRegisterReader::fillCpuid(buffer, cpuid_x86::RegisterId::brand1, 0);
       memcpy(reinterpret_cast<void*>(brand), reinterpret_cast<void*>(buffer.data()), 4*sizeof(uint32_t));
 
@@ -51,9 +51,8 @@ using namespace pandora::hardware;
 
       CpuidRegisterReader::fillCpuid(buffer, cpuid_x86::RegisterId::brand3, 0);
       memcpy(reinterpret_cast<void*>(brand + 8*sizeof(uint32_t)), reinterpret_cast<void*>(buffer.data()), 4*sizeof(uint32_t));
-      return std::string(brand);
     }
-    return std::string{};
+    return std::string(brand);
   }
 
   // Process CPU specifications detection (x86)
@@ -103,12 +102,9 @@ using namespace pandora::hardware;
       case cpuid_x86::RegisterId::baseFeatures:     return static_cast<uint32_t>(hasBaseProperty(prop));
       case cpuid_x86::RegisterId::advancedFeatures: return static_cast<uint32_t>(hasAdvancedProperty(prop));
       case cpuid_x86::RegisterId::extendedFeatures: return static_cast<uint32_t>(hasExtendedProperty(prop));
-      default: 
-        if (prop.exclusivity() == CpuVendor::unknown || prop.exclusivity() == this->_vendorId)
-          return CpuidRegisterReader::readRegisterBits(prop);
-        break;
+      default: return (prop.exclusivity() == CpuVendor::unknown || prop.exclusivity() == this->_vendorId)
+                      ? CpuidRegisterReader::readRegisterBits(prop) : 0u;
     }
-    return 0u;
   }
 
   // Verify CPU instruction set support
@@ -163,7 +159,7 @@ using namespace pandora::hardware;
         default: this->_vendorId = CpuVendor::unknown; break;
       }
         
-#     if !defined(_WINDOWS) && !defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__) || defined(__GNUG__))
+#     if !defined(_WINDOWS) && !defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__) || defined(__GNUG__) || defined(__linux__))
         this->_vendor = CpuidRegisterReader::readCpuInfoFile("vendor_id");
         if (this->_vendor.empty())
 #     endif
@@ -176,7 +172,7 @@ using namespace pandora::hardware;
     }
     
     if ((mode & SpecMode::brandName) == true) {
-#     if !defined(_WINDOWS) && !defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__) || defined(__GNUG__))
+#     if !defined(_WINDOWS) && !defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__) || defined(__GNUG__) || defined(__linux__))
         this->_brand = CpuidRegisterReader::readCpuInfoFile("model name");
         if (this->_brand.empty())
 #     endif
@@ -198,7 +194,7 @@ using namespace pandora::hardware;
     }
   }
 
-# if !defined(_WINDOWS) && !defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__) || defined(__GNUG__))
+# if !defined(_WINDOWS) && !defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__) || defined(__GNUG__) || defined(__linux__))
     static inline bool _hasCpuNeonOnLinux() noexcept { return CpuidRegisterReader::readAuxVectorsFile(AT_HWCAP, 4096); }
 # endif
 
@@ -224,7 +220,7 @@ using namespace pandora::hardware;
 #     else
       return (type == CpuInstructionSet::cpp);
 #     endif
-#   elif defined(__clang__) || defined(__GNUC__) || defined(__GNUG__)
+#   elif defined(__clang__) || defined(__GNUC__) || defined(__GNUG__) || defined(__linux__) || defined(__APPLE__)
 #     if defined(__aarch64__)
         return (type == CpuInstructionSet::neon64 || type == CpuInstructionSet::neon || type == CpuInstructionSet::cpp);
 #     elif defined(__clang__)
