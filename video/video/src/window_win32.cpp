@@ -19,7 +19,28 @@ Description : Window management: Win32 implementation (Windows)
 #   define __if_constexpr if
 # endif
 
-using namespace pandora::video;
+  using namespace pandora::video;
+  
+  struct WindowAdjustedPosition final {
+    uint32_t x;
+    uint32_t y;
+    uint32_t totalWidth;
+    uint32_t totalHeight;
+  };
+
+// -- OS version -- ------------------------------------------------------------
+
+# define _WIN10_ANNIVERSARY_MINOR 0
+# define _WIN10_ANNIVERSARY_BUILD 14393
+
+  static bool _isWindowsVersionGreaterEqual(DWORD major, DWORD minor, DWORD build) {
+    OSVERSIONINFOEXW versionInfo = { sizeof(OSVERSIONINFOEXW), major, minor, build };
+    ULONGLONG versionCheck = VerSetConditionMask(0, VER_MAJORVERSION, VER_GREATER_EQUAL);
+    versionCheck = VerSetConditionMask(versionCheck, VER_MINORVERSION, VER_GREATER_EQUAL);
+    versionCheck = VerSetConditionMask(versionCheck, VER_BUILDNUMBER, VER_GREATER_EQUAL);
+    return (RtlVerifyVersionInfo(&versionInfo, (VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER), versionCheck) == STATUS_SUCCESS);
+  }
+
 
 // -- display/size/style native enums -- ---------------------------------------
 
@@ -232,14 +253,14 @@ using namespace pandora::video;
 
 // -- window metrics -- --------------------------------------------------------
 
-  static inline void _getWindowBorderSizes(WindowDisplayMode displayMode, WindowSizeMode sizeMode, uint32_t& outBorderX, uint32_t& outBorderY, uint32_t& outCaptionY) noexcept {
+  static inline void _getWindowBorderSizes(WindowDisplayMode displayMode, bool isResizable, uint32_t& outBorderX, uint32_t& outBorderY, uint32_t& outCaptionY) noexcept {
     if (displayMode == WindowDisplayMode::fullscreen || displayMode == WindowDisplayMode::borderless) {
       outBorderX = 0;
       outBorderY = 0;
       outCaptionY = 0;
     }
     else {
-      if (sizeMode & (WindowSizeMode::resizableX | WindowSizeMode::resizableY)) {
+      if (isResizable) {
         outBorderX = GetSystemMetrics(SM_CXSIZEFRAME);
         outBorderY = GetSystemMetrics(SM_CYSIZEFRAME);
       }
@@ -251,26 +272,105 @@ using namespace pandora::video;
     }
   }
   
+  bool Window::readMonitorResolution(uint32_t& outX, uint32_t& outY) noexcept {
+    HDC screenDC = GetDC(nullptr);
+    int x = GetDeviceCaps(screenDC, HORZRES);
+    int y = GetDeviceCaps(screenDC, VERTRES);
+    ReleaseDC(nullptr, screenDC);
+    screenDC = nullptr;
+    
+    if (x < 640 || y < 480) {
+      if (_isWindowsVersionGreaterEqual(10, _WIN10_ANNIVERSARY_MINOR, _WIN10_ANNIVERSARY_BUILD)) {
+        UINT dpi = GetDpiForWindow(windowHandle);
+        if (dpi == 0)
+          dpi = USER_DEFAULT_SCREEN_DPI;
+        x = GetSystemMetricsForDpi(SM_CXSCREEN, dpi);
+        y = GetSystemMetricsForDpi(SM_CYSCREEN, dpi);
+      }
+      else {
+        x = GetSystemMetrics(SM_CXSCREEN);
+        y = GetSystemMetrics(SM_CYSCREEN);
+      }
+    }
+    if (x > 0 && y > 0) {
+      outX = static_cast<uint32_t>(x);
+      outY = static_cast<uint32_t>(y);
+      return true;
+    }
+    return false;
+  }
+  
   static inline bool _readClientArea(HWND windowHandle, RECT& out) noexcept {
     return (GetClientRect(windowHandle, &out) != FALSE && out.right > out.left && out.bottom > out.top);
   }
   static inline void _calculateClientArea(const WindowPosition& position, WindowDisplayMode displayMode, WindowSizeMode sizeMode, RECT& out) noexcept {
     uint32_t borderX, borderY, captionY;
-    _getWindowBorderSizes(displayMode, sizeMode, borderX, borderY, captionY);
+    _getWindowBorderSizes(displayMode, (sizeMode & (WindowSizeMode::resizableX | WindowSizeMode::resizableY)), borderX, borderY, captionY);
+    
+    //TODO position def/centre
     
     out.left = static_cast<LONG>(position.x + borderX);
     out.top = static_cast<LONG>(position.y + captionY);
     out.right = out.left + static_cast<LONG>(position.clientAreaWidth);
     out.bottom = out.top + static_cast<LONG>(position.clientAreaHeight);
   }
-  static inline void _calculateTotalArea(const WindowPosition& position, WindowDisplayMode displayMode, WindowSizeMode sizeMode, RECT& out) noexcept {
-    uint32_t borderX, borderY, captionY;
-    _getWindowBorderSizes(displayMode, sizeMode, borderX, borderY, captionY);
+  
+  static inline void _getWindowTotalArea(const WindowPosition& position, HWND windowHandle, WindowDisplayMode displayMode, bool hasMenu, DWORD style, DWORD styleExt, WindowAdjustedPosition& out) noexcept {
+    if (displayMode == WindowDisplayMode::fullscreen || displayMode == WindowDisplayMode::borderless) {
+      out.totalWidth = (position.clientAreaWidth != defaultWindowSize()) ? position.clientAreaWidth : CW_USEDEFAULT;
+      out.totalHeight = (position.clientAreaHeight != defaultWindowSize()) ? position.clientAreaHeight : CW_USEDEFAULT;
+    }
+    else if (position.clientAreaWidth == defaultWindowSize() && position.clientAreaHeight == defaultWindowSize()) {
+      out.totalWidth = CW_USEDEFAULT;
+      out.totalHeight = CW_USEDEFAULT;
+    }
+    else {
+      RECT area;
+      area.left = 100;
+      area.top = 100;
+      area.right = (position.clientAreaWidth != defaultWindowSize()) ? area.left + position.clientAreaWidth : area.left + 200;
+      area.bottom = (position.clientAreaHeight != defaultWindowSize()) ? area.left + position.clientAreaHeight : area.top + 200;
+
+      bool isSuccess = false;
+      if (_isWindowsVersionGreaterEqual(10, _WIN10_ANNIVERSARY_MINOR, _WIN10_ANNIVERSARY_BUILD)) {
+        UINT dpi = GetDpiForWindow(windowHandle);
+        if (dpi == 0)
+          dpi = USER_DEFAULT_SCREEN_DPI;
+        isSuccess = (AdjustWindowRectExForDpi(&area, style, hasMenu ? TRUE : FALSE, styleExt, dpi) != FALSE);
+      }
+      else
+        isSuccess = (AdjustWindowRectEx(&area, style, hasMenu ? TRUE : FALSE, styleExt) != FALSE);
+
+      if (isSuccess && (area.right - area.left) >= position.clientAreaWidth)) {
+        out.totalWidth = (position.clientAreaWidth != defaultWindowSize()) ? (area.right - area.left) : CW_USEDEFAULT;
+        out.totalHeight = (position.clientAreaHeight != defaultWindowSize()) ? (area.bottom - area.top) : CW_USEDEFAULT;
+      }
+      else {
+        uint32_t borderX, borderY, captionY;
+        _getWindowBorderSizes(displayMode, (style & WS_SIZEBOX), borderX, borderY, captionY);
+        out.totalWidth = (position.clientAreaWidth != defaultWindowSize()) ? position.clientAreaWidth + (borderX<<1) : CW_USEDEFAULT;
+        out.totalHeight = (position.clientAreaHeight != defaultWindowSize()) ? position.clientAreaHeight + captionY + borderY : CW_USEDEFAULT;
+      }
+    }
     
-    out.left = position.x;
-    out.top = position.y;
-    out.right = out.left + position.clientAreaWidth + (borderX<<1);
-    out.bottom = out.top + position.clientAreaHeight + captionY + borderY;
+    uint32_t screenX = 800u;
+    uint32_t screenY = 600u;
+    if (position.clientAreaWidth == centeredWindowPosition() || position.clientAreaHeight == centeredWindowPosition())
+      Window::readMonitorResolution(screenX, screenY);
+    switch (position.x) {
+      case defaultWindowPosition():  out.x = CW_USEDEFAULT; break;
+      case centeredWindowPosition(): 
+        out.x = (out.totalWidth != CW_USEDEFAULT && out.totalWidth <= screenX) ? (screenX - out.totalWidth)>>1 : 0; 
+        break;
+      default: out.x = position.x; break;
+    }
+    switch (position.y) {
+      case defaultWindowPosition():  out.y = CW_USEDEFAULT; break;
+      case centeredWindowPosition(): 
+        out.y = (out.totalHeight != CW_USEDEFAULT && out.totalHeight <= screenY) ? (screenY - out.totalHeight)>>1 : 0; 
+        break;
+      default: out.y = position.y; break;
+    }
   }
   
   void Window::_refreshClientSizeX() noexcept {
@@ -375,11 +475,9 @@ using namespace pandora::video;
 
     // client area ratio: used for homothety
     if ((sizeMode & WindowSizeMode::homothety) || this->_clientArea.bottom == this->_clientArea.top) {
-      if (position.clientAreaWidth == 0)
-        position.clientAreaWidth = this->_clientArea.right - this->_clientArea.left;
-      if (position.clientAreaHeight == 0)
-        position.clientAreaHeight = this->_clientArea.bottom - this->_clientArea.top; // if still 0, use 4:3
-      this->_sizeRatio = (position.clientAreaHeight > 0) ? static_cast<double>(position.clientAreaWidth) / static_cast<double>(position.clientAreaHeight) : 4.0/3.0;
+      uint32_t originalWidth = (position.clientAreaWidth != defaultWindowSize()) ? position.clientAreaWidth : this->_clientArea.right - this->_clientArea.left;
+      uint32_t originalHeight = (position.clientAreaHeight != defaultWindowSize()) ? position.clientAreaHeight : this->_clientArea.bottom - this->_clientArea.top;
+      this->_sizeRatio = (originalHeight != 0) ? static_cast<double>(originalWidth) / static_cast<double>(originalHeight) : 4.0/3.0;
     }
     else
       this->_sizeRatio = static_cast<double>(this->_clientArea.right - this->_clientArea.left) / static_cast<double>(this->_clientArea.bottom - this->_clientArea.top);
@@ -388,7 +486,6 @@ using namespace pandora::video;
     SetLastError(0);
     if (SetWindowLongPtr(this->_windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this)) == 0 && GetLastError() != 0)
       throw std::runtime_error("Window: failed to set user data for window message handling."); //TODO: GetLastError + FormatMessage
-    
     // enable window thread + user input
     if (initialStatus != WindowVisibility::minimize) {
       SetForegroundWindow(this->_windowHandle);
@@ -505,12 +602,12 @@ using namespace pandora::video;
   }
   void Window::clearClientArea(const WindowPosition& position) noexcept {
     assert(this->_backgroundColor != nullptr);
-    if (position.width > 0u && position.height > 0u) {
+    if (position.clientAreaWidth > 0u && position.clientAreaHeight > 0u) {
       RECT area;
       area.left = (position.x != defaultWindowPosition()) ? static_cast<LONG>(position.x) : 0;
       area.top = (position.y != defaultWindowPosition()) ? static_cast<LONG>(position.y) : 0;
-      area.right = area.left + static_cast<LONG>(position.width);
-      area.bottom = area.top + static_cast<LONG>(position.height);
+      area.right = area.left + static_cast<LONG>(position.clientAreaWidth);
+      area.bottom = area.top + static_cast<LONG>(position.clientAreaHeight);
       FillRect(context, &area, (HBRUSH)(this->_backgroundColor->handle()));
     }
   }
@@ -522,12 +619,12 @@ using namespace pandora::video;
   }
   void Window::fillClientArea(const WindowPosition& position, std::shared_ptr<ColorResource> color) noexcept{
     assert(this->_backgroundColor != nullptr);
-    if (position.width > 0u && position.height > 0u) {
+    if (position.clientAreaWidth > 0u && position.clientAreaHeight > 0u) {
       RECT area;
       area.left = (position.x != defaultWindowPosition()) ? static_cast<LONG>(position.x) : 0;
       area.top = (position.y != defaultWindowPosition()) ? static_cast<LONG>(position.y) : 0;
-      area.right = area.left + static_cast<LONG>(position.width);
-      area.bottom = area.top + static_cast<LONG>(position.height);
+      area.right = area.left + static_cast<LONG>(position.clientAreaWidth);
+      area.bottom = area.top + static_cast<LONG>(position.clientAreaHeight);
       FillRect(context, &area, (color != nullptr) ? (HBRUSH)(color->handle()) : (HBRUSH)(this->_backgroundColor->handle()));
     }
   }

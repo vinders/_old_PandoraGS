@@ -70,6 +70,9 @@ namespace pandora {
     constexpr inline uint32_t centeredWindowPosition() noexcept { return 0xFFFFFFFEu; } ///< X or Y coordinate for centered window position
     
     /// @brief Pixel dimensions of a window
+    /// @remarks width/height can be defaultWindowSize()
+    ///          x/y can be defaultWindowPosition()/centeredWindowPosition()
+    /// @warning centeredWindowPosition() is only supported if width/height are NOT default.
     struct WindowPosition final {
       uint32_t clientAreaWidth = defaultWindowSize();
       uint32_t clientAreaHeight = defaultWindowSize();
@@ -132,6 +135,10 @@ namespace pandora {
       /// @brief Get current position of the cursor within the window client area
       /// @warning Returns { -1, -1 } if the cursor is not available, hidden or out of the window
       WindowPixel cursorWindowPosition() noexcept;
+      
+      /// @brief Read monitor/desktop resolution of current system. 
+      /// @returns Reading success
+      static bool readMonitorResolution(uint32_t& outX, uint32_t& outY) noexcept;
       
       // -- change display settings --
       
