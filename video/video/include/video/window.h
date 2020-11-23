@@ -8,23 +8,14 @@ Description : Window management for desktop systems (Windows / Mac OS / Linux / 
 
 #include <cstdint>
 #include <cstddef>
+#include <string>
 #include <memory>
-#include <mutex>
-#ifdef _WINDOWS
-# include <system/api/windows_api.h>
-#endif
-#include <thread/spin_lock.h>
 #include <system/preprocessor_tools.h>
+#include "./window_handle.h"
 #include "./window_style.h"
 
 namespace pandora {
   namespace video {
-#   ifdef _WINDOWS
-      using WindowHandle   = HWND;    ///< Window management handle
-#   else
-      using WindowHandle   = int32_t; ///< Window management handle
-#   endif
-
     /// @brief Window size features bits (fixed/resizable)
     /// @warning Ignored with WindowDisplayMode::fullscreen/WindowDisplayMode::borderless.
     enum class WindowSizeMode : uint32_t {
@@ -46,16 +37,15 @@ namespace pandora {
     /// @brief Window visibility change
     enum class WindowVisibility : uint32_t {
 #     ifdef _WINDOWS
-        hide         = SW_HIDE,         ///< Hide window, and activate the next top-level window (not recommended on creation).
+        hide         = SW_HIDE,         ///< Hide window, and activate the next top-level window (not available on creation: will act as 'show').
         show         = SW_SHOW,         ///< Show window with current size/position (active).
         showInactive = SW_SHOWNA,       ///< Show window with current size/position (inactive).
         showDefault  = SW_SHOWDEFAULT,  ///< Show default window state (defined during the process creation).
-        restore      = SW_RESTORE,      ///< Show window with original size/position (active, not minimized, nor maximized). 
-                                        ///  If a Window is created in hidden mode, 'restore' won't work until a 'show[...]' or 'maximize' visiblity is set.
-        minimize     = SW_MINIMIZE,     ///< Minimize window, and activate the next top-level window (not recommended on creation).
+        restore      = SW_RESTORE,      ///< Show window with original size/position (active, not minimized, nor maximized).
+        minimize     = SW_MINIMIZE,     ///< Minimize window, and activate the next top-level window.
         maximize     = SW_SHOWMAXIMIZED,///< Maximize window (active).
 #     else
-        hide         = 0u, ///< Hide window, and activate the next top-level window.
+        hide         = 0u, ///< Hide window, and activate the next top-level window (not available on creation: will act as 'show').
         show         = 1u, ///< Show window with current size/position (active).
         showInactive = 2u, ///< Show window with current size/position (inactive).
         showDefault  = 3u, ///< Show default window state (defined during the process creation).
@@ -72,7 +62,7 @@ namespace pandora {
     /// @brief Pixel dimensions of a window
     /// @remarks width/height can be defaultWindowSize()
     ///          x/y can be defaultWindowPosition()/centeredWindowPosition()
-    /// @warning centeredWindowPosition() is only supported if width/height are NOT default.
+    /// @warning X/Y value centeredWindowPosition() is only supported if width/height are NOT default.
     struct WindowPosition final {
       uint32_t clientAreaWidth = defaultWindowSize();
       uint32_t clientAreaHeight = defaultWindowSize();
@@ -84,6 +74,16 @@ namespace pandora {
       int32_t x;
       int32_t y;
     };
+    /// @brief Effective pixel dimensions of the client area of a window
+    struct ClientArea final {
+      uint32_t x;      ///< absolute X position of client area (doesn't include window borders)
+      uint32_t y;      ///< absolute Y position of client area (doesn't include window borders)
+      uint32_t width;  ///< X size of client area
+      uint32_t height; ///< Y size of client area
+      uint32_t bordersX; ///< size of all borders on the left/right sides of client area
+      uint32_t bordersY; ///< size of all borders/caption on the top/bottom of client area
+      double fixedRatio; ///< fixed client area width/height ratio (or current ratio, if homothety is disabled)
+    };
     
     // ---
 
@@ -94,6 +94,8 @@ namespace pandora {
     ///                                                       .build(_P_WINDOW_STRING("FULLSCR_WINDOW_TEMPLATE"));
     ///            Window myWindow(WindowPosition{800, 600}, styleDef, WindowWidgetMode::topMost, WindowSizeMode::fixed, 
     ///                            _P_WINDOW_STRING("My Window"), false, WindowVisibility::show);
+    /// @warning On Windows, to properly manage high-DPI environments, you need to embed a "DPI aware" manifest into your executable or dynamic library)
+    ///          Example: see _cmake/templates/windows_dpi_aware.manifest
     class Window final {
     public:
       /// @brief Create a new system window
@@ -107,13 +109,25 @@ namespace pandora {
                WindowWidgetMode widgets, WindowSizeMode sizeMode, const char caption[], bool isCursorVisible, 
                WindowVisibility initialStatus, std::shared_ptr<MenuResource> menu = nullptr, WindowHandle owner = (WindowHandle)0);
 #     endif
-      ~Window() noexcept;
+      ~Window() noexcept { _destroyWindow(); }
 
       // no move: once registered to event handler, the window address must not change
       Window(const Window&) = delete;
       Window(Window&&) = delete; 
       Window& operator=(const Window&) = delete;
       Window& operator=(Window&&) = delete;
+      
+      /// @brief Process/forward pending events (user input, size changes, shutdown...)
+      ///        Should be regularly be called in the main application loop.
+      /// @returns Global application status: alive (true) or quitting (false)
+      static bool pollEvents() noexcept;
+      
+      /// @brief Verify if current window is still running (true), or if it's been closed/destroyed (false).
+      /// @remarks The fact that the window is destroyed doesn't necessarily mean that the application is finished. Check pollEvents() for that.
+      bool isWindowAlive() noexcept { return (this->_windowHandle != (WindowHandle)0); }
+      
+      static std::string formatLastError(const char prefix[]) noexcept;
+
       
       // -- accessors --
       
@@ -138,14 +152,12 @@ namespace pandora {
       
       /// @brief Read monitor/desktop resolution of current system. 
       /// @returns Reading success
-      static bool readMonitorResolution(uint32_t& outX, uint32_t& outY) noexcept;
+      static bool readMonitorDisplayResolution(uint32_t& outX, uint32_t& outY) noexcept;
       
       // -- change display settings --
       
-      /// @brief Change window display mode (fullscreen/borderless/window/...)
-      bool displayMode(WindowDisplayMode mode) noexcept;
-      /// @brief Change window display mode + resizing mode
-      bool displayMode(WindowDisplayMode mode, WindowSizeMode sizeMode) noexcept;
+      /// @brief Change window display mode, resolution, resizing mode
+      bool displayMode(WindowDisplayMode mode, const WindowPosition& position);
       /// @brief Change window resizing mode
       bool sizeMode(WindowSizeMode sizeMode) noexcept;
       /// @brief Change window visibility/focus or maximize/minimize window
@@ -190,34 +202,42 @@ namespace pandora {
       bool moveResize(const WindowPosition& position) noexcept;
       
 
+    protected:
+#     ifdef _WINDOWS
+        static LRESULT CALLBACK windowEventHandler(HWND windowHandle, UINT message, WPARAM wparam, LPARAM lparam);
+#     endif
+      void _destroyWindow() noexcept;
+      friend class WindowStyleBuilder;
+
     private:
 #     ifdef _WINDOWS
-        void _refreshClientSizeX() noexcept;
-        void _refreshClientSizeY() noexcept;
+        bool _refreshClientSizeX() noexcept;
+        bool _refreshClientSizeY() noexcept;
+        void _calculateClientSizeY() noexcept;
 
-        inline RECT _getClientArea() noexcept { 
-          std::lock_guard<pandora::thread::SpinLock> lock(_clientAreaLock);
+        inline RECT _getClientArea() const noexcept { 
           RECT area = this->_clientArea;
           return area;
         }
-        inline RECT _getClientArea(double& ratio) noexcept { 
-          std::lock_guard<pandora::thread::SpinLock> lock(_clientAreaLock);
+        inline RECT _getClientArea(double& ratio) const noexcept { 
           ratio = this->_sizeRatio;
           RECT area = this->_clientArea;
           return area;
         }
-        inline double _getClientAreaRatio() noexcept { 
-          std::lock_guard<pandora::thread::SpinLock> lock(_clientAreaLock);
+        inline double _getClientAreaRatio() const noexcept { 
           return this->_sizeRatio;
         }
+        inline bool _isClientAreaInvalid() const noexcept {
+          return _isClientAreaInvalid_noLock();
+        }
         inline void _setClientArea(RECT area) noexcept { 
-          std::lock_guard<pandora::thread::SpinLock> lock(_clientAreaLock);
-          this->_clientArea = area;
-          if ((this->_sizeMode & WindowSizeMode::homothety) && area.bottom > area.top)
-            this->_sizeRatio = static_cast<double>(area.right - area.left) / static_cast<double>(area.bottom - area.top);
+          if (area.bottom > area.top) {
+            if ((this->_sizeMode & WindowSizeMode::homothety) == 0 || _isClientAreaInvalid())
+              this->_sizeRatio = static_cast<double>(area.right - area.left) / static_cast<double>(area.bottom - area.top);
+            this->_clientArea = area; // only update value after calling '_isClientAreaInvalid'
+          }
         }
         inline void _setClientAreaForceRatio(RECT area) noexcept { 
-          std::lock_guard<pandora::thread::SpinLock> lock(_clientAreaLock);
           this->_clientArea = area;
           this->_sizeRatio = static_cast<double>(area.right - area.left) / static_cast<double>(area.bottom - area.top);
         }
@@ -227,13 +247,12 @@ namespace pandora {
       // keep resources and definition alive while window exists
       std::shared_ptr<WindowStyle> _windowStyleDef = nullptr;
       std::shared_ptr<MenuResource> _menu = nullptr;
-      std::shared_ptr<ColorResource> _backgroundColor = nullptr;
-      std::shared_ptr<CursorResource> _cursor = nullptr;
 #     ifdef _WINDOWS
         RECT _clientArea{ 0 };
 #     endif
       double _sizeRatio = 1.0;
-      pandora::thread::SpinLock _clientAreaLock;
+      
+      static std::atomic<int32_t> _windowCounter = 0;
       
       WindowHandle _windowHandle = nullptr;
       WindowDisplayMode _displayMode = WindowDisplayMode::window;

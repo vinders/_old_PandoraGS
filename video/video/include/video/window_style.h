@@ -11,6 +11,7 @@ License :     MIT
 #ifdef _WINDOWS
 # include <system/api/windows_api.h>
 #endif
+# include "./window_handle.h"
 
 #ifndef _P_WINDOW_STRING
 # ifdef _WINDOWS
@@ -114,14 +115,6 @@ namespace pandora {
     
     
     // -- UI resource management --
-    
-#   ifdef _WINDOWS
-      using InstanceHandle = HINSTANCE; ///< App instance management handle
-      using ResourceHandle = HANDLE;    ///< Resource management handle
-#   else
-      using InstanceHandle = int32_t; ///< App instance management handle
-      using ResourceHandle = int32_t; ///< Resource management handle
-#   endif
     
     /// @class IconResource
     /// @brief RAII icon resource handle. Typically stored in a shared_ptr.
@@ -272,6 +265,12 @@ namespace pandora {
       /// @brief Create color style resource
       /// @returns On success: valid color resource. On failure: nullptr.
       static std::shared_ptr<ColorResource> createColorStyle(WindowColor color) noexcept;
+      
+      // -- menus --
+      
+      /// @brief Create color style resource
+      /// @returns On success: valid menu resource. On failure: nullptr.
+      static std::shared_ptr<MenuResource> createMenu() noexcept;
       
       // -- icons / cursors --
       
