@@ -11,6 +11,7 @@ Description : Window management: Win32 implementation (Windows)
 # include <string>
 # include <system/api/windows_api.h>
 # include <windowsx.h>
+# include "video/_private/_utils_win32.h"
 # include "video/window_handle.h"
 # include "video/window_style.h"
 # include "video/window.h"
@@ -29,6 +30,18 @@ Description : Window management: Win32 implementation (Windows)
     uint32_t totalWidth;
     uint32_t totalHeight;
   };
+  
+  
+  
+  
+//TODO!!!!
+//-> EnumDisplaySettings affiche le statut courant -> pour obtenir la résolution de l'écran, ça ne marche qu'au début, AVANT de faire ChangeDisplaySettings
+//-> à stocker quelque part!
+
+//TODO: même pour les bordures, lecture avec DPI
+  
+  
+  
 
 // -- utilities -- -------------------------------------------------------------
 
@@ -55,7 +68,7 @@ Description : Window management: Win32 implementation (Windows)
   }
 
 
-// -- display/size/style native enums -- ---------------------------------------
+// -- display/size/style/visibility native enums -- ----------------------------
 
   // convert window display mode enum to native flags
   template <bool _ResetPrevious>
@@ -103,6 +116,27 @@ Description : Window management: Win32 implementation (Windows)
       outExtStyle |= WS_EX_TOPMOST;
     if (widgets & WindowWidgetMode::aboveTaskbar)
       outExtStyle |= WS_EX_APPWINDOW;
+  }
+  
+  // convert window visibility enum to native flag
+  template <bool _IsFirstCall>
+  static inline int _toShowWindowFlag(WindowDisplayMode displayMode, WindowVisibility status) noexcept {
+    switch(status) {
+      case WindowVisibility::hide:
+        __if_constexpr (_IsFirstCall) return (displayMode != WindowDisplayMode::fullscreen) ? SW_SHOW : SW_SHOWMAXIMIZED;
+        else                          return SW_HIDE;
+      case WindowVisibility::minimize:
+        __if_constexpr (_IsFirstCall) return (displayMode != WindowDisplayMode::fullscreen) ? SW_SHOW : SW_SHOWMAXIMIZED;
+        else                          return SW_MINIMIZE;
+      case WindowVisibility::restore:
+        __if_constexpr (_IsFirstCall) return (displayMode != WindowDisplayMode::fullscreen) ? SW_SHOWNORMAL : SW_SHOWMAXIMIZED;
+        else                          return SW_RESTORE;
+      case WindowVisibility::maximize:     return SW_SHOWMAXIMIZED;
+      case WindowVisibility::show:         return (displayMode != WindowDisplayMode::fullscreen) ? SW_SHOW        : SW_SHOWMAXIMIZED;
+      case WindowVisibility::showInactive: return (displayMode != WindowDisplayMode::fullscreen) ? SW_SHOWNA      : SW_SHOWMAXIMIZED;
+      case WindowVisibility::showDefault:  return (displayMode != WindowDisplayMode::fullscreen) ? SW_SHOWDEFAULT : SW_SHOWMAXIMIZED;
+      default:                             return (displayMode != WindowDisplayMode::fullscreen) ? SW_SHOWDEFAULT : SW_SHOWMAXIMIZED;
+    }
   }
 
 
@@ -299,6 +333,8 @@ Description : Window management: Win32 implementation (Windows)
     static bool _isMinimized = false;//à placer dans window
     static bool _isInSuspend = false;//dans window
     
+    //TODO: tenter d'avoir l'intégralité des changements faits ici
+    
     switch (message) {
       case WM_ACTIVATEAPP: {
         Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
@@ -326,11 +362,11 @@ Description : Window management: Win32 implementation (Windows)
         EndPaint(hWnd, &ps);
         
         Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
-        if (_isInSizeMove && window != nullptr && window->sizeChangeHandler) {
+        if (_isInSizeMove && window != nullptr && window->resizeHandler) {
           RECT area;
           if (window->_readClientArea()) {
             _setClientArea(area);
-            window->sizeChangeHandler(area.right - area.left, area.bottom - area.top);
+            window->resizeHandler(area.right - area.left, area.bottom - area.top);
           }
         }
         break;
@@ -372,8 +408,8 @@ Description : Window management: Win32 implementation (Windows)
           area.right = area.left + LOWORD(lParam);
           area.bottom = area.top + HIWORD(lParam);
           window->_setClientArea(area);
-          if (sizeChangeHandler != nullptr)
-            window->sizeChangeHandler(LOWORD(lParam), HIWORD(lParam));
+          if (resizeHandler != nullptr)
+            window->resizeHandler(LOWORD(lParam), HIWORD(lParam));
         }
         break;
       }
@@ -385,54 +421,52 @@ Description : Window management: Win32 implementation (Windows)
         _isInSizeMove = false;
         Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
         if (window != nullptr) {
-          if (!window->_refreshClientSizeY() && sizeChangeHandler != nullptr)
-            window->sizeChangeHandler(LOWORD(lParam), HIWORD(lParam));
+          RECT area;
+          if (window->_readClientArea(area) && area != window->_getClientArea()) {
+            window->_setClientArea(area);
+            window->resizeHandler(LOWORD(lParam), HIWORD(lParam));
+          }
         }
         break;
       }
-      case WM_SIZING: {//TODO: vérifier si utile quand WM_WINDOWPOSCHANGING déjà géré
+      case WM_SIZING: {
         Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
-        if (window != nullptr && lparam) {
+        if (window != nullptr && lparam && (window->_sizeMode & WindowSizeMode::homothety)) {
           LONG windowBordersX = 0, windowBordersY = 0;
           //TODO: stocker dans window quand on crée ou change display mode ou size mode:  adjusted - clientarea
           
-          auto rect = reinterpret_cast<RECT*>(lParam);
-          LONG newX, newY;
-          if (rect.right >= rect.left) {
-            newX = (rect.right - rect.left - windowBordersX >= 4) ? ((rect.right - rect.left - windowBordersX)>>2)<<2 : (rect.right - rect.left - windowBordersX);
-            newY = static_cast<LONG>(_calculateClientSizeY(static_cast<uint32_t>(newX), (rect.bottom >= rect.top) ? static_cast<int32_t>(rect.bottom - rect.top - windowBordersY) : static_cast<int32_t>(rect.bottom - rect.top + windowBordersY)));
-            newX += windowBordersX;
-            newY = (newY >= 0) ? newY + windowBordersY : newY - windowBordersY;
-          }
-          else {
-            newX = (rect.right - rect.left + windowBordersX <= -4) ? -(((rect.left - rect.right - windowBordersX)>>2)<<2) : (rect.right - rect.left + windowBordersX);
-            newY = static_cast<LONG>(_calculateClientSizeY(static_cast<uint32_t>(-newX), (rect.bottom >= rect.top) ? static_cast<int32_t>(rect.bottom - rect.top - windowBordersY) : static_cast<int32_t>(rect.bottom - rect.top + windowBordersY)));
-            newX -= windowBordersX;
-            newY = (newY >= 0) ? newY + windowBordersY : newY - windowBordersY;
-          }
-          rect.right = rect.left + newX;
-          rect.bottom = rect.top + newY;
-        }
-        break;
-      }
-      case WM_WINDOWPOSCHANGING: {
-        Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
-        if (window != nullptr && lparam) {
-          LONG windowBordersX = 0, windowBordersY = 0;
-          //TODO: stocker dans window quand on crée ou change display mode ou size mode:  adjusted - clientarea
-          
-          auto position = reinterpret_cast<WINDOWPOS*>(lParam);
-          if (position.cx >= 0) {
-            position.cx = (position.cx - windowBordersX >= 4 && position.cx - windowBordersX != 1366) ? ((position.cx - windowBordersX)>>2)<<2 + windowBordersX : position.cx;
-            position.cy = (position.cy >= 0) ? position.cy - windowBordersY : position.cy + windowBordersY;
-            position.cy = static_cast<int>(_calculateClientSizeY(static_cast<uint32_t>(position.cx - windowBordersX), static_cast<int32_t>(position.cy)));
-            position.cy = (position.cy >= 0) ? position.cy + windowBordersY : position.cy - windowBordersY;
-          }
-          else {
-            position.cx = (position.cx + windowBordersX <= -4 && position.cx - windowBordersX != 1366) ? -(((-position.cx - windowBordersX)>>2)<<2) - windowBordersX : position.cx;
-            position.cy = (position.cy >= 0) ? position.cy - windowBordersY : position.cy + windowBordersY;
-            position.cy = static_cast<int>(_calculateClientSizeY(static_cast<uint32_t>(-position.cx - windowBordersX), static_cast<int32_t>(position.cy)));
-            position.cy = (position.cy >= 0) ? position.cy + windowBordersY : position.cy - windowBordersY;
+          auto rect = reinterpret_cast<RECT*>(lparam);
+          switch (wparam) {
+            case WMSZ_TOPLEFT:
+            case WMSZ_TOPRIGHT: {
+              int32_t sizeX = static_cast<int32_t>(rect.right - rect.left - windowBordersX);
+              if (sizeX > 8 && sizeX != 1366) {
+                sizeX = (sizeX>>3)<<3; // move by blocks of 8px
+                if (sizeX < window->_minSizeX)
+                  sizeX = window->_minSizeX;
+              }
+              rect.top = rect.bottom - static_cast<LONG>(_calculateClientSizeY(sizeX)) - windowBordersY;
+              break;
+            }
+            case WMSZ_LEFT:
+            case WMSZ_BOTTOMLEFT:
+            case WMSZ_RIGHT:
+            case WMSZ_BOTTOMRIGHT: {
+              int32_t sizeX = static_cast<int32_t>(rect.right - rect.left - windowBordersX);
+              if (sizeX > 8 && sizeX != 1366) {
+                sizeX = (sizeX>>3)<<3; // move by blocks of 8px
+                if (sizeX < window->_minSizeX)
+                  sizeX = window->_minSizeX;
+              }
+              rect.bottom = rect.top + static_cast<LONG>(_calculateClientSizeY(sizeX)) + windowBordersY;
+              break;
+            }
+            case WMSZ_TOP:
+            case WMSZ_BOTTOM: {
+              int32_t sizeY = static_cast<int32_t>(rect.bottom - rect.top - windowBordersY);
+              rect.right = rect.left + static_cast<LONG>(_calculateClientSizeX(sizeY)) + windowBordersX;
+              break;
+            }
           }
         }
         break;
@@ -500,8 +534,8 @@ Description : Window management: Win32 implementation (Windows)
             RECT area;
             if (window->_readClientArea()) {
               _setClientArea(area);
-              if (window->sizeChangeHandler != nullptr)
-                window->sizeChangeHandler(area.right - area.left, area.bottom - area.top);
+              if (window->resizeHandler != nullptr)
+                window->resizeHandler(area.right - area.left, area.bottom - area.top);
               if (window->suspendHandler != nullptr)
                 window->suspendHandler(false);
               _isInSuspend = false;
@@ -515,8 +549,11 @@ Description : Window management: Win32 implementation (Windows)
         if (window == nullptr) {
           DestroyWindow(windowHandle);
         }
-        else if (window->closeHandler == nullptr || window->closeHandler() == true) {
-          window->_destroyWindow();
+        else {
+          if (window->closeHandler == nullptr || window->closeHandler() == true)
+            window->_destroyWindow();
+          else
+            return 0;
         }
         break;
       }
@@ -528,55 +565,44 @@ Description : Window management: Win32 implementation (Windows)
       case WM_SYSKEYDOWN: { // alt pressed + other key / F10 key (menu activated) -> check lparam
         if (lparam & 0x2000000) { // ALT key pressed + other key
           Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
-          if (window != nullptr) {
-            auto handler = window->keyDownHandlers.find(wparam);
-            if (handler != window->keyDownHandlers.end())
-              if (*handler(true/*isAlt*/, ((lparam&0x4000000) != 0)/*prevStateAlreadyDown*/, (lparam&0xFFFF)/*repeats/duration(not cumulated with other messages)*/))
-                return 0;
+          if (window != nullptr && window->keyDownHandler != nullptr) {
+            if (window->keyDownHandler(wparam, true/*isAlt*/, ((lparam&0x4000000) != 0)/*prevStateAlreadyDown*/, (lparam&0xFFFF)/*repeats/duration(not cumulated with other messages)*/))
+              return 0;
           }
         }
         break;
       }
       case WM_KEYDOWN: {
         Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
-        if (window != nullptr) {
-          auto handler = window->keyDownHandlers.find(wparam);
-          if (handler != window->keyDownHandlers.end())
-            if (*handler(false/*isAlt*/, ((lparam&0x4000000) != 0)/*prevStateAlreadyDown*/, (lparam&0xFFFF)/*repeats/duration(not cumulated with other messages)*/))
-              return 0;
+        if (window != nullptr && window->keyDownHandler != nullptr) {
+          if (window->keyDownHandler(wparam, false/*isAlt*/, ((lparam&0x4000000) != 0)/*prevStateAlreadyDown*/, (lparam&0xFFFF)/*repeats/duration(not cumulated with other messages)*/))
+            return 0;
         }
         break;
       }
       case WM_SYSKEYUP: { // alt released / F10 key (menu deactivated) -> check lparam
         if (lparam & 0x2000000) { // ALT key
           Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
-          if (window != nullptr) {
-            auto handler = window->keyUpHandlers.find(wparam);
-            if (handler != window->keyUpHandlers.end())
-              if (*handler(true/*isAlt*/))
-                return 0;
+          if (window != nullptr && window->keyUpHandler != nullptr) {
+            if (window->keyUpHandler(wparam, true/*isAlt*/))
+              return 0;
           }
         }
         break;
       }
       case WM_KEYUP: {
         Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
-        if (window != nullptr) {
-          auto handler = window->keyUpHandlers.find(wparam);
-          if (handler != window->keyUpHandlers.end())
-            if (*handler(false/*isAlt*/))
-              return 0;
+        if (window != nullptr && window->keyUpHandler != nullptr) {
+          if (window->keyUpHandler(wparam, false/*isAlt*/))
+            return 0;
         }
         break;
       }
-      case WM_MENUCHAR: { // menu is active and key pressed
-        Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
-        if (window != nullptr && window->menuShortcutHandler != nullptr)
-          return window->menuShortcutHandler(wparam, lparam);
-        else // no menu handler -> invalid mnemonic or accelerator key -> avoid beep
-          return MAKELRESULT(0, MNC_CLOSE);
-        break;
+      case WM_MENUCHAR: {
+        // no menu handler -> invalid mnemonic or accelerator key -> avoid beep
+        return MAKELRESULT(0, MNC_CLOSE);
       }
+      case WM_MOUSEMOVE:
       case WM_LBUTTONDBLCLK:
       case WM_LBUTTONDOWN:
       case WM_LBUTTONUP:
@@ -607,25 +633,6 @@ Description : Window management: Win32 implementation (Windows)
 
 // -- window creation/destruction -- -------------------------------------------
 
-  template <bool _IsFirstCall>
-  static bool _setWindowVisibility(WindowHandle window, WindowDisplayMode displayMode, WindowVisibility status) noexcept {
-    __if_constexpr (_IsFirstCall) {
-      if (initialStatus == WindowVisibility::hide)
-        return true;
-    }
-    
-    int visibility = (int)status;
-    if (this->_displayMode == WindowDisplayMode::fullscreen) {
-      if (status != WindowVisibility::minimize)
-        visibility = SW_SHOWMAXIMIZED;
-    }
-    else __if_constexpr (_IsFirstCall) {
-      if (status == WindowVisibility::restore)
-        visibility = SW_SHOWNORMAL;
-    }
-    return (ShowWindow(window, visibility) != FALSE);
-  }
-  
   static bool _setFullscreenDisplay(uint32_t sizeX, uint32_t sizeY) noexcept {
     DEVMODE screenMode;
     memset(&screenMode, 0, sizeof(DEVMODE));
@@ -642,14 +649,14 @@ Description : Window management: Win32 implementation (Windows)
 
   // create window
   Window::Window(const WindowPosition& position, std::shared_ptr<WindowStyle> windowStyleDef, WindowWidgetMode widgets, WindowSizeMode sizeMode,
-                 const wchar_t caption[], bool isCursorVisible, WindowVisibility initialStatus, std::shared_ptr<MenuResource> menu, WindowHandle owner)
+                 const wchar_t title[], bool isCursorVisible, WindowVisibility initialStatus, std::shared_ptr<MenuResource> menu, WindowHandle owner)
     : _windowStyleDef(std::move(windowStyleDef)),
       _menu(std::move(menu)),
       _widgets(widgets),
       _sizeMode(sizeMode),
       _isCursorVisible(isCursorVisible) {
     this->_displayMode = this->_windowStyleDef->displayMode;
-    assert(caption != nullptr);
+    assert(title != nullptr);
     if (_windowCounter == 0 && owner != nullptr) // if an external window exists (created by another module), do not trigger WM_QUIT when destroying this one
       ++_windowCounter;
     ++_windowCounter;
@@ -673,8 +680,7 @@ Description : Window management: Win32 implementation (Windows)
       throw std::invalid_argument(Window::formatLastError("Window: creation failure: "));
 
     // display window
-    WindowVisibility visibility = (initialStatus != WindowVisibility::minimize && initialStatus != WindowVisibility::hide) ? initialStatus : WindowVisibility::show; // show before minimizing (hide not supported on creation)
-    if (!_setWindowVisibility<true>(this->_windowHandle, this->_displayMode, visibility))
+    if (ShowWindow(this->_windowHandle, _toShowWindowFlag<true>(displayMode, initialStatus)) == FALSE) // no hiding/minimizing is done during first call (will be done after reading metrics)
       throw std::invalid_argument(Window::formatLastError("Window: display failure: "));
     if (this->_displayMode == WindowDisplayMode::fullscreen && initialStatus != WindowVisibility::minimize) {
       if (!_setFullscreenDisplay(creationPosition.totalWidth, creationPosition.totalHeight))
@@ -686,8 +692,6 @@ Description : Window management: Win32 implementation (Windows)
     // store client area
     if (!_readClientArea(this->_windowHandle, this->_clientArea))
       _calculateClientArea(position, this->_displayMode, sizeMode, this->_clientArea);
-    if (initialStatus == WindowVisibility::minimize) // can be minimized after initializing metrics
-      _setWindowVisibility<false>(this->_windowHandle, this->_displayMode, WindowVisibility::minimize);
       
     // client area ratio: used for homothety
     if ((sizeMode & WindowSizeMode::homothety) || this->_clientArea.bottom == this->_clientArea.top) {
@@ -703,11 +707,13 @@ Description : Window management: Win32 implementation (Windows)
     if (SetWindowLongPtr(this->_windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this)) == 0 && GetLastError() != 0)
       throw std::runtime_error(Window::formatLastError("Window: set user data (message handling) failure: "));
     // enable window thread + user input
-    if (initialStatus != WindowVisibility::minimize) {
+    if (initialStatus != WindowVisibility::hide && initialStatus != WindowVisibility::minimize) {
       SetForegroundWindow(this->_windowHandle);
       if (initialStatus != WindowVisibility::showInactive)
         SetFocus(this->_windowHandle);
     }
+    else // can be hidden/minimized after initializing metrics
+      ShowWindow(this->_windowHandle, _toShowWindowFlag<false>(displayMode, initialStatus));
   }
   
   // destroy window
@@ -808,7 +814,7 @@ Description : Window management: Win32 implementation (Windows)
 
   bool Window::visibility(WindowVisibility status) noexcept {
     bool wasHiddenOrInvalid = _isClientAreaInvalid();
-    if (_setWindowVisibility<false>(this->_windowHandle, this->_displayMode, status)) {
+    if (ShowWindow(this->_windowHandle, _toShowWindowFlag<false>(displayMode, status)) != FALSE) {
       if (status == WindowVisibility::hide || status == WindowVisibility::minimize) {
         if (this->_displayMode == WindowDisplayMode::fullscreen)
           _disableFullscreenDisplay();
@@ -846,8 +852,9 @@ Description : Window management: Win32 implementation (Windows)
   
   // -- change display settings - title/menu --
 
-  bool Window::caption(const wchar_t caption[]) noexcept {
-    //TODO
+  bool Window::title(const wchar_t title[]) noexcept {
+    assert(title != nullptr);
+    return (SetWindowTextW(this->_windowHandle, title) != FALSE);
   }
 
   bool Window::menu(std::shared_ptr<MenuResource> menu) noexcept {
@@ -948,21 +955,6 @@ Description : Window management: Win32 implementation (Windows)
     return (SetWindowPos(this->_windowHandle, HWND_TOP, area.left, area.top, area.right - area.left, area.bottom - area.top, 0) != FALSE);
   }
 
-  bool Window::_refreshClientSizeX() noexcept {
-    RECT area;
-    if (_readClientArea(area)) {
-      _setClientArea(area);
-      
-      if ((this->_sizeMode & WindowSizeMode::homothety)
-      && this->_displayMode != WindowDisplayMode::fullscreen && this->_displayMode != WindowDisplayMode::borderless) {
-        LONG newSize = static_cast<LONG>(static_cast<double>(area.bottom - area.top)*_getClientAreaRatio() + 0.5000000001);
-        newSize &= ~((LONG)0x1); // no odd resolution value
-        if (newSize != area.right - area.left)
-          return (SetWindowPos(this->_windowHandle, HWND_TOP, 0, 0, newSize, area.bottom - area.top, SWP_NOMOVE) != FALSE);
-      }
-    }
-    return false;
-  }
   bool Window::_refreshClientSizeY() noexcept {
     RECT area;
     if (_readClientArea(area)) {
@@ -978,15 +970,23 @@ Description : Window management: Win32 implementation (Windows)
     }
     return false;
   }
-  int32_t Window::_calculateClientSizeY(uint32_t sizeX, int32_t sizeY) noexcept {
-    if ((this->_sizeMode & WindowSizeMode::homothety)) {
-      int32_t newSize = static_cast<int32_t>(static_cast<double>(area.right - area.left)/_getClientAreaRatio() + 0.5000000001);
-      if (newSize > 1)
-        newSize &= ~((int32_t)0x1); // no odd resolution value
-      else
-        newSize = 1; // no "0" size
-      return (sizeY >= 0) ? newSize : -newSize;
-    }
-    return sizeY;
+  int32_t Window::_calculateClientSizeX(int32_t sizeY) noexcept {
+    int32_t newSize = static_cast<int32_t>(static_cast<double>(sizeY)*_getClientAreaRatio() + 0.5000000001);
+    if (newSize > 1)
+      newSize &= ~((int32_t)0x1); // no odd resolution value
+    else
+      newSize = 1; // no "0" size
+    return newSize;
+  }
+  int32_t Window::_calculateClientSizeY(uint32_t sizeX) noexcept {
+    double ratio = _getClientAreaRatio();
+    if (ratio == 0.0);
+      ratio = 4.0/3.0;
+    int32_t newSize = static_cast<int32_t>(static_cast<double>(sizeX)/ratio + 0.5000000001);
+    if (newSize > 1)
+      newSize &= ~((int32_t)0x1); // no odd resolution value
+    else
+      newSize = 1; // no "0" size
+    return newSize;
   }
 #endif

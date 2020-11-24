@@ -10,6 +10,7 @@ Description : Window management for desktop systems (Windows / Mac OS / Linux / 
 #include <cstddef>
 #include <string>
 #include <memory>
+#include <unordered_map>
 #include <system/preprocessor_tools.h>
 #include "./window_handle.h"
 #include "./window_style.h"
@@ -36,23 +37,13 @@ namespace pandora {
     
     /// @brief Window visibility change
     enum class WindowVisibility : uint32_t {
-#     ifdef _WINDOWS
-        hide         = SW_HIDE,         ///< Hide window, and activate the next top-level window (not available on creation: will act as 'show').
-        show         = SW_SHOW,         ///< Show window with current size/position (active).
-        showInactive = SW_SHOWNA,       ///< Show window with current size/position (inactive).
-        showDefault  = SW_SHOWDEFAULT,  ///< Show default window state (defined during the process creation).
-        restore      = SW_RESTORE,      ///< Show window with original size/position (active, not minimized, nor maximized).
-        minimize     = SW_MINIMIZE,     ///< Minimize window, and activate the next top-level window.
-        maximize     = SW_SHOWMAXIMIZED,///< Maximize window (active).
-#     else
-        hide         = 0u, ///< Hide window, and activate the next top-level window (not available on creation: will act as 'show').
-        show         = 1u, ///< Show window with current size/position (active).
-        showInactive = 2u, ///< Show window with current size/position (inactive).
-        showDefault  = 3u, ///< Show default window state (defined during the process creation).
-        restore      = 4u, ///< Show window with original size/position (active, not minimized, nor maximized).
-        minimize     = 5u, ///< Minimize window, and activate the next top-level window.
-        maximize     = 6u, ///< Maximize window (active).
-#     endif
+      hide         = 0u, ///< Hide window, and activate the next top-level window.
+      show         = 1u, ///< Show window with current size/position (active).
+      showInactive = 2u, ///< Show window with current size/position (inactive).
+      showDefault  = 3u, ///< Show default window state (defined during the process creation).
+      restore      = 4u, ///< Show window with original size/position (active, not minimized, nor maximized).
+      minimize     = 5u, ///< Minimize window, and activate the next top-level window.
+      maximize     = 6u, ///< Maximize window (active).
     };
     
     constexpr inline uint32_t defaultWindowSize() noexcept { return 0u; }               ///< width or height to set for default window size
@@ -60,29 +51,40 @@ namespace pandora {
     constexpr inline uint32_t centeredWindowPosition() noexcept { return 0xFFFFFFFEu; } ///< X or Y coordinate for centered window position
     
     /// @brief Pixel dimensions of a window
-    /// @remarks width/height can be defaultWindowSize()
-    ///          x/y can be defaultWindowPosition()/centeredWindowPosition()
-    /// @warning X/Y value centeredWindowPosition() is only supported if width/height are NOT default.
+    /// @warning X/Y value centeredWindowPosition() is only supported if width/height are NOT defaultWindowSize().
     struct WindowPosition final {
-      uint32_t clientAreaWidth = defaultWindowSize();
-      uint32_t clientAreaHeight = defaultWindowSize();
-      uint32_t x = defaultWindowPosition();
-      uint32_t y = defaultWindowPosition();
-    };
-    /// @brief Pixel X/Y coordinates or size of a window
-    struct WindowPixel final {
-      int32_t x;
-      int32_t y;
+      uint32_t clientAreaWidth = defaultWindowSize();  ///< Width of client area (borders/caption excluded). Can be defaultWindowSize().
+      uint32_t clientAreaHeight = defaultWindowSize(); ///< Height of client area (borders/caption excluded). Can be defaultWindowSize().
+      uint32_t x = defaultWindowPosition(); ///< Position of the left of the window (with borders/caption). Can be defaultWindowPosition()/centeredWindowPosition().
+      uint32_t y = defaultWindowPosition(); ///< Position of the top of the window (with borders/caption). Can be defaultWindowPosition()/centeredWindowPosition().
     };
     /// @brief Effective pixel dimensions of the client area of a window
     struct ClientArea final {
-      uint32_t x;      ///< absolute X position of client area (doesn't include window borders)
-      uint32_t y;      ///< absolute Y position of client area (doesn't include window borders)
-      uint32_t width;  ///< X size of client area
-      uint32_t height; ///< Y size of client area
+      int32_t x;         ///< absolute X position of client area (doesn't include window borders)
+      int32_t y;         ///< absolute Y position of client area (doesn't include window borders)
+      uint32_t width;    ///< X size of client area
+      uint32_t height;   ///< Y size of client area
       uint32_t bordersX; ///< size of all borders on the left/right sides of client area
       uint32_t bordersY; ///< size of all borders/caption on the top/bottom of client area
       double fixedRatio; ///< fixed client area width/height ratio (or current ratio, if homothety is disabled)
+    };
+    
+    using SizeChangeHandler = void (*)(int32_t,int32_t); ///< (int32_t x, int32_t y) -> void
+    using SuspendResumeHandler = void (*)(bool);         ///< (bool isSuspended: suspend (true) or resume (false)) -> void
+    using CloseHandler = bool (*)();                     ///< (void) -> bool: allow shutdown (true) or cancel (false)
+    
+    using KeyDownHandler = bool (*)(uint32_t,bool,bool,uint32_t); ///< (uint32_t virtualKeyId, bool isAltCommand, bool wasAlreadyDown, uint32_t repeatsSinceLastMessage) -> bool: bypass default handler (true) or let it read event too (false)
+    using KeyUpHandler = bool (*)(uint32_t,bool);                 ///< (uint32_t virtualKeyId, bool isAltCommand) -> bool: bypass default handler (true) or let it read event too (false)
+    using MouseEventHandler = bool (*)(uint32_t,uint32_t);        ///< (uint32_t wparam ,uint32_t lparam) -> bool: bypass default handler (true) or let it read event too (false)
+    
+    struct WindowEventHandlers final {
+      SizeChangeHandler resizeHandler;     ///< window resize/maximize/unmaximize
+      SizeChangeHandler moveHandler;       ///< window simple move (same size)
+      SuspendResumeHandler suspendHandler; ///< window enable/disable (resume/show/activate/restore, suspend/sleep/hide/deactivate/minimize)
+      CloseHandler closeHandler;           ///< window shutdown request
+      KeyDownHandler keyDownHandler; ///< user input handling: key pressed
+      KeyUpHandler keyUpHandler;     ///< user input handling: key released
+      std::unordered_map<uint32_t,MouseEventHandler> mouseHandlers;   ///< user input handling map: <event message type / event handler>
     };
     
     // ---
@@ -102,11 +104,11 @@ namespace pandora {
       /// @warning Throws on creation failure.
 #     ifdef _WINDOWS
         Window(const WindowPosition& position, std::shared_ptr<WindowStyle> windowStyleDef, 
-               WindowWidgetMode widgets, WindowSizeMode sizeMode, const wchar_t caption[], bool isCursorVisible, 
+               WindowWidgetMode widgets, WindowSizeMode sizeMode, const wchar_t title[], bool isCursorVisible, 
                WindowVisibility initialStatus, std::shared_ptr<MenuResource> menu = nullptr, WindowHandle owner = (WindowHandle)0);
 #     else
         Window(const WindowPosition& position, std::shared_ptr<WindowStyle> windowStyleDef, 
-               WindowWidgetMode widgets, WindowSizeMode sizeMode, const char caption[], bool isCursorVisible, 
+               WindowWidgetMode widgets, WindowSizeMode sizeMode, const char title[], bool isCursorVisible, 
                WindowVisibility initialStatus, std::shared_ptr<MenuResource> menu = nullptr, WindowHandle owner = (WindowHandle)0);
 #     endif
       ~Window() noexcept { _destroyWindow(); }
@@ -172,11 +174,11 @@ namespace pandora {
       /// @brief Show/hide cursor
       void cursorVisibility(bool isVisible) noexcept;
 
-      /// @brief Change main title/caption of window
+      /// @brief Change main title of window
 #     ifdef _WINDOWS
-        bool caption(const wchar_t caption[]) noexcept;
+        bool title(const wchar_t title[]) noexcept;
 #     else
-        bool caption(const char caption[]) noexcept;
+        bool title(const char title[]) noexcept;
 #     endif
       /// @brief Change main menu bar of window
       bool menuType(std::shared_ptr<MenuResource> menu) noexcept;

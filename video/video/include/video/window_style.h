@@ -8,9 +8,6 @@ License :     MIT
 #include <cstddef>
 #include <string>
 #include <memory>
-#ifdef _WINDOWS
-# include <system/api/windows_api.h>
-#endif
 # include "./window_handle.h"
 
 #ifndef _P_WINDOW_STRING
@@ -44,74 +41,38 @@ namespace pandora {
     /// @warning Some settings may have no effect on certain operating systems
     enum class WindowTweak : uint32_t {
       none           = 0u,   ///< no additional feature
-#     ifdef _WINDOWS
-        dropShadow     = CS_DROPSHADOW, ///< Emphasize Z-order with drop shadow (typically for popup dialogs)
-        uniqueContext  = CS_OWNDC       ///< Use unique context for window and all sub-children (faster changes, but must be used carefully)
-#     else
-        dropShadow     = 0x1u, ///< Emphasize Z-order with drop shadow (typically for popup dialogs)
-        uniqueContext  = 0x4u  ///< Use unique context for window and all sub-children (faster changes, but must be used carefully)
-#     endif
+      dropShadow     = 0x1u, ///< Emphasize Z-order with drop shadow (typically for popup dialogs)
+      uniqueContext  = 0x4u  ///< Use unique context for window and all sub-children (faster changes, but must be used carefully)
     };
     
     /// @brief Standard system icon type
-#   ifdef _WINDOWS
-      enum class SystemIcon : LPCWSTR {
-        defaultApp = IDI_APPLICATION, ///< Default application icon
-        info       = IDI_INFORMATION, ///< Information icon (asterisk on Windows)
-        question   = IDI_QUESTION,    ///< Question mark icon
-        warning    = IDI_WARNING,     ///< Warning icon (exclamation point on Windows)
-        error      = IDI_ERROR,       ///< Error icon (hand-shaped on Windows)
-        security   = IDI_SHIELD,      ///< Security icon (shield on Windows)
-        system     = IDI_WINLOGO      ///< System logo
-      };
-#   else
-      enum class SystemIcon : uint32_t {
-        defaultApp = 0u, ///< Default application icon
-        info       = 1u, ///< Information icon
-        question   = 2u, ///< Question mark icon
-        warning    = 3u, ///< Warning icon
-        error      = 4u, ///< Error icon
-        security   = 5u, ///< Security icon
-        system     = 6u  ///< System logo
-      };
-#   endif
+    enum class SystemIcon : uint32_t {
+      defaultApp = 0u, ///< Default application icon
+      info       = 1u, ///< Information icon
+      question   = 2u, ///< Question mark icon
+      warning    = 3u, ///< Warning icon
+      error      = 4u, ///< Error icon
+      security   = 5u, ///< Security icon
+      system     = 6u  ///< System logo
+    };
 
     /// @brief Standard system cursor type
-#   ifdef _WINDOWS
-      enum class SystemCursor : LPCWSTR {
-        arrow     = IDC_ARROW,       ///< Standard arrow
-        wait      = IDC_WAIT,        ///< Wait cursor (hourglass)
-        waitArrow = IDC_APPSTARTING, ///< Arrow with wait cursor (hourglass)
-        hand      = IDC_HAND,        ///< Hand (pointing)
-        help      = IDC_HELP,        ///< Help indicator (arrow and question mark)
-        crosshair = IDC_CROSS,       ///< Crosshair
-        textIBeam = IDC_IBEAM,       ///< Text I-beam
-        forbidden = IDC_NO,          ///< Invalid/forbidden (slashed circle...)
-        upArrow         = IDC_UPARROW, ///< Vertical arrow
-        doubleArrowV    = IDC_SIZENS,  ///< Double-pointed resizing arrow (vertical)
-        doubleArrowH    = IDC_SIZEWE,  ///< Double-pointed resizing arrow (horizontal)
-        doubleArrowNeSw = IDC_SIZENESW,///< Double-pointed resizing arrow (oblique N-E / S-W)
-        doubleArrowNwSe = IDC_SIZENWSE,///< Double-pointed resizing arrow (oblique N-W / S-E)
-        fourPointArrow  = IDC_SIZEALL  ///< Four-pointed resizing arrow
-      };
-#   else
-      enum class SystemCursor : uint32_t {
-        arrow     = 0u, ///< Standard arrow
-        wait      = 1u, ///< Wait cursor (hourglass)
-        waitArrow = 2u, ///< Arrow with wait cursor (hourglass)
-        hand      = 3u, ///< Hand (pointing)
-        help      = 4u, ///< Help indicator (arrow and question mark)
-        crosshair = 5u, ///< Crosshair
-        textIBeam = 6u, ///< Text I-beam
-        forbidden = 7u, ///< Invalid/forbidden (slashed circle...)
-        upArrow         = 8u, ///< Vertical arrow
-        doubleArrowV    = 9u, ///< Double-pointed resizing arrow (vertical)
-        doubleArrowH    = 10u,///< Double-pointed resizing arrow (horizontal)
-        doubleArrowNeSw = 11u,///< Double-pointed resizing arrow (oblique N-E / S-W)
-        doubleArrowNwSe = 12u,///< Double-pointed resizing arrow (oblique N-W / S-E)
-        fourPointArrow  = 13u ///< Four-pointed resizing arrow
-      };
-#   endif
+    enum class SystemCursor : uint32_t {
+      arrow     = 0u, ///< Standard arrow
+      wait      = 1u, ///< Wait cursor (hourglass)
+      waitArrow = 2u, ///< Arrow with wait cursor (hourglass)
+      hand      = 3u, ///< Hand (pointing)
+      help      = 4u, ///< Help indicator (arrow and question mark)
+      crosshair = 5u, ///< Crosshair
+      textIBeam = 6u, ///< Text I-beam
+      forbidden = 7u, ///< Invalid/forbidden (slashed circle...)
+      upArrow         = 8u, ///< Vertical arrow
+      doubleArrowV    = 9u, ///< Double-pointed resizing arrow (vertical)
+      doubleArrowH    = 10u,///< Double-pointed resizing arrow (horizontal)
+      doubleArrowNeSw = 11u,///< Double-pointed resizing arrow (oblique N-E / S-W)
+      doubleArrowNwSe = 12u,///< Double-pointed resizing arrow (oblique N-W / S-E)
+      fourPointArrow  = 13u ///< Four-pointed resizing arrow
+    };
     
     
     // -- UI resource management --
@@ -192,7 +153,7 @@ namespace pandora {
     
     // -- window style definition class --
     
-    /// @brief Container for window style resources
+    /// @brief Container for window style resources (and keep them alive while the style definition exists)
     struct WindowStyleResources final {
       std::shared_ptr<IconResource> appIcon = nullptr;
       std::shared_ptr<IconResource> captionIcon = nullptr;

@@ -20,7 +20,17 @@ Description : Window style definition & resources management: Win32 implementati
   // -- icon resource management --
 
   std::shared_ptr<IconResource> WindowStyleBuilder::createSystemIcon(SystemIcon id) noexcept {
-    ResourceHandle handle = (ResourceHandle)LoadIconW(nullptr, id);
+    ResourceHandle handle = nullptr;
+    switch (id) {
+      case SystemIcon::defaultApp: handle = (ResourceHandle)LoadIconW(nullptr, IDI_APPLICATION); break;
+      case SystemIcon::info:       handle = (ResourceHandle)LoadIconW(nullptr, IDI_INFORMATION); break;
+      case SystemIcon::question:   handle = (ResourceHandle)LoadIconW(nullptr, IDI_QUESTION); break;
+      case SystemIcon::warning:    handle = (ResourceHandle)LoadIconW(nullptr, IDI_WARNING); break;
+      case SystemIcon::error:      handle = (ResourceHandle)LoadIconW(nullptr, IDI_ERROR); break;
+      case SystemIcon::security:   handle = (ResourceHandle)LoadIconW(nullptr, IDI_SHIELD); break;
+      case SystemIcon::system:     handle = (ResourceHandle)LoadIconW(nullptr, IDI_WINLOGO); break;
+      default: break;
+    }
     return (handle != nullptr) ? std::make_shared<IconResource>(handle) : nullptr;
   }
 
@@ -53,10 +63,27 @@ Description : Window style definition & resources management: Win32 implementati
       DestroyIcon((HICON)this->_handle); 
   }
 
+
   // -- cursor resource management --
 
   std::shared_ptr<CursorResource> WindowStyleBuilder::createSystemCursor(SystemCursor id) noexcept {
-    ResourceHandle handle = (ResourceHandle)LoadCursorW(nullptr, id)
+    ResourceHandle handle = nullptr;
+    switch (id) {
+      case SystemCursor::arrow:     handle = (ResourceHandle)LoadCursorW(nullptr, IDC_ARROW); break;
+      case SystemCursor::wait:      handle = (ResourceHandle)LoadCursorW(nullptr, IDC_WAIT); break;
+      case SystemCursor::waitArrow: handle = (ResourceHandle)LoadCursorW(nullptr, IDC_APPSTARTING); break;
+      case SystemCursor::hand:      handle = (ResourceHandle)LoadCursorW(nullptr, IDC_HAND); break;
+      case SystemCursor::help:      handle = (ResourceHandle)LoadCursorW(nullptr, IDC_HELP); break;
+      case SystemCursor::crosshair: handle = (ResourceHandle)LoadCursorW(nullptr, IDC_CROSS); break;
+      case SystemCursor::textIBeam: handle = (ResourceHandle)LoadCursorW(nullptr, IDC_IBEAM); break;
+      case SystemCursor::forbidden: handle = (ResourceHandle)LoadCursorW(nullptr, IDC_NO); break;
+      case SystemCursor::upArrow:   handle = (ResourceHandle)LoadCursorW(nullptr, IDC_UPARROW); break;
+      case SystemCursor::doubleArrowV:    handle = (ResourceHandle)LoadCursorW(nullptr, IDC_SIZENS); break;
+      case SystemCursor::doubleArrowH:    handle = (ResourceHandle)LoadCursorW(nullptr, IDC_SIZEWE); break;
+      case SystemCursor::doubleArrowNeSw: handle = (ResourceHandle)LoadCursorW(nullptr, IDC_SIZENESW); break;
+      case SystemCursor::doubleArrowNwSe: handle = (ResourceHandle)LoadCursorW(nullptr, IDC_SIZENWSE); break;
+      case SystemCursor::fourPointArrow:  handle = (ResourceHandle)LoadCursorW(nullptr, IDC_SIZEALL); break;
+    }
     return (handle != nullptr) ? std::make_shared<CursorResource>(handle) : nullptr;
   }
 
@@ -82,6 +109,7 @@ Description : Window style definition & resources management: Win32 implementati
     if (this->_handle != nullptr)
       DestroyCursor((HCURSOR)this->_handle); 
   }
+
 
   // -- menu resource management --
   
@@ -152,11 +180,16 @@ Description : Window style definition & resources management: Win32 implementati
     windowClass.lpszClassName = uniqueStyleName;
     windowClass.lpszMenuName = nullptr;
     windowClass.cbClsExtra = 0;
-    windowClass.cbWndExtra = (this->_resources.displayMode != WindowDisplayMode::dialog) ? 0 : DLGWINDOWEXTRA;
+    windowClass.cbWndExtra = 0;
     windowClass.lpfnWndProc = Window::windowEventHandler;
     windowClass.hInstance = this->_resources.appInstance;
     
     windowClass.style = ((UINT)(this->_tweaks) | CS_HREDRAW | CS_VREDRAW);
+    if (this->_tweaks & WindowTweak::dropShadow)
+      windowClass.style |= CS_DROPSHADOW;
+    if (this->_tweaks & WindowTweak::uniqueContext)
+      windowClass.style |= CS_OWNDC;
+    
     if (this->_resources.backgroundColor == nullptr)
       this->_resources.backgroundColor = std::make_shared<ColorResource>((ResourceHandle)GetSysColorBrush(COLOR_WINDOW+1));
     windowClass.hbrBackground = (HBRUSH)(this->_resources.backgroundColor->handle());
