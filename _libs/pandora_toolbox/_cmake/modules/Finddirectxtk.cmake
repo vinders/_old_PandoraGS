@@ -1,22 +1,15 @@
-if(NOT TARGET glm)
-    set(glm__FOUND ON)
-    set(GLM__PATH ${CWORK_MODULE_DESTINATION}/glm)
+if((WIN32 OR WIN64 OR _WIN32 OR _WIN64 OR MSVC) AND NOT TARGET DirectXTK)
+    set(directxtk__FOUND ON)
+    set(DIRECTXTK__PATH ${CWORK_MODULE_DESTINATION}/DirectXTK)
 
-    # ┌──────────────────────────────────────────────────────────────────┐
-    # │  Git submodules                                                  │
-    # └──────────────────────────────────────────────────────────────────┘
-    #set(CWORK_SUBMODULE_PATH ${GLM__PATH})
-    #include(${CMAKE_CURRENT_LIST_DIR}/git_submodules.cmake)
-    #unset(CWORK_SUBMODULE_PATH)
-    
     # ┌──────────────────────────────────────────────────────────────────┐
     # │  Manual project download                                         │
     # └──────────────────────────────────────────────────────────────────┘
-    if(NOT EXISTS ${GLM__PATH} OR NOT EXISTS "${GLM__PATH}/CMakeLists.txt")
-        set(_GIT_EXT_REPOSITORY https://github.com/g-truc/glm.git)
-        set(_GIT_EXT_TAG "0.9.9.8")
-        set(_GIT_EXT_CACHE ${CWORK_MODULE_DESTINATION}/.cache/glm)
-        set(_GIT_EXT_DIR ${GLM__PATH})
+    if(NOT EXISTS ${DIRECTXTK__PATH} OR NOT EXISTS "${DIRECTXTK__PATH}/CMakeLists.txt")
+        set(_GIT_EXT_REPOSITORY https://github.com/Microsoft/DirectXTK.git)
+        set(_GIT_EXT_TAG "sept2020")
+        set(_GIT_EXT_CACHE ${CWORK_MODULE_DESTINATION}/.cache/DirectXTK)
+        set(_GIT_EXT_DIR ${DIRECTXTK__PATH})
         configure_file("${CMAKE_CURRENT_LIST_DIR}/git_external.cmake" "${_GIT_EXT_CACHE}/CMakeLists.txt")
         execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" ${_GIT_EXT_CACHE} WORKING_DIRECTORY ${_GIT_EXT_CACHE})
         execute_process(COMMAND "${CMAKE_COMMAND}" --build ${_GIT_EXT_CACHE} WORKING_DIRECTORY ${_GIT_EXT_CACHE})
@@ -29,10 +22,28 @@ if(NOT TARGET glm)
     # ┌──────────────────────────────────────────────────────────────────┐
     # │  Include project                                                 │
     # └──────────────────────────────────────────────────────────────────┘
-    #add_subdirectory(${GLM__PATH} ${CMAKE_BINARY_DIR}/glm)  # useless (header-only)
-    set(glm__INCLUDE ${GLM__PATH} ${CMAKE_BINARY_DIR}/glm)
+    if(DEFINED BUILD_SHARED_LIBS)
+        set(__OLD_BUILD_SHARED_LIBS BUILD_SHARED_LIBS)
+    endif()
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     
-    if (TARGET glm)
-        set_target_properties(glm PROPERTIES FOLDER libs)
+    add_subdirectory(${DIRECTXTK__PATH} ${CMAKE_BINARY_DIR}/DirectXTK)
+    set(directxtk__INCLUDE ${DIRECTXTK__PATH}/Inc)
+    
+    if(TARGET DirectXTK)
+        set_target_properties(DirectXTK PROPERTIES FOLDER libs)
+    endif()
+    if(TARGET xwbtool)
+        set_target_properties(xwbtool PROPERTIES FOLDER libs)
+    endif()
+    
+    set(directxtk__LINKED DirectXTK)
+    message("-- Found DirectXTK: ${directxtk__LINKED}")
+    
+    if(DEFINED __OLD_BUILD_SHARED_LIBS)
+        set(BUILD_SHARED_LIBS __OLD_BUILD_SHARED_LIBS)
+        unset(__OLD_BUILD_SHARED_LIBS)
+    else()
+        unset(BUILD_SHARED_LIBS)
     endif()
 endif()

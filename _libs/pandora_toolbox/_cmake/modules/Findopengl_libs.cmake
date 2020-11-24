@@ -2,7 +2,7 @@ set(opengl_libs__FOUND ON)
 
 if(IOS)
     find_library(OPENGLES_FRAMEWORKS OpenGLES)
-    include_directories(${OPENGL_INCLUDE_DIR})
+    set(opengl_libs__INCLUDE ${OPENGL_INCLUDE_DIR})
     
     if(CWORK_EXTERN_FRAMEWORKS)
         set(CWORK_EXTERN_FRAMEWORKS ${CWORK_EXTERN_FRAMEWORKS} OpenGLES)
@@ -12,14 +12,11 @@ if(IOS)
     
 elseif(APPLE)
     find_package(OpenGL REQUIRED)
-    include_directories(${OPENGL_INCLUDE_DIR})
+    set(opengl_libs__INCLUDE ${OPENGL_INCLUDE_DIR})
     
     set(_EXTERNAL_FRAMEWORKS
         OpenGL
         GLUT
-        Cocoa
-        IOKit
-        CoreFoundation
     )
     if(CWORK_EXTERN_FRAMEWORKS)
         set(CWORK_EXTERN_FRAMEWORKS ${CWORK_EXTERN_FRAMEWORKS} ${_EXTERNAL_FRAMEWORKS})
@@ -32,18 +29,14 @@ elseif(APPLE)
     
 elseif(ANDROID)
     if(ANDROID_STANDALONE_TOOLCHAIN)
-        include_directories("${ANDROID_STANDALONE_TOOLCHAIN}/usr/include")
+        set(opengl_libs__INCLUDE "${ANDROID_STANDALONE_TOOLCHAIN}/usr/include")
     endif()
     
     set(opengl_libs__LINKED android EGL GLESv3)
     
 else()
     find_package(OpenGL REQUIRED)
-    if(WIN32 OR WIN64 OR _WIN32 OR _WIN64)
-        set(opengl_libs__LINKED ${OPENGL_LIBRARIES})
-    else()
-        set(opengl_libs__LINKED X11 ${OPENGL_LIBRARIES})
-    endif()
+    set(opengl_libs__LINKED ${OPENGL_LIBRARIES})
 endif()
 
 if(CWORK_EXTERN_FRAMEWORKS AND NOT CWORK_EXTERN_FRAMEWORKS_SCOPE)
