@@ -13,7 +13,7 @@ In the meantime, I've evolved professionally and learned lots of new techs.
 ### Project rebirth:
 This project will be restarted from scratch, using the things I've learned (test-driven dev, continuous integration, advanced testing and benchmarks, portable coding, CMake, C++17, Python scripts, gamma correction...).
 
-It will most likely rely on [the toolbox libraries I'm currently working on](github.com/vinders/pandora_toolbox) (as soon as I'm done with the portability of the DisplayMonitor/Window/WindowStyle features and with a basic Direct3D11 & OpenGL4 pipeline). Since this repo is polluted with old code and files, and to cleanup the history, I'll probably create a new repository.
+It will most likely rely on [the toolbox libraries I'm currently working on](https//github.com/vinders/pandora_toolbox) (as soon as I'm done with the portability of the DisplayMonitor/Window/WindowStyle features and with a basic Direct3D11 & OpenGL4 pipeline). Since this repo is polluted with old code and files, and to cleanup the history, I'll probably create a new repository.
 
 This will imply a few difference with the original project:
 * portability: it will work on Windows, but also Linux and Mac OS.
