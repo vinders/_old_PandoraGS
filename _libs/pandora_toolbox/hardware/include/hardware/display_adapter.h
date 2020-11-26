@@ -1,9 +1,14 @@
 /*******************************************************************************
-Main execution of test cases
+Author  :     Romain Vinders
+License :     MIT
 *******************************************************************************/
-#include "gtest/gtest.h"
+#pragma once
 
-int main(int argc, char** argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+#include <cstdint>
+#include <thread>
+
+namespace pandora { 
+  namespace hardware {
+    
+  }
 }

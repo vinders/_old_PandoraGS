@@ -68,7 +68,7 @@ Examples:
 | Generate code documentation (doxygen) for the built solution.<br><sub>*Default: OFF*</sub>   | CWORK_DOCS                 | ON<br>OFF     | all except cross-compilation  |
 | Include special tools related to project in the built solution.<br><sub>*Default: ON*</sub>  | CWORK_TOOLS                | ON<br>OFF     | all systems                   |
 | Generate debugging headers to allow code coverage.<br><sub>*Default: OFF*</sub>              | CWORK_COVERAGE             | ON<br>OFF     | only linux/unix systems       |
-| Minimum Windows version support (vista/7/8/10).<br><sub>*Default: "7"*</sub>                 | CWORK_WINDOWS_VERSION      | "10" "8"<br>"7" "6"  | only windows systems   |
+| Minimum Windows version support (vista.SP1, 7, 8.1, 10.RS2).<br><sub>*Default: "7"*</sub>    | CWORK_WINDOWS_VERSION      | "10" "8"<br>"7" "6"  | only windows systems   |
 | Enable OpenGL4/ES3 features.<br><sub>*Default: ON*</sub>                                     | CWORK_VIDEO_OPENGL4        | ON<br>OFF     | all systems                   |
 | Minimum OpenGL4 feature level.<br><sub>*Default: "45"*</sub>                                 | CWORK_OPENGL4_VERSION      | "46" "45"<br>"43" "41"  | only desktop systems   |
 | Minimum OpenGLES feature level.<br><sub>*Default: "32"*</sub>                                | CWORK_OPENGLES3_VERSION    | "32" "31"<br>"30"       | only embedded systems  |

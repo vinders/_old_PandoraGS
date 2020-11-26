@@ -2,11 +2,15 @@
 Author  :     Romain Vinders
 License :     MIT
 *******************************************************************************/
-#pragma once
-
 #include <cstdint>
+#include <thread>
 
-//#define VK_NO_PROTOTYPES 1 // only when dynamic linking
-#include <vulkan/vulkan.h>
+#ifdef _WINDOWS
+# include <system/api/windows_api.h>
+#endif
 
-#define GLFW_INCLUDE_VULKAN
+#include "hardware/display_adapter.h"
+
+using namespace pandora::hardware;
+
+

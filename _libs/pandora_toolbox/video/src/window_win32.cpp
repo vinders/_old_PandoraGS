@@ -174,7 +174,7 @@ Description : Window management: Win32 implementation (Windows)
     int y = GetDeviceCaps(screenDC, VERTRES);
     ReleaseDC(nullptr, screenDC);
     screenDC = nullptr;
-    
+      
     if (x < 480 || y < 480) {
       if (_isWindowsVersionGreaterEqual(10, _WIN10_ANNIVERSARY_MINOR, _WIN10_ANNIVERSARY_BUILD)) {
         UINT dpi = GetDpiForWindow(windowHandle);
@@ -280,6 +280,7 @@ Description : Window management: Win32 implementation (Windows)
     || ((displayMode == WindowDisplayMode::fullscreen || displayMode == WindowDisplayMode::borderless) 
        && (position.clientAreaWidth == defaultWindowSize() || position.clientAreaHeight == defaultWindowSize())) )
       Window::readMonitorDisplayResolution(screenX, screenY);
+
     
     if (displayMode == WindowDisplayMode::fullscreen || displayMode == WindowDisplayMode::borderless) {
       out.totalWidth = (position.clientAreaWidth != defaultWindowSize()) ? position.clientAreaWidth : screenX;

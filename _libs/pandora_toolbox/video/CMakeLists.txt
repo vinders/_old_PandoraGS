@@ -78,10 +78,36 @@ macro(pandora_video_autodetect_files category_id)
 endmacro()
 
 # general/common files
-set(_INCLUDE_FILES)
+set(_INCLUDE_FILES
+    ${_INCLUDE_DIR}/abstract_enums.h
+)
 set(_SOURCE_FILES)
 set(_TEST_FILES ${_TEST_DIR}/main.cpp)
 set(_SHADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/build_shaders.py)
+
+# files related to OS
+if(NOT IOS AND NOT ANDROID)
+    set(_INCLUDE_FILES
+        ${_INCLUDE_DIR}/window_handle.h
+        ${_INCLUDE_DIR}/window_style.h
+        ${_INCLUDE_DIR}/window.h
+    )
+    if(WIN32 OR WIN64 OR _WIN32 OR _WIN64 OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        set(_INCLUDE_FILES ${_INCLUDE_FILES} ${_INCLUDE_DIR}/_private/_utils_win32.h)
+        set(_SOURCE_FILES ${_SOURCE_FILES} 
+            ${_SOURCE_DIR}/window_style_win32.cpp
+            ${_SOURCE_DIR}/window_win32.cpp
+        )
+    elseif(APPLE)
+        set(_SOURCE_FILES ${_SOURCE_FILES} 
+            ${_SOURCE_DIR}/window_cocoa.cpp
+        )
+    else()
+        set(_SOURCE_FILES ${_SOURCE_FILES} 
+            ${_SOURCE_DIR}/window_x11.cpp
+        )
+    endif()
+endif()
 
 # files related to renderers
 if(CWORK_VIDEO_OPENGL4)
