@@ -18,11 +18,11 @@ It will most likely rely on the toolbox libraries I'm currently working on (see 
 This will imply a few difference with the original project:
 * portability: it will work on Windows, but also Linux and Mac OS.
 * testability/coverage: the code will be organized in a a way that allows a maximum testability.
-* continuous integration: CI allows non-regression tests, but also validates the code on different systems/compilers/setups.
+* continuous integration: CI allows non-regression tests, but also validates the code on different systems/compilers.
 * optimization: the code will make use of modern optimizations (C++17, intrinsics, compute shaders...).
 * multiple renderers: on Windows, both Direct3D and OpenGL will be supported. Maybe Vulkan too someday (but that one is much harder to learn).
 * responsive and portable UI: instead of coding everything with the win32 API, I'll use a good lightweight and portable UI lib (such as Nuklear or ImgUI).
-* accuracy: the emulation will be as accurate as possible (but will also provide improvements: subprecision, video filters...)
-* goodies: such as a utility to preview video filters through the plugin pipeline.
+* accuracy: the emulation will be as accurate as possible (but will also provide improvements: subpixel precision, video filters, upscaling...)
+* goodies: utility to preview video filters through the plugin pipeline.
 
-Since this old repo is polluted with old code and binary files, I'll probably create a new repository (also to cleanup history and lighten the .git dir).
+Since this old repo is polluted with old code and binary files, I'll probably create a new repository (also to cleanup history and reduce the .git dir size).
