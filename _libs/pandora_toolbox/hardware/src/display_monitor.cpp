@@ -18,7 +18,6 @@ License :     MIT
 # include <TargetConditionals.h>
 #elif defined(__linux__) || defined(__linux) || defined(__unix__) || defined(__unix)
 # include <cstdlib>
-# include "io/_private/_key_value_file_reader.h"
 #endif
 
 using namespace pandora::hardware;
@@ -352,7 +351,7 @@ std::vector<DisplayMonitor> DisplayMonitor::listAvailableMonitors() noexcept {
 
 // -- display mode - common -- -------------------------------------------------
 
-DisplayMode DisplayMonitor::getDisplayMode() noexcept {
+DisplayMode DisplayMonitor::getDisplayMode() const noexcept {
   DisplayMode mode;
   if (!_getMonitorDisplayMode(this->_attributes.id, mode)) {
     mode.width = this->_attributes.screenArea.width;
@@ -391,7 +390,7 @@ bool DisplayMonitor::setDefaultDisplayMode(bool refreshAttributes) noexcept {
   return false;
 }
 
-std::vector<DisplayMode> DisplayMonitor::listAvailableDisplayModes() noexcept {
+std::vector<DisplayMode> DisplayMonitor::listAvailableDisplayModes() const noexcept {
   std::vector<DisplayMode> modes = _listDisplayModes(this->_attributes.id);
   if (modes.empty())
     modes.emplace_back(getDisplayMode());
@@ -428,72 +427,63 @@ bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
 
 #ifdef _WINDOWS
   // read per-monitor DPI (if Win10+ build) or system DPI (if DPI aware)
-  static inline uint32_t _readDisplayMonitorDpi(DisplayMonitor::Handle monitorHandle, DisplayMonitor::WindowHandle windowHandle) noexcept {
+  void DisplayMonitor::getMonitorDpi(DisplayMonitor::WindowHandle windowHandle, uint32_t& outDpiX, uint32_t& outDpiY) const noexcept {
 #   if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_WIN10_RS1)
       Win32Libraries& libs = Win32Libraries::instance();
 #   endif
 
-    // per monitor DPI (best, if Win10 RS1+ and window handle)
+    // per monitor DPI (better, but only if Win10 RS1+ and valid window handle)
     if (windowHandle != nullptr) {
 #     if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS1)
         UINT dpi = GetDpiForWindow((HWND)windowHandle);
         if (dpi > 0)
-          return static_cast<uint32_t>(dpi);
+          outDpiX = outDpiY = static_cast<uint32_t>(dpi);
 #     else
         if (libs.isAtLeastWindows10_RS1() && libs.user32.GetDpiForWindow_) {
           UINT dpi = libs.user32.GetDpiForWindow_((HWND)windowHandle);
           if (dpi > 0)
-            return static_cast<uint32_t>(dpi);
+            outDpiX = outDpiY = static_cast<uint32_t>(dpi);
         }
 #     endif
     }
     // per system DPI (fallback, if Win8.1+)
     UINT dpiX, dpiY;
 #   if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WINBLUE)
-      if (GetDpiForMonitor((HMONITOR)monitorHandle, MDT_EFFECTIVE_DPI, &dpiX, &dpiY) == S_OK) 
-        return static_cast<uint32_t>(dpiY);
+      if (GetDpiForMonitor((HMONITOR)(this->_handle), MDT_EFFECTIVE_DPI, &dpiX, &dpiY) == S_OK) {
+        outDpiX = static_cast<uint32_t>(dpiX);
+        outDpiY = static_cast<uint32_t>(dpiY);
+      }
 #   else
       if (libs.isAtLeastWindows8_1_Blue() && libs.shcore.GetDpiForMonitor_) {
-        if (libs.shcore.GetDpiForMonitor_((HMONITOR)monitorHandle, MDT_EFFECTIVE_DPI, &dpiX, &dpiY) == S_OK) 
-          return static_cast<uint32_t>(dpiY);
+        if (libs.shcore.GetDpiForMonitor_((HMONITOR)(this->_handle), MDT_EFFECTIVE_DPI, &dpiX, &dpiY) == S_OK) {
+          outDpiX = static_cast<uint32_t>(dpiX);
+          outDpiY = static_cast<uint32_t>(dpiY);
+        }
       }
 #   endif
 
     // per system DPI (legacy)
     HDC hdc = GetDC(nullptr);
-    int pixelsPerLogicInch = GetDeviceCaps(hdc, LOGPIXELSY);
+    int pxPerLogicInchX = GetDeviceCaps(hdc, LOGPIXELSX);
+    int pxPerLogicInchY = GetDeviceCaps(hdc, LOGPIXELSY);
     ReleaseDC(nullptr, hdc);
-    return (pixelsPerLogicInch > 0) ? pixelsPerLogicInch : USER_DEFAULT_SCREEN_DPI;
+    outDpiX = (pxPerLogicInchX > 0) ? pxPerLogicInchX : USER_DEFAULT_SCREEN_DPI;
+    outDpiY = (pxPerLogicInchY > 0) ? pxPerLogicInchY : USER_DEFAULT_SCREEN_DPI;
   }
 
-  // read system DPI-scale factors (if DPI aware)
-  static inline void _readDisplayMonitorContentScale(DisplayMonitor::Handle monitorHandle, float& factorX, float& factorY) {
-    UINT dpiX, dpiY;
-#   if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WINBLUE)
-      if (GetDpiForMonitor((HMONITOR)monitorHandle, MDT_EFFECTIVE_DPI, &dpiX, &dpiY) != S_OK || dpiX == 0 || dpiY == 0)
-#   else
-      Win32Libraries& libs = Win32Libraries::instance();
-      if (libs.isAtLeastWindows8_1_Blue() == false || libs.shcore.GetDpiForMonitor_ == nullptr
-      || libs.shcore.GetDpiForMonitor_((HMONITOR)monitorHandle, MDT_EFFECTIVE_DPI, &dpiX, &dpiY) != S_OK 
-      || dpiX == 0 || dpiY == 0)
-#   endif
-    {
-      const HDC hdc = GetDC(nullptr);
-      int pxPerInchX = GetDeviceCaps(hdc, LOGPIXELSX);
-      int pxPerInchY = GetDeviceCaps(hdc, LOGPIXELSY);
-      ReleaseDC(nullptr, hdc);
-      dpiX = (pxPerInchX > 0) ? pxPerInchX : USER_DEFAULT_SCREEN_DPI;
-      dpiY = (pxPerInchY > 0) ? pxPerInchY : USER_DEFAULT_SCREEN_DPI;
-    }
+  uint32_t DisplayMonitor::getBaseDpi() noexcept { return USER_DEFAULT_SCREEN_DPI; }
 
-    factorX = static_cast<float>(dpiX) / static_cast<float>(USER_DEFAULT_SCREEN_DPI);
-    factorY = static_cast<float>(dpiY) / static_cast<float>(USER_DEFAULT_SCREEN_DPI);
+#else
+  void DisplayMonitor::getMonitorDpi(DisplayMonitor::WindowHandle windowHandle, uint32_t outDpiX, uint32_t outDpiY) const noexcept {
+
   }
+  uint32_t DisplayMonitor::getBaseDpi() noexcept { return 72u; }
 #endif
 
-uint32_t DisplayMonitor::getMonitorDpi(DisplayMonitor::WindowHandle windowHandle) const noexcept {
-  return _readDisplayMonitorDpi(this->_handle, windowHandle);
-}
-void DisplayMonitor::getMonitorContentScale(float& factorX, float& factorY) const noexcept {
-  return _readDisplayMonitorContentScale(this->_handle, factorX, factorY);
+// -- metrics --
+
+DisplayArea DisplayMonitor::convertClientAreaToWindowArea(const DisplayArea& clientArea, DisplayMonitor::WindowHandle windowHandle, uint32_t nativeStyleFlags) const noexcept {
+  //...
+  //...
+  //...
 }

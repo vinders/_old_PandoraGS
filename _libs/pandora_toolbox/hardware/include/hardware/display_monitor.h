@@ -88,7 +88,7 @@ namespace pandora {
       // -- display mode --
 
       /// @brief Read current display mode of a monitor
-      DisplayMode DisplayMonitor::getDisplayMode() noexcept;
+      DisplayMode DisplayMonitor::getDisplayMode() const noexcept;
       /// @brief Change display mode of a monitor (for fullscreen apps)
       /// @remarks To keep the original attribute values in object (for later use), set refreshAttributes to false
       bool setDisplayMode(const DisplayMode& mode, bool refreshAttributes = true) noexcept;
@@ -97,7 +97,7 @@ namespace pandora {
       bool setDefaultDisplayMode(bool refreshAttributes = true) noexcept;
 
       /// @brief Read available display modes for a monitor
-      std::vector<DisplayMode> listAvailableDisplayModes() noexcept;
+      std::vector<DisplayMode> listAvailableDisplayModes() const noexcept;
 
       // -- DPI awareness --
 
@@ -107,22 +107,16 @@ namespace pandora {
       /// @returns success
       static bool setDpiAwareness(bool isEnabled) noexcept;
 
-      /// @brief Read per-monitor DPI (if Win10+ and valid window handle) or system DPI value
+      /// @brief Read per-monitor DPI (if Win10.RS1+ + valid window handle) or system DPI value
       /// @warning The process must be DPI aware (on Windows: requires manifest or calling setDpiAwareness(true))
-      uint32_t getMonitorDpi(WindowHandle windowHandle) const noexcept;
-      /// @brief Read monitor content scale (based on system DPI)
-      /// @warning The process must be DPI aware (on Windows: requires manifest or calling setDpiAwareness(true))
-      void getMonitorContentScale(float& factorX, float& factorY) const noexcept;
+      void getMonitorDpi(WindowHandle windowHandle, uint32_t& outDpiX, uint32_t& outDpiY) const noexcept;
+      /// @brief Get minimum system DPI value. Can be used as a denominator on values returned by 'getMonitorDpi' to calculate scaling factor.
+      static uint32_t getBaseDpi() noexcept;
 
+      // -- metrics --
 
-      //TODO abstraction:
-      //getMonitorDpi -> avoir la valeur de référence -> méthode static constexpr baseMonitorDpi
-      //getMonitorDpi -> avoir version système -> static int getSystemDpi ???
-      //getMonitorContentScale -> améliorer (double? rationnel?) + version avec hwnd ?
-
-      //TODO metrics: 
-      // adjust window rect <-> client area (+ version manuelle calcul -> metrics taille bordures+caption+scrollbars+menu)
-      // taille pour création fenêtre = taille_baseX * dpiX / 96.f
+      /// @brief Measure, depending on monitor config and DPI, expected window size, based on client area.
+      DisplayArea convertClientAreaToWindowArea(const DisplayArea& clientArea, WindowHandle windowHandle, uint32_t nativeStyleFlags) const noexcept;
 
     private:
       Handle _handle = (Handle)0;
