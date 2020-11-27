@@ -22,8 +22,11 @@ License :     MIT
     } MONITOR_DPI_TYPE;
 #   define DPI_ENUMS_DECLARED
 # endif
+# ifndef DPI_AWARENESS_CONTEXT_UNAWARE
+#   define DPI_AWARENESS_CONTEXT_UNAWARE ((HANDLE)-1)
+# endif
 # ifndef DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
-#   define DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 ((HANDLE) -4)
+#   define DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 ((HANDLE)-4)
 # endif
 
 # define __P_WIN_10_RS2_BUILD 15063
@@ -70,9 +73,14 @@ License :     MIT
               _libs._init();
             return _libs;
           }
-          inline bool isAtLeastWindows10_RS2() const noexcept { return this->_isAtLeastWin10_RS2; }
-          inline bool isAtLeastWindows10_RS1() const noexcept { return this->_isAtLeastWin10_RS1; }
-          inline bool isAtLeastWindows8_1_Blue() const noexcept { return this->_isAtLeastWin8_Blue; }
+          // verify if Windows version >= Windows 10 Creators RS2
+          inline bool isAtLeastWindows10_RS2() const noexcept { return (_windowsReferenceBuild >= __P_WIN_10_RS2_BUILD); }
+          // verify if Windows version >= Windows 10 Anniversary RS1
+          inline bool isAtLeastWindows10_RS1() const noexcept { return (_windowsReferenceBuild >= __P_WIN_10_RS1_BUILD); }
+          // verify if Windows version >= Windows 8.1 Blue
+          inline bool isAtLeastWindows8_1_Blue() const noexcept { return (_windowsReferenceBuild >= __P_WIN_8_1_BLUE_BUILD); }
+          // verify if Windows version >= Windows 7
+          inline bool isAtLeastWindows7() const noexcept { return (_windowsReferenceBuild >= __P_WIN_7_BUILD); }
 
         private:
           // initialize available libraries
@@ -80,9 +88,7 @@ License :     MIT
 
         private:
           bool _isInit = false;
-          bool _isAtLeastWin10_RS2 = false;
-          bool _isAtLeastWin10_RS1 = false;
-          bool _isAtLeastWin8_Blue = false;
+          uint32_t _windowsReferenceBuild = __P_WIN_7_BUILD;
           static Win32Libraries _libs;
         };
       }

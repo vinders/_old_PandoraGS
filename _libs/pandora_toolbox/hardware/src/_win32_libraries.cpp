@@ -28,7 +28,7 @@ License :     MIT
         return (verifyCommand(&versionInfo, mask, check) == 0);
       }
       else {
-  #     if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS3)
+  #     if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS2)
           return (major < 10u || (major == 10u && minor == 0u && (build == 0 || build <= __P_WIN_10_RS2_BUILD)) );
   #     elif defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS1)
           return (major < 10u || (major == 10u && minor == 0u && (build == 0 || build <= __P_WIN_10_RS1_BUILD)) );
@@ -48,6 +48,7 @@ License :     MIT
     // -- init --
 
     void Win32Libraries::_init() noexcept {
+      // load system libraries
       Win32Libraries::_libs.user32.instance = LoadLibraryA("user32.dll");
       if (Win32Libraries::_libs.user32.instance != nullptr) {
         Win32Libraries::_libs.user32.SetProcessDpiAwarenessContext_ = (__win32_SetProcessDpiAwarenessContext)GetProcAddress(Win32Libraries::_libs.user32.instance, "SetProcessDpiAwarenessContext");
@@ -63,13 +64,23 @@ License :     MIT
         Win32Libraries::_libs.shcore.GetDpiForMonitor_ = (__win32_GetDpiForMonitor)GetProcAddress(Win32Libraries::_libs.shcore.instance, "GetDpiForMonitor");
       }
 
+      // identify windows compatibility
       HINSTANCE ntdll_instance = LoadLibraryA("ntdll.dll");
       __win32_RtlVerifyVersionInfo verifyVersionInfo_ = nullptr;
       if (ntdll_instance != nullptr)
         verifyVersionInfo_ = (__win32_RtlVerifyVersionInfo)GetProcAddress(ntdll_instance, "RtlVerifyVersionInfo");
-      Win32Libraries::_libs._isAtLeastWin10_RS2 = _isWindowsVersionGreaterOrEqual(verifyVersionInfo_, 10u, 0u, __P_WIN_10_RS2_BUILD);
-      Win32Libraries::_libs._isAtLeastWin10_RS1 = _isWindowsVersionGreaterOrEqual(verifyVersionInfo_, 10u, 0u, __P_WIN_10_RS1_BUILD);
-      Win32Libraries::_libs._isAtLeastWin8_Blue = _isWindowsVersionGreaterOrEqual(verifyVersionInfo_, HIBYTE(_WIN32_WINNT_WINBLUE), LOBYTE(_WIN32_WINNT_WINBLUE), __P_WIN_8_1_BLUE_BUILD);
+
+      if (_isWindowsVersionGreaterOrEqual(verifyVersionInfo_, 10u, 0u, __P_WIN_10_RS2_BUILD))
+        Win32Libraries::_libs._windowsReferenceBuild = __P_WIN_10_RS2_BUILD;
+      else if (_isWindowsVersionGreaterOrEqual(verifyVersionInfo_, 10u, 0u, __P_WIN_10_RS1_BUILD))
+        Win32Libraries::_libs._windowsReferenceBuild = __P_WIN_10_RS1_BUILD;
+      else if (_isWindowsVersionGreaterOrEqual(verifyVersionInfo_, HIBYTE(_WIN32_WINNT_WINBLUE), LOBYTE(_WIN32_WINNT_WINBLUE), __P_WIN_8_1_BLUE_BUILD))
+        Win32Libraries::_libs._windowsReferenceBuild = __P_WIN_8_1_BLUE_BUILD;
+      else if (_isWindowsVersionGreaterOrEqual(verifyVersionInfo_, HIBYTE(_WIN32_WINNT_WIN7), LOBYTE(_WIN32_WINNT_WIN7), __P_WIN_7_BUILD))
+        Win32Libraries::_libs._windowsReferenceBuild = __P_WIN_7_BUILD;
+      else
+        Win32Libraries::_libs._windowsReferenceBuild = __P_WIN_VISTA_SP1_BUILD;
+
       if (ntdll_instance != nullptr)
         FreeLibrary(ntdll_instance);
 
