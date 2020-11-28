@@ -107,7 +107,7 @@ namespace pandora {
       /// @returns success
       static bool setDpiAwareness(bool isEnabled) noexcept;
 
-      /// @brief Read per-monitor DPI (if Win10.RS1+ + valid window handle) or system DPI value
+      /// @brief Read per-window/per-monitor DPI if supported, or system DPI value
       /// @warning The process must be DPI aware (on Windows: requires manifest or calling setDpiAwareness(true))
       void getMonitorDpi(WindowHandle windowHandle, uint32_t& outDpiX, uint32_t& outDpiY) const noexcept;
       /// @brief Get minimum system DPI value. Can be used as a denominator on values returned by 'getMonitorDpi' to calculate scaling factor.
@@ -116,7 +116,8 @@ namespace pandora {
       // -- metrics --
 
       /// @brief Measure, depending on monitor config and DPI, expected window size, based on client area.
-      DisplayArea convertClientAreaToWindowArea(const DisplayArea& clientArea, WindowHandle windowHandle, uint32_t nativeStyleFlags) const noexcept;
+      /// @remarks Native style flags are optional. They'll only be used if the style can't be read from the window handle.
+      DisplayArea convertClientAreaToWindowArea(const DisplayArea& clientArea, WindowHandle windowHandle, bool hasMenu = false, uint32_t nativeStyleFlags = 0) const noexcept;
 
     private:
       Handle _handle = (Handle)0;

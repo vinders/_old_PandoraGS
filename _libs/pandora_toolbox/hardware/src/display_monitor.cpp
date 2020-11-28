@@ -42,7 +42,8 @@ using namespace pandora::hardware;
     if (!id.empty()) {
       BOOL result = TRUE;
       for (uint32_t index = 0; result; ++index) {
-        if ((result = EnumDisplayDevicesW(nullptr, index, &device, 0) != FALSE) && id == device.DeviceName)
+        result = (EnumDisplayDevicesW(nullptr, index, &device, 0) != FALSE);
+        if (result != FALSE && id == device.DeviceName)
           outAdapter = device.DeviceString;
       }
       if (outAdapter.empty() && EnumDisplayDevicesW(nullptr, 0, &device, 0) != FALSE)
@@ -426,7 +427,7 @@ bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
 }
 
 #ifdef _WINDOWS
-  // read per-monitor DPI (if Win10+ build) or system DPI (if DPI aware)
+  // read per-window/per-monitor DPI if supported, or system DPI (if DPI aware process)
   void DisplayMonitor::getMonitorDpi(DisplayMonitor::WindowHandle windowHandle, uint32_t& outDpiX, uint32_t& outDpiY) const noexcept {
 #   if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_WIN10_RS1)
       Win32Libraries& libs = Win32Libraries::instance();
@@ -480,10 +481,102 @@ bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
   uint32_t DisplayMonitor::getBaseDpi() noexcept { return 72u; }
 #endif
 
-// -- metrics --
 
-DisplayArea DisplayMonitor::convertClientAreaToWindowArea(const DisplayArea& clientArea, DisplayMonitor::WindowHandle windowHandle, uint32_t nativeStyleFlags) const noexcept {
-  //...
-  //...
-  //...
+// -- metrics -- ---------------------------------------------------------------
+
+#ifdef _WINDOWS
+  // read system metrics with DPI, if supported
+# if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS1)
+    static inline int32_t __getSystemMetrics(int index, uint32_t dpi, int32_t defaultValue) noexcept {
+      int value = GetSystemMetricsForDpi(index, dpi);
+      if (value > 0)
+        return static_cast<int32_t>(value);
+      value = GetSystemMetrics(index);
+      return (value > 0) ? static_cast<int32_t>(value) : defaultValue;
+    }
+# else
+    static inline int32_t __getSystemMetrics_impl(int index, uint32_t dpi, int32_t defaultValue, Win32Libraries& libs) noexcept {
+      if (libs.isAtLeastWindows10_RS1() && libs.user32.GetSystemMetricsForDpi_) {
+        int value = libs.user32.GetSystemMetricsForDpi_(index, dpi);
+        if (value > 0)
+          return static_cast<int32_t>(value);
+      }
+      int value = GetSystemMetrics(index);
+      return (value > 0) ? static_cast<int32_t>(value) : defaultValue;
+    }
+#   define __getSystemMetrics(index,dpi,defaultValue) __getSystemMetrics_impl(index,dpi,defaultValue,libs)
+# endif
+
+  // manually adjust window area from client area
+  static DisplayArea __calculateWindowArea(const DisplayArea& clientArea, DWORD styleFlags, DWORD styleExtendedFlags, uint32_t dpiX, uint32_t dpiY) noexcept {
+#   if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_WIN10_RS1)
+      Win32Libraries& libs = Win32Libraries::instance(); // used by macro __getSystemMetrics if NTDDI_VERSION < NTDDI_WIN10_RS1
+#   endif
+
+    int32_t borderLeft = 0;
+    int32_t borderRight = 0;
+    int32_t borderTop = 0;
+    int32_t borderBottom = 0;
+    if ((styleFlags & WS_POPUP) == 0) {
+      if ((styleFlags & WS_THICKFRAME) != 0) {
+        borderLeft = borderRight = __getSystemMetrics(SM_CXSIZEFRAME, dpiX, 4) + 4*dpiX/USER_DEFAULT_SCREEN_DPI; // additional invisible borders of (4*scaling_factor) pixels
+        borderTop = borderBottom = __getSystemMetrics(SM_CYSIZEFRAME, dpiY, 4) + 4*dpiX/USER_DEFAULT_SCREEN_DPI; // for some reason, AdjustWindowRect counts a "top" border
+      }
+      else {
+        borderLeft = borderRight = __getSystemMetrics(SM_CXFIXEDFRAME, dpiX, 4) + 4*dpiX/USER_DEFAULT_SCREEN_DPI;
+        borderTop = borderBottom = __getSystemMetrics(SM_CYFIXEDFRAME, dpiY, 4) + 4*dpiX/USER_DEFAULT_SCREEN_DPI;
+      }
+    }
+    if ((styleFlags & WS_CAPTION) != 0)
+      borderTop += __getSystemMetrics((styleExtendedFlags & WS_EX_TOOLWINDOW) ? SM_CYSMCAPTION : SM_CYCAPTION, dpiY, 33);
+    if ((styleFlags & WS_VSCROLL) != 0)
+      borderRight += __getSystemMetrics(SM_CXVSCROLL, dpiX, 18);
+    if ((styleFlags & WS_HSCROLL) != 0)
+      borderBottom += __getSystemMetrics(SM_CYHSCROLL, dpiY, 18);
+    
+    DisplayArea windowArea = clientArea;
+    windowArea.x -= borderLeft;
+    windowArea.width += static_cast<uint32_t>(borderLeft + borderRight);
+    windowArea.y -= borderTop;
+    windowArea.height += static_cast<uint32_t>(borderTop + borderBottom);
+    return windowArea;
+  }
+#endif
+
+DisplayArea DisplayMonitor::convertClientAreaToWindowArea(const DisplayArea& clientArea, DisplayMonitor::WindowHandle windowHandle, bool hasMenu, uint32_t nativeStyleFlags) const noexcept {
+  uint32_t dpiX, dpiY;
+  getMonitorDpi(windowHandle, dpiX, dpiY);
+
+# ifdef _WINDOWS
+    DWORD styleFlags = GetWindowLongW((HWND)windowHandle, GWL_STYLE);
+    if (styleFlags == 0)
+      styleFlags = nativeStyleFlags;
+    DWORD styleExtendedFlags = GetWindowLongW((HWND)windowHandle, GWL_EXSTYLE);
+
+    RECT area;
+    area.left = static_cast<LONG>(clientArea.x);
+    area.top  = static_cast<LONG>(clientArea.y);
+    area.right = area.left + static_cast<LONG>(clientArea.width);
+    area.bottom = area.top + static_cast<LONG>(clientArea.height);
+
+#   if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS1)
+      bool isSuccess = (AdjustWindowRectExForDpi(&area, styleFlags, hasMenu ? TRUE : FALSE, styleExtendedFlags, dpiY) != FALSE);
+#   else
+      Win32Libraries& libs = Win32Libraries::instance();
+      bool isSuccess = (libs.isAtLeastWindows10_RS1() && libs.user32.AdjustWindowRectExForDpi_
+                     && libs.user32.AdjustWindowRectExForDpi_(&area, styleFlags, hasMenu ? TRUE : FALSE, styleExtendedFlags, dpiY) != FALSE);
+#   endif
+    if (isSuccess && (area.bottom - area.top > static_cast<LONG>(clientArea.height) || (styleFlags & (WS_CAPTION | WS_BORDER | WS_SIZEBOX)) == 0)) {
+      return DisplayArea{ area.left, area.top, static_cast<uint32_t>(area.right - area.left), static_cast<uint32_t>(area.bottom - area.top) };
+    }
+    else if (AdjustWindowRectEx(&area, styleFlags, hasMenu ? TRUE : FALSE, styleExtendedFlags) != FALSE 
+             && (area.bottom - area.top > static_cast<LONG>(clientArea.height) || (styleFlags & (WS_CAPTION | WS_BORDER | WS_SIZEBOX)) == 0)) {
+      return DisplayArea{ area.left, area.top, static_cast<uint32_t>(area.right - area.left), static_cast<uint32_t>(area.bottom - area.top) };
+    }
+    else
+      return __calculateWindowArea(clientArea, styleFlags, styleExtendedFlags, dpiX, dpiY);
+
+# else
+    return DisplayArea{ 0, 0, 0, 0 };
+# endif
 }

@@ -9,6 +9,8 @@ License :     MIT
 # include <system/api/windows_api.h>
 
 # ifndef DPI_ENUMS_DECLARED
+#   pragma warning(push)
+#   pragma warning(disable : 26812)
     typedef enum PROCESS_DPI_AWARENESS {
       PROCESS_DPI_UNAWARE = 0,
       PROCESS_SYSTEM_DPI_AWARE = 1,
@@ -21,6 +23,7 @@ License :     MIT
       MDT_DEFAULT = MDT_EFFECTIVE_DPI
     } MONITOR_DPI_TYPE;
 #   define DPI_ENUMS_DECLARED
+#   pragma warning(pop)
 # endif
 # ifndef DPI_AWARENESS_CONTEXT_UNAWARE
 #   define DPI_AWARENESS_CONTEXT_UNAWARE ((HANDLE)-1)
