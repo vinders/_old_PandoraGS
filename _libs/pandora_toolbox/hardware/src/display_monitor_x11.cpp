@@ -7,17 +7,14 @@ Description : Display monitor - X11 implementation (Linux/BSD)
 #if !defined(_WINDOWS) && !defined(__APPLE__) && !defined(__ANDROID__) && (defined(__linux__) || defined(__linux) || defined(__unix__) || defined(__unix))
 # include <cstdint>
 # include <cstdlib>
-# include <cstring>
 # include <string>
 # include <stdexcept>
 # include <vector>
 # include <climits>
 # include <cmath>
 # include <unistd.h>
-# include <dlfcn.h>
 # include <X11/Xlib.h>
-# include <X11/extensions/Xrandr.h>
-# include <X11/extensions/Xinerama.h> // legacy monitor indices
+# include "hardware/_private/_libraries_x11.h"
 # include "hardware/display_monitor.h"
 
   using namespace pandora::hardware;
@@ -25,10 +22,24 @@ Description : Display monitor - X11 implementation (Linux/BSD)
 
 // -- monitor handle & description/attributes -- -------------------------------
 
-  static bool _readDisplayMonitorAttributes(DisplayMonitor::Handle monitorHandle, DisplayMonitor::Attributes& outAttr) noexcept { return false; }
-  static inline void _readPrimaryDisplayMonitorInfo(DisplayMonitor::Handle& outHandle, DisplayMonitor::Attributes& outAttr) {}
-  static inline DisplayMonitor::Handle _getDisplayMonitorById(DisplayMonitor::DeviceId id, DisplayMonitor::Attributes* outAttr) noexcept { return 0; }
-  static inline bool _listDisplayMonitors(std::vector<DisplayMonitor::Handle>& out) { return false; }
+  static bool _readDisplayMonitorAttributes(DisplayMonitor::Handle monitorHandle, DisplayMonitor::Attributes& outAttr) noexcept {
+    //...
+    return false; 
+  }
+  
+  static inline void _readPrimaryDisplayMonitorInfo(DisplayMonitor::Handle& outHandle, DisplayMonitor::Attributes& outAttr) {
+    //...
+  }
+  
+  static inline DisplayMonitor::Handle _getDisplayMonitorById(DisplayMonitor::DeviceId id, DisplayMonitor::Attributes* outAttr) noexcept {
+    //...
+    return 0; 
+  }
+  
+  static inline bool _listDisplayMonitors(std::vector<DisplayMonitor::Handle>& out) {
+    //...
+    return false; 
+  }
 
 
 // -- contructors/list -- ------------------------------------------------------
@@ -90,7 +101,11 @@ Description : Display monitor - X11 implementation (Linux/BSD)
 
 // -- display modes -- ---------------------------------------------------------
 
-  static inline bool _getMonitorDisplayMode(const DisplayMonitor::DeviceId& id, DisplayMode& out) noexcept { return false; }
+  static inline bool _getMonitorDisplayMode(const DisplayMonitor::DeviceId& id, DisplayMode& out) noexcept { 
+    //...
+    return false; 
+  }
+  
   DisplayMode DisplayMonitor::getDisplayMode() const noexcept {
     DisplayMode mode;
     if (!_getMonitorDisplayMode(this->_attributes.id, mode)) {
@@ -102,7 +117,11 @@ Description : Display monitor - X11 implementation (Linux/BSD)
     return mode;
   }
   
-  static inline bool _setMonitorDisplayMode(const DisplayMonitor::DeviceId& id, const DisplayMode& mode) noexcept { return false; }
+  static inline bool _setMonitorDisplayMode(const DisplayMonitor::DeviceId& id, const DisplayMode& mode) noexcept { 
+    //...
+    return false; 
+  }
+  
   bool DisplayMonitor::setDisplayMode(const DisplayMode& mode, bool refreshAttributes) noexcept {
     if (_setMonitorDisplayMode(this->_attributes.id, mode)) {
       if (refreshAttributes) {
@@ -119,7 +138,11 @@ Description : Display monitor - X11 implementation (Linux/BSD)
     return false;
   }
   
-  static inline bool _setDefaultMonitorDisplayMode(const DisplayMonitor::DeviceId& id) noexcept { return false; }
+  static inline bool _setDefaultMonitorDisplayMode(const DisplayMonitor::DeviceId& id) noexcept { 
+    //...
+    return false; 
+  }
+  
   bool DisplayMonitor::setDefaultDisplayMode(bool refreshAttributes) noexcept {
     if (_setDefaultMonitorDisplayMode(this->_attributes.id)) {
       if (refreshAttributes) {
@@ -147,18 +170,31 @@ Description : Display monitor - X11 implementation (Linux/BSD)
 // -- DPI awareness -- ---------------------------------------------------------
 
   bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
+    LibrariesX11& libs = LibrariesX11::instance();
+    if (isEnabled) {
+      if (libs.displayServer == nullptr)
+        return false;
+      if (libs.dpiY == __P_HARDWARE_X11_BASE_DPI) // if not already enabled
+        libs.readSystemDpi();
+    }
+    else
+      libs.dpiX = libs.dpiY = __P_HARDWARE_X11_BASE_DPI;
     return true;
   }
 
-  void DisplayMonitor::getMonitorDpi(DisplayMonitor::WindowHandle windowHandle, uint32_t outDpiX, uint32_t outDpiY) const noexcept {
-
+  void DisplayMonitor::getMonitorDpi(uint32_t outDpiX, uint32_t outDpiY, DisplayMonitor::WindowHandle windowHandle) const noexcept {
+    LibrariesX11& libs = LibrariesX11::instance();
+    outDpiX = static_cast<uint32_t>(libs.dpiX + 0.5f); // round value
+    outDpiY = static_cast<uint32_t>(libs.dpiY + 0.5f);
   }
-  uint32_t DisplayMonitor::getBaseDpi() noexcept { return 72u; }
+  
+  uint32_t DisplayMonitor::getBaseDpi() noexcept { return (uint32_t)__P_HARDWARE_X11_BASE_DPI; }
 
 
 // -- metrics -- ---------------------------------------------------------------
 
   DisplayArea DisplayMonitor::convertClientAreaToWindowArea(const DisplayArea& clientArea, DisplayMonitor::WindowHandle windowHandle, bool hasMenu, uint32_t nativeStyleFlags) const noexcept {
+    //...
     return DisplayArea{ 0, 0, 0, 0 };
   }
 #endif

@@ -29,20 +29,20 @@ License :     MIT
         return (verifyCommand(&versionInfo, mask, check) == 0);
       }
       else {
-  #     if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS2)
+#       if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS2)
           return (major < 10u || (major == 10u && minor == 0u && (build == 0 || build <= __P_WIN_10_RS2_BUILD)) );
-  #     elif defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS1)
+#       elif defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS1)
           return (major < 10u || (major == 10u && minor == 0u && (build == 0 || build <= __P_WIN_10_RS1_BUILD)) );
-  #     elif defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WINBLUE)
+#       elif defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WINBLUE)
           return (major < HIBYTE(_WIN32_WINNT_WINBLUE) 
              || (major == HIBYTE(_WIN32_WINNT_WINBLUE) && minor <= LOBYTE(_WIN32_WINNT_WINBLUE) && (build == 0 || build <= __P_WIN_8_1_BLUE_BUILD)) );
-  #     elif defined(WINVER) && (WINVER >= _WIN32_WINNT_WIN7)
+#       elif defined(WINVER) && (WINVER >= _WIN32_WINNT_WIN7)
           return (major < HIBYTE(_WIN32_WINNT_WIN7)
              || (major == HIBYTE(_WIN32_WINNT_WIN7) && minor <= LOBYTE(_WIN32_WINNT_WIN7) && (build == 0 || build <= __P_WIN_7_BUILD)) );
-  #     else
+#       else
           return (major < HIBYTE(_WIN32_WINNT_VISTA)
              || (major == HIBYTE(_WIN32_WINNT_VISTA) && minor == LOBYTE(_WIN32_WINNT_VISTA) && (build == 0 || build <= __P_WIN_VISTA_SP1_BUILD)) );
-  #     endif
+#       endif
       }
     }
 

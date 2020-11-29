@@ -4,6 +4,8 @@ License :     MIT
 *******************************************************************************/
 #if !defined(_WINDOWS) && !defined(__APPLE__) && !defined(__ANDROID__) && (defined(__linux__) || defined(__linux) || defined(__unix__) || defined(__unix))
 # include <cstdlib>
+# include <cstring>
+# include <dlfcn.h>
 # include "hardware/_private/_libraries_x11.h"
 
   pandora::hardware::LibrariesX11 pandora::hardware::LibrariesX11::_libs{};
@@ -24,11 +26,33 @@ License :     MIT
     return (_Signature)dlsym(lib, name);
   }
   
+  void LibrariesX11::readSystemDpi() noexcept {
+    dpiX = dpiY = __P_HARDWARE_X11_BASE_DPI; // default value if not found in Xft.dpi
+    if (this->_displayServer == nullptr)
+      return;
+    
+    // read Xft.dpi properties
+    char* resManagerId = XResourceManagerString(this->_displayServer);
+    if (resManagerId != nullptr) {
+      XrmDatabase db = XrmGetStringDatabase(resManagerId);
+      if (db) {
+        char* type = nullptr;
+        XrmValue value;
+        if (XrmGetResource(db, "Xft.dpi", "Xft.Dpi", &type, &value) && type && strcmp(type, "String") == 0) {
+          dpiX = dpiY = atof(value.addr);
+          if (dpiX <= 0.0f || dpiY <= 0.0f)
+            dpiX = dpiY = __P_HARDWARE_X11_BASE_DPI;
+        }
+        XrmDestroyDatabase(db);
+      }
+    }
+  }
+  
   // -- init --
 
   bool LibrariesX11::init() noexcept {
     if (this->_isInit)
-      return;
+      return true;
     
 #   if !defined(X_HAVE_UTF8_STRING)
       // 'C' locale breaks wide-char input (used when no UTF-8 support) -> apply environment's locale instead
@@ -37,6 +61,7 @@ License :     MIT
 #   endif
     XInitThreads();  // enable Xlib concurrency support (must be first Xlib call)
     XrmInitialize(); // enable XRM functions (resource management, DPI...)
+    readSystemDpi();
 
     // obtain Xorg server connection - required
     this->displayServer = XOpenDisplay(nullptr);
@@ -137,5 +162,4 @@ License :     MIT
     
     this->_isInit = false;
   }
-
 #endif

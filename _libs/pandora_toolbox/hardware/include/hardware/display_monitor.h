@@ -109,7 +109,8 @@ namespace pandora {
 
       /// @brief Read per-window/per-monitor DPI if supported, or system DPI value
       /// @warning The process must be DPI aware (on Windows: requires manifest or calling setDpiAwareness(true))
-      void getMonitorDpi(WindowHandle windowHandle, uint32_t& outDpiX, uint32_t& outDpiY) const noexcept;
+      /// @remarks The 'windowHandle' argument is only useful on Windows, to read DPI per monitor (instead of system DPI)
+      void getMonitorDpi(uint32_t& outDpiX, uint32_t& outDpiY, WindowHandle windowHandle = (WindowHandle)0) const noexcept;
       /// @brief Get minimum system DPI value. Can be used as a denominator on values returned by 'getMonitorDpi' to calculate scaling factor.
       static uint32_t getBaseDpi() noexcept;
 

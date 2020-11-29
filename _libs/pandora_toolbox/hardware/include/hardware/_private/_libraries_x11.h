@@ -8,11 +8,12 @@ License :     MIT
 # include <cstddef>
 # include <cstdint>
 # include <unistd.h>
-# include <dlfcn.h>
 # include <X11/Xlib.h>
 # include <X11/Xresource.h>
 # include <X11/extensions/Xrandr.h> // display mode
 # include <X11/extensions/Xinerama.h> // legacy monitor indices
+
+# define __P_X11_BASE_DPI 96.0f
 
   namespace pandora {
     namespace hardware {
@@ -49,6 +50,8 @@ License :     MIT
         Display* displayServer = nullptr;
         int      screenIndex   = 0;
         Window   rootWindow;
+        float dpiX = __P_HARDWARE_X11_BASE_DPI;
+        float dpiY = __P_HARDWARE_X11_BASE_DPI;
         
         struct {
           bool      isAvailable  = false;
@@ -88,6 +91,8 @@ License :     MIT
         bool init() noexcept;
         // close libraries
         void shutdown() noexcept;
+        // enable DPI awareness
+        void readSystemDpi() noexcept
         
         // get global instance
         static inline LibrariesX11& instance() noexcept {

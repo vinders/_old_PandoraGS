@@ -369,7 +369,7 @@ Description : Display monitor - Win32 implementation (Windows)
   }
 
   // read per-window/per-monitor DPI if supported, or system DPI (if DPI aware process)
-  void DisplayMonitor::getMonitorDpi(DisplayMonitor::WindowHandle windowHandle, uint32_t& outDpiX, uint32_t& outDpiY) const noexcept {
+  void DisplayMonitor::getMonitorDpi(uint32_t& outDpiX, uint32_t& outDpiY, DisplayMonitor::WindowHandle windowHandle) const noexcept {
 #   if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_WIN10_RS1)
       LibrariesWin32& libs = LibrariesWin32::instance();
 #   endif
@@ -481,7 +481,7 @@ Description : Display monitor - Win32 implementation (Windows)
   DisplayArea DisplayMonitor::convertClientAreaToWindowArea(const DisplayArea& clientArea, DisplayMonitor::WindowHandle windowHandle, bool hasMenu, 
                                                             uint32_t nativeStyleFlags, uint32_t nativeSecondaryFlags) const noexcept {
     uint32_t dpiX, dpiY;
-    getMonitorDpi(windowHandle, dpiX, dpiY);
+    getMonitorDpi(dpiX, dpiY, windowHandle);
 
     DWORD styleFlags;
     if (windowHandle != nullptr) {
