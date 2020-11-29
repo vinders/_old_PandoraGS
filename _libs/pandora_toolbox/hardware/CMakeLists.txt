@@ -20,6 +20,42 @@ if(MINGW)
 endif()
 
 # ┌──────────────────────────────────────────────────────────────────┐
+# │  File detection                                                  │
+# └──────────────────────────────────────────────────────────────────┘
+if(WIN32 OR WIN64 OR _WIN32 OR _WIN64 OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(_HARDWARE_IGNORED_FILES "display_monitor_x11.cpp" "display_monitor_cocoa.cpp" "display_monitor_ios.cpp" "display_monitor_android.cpp")
+elseif(IOS)
+    set(_HARDWARE_IGNORED_FILES "_libraries_win32.cpp" "display_monitor_win32.cpp" "display_monitor_x11.cpp" "display_monitor_cocoa.cpp" "display_monitor_android.cpp")
+elseif(ANDROID)
+    set(_HARDWARE_IGNORED_FILES "_libraries_win32.cpp" "display_monitor_win32.cpp" "display_monitor_x11.cpp" "display_monitor_cocoa.cpp" "display_monitor_ios.cpp")
+elseif(APPLE)
+    set(_HARDWARE_IGNORED_FILES "_libraries_win32.cpp" "display_monitor_win32.cpp" "display_monitor_x11.cpp" "display_monitor_ios.cpp" "display_monitor_android.cpp")
+else()
+    set(_HARDWARE_IGNORED_FILES "_libraries_win32.cpp" "display_monitor_win32.cpp" "display_monitor_cocoa.cpp" "display_monitor_ios.cpp" "display_monitor_android.cpp")
+endif()
+
+autodetect_source_files("${CMAKE_CURRENT_SOURCE_DIR}/src" "*.c*")
+if(CWORK_AUTODETECTED_FILES)
+    set(_SOURCE_FILES)
+    foreach(_file ${CWORK_AUTODETECTED_FILES})
+        foreach(_ignored ${_HARDWARE_IGNORED_FILES})
+            if(_file STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}/src/${_ignored}" OR _file STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}\\src\\${_ignored}")
+                set(_IGNORED_FILE ON)
+                break()
+            endif()
+        endforeach()
+        if(NOT _IGNORED_FILE)
+            set(_SOURCE_FILES ${_SOURCE_FILES} ${_file})
+        else()
+            unset(_IGNORED_FILE)
+        endif()
+    endforeach()
+    unset(CWORK_AUTODETECTED_FILES)
+    
+    cwork_set_source_files(${_SOURCE_FILES})
+endif()
+
+# ┌──────────────────────────────────────────────────────────────────┐
 # │  Project settings                                                │
 # └──────────────────────────────────────────────────────────────────┘
 cwork_create_project("static" "${CWORK_SOLUTION_PATH}/_cmake" "${CWORK_SOLUTION_PATH}/_cmake/modules"

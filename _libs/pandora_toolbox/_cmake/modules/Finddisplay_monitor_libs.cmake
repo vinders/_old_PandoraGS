@@ -2,7 +2,16 @@ set(display_monitor_libs__FOUND ON)
 
 if(NOT IOS AND NOT ANDROID)
     if(APPLE)
-      #TODO
+        set(_EXTERNAL_FRAMEWORKS
+            IOKit
+            CoreFoundation
+        )
+        if(CWORK_EXTERN_FRAMEWORKS)
+            set(CWORK_EXTERN_FRAMEWORKS ${CWORK_EXTERN_FRAMEWORKS} ${_EXTERNAL_FRAMEWORKS})
+        else()
+            set(CWORK_EXTERN_FRAMEWORKS ${_EXTERNAL_FRAMEWORKS})
+        endif()
+        unset(_EXTERNAL_FRAMEWORKS)
 
     elseif(WIN32 OR WIN64 OR _WIN32 OR _WIN64 OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
         if(CWORK_WINDOWS_VERSION AND (CWORK_WINDOWS_VERSION STREQUAL "10" OR CWORK_WINDOWS_VERSION STREQUAL "8"))
@@ -13,5 +22,13 @@ if(NOT IOS AND NOT ANDROID)
         
     else()
         set(display_monitor_libs__LINKED X11)
+    endif()
+    
+    if(CWORK_EXTERN_FRAMEWORKS AND NOT CWORK_EXTERN_FRAMEWORKS_SCOPE)
+        if(CWORK_EXTERN_LIBS_SCOPE)
+            set(CWORK_EXTERN_FRAMEWORKS_SCOPE ${CWORK_EXTERN_LIBS_SCOPE})
+        else()
+            set(CWORK_EXTERN_FRAMEWORKS_SCOPE PUBLIC)
+        endif()
     endif()
 endif()

@@ -4,7 +4,6 @@ if(NOT IOS AND NOT ANDROID)
     if(APPLE)
         set(_EXTERNAL_FRAMEWORKS
             Cocoa
-            IOKit
             CoreFoundation
         )
         if(CWORK_EXTERN_FRAMEWORKS)

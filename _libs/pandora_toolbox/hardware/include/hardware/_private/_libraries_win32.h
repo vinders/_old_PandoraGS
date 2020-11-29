@@ -9,8 +9,6 @@ License :     MIT
 # include <system/api/windows_api.h>
 
 # ifndef DPI_ENUMS_DECLARED
-#   pragma warning(push)
-#   pragma warning(disable : 26812)
     typedef enum PROCESS_DPI_AWARENESS {
       PROCESS_DPI_UNAWARE = 0,
       PROCESS_SYSTEM_DPI_AWARE = 1,
@@ -23,7 +21,6 @@ License :     MIT
       MDT_DEFAULT = MDT_EFFECTIVE_DPI
     } MONITOR_DPI_TYPE;
 #   define DPI_ENUMS_DECLARED
-#   pragma warning(pop)
 # endif
 # ifndef DPI_AWARENESS_CONTEXT_UNAWARE
 #   define DPI_AWARENESS_CONTEXT_UNAWARE ((HANDLE)-1)
@@ -52,9 +49,9 @@ License :     MIT
         typedef HRESULT (WINAPI * __win32_SetProcessDpiAwareness)(PROCESS_DPI_AWARENESS);
         typedef HRESULT (WINAPI * __win32_GetDpiForMonitor)(HMONITOR,MONITOR_DPI_TYPE,UINT*,UINT*);
 
-        struct Win32Libraries final {
-          Win32Libraries() = default;
-          ~Win32Libraries(); // shutdown
+        struct LibrariesWin32 final {
+          LibrariesWin32() = default;
+          ~LibrariesWin32(); // shutdown
 
           struct {
             HINSTANCE                             instance = nullptr;
@@ -71,7 +68,7 @@ License :     MIT
           } shcore;
 
           // get global instance
-          static inline Win32Libraries& instance() noexcept {
+          static inline LibrariesWin32& instance() noexcept {
             if (!_libs._isInit)
               _libs._init();
             return _libs;
@@ -92,7 +89,7 @@ License :     MIT
         private:
           bool _isInit = false;
           uint32_t _windowsReferenceBuild = __P_WIN_7_BUILD;
-          static Win32Libraries _libs;
+          static LibrariesWin32 _libs;
         };
       }
     }

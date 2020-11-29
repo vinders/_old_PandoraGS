@@ -1,32 +1,29 @@
 /*******************************************************************************
 Author  :     Romain Vinders
 License :     MIT
+--------------------------------------------------------------------------------
+Description : Display monitor - Win32 implementation (Windows)
 *******************************************************************************/
-#include <cstdint>
-#include <string>
-#include <stdexcept>
-#include <vector>
-#include "hardware/display_monitor.h"
-
 #ifdef _WINDOWS
+# pragma warning(push)
+# pragma warning(disable : 26812)
+# include <cstdint>
+# include <string>
+# include <stdexcept>
+# include <vector>
 # include <system/api/windows_api.h>
-# include "hardware/_private/_win32_libraries.h"
+# if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_WIN10_RS2)
+#   include "hardware/_private/_libraries_win32.h"
+# endif
 # if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WINBLUE)
 #   include <shellscalingapi.h>
 # endif
-#elif defined(__APPLE__)
-# include <TargetConditionals.h>
-#elif defined(__linux__) || defined(__linux) || defined(__unix__) || defined(__unix)
-# include <cstdlib>
-#endif
+# include "hardware/display_monitor.h"
 
-using namespace pandora::hardware;
+  using namespace pandora::hardware;
 
 
-// -- monitor description & display mode - implementations -- ------------------
-
-#ifdef _WINDOWS // Win32 implementation
-  // --- read attributes ---
+// -- monitor handle & description/attributes -- -------------------------------
 
   // read brand/description string of monitor and associated adapter
   static inline void __readDeviceDescription(const DisplayMonitor::DeviceId& id, std::wstring& outDescription, std::wstring& outAdapter) noexcept {
@@ -79,6 +76,9 @@ using namespace pandora::hardware;
     }
     return false;
   }
+  
+  // ---
+  
   // read primary monitor size/position (fallback if no handle or if _readDisplayMonitorAttributes failed)
   static bool __readPrimaryDisplayMonitorScreenArea_fallback(DisplayArea& out) {
     DEVMODEW deviceInfo;
@@ -125,13 +125,7 @@ using namespace pandora::hardware;
     }
     return false;
   }
-
-  // --- get monitor handles/attributes ---
-
-  // verify handle validity
-  static inline bool _isHandleValid(DisplayMonitor::Handle monitorHandle) noexcept { return (monitorHandle != nullptr); }
-
-  // get handle/attributes of primary monitor
+  // read handle + attributes of primary/default monitor
   static inline void _readPrimaryDisplayMonitorInfo(DisplayMonitor::Handle& outHandle, DisplayMonitor::Attributes& outAttr) {
     outHandle = (DisplayMonitor::Handle)MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY);
     if (outHandle == nullptr || !_readDisplayMonitorAttributes(outHandle, outAttr)) {
@@ -146,8 +140,9 @@ using namespace pandora::hardware;
         outAttr.workArea = outAttr.screenArea;
     }
   }
+  
+  // ---
 
-  // get handle/attributes of any monitor by ID
   struct __DisplayMonitorHandleSearch final {
     const DisplayMonitor::DeviceId* id;
     DisplayMonitor::Handle handle;
@@ -168,6 +163,7 @@ using namespace pandora::hardware;
     }
     return TRUE;
   }
+  // get handle/attributes of any monitor by ID
   static inline DisplayMonitor::Handle _getDisplayMonitorById(const DisplayMonitor::DeviceId& id, DisplayMonitor::Attributes* outAttr) noexcept {
     __DisplayMonitorHandleSearch query{ &id, nullptr, outAttr };
     if (EnumDisplayMonitors(nullptr, nullptr, __getDisplayMonitorByIdCallback, (LPARAM)&query) != FALSE)
@@ -175,18 +171,76 @@ using namespace pandora::hardware;
     return nullptr;
   }
 
-  // list handles of all active monitors
   static BOOL CALLBACK __listDisplayMonitorsCallback(HMONITOR handle, HDC, RECT*, LPARAM data) {
     std::vector<DisplayMonitor::Handle>* handleList = (std::vector<DisplayMonitor::Handle>*)data;
     if (handle != nullptr && handleList != nullptr)
       handleList->emplace_back((DisplayMonitor::Handle)handle);
     return TRUE;
   }
+  // list handles of all active monitors
   static inline bool _listDisplayMonitors(std::vector<DisplayMonitor::Handle>& out) {
     return (EnumDisplayMonitors(nullptr, nullptr, __listDisplayMonitorsCallback, (LPARAM)&out) != FALSE);
   }
 
-  // --- display modes ---
+
+// -- contructors/list -- ------------------------------------------------------
+
+  DisplayMonitor::DisplayMonitor() noexcept {
+    _readPrimaryDisplayMonitorInfo(this->_handle, this->_attributes);
+  }
+  DisplayMonitor::DisplayMonitor(Handle monitorHandle, bool usePrimaryAsDefault)
+    : _handle(monitorHandle) {
+    if (this->_handle == nullptr || !_readDisplayMonitorAttributes(this->_handle, this->_attributes)) {
+      if (usePrimaryAsDefault)
+        _readPrimaryDisplayMonitorInfo(this->_handle, this->_attributes);
+      else
+        throw std::invalid_argument("DisplayMonitor: monitor handle is invalid or can't be used.");
+    }
+  }
+  DisplayMonitor::DisplayMonitor(const DisplayMonitor::DeviceId& id, bool usePrimaryAsDefault) {
+    this->_handle = _getDisplayMonitorById(id, &(this->_attributes));
+    if (this->_handle == nullptr) {
+      if (usePrimaryAsDefault)
+        _readPrimaryDisplayMonitorInfo(this->_handle, this->_attributes);
+      else
+        throw std::invalid_argument("DisplayMonitor: monitor ID was not found on system.");
+    }
+  }
+  DisplayMonitor::DisplayMonitor(uint32_t index, bool usePrimaryAsDefault) {
+    std::vector<DisplayMonitor::Handle> handles;
+    if (_listDisplayMonitors(handles) && index < handles.size())
+      this->_handle = handles[index];
+    if (this->_handle == nullptr || !_readDisplayMonitorAttributes(this->_handle, this->_attributes)) {
+      if (usePrimaryAsDefault)
+        _readPrimaryDisplayMonitorInfo(this->_handle, this->_attributes);
+      else
+        throw std::invalid_argument("DisplayMonitor: monitor index was not found on system.");
+    }
+  }
+
+  std::vector<DisplayMonitor> DisplayMonitor::listAvailableMonitors() noexcept {
+    std::vector<DisplayMonitor> monitors;
+
+    std::vector<DisplayMonitor::Handle> handles;
+    if (_listDisplayMonitors(handles)) {
+      for (auto it : handles) {
+        try {
+          monitors.emplace_back(it, false);
+        }
+        catch (...) {}
+      }
+    }
+
+    if (monitors.empty()) { // primary monitor as default
+      monitors.emplace_back();
+      if (monitors[0].attributes().screenArea.width == 0) // no display monitor
+        monitors.clear();
+    }
+    return monitors;
+  }
+
+
+// -- display modes -- ---------------------------------------------------------
 
   // read display resolution/depth/rate of a monitor
   static inline bool _getMonitorDisplayMode(const DisplayMonitor::DeviceId& id, DisplayMode& out) noexcept {
@@ -202,6 +256,17 @@ using namespace pandora::hardware;
     }
     return false;
   }
+  DisplayMode DisplayMonitor::getDisplayMode() const noexcept {
+    DisplayMode mode;
+    if (!_getMonitorDisplayMode(this->_attributes.id, mode)) {
+      mode.width = this->_attributes.screenArea.width;
+      mode.height = this->_attributes.screenArea.height;
+      mode.bitDepth = 32;
+      mode.refreshRate = undefinedRefreshRate();
+    }
+    return mode;
+  }
+  
   // set display resolution/depth/rate of a monitor
   static inline bool _setMonitorDisplayMode(const DisplayMonitor::DeviceId& id, const DisplayMode& mode) noexcept {
     DEVMODEW screenMode;
@@ -223,6 +288,22 @@ using namespace pandora::hardware;
     else // primary monitor
       return (ChangeDisplaySettingsW(&screenMode, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL);
   }
+  bool DisplayMonitor::setDisplayMode(const DisplayMode& mode, bool refreshAttributes) noexcept {
+    if (_setMonitorDisplayMode(this->_attributes.id, mode)) {
+      if (refreshAttributes) {
+        if (this->_attributes.isPrimary) {
+          _readPrimaryDisplayMonitorInfo(this->_handle, this->_attributes);
+        }
+        else if (!_readDisplayMonitorAttributes(this->_handle, this->_attributes)) {
+          this->_attributes.screenArea.width = mode.width;
+          this->_attributes.screenArea.height = mode.height;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+  
   // reset display resolution/depth/rate of a monitor to default values
   static inline bool _setDefaultMonitorDisplayMode(const DisplayMonitor::DeviceId& id) noexcept {
     if (!id.empty())
@@ -230,9 +311,22 @@ using namespace pandora::hardware;
     else // primary monitor
       return (ChangeDisplaySettingsW(nullptr, 0) == DISP_CHANGE_SUCCESSFUL);
   }
+  bool DisplayMonitor::setDefaultDisplayMode(bool refreshAttributes) noexcept {
+    if (_setDefaultMonitorDisplayMode(this->_attributes.id)) {
+      if (refreshAttributes) {
+        if (this->_attributes.isPrimary) {
+          _readPrimaryDisplayMonitorInfo(this->_handle, this->_attributes);
+        }
+        else
+          _readDisplayMonitorAttributes(this->_handle, this->_attributes);
+      }
+      return true;
+    }
+    return false;
+  }
 
-  // list all display modes for an output device
-  static inline std::vector<DisplayMode> _listDisplayModes(const DisplayMonitor::DeviceId& id) noexcept {
+  // list all display modes of a monitor
+  std::vector<DisplayMode> DisplayMonitor::listAvailableDisplayModes() const noexcept {
     std::vector<DisplayMode> modes;
     BOOL result = TRUE;
     for (DWORD index = 0; result != FALSE; ++index) {
@@ -240,174 +334,25 @@ using namespace pandora::hardware;
       ZeroMemory(&info, sizeof(info));
       info.dmSize = sizeof(info);
 
-      result = EnumDisplaySettingsExW(id.c_str(), index, &info, 0);
+      result = EnumDisplaySettingsExW(this->_attributes.id.c_str(), index, &info, 0);
       if (result != FALSE && info.dmPelsWidth != 0u && info.dmPelsHeight != 0u && (info.dmBitsPerPel >= 15u || info.dmBitsPerPel == 0))
         modes.push_back(DisplayMode{ info.dmPelsWidth, info.dmPelsHeight, info.dmBitsPerPel, info.dmDisplayFrequency });
     }
+
+    if (modes.empty())
+      modes.emplace_back(getDisplayMode());
     return modes;
   }
 
-#elif defined(__APPLE__) && defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE // iOS implementation
-  static bool _readDisplayMonitorAttributes(DisplayMonitor::Handle monitorHandle, DisplayMonitor::Attributes& outAttr) noexcept { return false; }
-  static inline bool _isHandleValid(DisplayMonitor::Handle monitorHandle) noexcept { return (monitorHandle != 0); }
-  static inline void _readPrimaryDisplayMonitorInfo(DisplayMonitor::Handle& outHandle, DisplayMonitor::Attributes& outAttr) {}
-  static inline DisplayMonitor::Handle _getDisplayMonitorById(DisplayMonitor::DeviceId id, DisplayMonitor::Attributes* outAttr) noexcept { return 0; }
-  static inline bool _listDisplayMonitors(std::vector<DisplayMonitor::Handle>& out) { return false; }
-  static inline bool _getMonitorDisplayMode(const DisplayMonitor::DeviceId& id, DisplayMode& out) noexcept { return false; }
-  static inline bool _setMonitorDisplayMode(const DisplayMonitor::DeviceId& id, const DisplayMode& mode) noexcept { return false; }
-  static inline bool _setDefaultMonitorDisplayMode(const DisplayMonitor::DeviceId& id) noexcept { return false; }
-  static inline std::vector<DisplayMode> _listDisplayModes(const DisplayMonitor::DeviceId& id) noexcept { return {}; }
 
-#elif defined(__APPLE__) // Mac OS implementation
-  static bool _readDisplayMonitorAttributes(DisplayMonitor::Handle monitorHandle, DisplayMonitor::Attributes& outAttr) noexcept { return false; }
-  static inline bool _isHandleValid(DisplayMonitor::Handle monitorHandle) noexcept { return (monitorHandle != 0); }
-  static inline void _readPrimaryDisplayMonitorInfo(DisplayMonitor::Handle& outHandle, DisplayMonitor::Attributes& outAttr) {}
-  static inline DisplayMonitor::Handle _getDisplayMonitorById(DisplayMonitor::DeviceId id, DisplayMonitor::Attributes* outAttr) noexcept { return 0; }
-  static inline bool _listDisplayMonitors(std::vector<DisplayMonitor::Handle>& out) { return false; }
-  static inline bool _getMonitorDisplayMode(const DisplayMonitor::DeviceId& id, DisplayMode& out) noexcept { return false; }
-  static inline bool _setMonitorDisplayMode(const DisplayMonitor::DeviceId& id, const DisplayMode& mode) noexcept { return false; }
-  static inline bool _setDefaultMonitorDisplayMode(const DisplayMonitor::DeviceId& id) noexcept { return false; }
-  static inline std::vector<DisplayMode> _listDisplayModes(const DisplayMonitor::DeviceId& id) noexcept { return {}; }
+// -- DPI awareness -- ---------------------------------------------------------
 
-#elif defined(__ANDROID__) // Android implementation
-  static bool _readDisplayMonitorAttributes(DisplayMonitor::Handle monitorHandle, DisplayMonitor::Attributes& outAttr) noexcept { return false; }
-  static inline bool _isHandleValid(DisplayMonitor::Handle monitorHandle) noexcept { return (monitorHandle != 0); }
-  static inline void _readPrimaryDisplayMonitorInfo(DisplayMonitor::Handle& outHandle, DisplayMonitor::Attributes& outAttr) {}
-  static inline DisplayMonitor::Handle _getDisplayMonitorById(DisplayMonitor::DeviceId id, DisplayMonitor::Attributes* outAttr) noexcept { return 0; }
-  static inline bool _listDisplayMonitors(std::vector<DisplayMonitor::Handle>& out) { return false; }
-  static inline bool _getMonitorDisplayMode(const DisplayMonitor::DeviceId& id, DisplayMode& out) noexcept { return false; }
-  static inline bool _setMonitorDisplayMode(const DisplayMonitor::DeviceId& id, const DisplayMode& mode) noexcept { return false; }
-  static inline bool _setDefaultMonitorDisplayMode(const DisplayMonitor::DeviceId& id) noexcept { return false; }
-  static inline std::vector<DisplayMode> _listDisplayModes(const DisplayMonitor::DeviceId& id) noexcept { return {}; }
-
-#elif defined(__linux__) || defined(__linux) || defined(__unix__) || defined(__unix) // -- monitor description - X11 implementation --
-  static bool _readDisplayMonitorAttributes(DisplayMonitor::Handle monitorHandle, DisplayMonitor::Attributes& outAttr) noexcept { return false; }
-  static inline bool _isHandleValid(DisplayMonitor::Handle monitorHandle) noexcept { return (monitorHandle != 0); }
-  static inline void _readPrimaryDisplayMonitorInfo(DisplayMonitor::Handle& outHandle, DisplayMonitor::Attributes& outAttr) {}
-  static inline DisplayMonitor::Handle _getDisplayMonitorById(DisplayMonitor::DeviceId id, DisplayMonitor::Attributes* outAttr) noexcept { return 0; }
-  static inline bool _listDisplayMonitors(std::vector<DisplayMonitor::Handle>& out) { return false; }
-  static inline bool _getMonitorDisplayMode(const DisplayMonitor::DeviceId& id, DisplayMode& out) noexcept { return false; }
-  static inline bool _setMonitorDisplayMode(const DisplayMonitor::DeviceId& id, const DisplayMode& mode) noexcept { return false; }
-  static inline bool _setDefaultMonitorDisplayMode(const DisplayMonitor::DeviceId& id) noexcept { return false; }
-  static inline std::vector<DisplayMode> _listDisplayModes(const DisplayMonitor::DeviceId& id) noexcept { return {}; }
-#endif
-
-
-// -- monitor description - common -- ------------------------------------------
-
-DisplayMonitor::DisplayMonitor() noexcept {
-  _readPrimaryDisplayMonitorInfo(this->_handle, this->_attributes);
-}
-DisplayMonitor::DisplayMonitor(Handle monitorHandle, bool usePrimaryAsDefault)
-  : _handle(monitorHandle) {
-  if (!_isHandleValid(this->_handle) || !_readDisplayMonitorAttributes(this->_handle, this->_attributes)) {
-    if (usePrimaryAsDefault)
-      _readPrimaryDisplayMonitorInfo(this->_handle, this->_attributes);
-    else
-      throw std::invalid_argument("DisplayMonitor: monitor handle is invalid or can't be used.");
-  }
-}
-DisplayMonitor::DisplayMonitor(const DisplayMonitor::DeviceId& id, bool usePrimaryAsDefault) {
-  this->_handle = _getDisplayMonitorById(id, &(this->_attributes));
-  if (!_isHandleValid(this->_handle)) {
-    if (usePrimaryAsDefault)
-      _readPrimaryDisplayMonitorInfo(this->_handle, this->_attributes);
-    else
-      throw std::invalid_argument("DisplayMonitor: monitor ID was not found on system.");
-  }
-}
-DisplayMonitor::DisplayMonitor(uint32_t index, bool usePrimaryAsDefault) {
-  std::vector<DisplayMonitor::Handle> handles;
-  if (_listDisplayMonitors(handles) && index < handles.size())
-    this->_handle = handles[index];
-  if (!_isHandleValid(this->_handle) || !_readDisplayMonitorAttributes(this->_handle, this->_attributes)) {
-    if (usePrimaryAsDefault)
-      _readPrimaryDisplayMonitorInfo(this->_handle, this->_attributes);
-    else
-      throw std::invalid_argument("DisplayMonitor: monitor index was not found on system.");
-  }
-}
-
-std::vector<DisplayMonitor> DisplayMonitor::listAvailableMonitors() noexcept {
-  std::vector<DisplayMonitor> monitors;
-
-  std::vector<DisplayMonitor::Handle> handles;
-  if (_listDisplayMonitors(handles)) {
-    for (auto it : handles) {
-      try {
-        monitors.emplace_back(it, false);
-      }
-      catch (...) {}
-    }
-  }
-
-  if (monitors.empty()) { // primary monitor as default
-    monitors.emplace_back();
-    if (monitors[0].attributes().screenArea.width == 0) // no display monitor
-      monitors.clear();
-  }
-  return monitors;
-}
-
-
-// -- display mode - common -- -------------------------------------------------
-
-DisplayMode DisplayMonitor::getDisplayMode() const noexcept {
-  DisplayMode mode;
-  if (!_getMonitorDisplayMode(this->_attributes.id, mode)) {
-    mode.width = this->_attributes.screenArea.width;
-    mode.height = this->_attributes.screenArea.height;
-    mode.bitDepth = 32;
-    mode.refreshRate = undefinedRefreshRate();
-  }
-  return mode;
-}
-bool DisplayMonitor::setDisplayMode(const DisplayMode& mode, bool refreshAttributes) noexcept {
-  if (_setMonitorDisplayMode(this->_attributes.id, mode)) {
-    if (refreshAttributes) {
-      if (this->_attributes.isPrimary) {
-        _readPrimaryDisplayMonitorInfo(this->_handle, this->_attributes);
-      }
-      else if (!_readDisplayMonitorAttributes(this->_handle, this->_attributes)) {
-        this->_attributes.screenArea.width = mode.width;
-        this->_attributes.screenArea.height = mode.height;
-      }
-    }
-    return true;
-  }
-  return false;
-}
-bool DisplayMonitor::setDefaultDisplayMode(bool refreshAttributes) noexcept {
-  if (_setDefaultMonitorDisplayMode(this->_attributes.id)) {
-    if (refreshAttributes) {
-      if (this->_attributes.isPrimary) {
-        _readPrimaryDisplayMonitorInfo(this->_handle, this->_attributes);
-      }
-      else
-        _readDisplayMonitorAttributes(this->_handle, this->_attributes);
-    }
-    return true;
-  }
-  return false;
-}
-
-std::vector<DisplayMode> DisplayMonitor::listAvailableDisplayModes() const noexcept {
-  std::vector<DisplayMode> modes = _listDisplayModes(this->_attributes.id);
-  if (modes.empty())
-    modes.emplace_back(getDisplayMode());
-  return modes;
-}
-
-
-// -- DPI awareness - implementations -- ---------------------------------------
-
-bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
-# ifdef _WINDOWS
+  bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
 #   if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS2)
       return (SetProcessDpiAwarenessContext(isEnabled ? DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 : DPI_AWARENESS_CONTEXT_UNAWARE) != FALSE
            || SetProcessDpiAwareness(isEnabled ? PROCESS_PER_MONITOR_DPI_AWARE : PROCESS_DPI_UNAWARE) == S_OK);
 #   else
-      Win32Libraries& libs = Win32Libraries::instance();
+      LibrariesWin32& libs = LibrariesWin32::instance();
       if (libs.isAtLeastWindows10_RS2() && libs.user32.SetProcessDpiAwarenessContext_
       && libs.user32.SetProcessDpiAwarenessContext_(isEnabled ? DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 : DPI_AWARENESS_CONTEXT_UNAWARE) != FALSE)
         return true;
@@ -421,16 +366,12 @@ bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
         return (isEnabled && SetProcessDPIAware() != FALSE);
 #     endif
 #   endif
-# else
-    return true;
-# endif
-}
+  }
 
-#ifdef _WINDOWS
   // read per-window/per-monitor DPI if supported, or system DPI (if DPI aware process)
   void DisplayMonitor::getMonitorDpi(DisplayMonitor::WindowHandle windowHandle, uint32_t& outDpiX, uint32_t& outDpiY) const noexcept {
 #   if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_WIN10_RS1)
-      Win32Libraries& libs = Win32Libraries::instance();
+      LibrariesWin32& libs = LibrariesWin32::instance();
 #   endif
 
     // per monitor DPI (better, but only if Win10 RS1+ and valid window handle)
@@ -474,17 +415,9 @@ bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
 
   uint32_t DisplayMonitor::getBaseDpi() noexcept { return USER_DEFAULT_SCREEN_DPI; }
 
-#else
-  void DisplayMonitor::getMonitorDpi(DisplayMonitor::WindowHandle windowHandle, uint32_t outDpiX, uint32_t outDpiY) const noexcept {
-
-  }
-  uint32_t DisplayMonitor::getBaseDpi() noexcept { return 72u; }
-#endif
-
 
 // -- metrics -- ---------------------------------------------------------------
 
-#ifdef _WINDOWS
   // read system metrics with DPI, if supported
 # if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS1)
     static inline int32_t __getSystemMetrics(int index, uint32_t dpi, int32_t defaultValue) noexcept {
@@ -495,7 +428,7 @@ bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
       return (value > 0) ? static_cast<int32_t>(value) : defaultValue;
     }
 # else
-    static inline int32_t __getSystemMetrics_impl(int index, uint32_t dpi, int32_t defaultValue, Win32Libraries& libs) noexcept {
+    static inline int32_t __getSystemMetrics_impl(int index, uint32_t dpi, int32_t defaultValue, LibrariesWin32& libs) noexcept {
       if (libs.isAtLeastWindows10_RS1() && libs.user32.GetSystemMetricsForDpi_) {
         int value = libs.user32.GetSystemMetricsForDpi_(index, dpi);
         if (value > 0)
@@ -508,9 +441,9 @@ bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
 # endif
 
   // manually calculate window area from client area
-  static DisplayArea __calculateWindowArea(const DisplayArea& clientArea, DWORD styleFlags, DWORD styleExtendedFlags, bool hasMenu, int32_t dpiX, int32_t dpiY) noexcept {
+  static DisplayArea _calculateWindowArea(const DisplayArea& clientArea, DWORD styleFlags, DWORD styleExtendedFlags, bool hasMenu, int32_t dpiX, int32_t dpiY) noexcept {
 #   if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_WIN10_RS1)
-      Win32Libraries& libs = Win32Libraries::instance(); // used by macro __getSystemMetrics if NTDDI_VERSION < NTDDI_WIN10_RS1
+      LibrariesWin32& libs = LibrariesWin32::instance(); // used by macro __getSystemMetrics if NTDDI_VERSION < NTDDI_WIN10_RS1
 #   endif
 
     int32_t borderLeft = 0;
@@ -545,13 +478,27 @@ bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
   }
 
   // client area to window area (DPI adjusted)
-  DisplayArea DisplayMonitor::convertClientAreaToWindowArea(const DisplayArea& clientArea, DisplayMonitor::WindowHandle windowHandle, bool hasMenu, uint32_t nativeStyleFlags) const noexcept {
+  DisplayArea DisplayMonitor::convertClientAreaToWindowArea(const DisplayArea& clientArea, DisplayMonitor::WindowHandle windowHandle, bool hasMenu, 
+                                                            uint32_t nativeStyleFlags, uint32_t nativeSecondaryFlags) const noexcept {
     uint32_t dpiX, dpiY;
     getMonitorDpi(windowHandle, dpiX, dpiY);
-    DWORD styleFlags = GetWindowLongW((HWND)windowHandle, GWL_STYLE);
-    if (styleFlags == 0)
+
+    DWORD styleFlags;
+    if (windowHandle != nullptr) {
+      styleFlags = GetWindowLongW((HWND)windowHandle, GWL_STYLE);
+      if (styleFlags == 0)
+        styleFlags = nativeStyleFlags;
+    }
+    else
       styleFlags = nativeStyleFlags;
-    DWORD styleExtendedFlags = GetWindowLongW((HWND)windowHandle, GWL_EXSTYLE);
+    DWORD styleExtendedFlags;
+    if (windowHandle != nullptr) {
+      styleExtendedFlags = GetWindowLongW((HWND)windowHandle, GWL_EXSTYLE);
+      if (styleExtendedFlags == 0)
+        styleExtendedFlags = nativeSecondaryFlags;
+    }
+    else
+      styleExtendedFlags = nativeSecondaryFlags;
 
     RECT area;
     area.left = static_cast<LONG>(clientArea.x);
@@ -562,7 +509,7 @@ bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
 #   if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_WIN10_RS1)
       bool isSuccess = (AdjustWindowRectExForDpi(&area, styleFlags, hasMenu ? TRUE : FALSE, styleExtendedFlags, dpiY) != FALSE);
 #   else
-      Win32Libraries& libs = Win32Libraries::instance();
+      LibrariesWin32& libs = LibrariesWin32::instance();
       bool isSuccess = (libs.isAtLeastWindows10_RS1() && libs.user32.AdjustWindowRectExForDpi_
                      && libs.user32.AdjustWindowRectExForDpi_(&area, styleFlags, hasMenu ? TRUE : FALSE, styleExtendedFlags, dpiY) != FALSE);
 #   endif
@@ -574,11 +521,8 @@ bool DisplayMonitor::setDpiAwareness(bool isEnabled) noexcept {
       return DisplayArea{ area.left, area.top, static_cast<uint32_t>(area.right - area.left), static_cast<uint32_t>(area.bottom - area.top) };
     }
     else
-      return __calculateWindowArea(clientArea, styleFlags, styleExtendedFlags, hasMenu, static_cast<int32_t>(dpiX), static_cast<int32_t>(dpiY));
+      return _calculateWindowArea(clientArea, styleFlags, styleExtendedFlags, hasMenu, static_cast<int32_t>(dpiX), static_cast<int32_t>(dpiY));
   }
 
-#else
-  DisplayArea DisplayMonitor::convertClientAreaToWindowArea(const DisplayArea& clientArea, DisplayMonitor::WindowHandle windowHandle, bool hasMenu, uint32_t nativeStyleFlags) const noexcept {
-    return DisplayArea{ 0, 0, 0, 0 };
-  }
+# pragma warning(pop)
 #endif

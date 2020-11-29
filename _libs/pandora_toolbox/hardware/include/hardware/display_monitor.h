@@ -117,7 +117,8 @@ namespace pandora {
 
       /// @brief Measure, depending on monitor config and DPI, expected window size, based on client area.
       /// @remarks Native style flags are optional. They'll only be used if the style can't be read from the window handle.
-      DisplayArea convertClientAreaToWindowArea(const DisplayArea& clientArea, WindowHandle windowHandle, bool hasMenu = false, uint32_t nativeStyleFlags = 0) const noexcept;
+      DisplayArea convertClientAreaToWindowArea(const DisplayArea& clientArea, WindowHandle windowHandle, bool hasMenu = false, 
+                                                uint32_t nativeStyleFlags = 0, uint32_t nativeSecondaryFlags = 0) const noexcept;
 
     private:
       Handle _handle = (Handle)0;
