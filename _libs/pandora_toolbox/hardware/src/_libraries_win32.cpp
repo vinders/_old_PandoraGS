@@ -5,7 +5,6 @@ License :     MIT
 #ifdef _WINDOWS
 # pragma warning(push)
 # pragma warning(disable : 26812)
-# include <stdexcept>
 # include "hardware/_private/_libraries_win32.h"
 
 # if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_WIN10_RS2)
@@ -49,21 +48,24 @@ License :     MIT
 
     // -- init --
 
-    void LibrariesWin32::_init() noexcept {
+    void LibrariesWin32::init() noexcept {
+      if (this->_isInit)
+        return;
+    
       // load system libraries
-      LibrariesWin32::_libs.user32.instance = LoadLibraryA("user32.dll");
-      if (LibrariesWin32::_libs.user32.instance != nullptr) {
-        LibrariesWin32::_libs.user32.SetProcessDpiAwarenessContext_ = (__win32_SetProcessDpiAwarenessContext)GetProcAddress(LibrariesWin32::_libs.user32.instance, "SetProcessDpiAwarenessContext");
-        LibrariesWin32::_libs.user32.EnableNonClientDpiScaling_ = (__win32_EnableNonClientDpiScaling)GetProcAddress(LibrariesWin32::_libs.user32.instance, "EnableNonClientDpiScaling");
-        LibrariesWin32::_libs.user32.GetDpiForWindow_ = (__win32_GetDpiForWindow)GetProcAddress(LibrariesWin32::_libs.user32.instance, "GetDpiForWindow");
-        LibrariesWin32::_libs.user32.GetSystemMetricsForDpi_ = (__win32_GetSystemMetricsForDpi)GetProcAddress(LibrariesWin32::_libs.user32.instance, "GetSystemMetricsForDpi");
-        LibrariesWin32::_libs.user32.AdjustWindowRectExForDpi_ = (__win32_AdjustWindowRectExForDpi)GetProcAddress(LibrariesWin32::_libs.user32.instance, "AdjustWindowRectExForDpi");
+      this->user32.instance = LoadLibraryA("user32.dll");
+      if (this->user32.instance != nullptr) {
+        this->user32.SetProcessDpiAwarenessContext_ = (__win32_SetProcessDpiAwarenessContext)GetProcAddress(this->user32.instance, "SetProcessDpiAwarenessContext");
+        this->user32.EnableNonClientDpiScaling_ = (__win32_EnableNonClientDpiScaling)GetProcAddress(this->user32.instance, "EnableNonClientDpiScaling");
+        this->user32.GetDpiForWindow_ = (__win32_GetDpiForWindow)GetProcAddress(this->user32.instance, "GetDpiForWindow");
+        this->user32.GetSystemMetricsForDpi_ = (__win32_GetSystemMetricsForDpi)GetProcAddress(this->user32.instance, "GetSystemMetricsForDpi");
+        this->user32.AdjustWindowRectExForDpi_ = (__win32_AdjustWindowRectExForDpi)GetProcAddress(this->user32.instance, "AdjustWindowRectExForDpi");
       }
 
-      LibrariesWin32::_libs.shcore.instance = LoadLibraryA("shcore.dll");
-      if (LibrariesWin32::_libs.shcore.instance != nullptr) {
-        LibrariesWin32::_libs.shcore.SetProcessDpiAwareness_ = (__win32_SetProcessDpiAwareness)GetProcAddress(LibrariesWin32::_libs.shcore.instance, "SetProcessDpiAwareness");
-        LibrariesWin32::_libs.shcore.GetDpiForMonitor_ = (__win32_GetDpiForMonitor)GetProcAddress(LibrariesWin32::_libs.shcore.instance, "GetDpiForMonitor");
+      this->shcore.instance = LoadLibraryA("shcore.dll");
+      if (this->shcore.instance != nullptr) {
+        this->shcore.SetProcessDpiAwareness_ = (__win32_SetProcessDpiAwareness)GetProcAddress(this->shcore.instance, "SetProcessDpiAwareness");
+        this->shcore.GetDpiForMonitor_ = (__win32_GetDpiForMonitor)GetProcAddress(this->shcore.instance, "GetDpiForMonitor");
       }
 
       // identify windows compatibility
@@ -73,32 +75,35 @@ License :     MIT
         verifyVersionInfo_ = (__win32_RtlVerifyVersionInfo)GetProcAddress(ntdll_instance, "RtlVerifyVersionInfo");
 
       if (_isWindowsVersionGreaterOrEqual(verifyVersionInfo_, 10u, 0u, __P_WIN_10_RS2_BUILD))
-        LibrariesWin32::_libs._windowsReferenceBuild = __P_WIN_10_RS2_BUILD;
+        this->_windowsReferenceBuild = __P_WIN_10_RS2_BUILD;
       else if (_isWindowsVersionGreaterOrEqual(verifyVersionInfo_, 10u, 0u, __P_WIN_10_RS1_BUILD))
-        LibrariesWin32::_libs._windowsReferenceBuild = __P_WIN_10_RS1_BUILD;
+        this->_windowsReferenceBuild = __P_WIN_10_RS1_BUILD;
       else if (_isWindowsVersionGreaterOrEqual(verifyVersionInfo_, HIBYTE(_WIN32_WINNT_WINBLUE), LOBYTE(_WIN32_WINNT_WINBLUE), __P_WIN_8_1_BLUE_BUILD))
-        LibrariesWin32::_libs._windowsReferenceBuild = __P_WIN_8_1_BLUE_BUILD;
+        this->_windowsReferenceBuild = __P_WIN_8_1_BLUE_BUILD;
       else if (_isWindowsVersionGreaterOrEqual(verifyVersionInfo_, HIBYTE(_WIN32_WINNT_WIN7), LOBYTE(_WIN32_WINNT_WIN7), __P_WIN_7_BUILD))
-        LibrariesWin32::_libs._windowsReferenceBuild = __P_WIN_7_BUILD;
+        this->_windowsReferenceBuild = __P_WIN_7_BUILD;
       else
-        LibrariesWin32::_libs._windowsReferenceBuild = __P_WIN_VISTA_SP1_BUILD;
+        this->_windowsReferenceBuild = __P_WIN_VISTA_SP1_BUILD;
 
       if (ntdll_instance != nullptr)
         FreeLibrary(ntdll_instance);
 
-      LibrariesWin32::_libs._isInit = true;
+      this->_isInit = true;
     }
 
     // -- shutdown --
 
-    LibrariesWin32::~LibrariesWin32() {
-      if (user32.instance != nullptr)
+    void LibrariesWin32::shutdown() noexcept {
+      if (this->user32.instance != nullptr) {
         FreeLibrary(user32.instance);
-      if (shcore.instance != nullptr)
+        this->user32.instance = nullptr;
+      }
+      if (this->shcore.instance != nullptr) {
         FreeLibrary(shcore.instance);
-
-      user32.instance = nullptr;
-      shcore.instance = nullptr;
+        this->shcore.instance = nullptr;
+      }
+      
+      this->_isInit = false;
     }
 # endif
 # pragma warning(pop)

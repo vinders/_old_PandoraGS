@@ -42,16 +42,18 @@ License :     MIT
         typedef BOOL (WINAPI * __win32_SetProcessDpiAwarenessContext)(HANDLE);
         typedef BOOL (WINAPI * __win32_EnableNonClientDpiScaling)(HWND);
         typedef UINT (WINAPI * __win32_GetDpiForWindow)(HWND);
-        typedef int (WINAPI * __win32_GetSystemMetricsForDpi)(int,UINT);
+        typedef int  (WINAPI * __win32_GetSystemMetricsForDpi)(int,UINT);
         typedef BOOL (WINAPI * __win32_AdjustWindowRectExForDpi)(LPRECT,DWORD,BOOL,DWORD,UINT);
 
         // shcore.dll functions
         typedef HRESULT (WINAPI * __win32_SetProcessDpiAwareness)(PROCESS_DPI_AWARENESS);
         typedef HRESULT (WINAPI * __win32_GetDpiForMonitor)(HMONITOR,MONITOR_DPI_TYPE,UINT*,UINT*);
 
+
+        // library loader - Win32
         struct LibrariesWin32 final {
           LibrariesWin32() = default;
-          ~LibrariesWin32(); // shutdown
+          ~LibrariesWin32() noexcept { shutdown(); }
 
           struct {
             HINSTANCE                             instance = nullptr;
@@ -66,13 +68,7 @@ License :     MIT
             __win32_SetProcessDpiAwareness  SetProcessDpiAwareness_ = nullptr;
             __win32_GetDpiForMonitor        GetDpiForMonitor_ = nullptr;
           } shcore;
-
-          // get global instance
-          static inline LibrariesWin32& instance() noexcept {
-            if (!_libs._isInit)
-              _libs._init();
-            return _libs;
-          }
+          
           // verify if Windows version >= Windows 10 Creators RS2
           inline bool isAtLeastWindows10_RS2() const noexcept { return (_windowsReferenceBuild >= __P_WIN_10_RS2_BUILD); }
           // verify if Windows version >= Windows 10 Anniversary RS1
@@ -82,9 +78,18 @@ License :     MIT
           // verify if Windows version >= Windows 7
           inline bool isAtLeastWindows7() const noexcept { return (_windowsReferenceBuild >= __P_WIN_7_BUILD); }
 
-        private:
+          
           // initialize available libraries
-          void _init() noexcept;
+          void init() noexcept;
+          // close libraries
+          void shutdown() noexcept;
+          
+          // get global instance
+          static inline LibrariesWin32& instance() noexcept {
+            if (!_libs._isInit)
+              _libs.init();
+            return _libs;
+          }
 
         private:
           bool _isInit = false;
