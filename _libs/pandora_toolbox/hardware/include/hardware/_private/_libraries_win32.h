@@ -6,6 +6,7 @@ License :     MIT
 
 #ifdef _WINDOWS
 # include <cstddef>
+# include <cstdint>
 # include <system/api/windows_api.h>
 
 # ifndef DPI_ENUMS_DECLARED
@@ -70,13 +71,13 @@ License :     MIT
           } shcore;
           
           // verify if Windows version >= Windows 10 Creators RS2
-          inline bool isAtLeastWindows10_RS2() const noexcept { return (_windowsReferenceBuild >= __P_WIN_10_RS2_BUILD); }
+          inline bool isAtLeastWindows10_RS2() const noexcept { return (this->_windowsReferenceBuild >= __P_WIN_10_RS2_BUILD); }
           // verify if Windows version >= Windows 10 Anniversary RS1
-          inline bool isAtLeastWindows10_RS1() const noexcept { return (_windowsReferenceBuild >= __P_WIN_10_RS1_BUILD); }
+          inline bool isAtLeastWindows10_RS1() const noexcept { return (this->_windowsReferenceBuild >= __P_WIN_10_RS1_BUILD); }
           // verify if Windows version >= Windows 8.1 Blue
-          inline bool isAtLeastWindows8_1_Blue() const noexcept { return (_windowsReferenceBuild >= __P_WIN_8_1_BLUE_BUILD); }
+          inline bool isAtLeastWindows8_1_Blue() const noexcept { return (this->_windowsReferenceBuild >= __P_WIN_8_1_BLUE_BUILD); }
           // verify if Windows version >= Windows 7
-          inline bool isAtLeastWindows7() const noexcept { return (_windowsReferenceBuild >= __P_WIN_7_BUILD); }
+          inline bool isAtLeastWindows7() const noexcept { return (this->_windowsReferenceBuild >= __P_WIN_7_BUILD); }
 
           
           // initialize available libraries

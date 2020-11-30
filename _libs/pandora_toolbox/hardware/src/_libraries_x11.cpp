@@ -147,17 +147,19 @@ License :     MIT
   // -- shutdown --
 
   void LibrariesX11::shutdown() noexcept {
-    if (this->displayServer) {
-        XCloseDisplay(this->displayServer);
-        this->displayServer = nullptr;
+    if (this->displayServer != nullptr) {
+      XCloseDisplay(this->displayServer);
+      this->displayServer = nullptr;
     }
     if (this->randr.instance != nullptr) {
-        _freeLibrary(this->randr.instance);
-        this->randr.instance = nullptr;
+      this->randr.isAvailable = false;
+      _freeLibrary(this->randr.instance);
+      this->randr.instance = nullptr;
     }
     if (this->xinerama.instance != nullptr) {
-        _freeLibrary(this->xinerama.instance);
-        this->xinerama.instance = nullptr;
+      this->xinerama.isAvailable = false;
+      _freeLibrary(this->xinerama.instance);
+      this->xinerama.instance = nullptr;
     }
     
     this->_isInit = false;
