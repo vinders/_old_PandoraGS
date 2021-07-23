@@ -11,6 +11,8 @@ Due to real-life problems (renovating my house, for example), the development of
 In the meantime, I've evolved professionally and learned lots of new techs. 
 
 ### Project rebirth:
+> New repository: [gpu_pandora_GS](https://github.com/vinders/gpu_pandora_GS)
+
 This project will be restarted from scratch, using the things I've learned (test-driven dev, continuous integration, advanced testing and benchmarks, portable coding, CMake, C++17, Python scripts, gamma correction...).
 
 It will most likely rely on the toolbox libraries I'm currently working on (see my 'pandora_toolbox' repo). It'll probably start as soon as I'm done with the portability of the DisplayMonitor/Window/WindowStyle features I'm working on, and with a basic Direct3D11 & OpenGL4 pipeline. 
@@ -25,4 +27,4 @@ This will imply a few difference with the original project:
 * accuracy: the emulation will be as accurate as possible (but will also provide improvements: subpixel precision, video filters, upscaling...)
 * goodies: utility to preview video filters through the plugin pipeline.
 
-Since this old repo is polluted with old code and binary files, I'll probably create a new repository (also to cleanup history and reduce the .git dir size).
+Since this old repo is polluted with old code and binary files, I've created a new repository (also to cleanup history and reduce the .git dir size).
